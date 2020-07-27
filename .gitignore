@@ -1,0 +1,7 @@
+*.egg-info
+.coverage
+.mypy_cache
+.pytest_cache
+.python-version
+__pycache__
+skeleton-aws-lambda.zip
