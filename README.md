@@ -1,25 +1,73 @@
-# skeleton-aws-lambda #
+# Domain Manager
 
-[![GitHub Build Status](https://github.com/cisagov/skeleton-aws-lambda/workflows/build/badge.svg)](https://github.com/cisagov/skeleton-aws-lambda/actions)
-[![Coverage Status](https://coveralls.io/repos/github/cisagov/skeleton-aws-lambda/badge.svg?branch=develop)](https://coveralls.io/github/cisagov/skeleton-aws-lambda?branch=develop)
-[![Total alerts](https://img.shields.io/lgtm/alerts/g/cisagov/skeleton-aws-lambda.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/cisagov/skeleton-aws-lambda/alerts/)
-[![Language grade: Python](https://img.shields.io/lgtm/grade/python/g/cisagov/skeleton-aws-lambda.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/cisagov/skeleton-aws-lambda/context:python)
-[![Known Vulnerabilities](https://snyk.io/test/github/cisagov/skeleton-aws-lambda/develop/badge.svg)](https://snyk.io/test/github/cisagov/skeleton-aws-lambda)
+Domain Categorization and Management
 
-This is a generic skeleton project that can be used to quickly get a
-new [cisagov](https://github.com/cisagov) Python AWS Lambda GitHub
-project started.  This skeleton project contains [licensing
-information](LICENSE), as well as
-[pre-commit hooks](https://pre-commit.com) and
-[GitHub Actions](https://github.com/features/actions) configurations
-appropriate for a Python based AWS Lambda.
+## Required
 
-## Contributing ##
+Get the right flavor of Docker for your OS...
+
+- [Docker for Mac](https://docs.docker.com/docker-for-mac/install/)
+- [Docker for Ubuntu](https://docs.docker.com/install/linux/docker-ce/ubuntu/)
+- [Docker for Windows](https://docs.docker.com/docker-for-windows/install/)
+
+**Note:** The recommended requirement for deployment of this project is 4 GB RAM.
+For Docker for Mac, this can be set by following these steps:
+
+Open Docker > Preferences > Advanced tab, then set memory to 4.0 GiB
+
+## Setup project locally
+
+1. Copy your env vars:
+    - `cp etc/env.dist .env`
+
+2. Build containers:
+
+   - `make build`
+
+3. Run Containers
+
+   - `make up`
+
+4. Run flask logs in the terminal
+
+   - `make logs`
+
+5. Application running at:
+
+   - `localhost:5000`
+
+## Other commands
+
+Run live flask logs in the terminal
+
+- `make logs`
+
+Stop containers
+
+- `make stop`
+
+Remove containers
+
+- `make down`
+
+Shell into container
+
+- `make shell`
+
+Run pre-commit:
+
+- `pre-commit run --all-files`
+
+Count lines of code
+
+- `make loc`
+
+## Contributing
 
 We welcome contributions!  Please see [here](CONTRIBUTING.md) for
 details.
 
-## License ##
+## License
 
 This project is in the worldwide [public domain](LICENSE).
 

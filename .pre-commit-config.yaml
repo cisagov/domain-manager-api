@@ -103,10 +103,10 @@ repos:
       # above have been resolved, which we hope will be with the release of
       # Terraform 0.13.
       # - id: terraform_validate
-  - repo: https://github.com/IamTheFij/docker-pre-commit
-    rev: v2.0.0
-    hooks:
-      - id: docker-compose-check
+  # - repo: https://github.com/IamTheFij/docker-pre-commit
+  #   rev: v2.0.0
+  #   hooks:
+  #     - id: docker-compose-check
   - repo: https://github.com/prettier/prettier
     rev: 2.0.5
     hooks:
