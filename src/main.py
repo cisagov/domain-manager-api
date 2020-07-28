@@ -2,7 +2,6 @@ import os
 from datetime import datetime
 
 from flask import Flask, jsonify
-from pymongo import MongoClient
 
 from apps.api import api
 
@@ -10,7 +9,7 @@ from apps.api import api
 app = Flask(__name__)
 
 
-# register views
+# register apps
 app.register_blueprint(api)
 
 
