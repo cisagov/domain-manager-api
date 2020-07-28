@@ -10,8 +10,8 @@ class DomainModel(Model):
     domain_uuid = UUIDType()
     name = StringType(required=True)
     url = StringType(required=True)
-    cb_timestamp = DateTimeType()
-    lub_timestamp = DateTimeType()
+    created_by = StringType(required=True)
+    last_updated = DateTimeType()
 
 
 def validate_domain(data_object):

@@ -14,10 +14,31 @@ api = Blueprint("api", __name__, url_prefix="/api")
 
 # Schemas
 domains_schema = DomainSerializer(many=True)
+domain_schema = DomainSerializer()
 
 
-@api.route("/domains/", methods=["GET"])
+@api.route("/domains/", methods=["GET", "POST"])
 def domain_list():
-    """Get a list of domains."""
-    domain_list = get_list(request.get_json(), "domain", DomainModel, validate_domain)
-    return domains_schema.dump(domain_list)
+    """
+    Get a list of domains.
+    Create a new domain object.
+    """
+    post_data = request.get_json()
+    if request.method == "POST":
+
+        domain_filter = {
+            "name": post_data.get("name"),
+        }
+        existing_domain = get_list(
+            domain_filter, "domain", DomainModel, validate_domain
+        )
+        if existing_domain:
+            return jsonify({"message": "A domain with this name already exists."}), 202
+
+        response = save_single(post_data, "domain", DomainModel, validate_domain)
+    else:
+        response = domains_schema.dump(
+            get_list(post_data, "domain", DomainModel, validate_domain)
+        )
+
+    return jsonify(response), 200

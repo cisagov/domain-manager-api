@@ -8,5 +8,5 @@ class DomainSerializer(Schema):
 
     name = fields.Str(required=True)
     url = fields.Str(required=True)
-    cb_timestamp = fields.DateTime()
-    lub_timestamp = fields.DateTime()
+    created_by = fields.Str(required=True)
+    last_updated = fields.DateTime()

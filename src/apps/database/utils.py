@@ -81,8 +81,8 @@ def save_single(post_data, collection, model, validation_model):
     create_timestamp = datetime.datetime.utcnow()
     current_user = "dev user"
     post_data["{}_uuid".format(collection)] = str(uuid.uuid4())
-    post_data["created_by"] = post_data["last_updated_by"] = current_user
-    post_data["cb_timestamp"] = post_data["lub_timestamp"] = create_timestamp
+    post_data["created_by"] = post_data["created_by"] = current_user
+    post_data["last_updated"] = post_data["last_updated"] = create_timestamp
 
     created_response = loop.run_until_complete(service.create(to_create=post_data))
     return created_response
@@ -112,8 +112,8 @@ def update_single(uuid, put_data, collection, model, validation_model):
     if isinstance(model, DomainModel):
         put_data["domain_uuid"] = uuid
 
-    put_data["last_updated_by"] = current_user
-    put_data["lub_timestamp"] = updated_timestamp
+    put_data["created_by"] = current_user
+    put_data["last_updated"] = updated_timestamp
 
     document = loop.run_until_complete(service.get(uuid=uuid))
     document.update(put_data)
