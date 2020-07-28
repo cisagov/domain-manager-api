@@ -7,7 +7,7 @@ This helps up control type and validation for json object.
 # Standard Python Libraries
 import datetime
 
-# Third-Party Libraries
+# cisagov Libraries
 from schematics.models import Model as BaseModel
 import yaml
 

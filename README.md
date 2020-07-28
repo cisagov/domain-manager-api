@@ -15,25 +15,28 @@ For Docker for Mac, this can be set by following these steps:
 
 Open Docker > Preferences > Advanced tab, then set memory to 4.0 GiB
 
-## Setup project locally:
+## Setup project locally
 
-1. Build containers:
+1. Copy your env vars:
+    - `cp etc/env.dist .env`
+
+2. Build containers:
 
    - `make build`
 
-2. Run Containers
+3. Run Containers
 
    - `make up`
 
-3. Run flask logs in the terminal
+4. Run flask logs in the terminal
 
    - `make logs`
 
-4. Application running at:
+5. Application running at:
 
    - `localhost:5000`
 
-## Other commands:
+## Other commands
 
 Run live flask logs in the terminal
 
@@ -51,16 +54,20 @@ Shell into container
 
 - `make shell`
 
+Run pre-commit:
+
+- `pre-commit run --all-files`
+
 Count lines of code
 
 - `make loc`
 
-## Contributing ##
+## Contributing
 
 We welcome contributions!  Please see [here](CONTRIBUTING.md) for
 details.
 
-## License ##
+## License
 
 This project is in the worldwide [public domain](LICENSE).
 

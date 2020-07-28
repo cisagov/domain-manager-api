@@ -10,8 +10,10 @@ import asyncio
 import logging
 
 # Third-Party Libraries
-from bson.codec_options import CodecOptions
 from motor.motor_asyncio import AsyncIOMotorClient
+
+# cisagov Libraries
+from bson.codec_options import CodecOptions
 
 from .tools import parse_datetime
 from .types import BooleanType, DateTimeType, FloatType, IntType
@@ -267,4 +269,3 @@ class GenericRepository(object):
         """
         await self.collection.delete_one({self.uuid_name: uuid})
         return {self.uuid_name: uuid}
-

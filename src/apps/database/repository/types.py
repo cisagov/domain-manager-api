@@ -7,7 +7,8 @@ This is using schematics.type as a base
 # Standard Python Libraries
 import uuid
 
-# Third-Party Libraries
+# cisagov Libraries
+
 # These imports are so models.py can import all its types from this file.
 from schematics.types import BooleanType as BaseBooleanType
 from schematics.types import DateTimeType as BaseDateTimeType

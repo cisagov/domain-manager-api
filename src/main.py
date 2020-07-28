@@ -1,10 +1,13 @@
+"""Domain manager."""
+# Standard Python Libraries
 import os
-from datetime import datetime
 
-from flask import Flask, jsonify
-
+# Third-Party Libraries
 from apps.api import api
+import aws_lambda_wsgi
 
+# cisagov Libraries
+from flask import Flask, jsonify
 
 app = Flask(__name__)
 
@@ -15,13 +18,14 @@ app.register_blueprint(api)
 
 @app.route("/")
 def home():
+    """Homepage view."""
     return jsonify(message="Congrats! Your API is now live", status=200)
 
 
 def lambda_handler(event, context):
+    """Lambda handler."""
     return aws_lambda_wsgi.response(app, event, context)
 
 
 if __name__ == "__main__":
-    APP_DEBUG = int(os.environ.get("DEBUG", default=0))
-    app.run(host="0.0.0.0", port=5000, debug=APP_DEBUG)
+    app.run(host="0.0.0.0", port=5000)

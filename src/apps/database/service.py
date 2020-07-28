@@ -1,5 +1,5 @@
 """
-This is the main database service
+This is the main database service.
 
 This is a top level service for connecting with mongodb.
 This creates a Service class that is given:
@@ -7,7 +7,7 @@ This creates a Service class that is given:
 on init.
 this will then handle all transacations for the given collection and model.
 """
-# Third-Party Libraries
+# cisagov Libraries
 from schematics.exceptions import DataError
 
 from .repository.generics import GenericRepository, GenericRepositoryInterface

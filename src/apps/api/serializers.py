@@ -1,10 +1,10 @@
+"""API Serializers."""
+# Third-Party Libraries
 from marshmallow import Schema, fields
 
 
 class DomainSerializer(Schema):
-    """
-    Domain Models
-    """
+    """Domain Models."""
 
     name = fields.Str(required=True)
     url = fields.Str(required=True)

@@ -1,14 +1,11 @@
-from flask import Blueprint, jsonify, request
-
+"""API serializers."""
+# Third-Party Libraries
 from apps.api.models import DomainModel, validate_domain
 from apps.api.serializers import DomainSerializer
-from apps.database.utils import (
-    get_list,
-    get_single,
-    save_single,
-    update_single,
-    delete_single,
-)
+from apps.database.utils import get_list, save_single
+
+# cisagov Libraries
+from flask import Blueprint, jsonify, request
 
 api = Blueprint("api", __name__, url_prefix="/api")
 
@@ -19,10 +16,7 @@ domain_schema = DomainSerializer()
 
 @api.route("/domains/", methods=["GET", "POST"])
 def domain_list():
-    """
-    Get a list of domains.
-    Create a new domain object.
-    """
+    """Get a list of domains. Create a new domain object."""
     post_data = request.get_json()
     if request.method == "POST":
 
