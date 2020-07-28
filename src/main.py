@@ -1,13 +1,18 @@
 import os
 from datetime import datetime
 
-from flask import Flask
+from flask import Flask, jsonify
 from pymongo import MongoClient
 
 from apps.api import api
 
 
 app = Flask(__name__)
+
+
+@app.route("/")
+def home():
+    return jsonify(status=True, message="Congrats! Your API is now live")
 
 
 # register views
