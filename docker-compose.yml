@@ -1,0 +1,36 @@
+version: "3"
+
+services:
+  api:
+    container_name: dm-api
+    build:
+      context: .
+    stdin_open: true
+    restart: unless-stopped
+    volumes:
+      - ./src:/var/www
+    ports:
+      - "5000:5000"
+    depends_on:
+      - db
+    env_file:
+      - .env
+    networks:
+      - backend
+  db:
+    image: mongo:latest
+    container_name: dm-mongo
+    restart: unless-stopped
+    volumes:
+      - mongodb_data:/data/db
+    ports:
+      - "27017:27017"
+    env_file:
+      - .env
+    networks:
+      - backend
+volumes:
+  mongodb_data:
+
+networks:
+  backend:
