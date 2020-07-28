@@ -9,7 +9,6 @@ from apps.api import api
 
 app = Flask(__name__)
 
-client = MongoClient("db", 27017)
 
 # register views
 app.register_blueprint(api)
