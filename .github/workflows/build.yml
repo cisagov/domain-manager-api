@@ -46,7 +46,7 @@ jobs:
       - name: Set up pre-commit hook environments
         run: pre-commit install-hooks
       - name: Run pre-commit on all files
-        run: pre-commit run --all-files
+        run: pre-commit run --all-files --no-verify
   test:
     runs-on: ubuntu-latest
     strategy:
