@@ -1,18 +1,18 @@
 import os
-from flask import Flask, request, jsonify
+from datetime import datetime
+
+from flask import Flask
 from pymongo import MongoClient
 
-from datetime import datetime
+from apps.api import api
 
 
 app = Flask(__name__)
 
 client = MongoClient("db", 27017)
 
-
-@app.route("/")
-def index():
-    return jsonify(status=True, message="Congrats! Your API is now live")
+# register views
+app.register_blueprint(api)
 
 
 if __name__ == "__main__":
