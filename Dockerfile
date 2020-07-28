@@ -15,4 +15,4 @@ ADD . /var/www/
 
 EXPOSE 5000
 
-CMD ["python", "main.py"]
+CMD ["flask", "run", "-h", "0.0.0.0"]
