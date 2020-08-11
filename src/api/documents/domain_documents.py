@@ -5,7 +5,11 @@ from utils.db_utils import Document, db
 
 
 class Domain(Document):
-    """Document model for domains."""
+    """
+    Document model for domains.
+
+    Note: DO NOT MODIFY. Domain data is managed by the Namecheap API.
+    """
 
     def __init__(self, **kwargs):
         """Initialize arguments."""
