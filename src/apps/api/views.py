@@ -41,7 +41,7 @@ def domain_list():
 
 @api.route("/websites/", methods=["GET"])
 def website_list():
-    """Get a list of websites. """
+    """Get a list of websites."""
     post_data = request.get_json()
     response = domains_schema.dump(
         get_list(post_data, "website", WebsiteModel, validate_website)
