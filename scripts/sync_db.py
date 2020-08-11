@@ -61,7 +61,11 @@ def load_s3():
 def load_domains():
     """Load the latest domain data from namecheap into the database."""
     db_domains = db.domains
-    domain_load = [i for i in nc_api.domains_getList()]
+    domain_load = [
+        i
+        for i in nc_api.domains_getList()
+        if not db_domains.find_one({"Name": i.get("Name")})
+    ]
 
     # Save latest data to the database
     if domain_load != []:
