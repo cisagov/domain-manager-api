@@ -7,8 +7,6 @@ import os
 import boto3
 from dotenv import load_dotenv
 from namecheap import Api
-
-# cisagov Libraries
 import pymongo
 
 load_dotenv()

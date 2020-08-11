@@ -18,7 +18,8 @@ Open Docker > Preferences > Advanced tab, then set memory to 4.0 GiB
 ## Setup project locally
 
 1. Copy your env vars:
-    - `cp etc/env.dist .env`
+
+   - `cp etc/env.dist .env`
 
 2. Build containers:
 
@@ -64,7 +65,7 @@ Count lines of code
 
 ## Contributing
 
-We welcome contributions!  Please see [here](CONTRIBUTING.md) for
+We welcome contributions! Please see [here](CONTRIBUTING.md) for
 details.
 
 ## License
