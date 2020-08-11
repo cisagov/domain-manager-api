@@ -59,12 +59,16 @@ def application_list():
     return jsonify(response), 200
 
 
-@api.route("/application/<application_id>/", methods=["GET", "DELETE"])
+@api.route("/application/<application_id>/", methods=["GET", "DELETE", "PUT"])
 def get_application(application_id):
     """Get an application by its id. Delete an application by its id."""
     if request.method == "DELETE":
         Application.delete(application_id)
         response = {"message": "Application has been deleted."}
+    elif request.method == "PUT":
+        put_data = request.json
+        Application.update(application_id, put_data.get("name"))
+        response = {"message": "Application has been updated."}
     else:
         application_schema = ApplicationSchema()
         response = application_schema.dump(Application.get_by_id(application_id))

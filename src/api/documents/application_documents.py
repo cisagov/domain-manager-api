@@ -40,6 +40,13 @@ class Application(Document):
         return db.applications.insert_one(post_data)
 
     @staticmethod
+    def update(application_id, name):
+        """Update an existing post document."""
+        db.applications.find_one_and_update(
+            {"_id": ObjectId(application_id)}, {"$set": {"name": name}},
+        )
+
+    @staticmethod
     def delete(application_id):
         """Delete application by id."""
         return db.applications.delete_one({"_id": ObjectId(application_id)})
