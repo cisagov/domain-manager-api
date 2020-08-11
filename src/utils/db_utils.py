@@ -2,7 +2,7 @@
 # Standard Python Libraries
 import os
 
-# cisagov Libraries
+# Third-Party Libraries
 from pymongo import MongoClient
 
 CONN_STR = "mongodb://{}:{}@{}:{}/".format(

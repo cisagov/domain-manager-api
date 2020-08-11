@@ -2,7 +2,7 @@
 
 https://docs.pytest.org/en/latest/writing_plugins.html#conftest-py-plugins
 """
-# cisagov Libraries
+# Third-Party Libraries
 import pytest
 
 

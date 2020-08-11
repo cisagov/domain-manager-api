@@ -1,3 +1,3 @@
 """initialize api app."""
-# cisagov Libraries
+# Third-Party Libraries
 from api.views import api

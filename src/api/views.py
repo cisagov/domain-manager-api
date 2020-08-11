@@ -1,13 +1,11 @@
 """API routes."""
 # Third-Party Libraries
-from utils.db_utils import db
-
-# cisagov Libraries
 from api.documents.domain_documents import Domain
 from api.documents.website_documents import Website
 from api.schemas.domain_schema import DomainSchema
 from api.schemas.website_schema import WebsiteSchema
 from flask import Blueprint, jsonify, request
+from utils.db_utils import db
 
 api = Blueprint("api", __name__, url_prefix="/api")
 

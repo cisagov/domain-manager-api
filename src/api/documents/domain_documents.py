@@ -1,9 +1,7 @@
 """Domain documents."""
 # Third-Party Libraries
-from utils.db_utils import Document, db
-
-# cisagov Libraries
 from bson.objectid import ObjectId
+from utils.db_utils import Document, db
 
 
 class Domain(Document):
