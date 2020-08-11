@@ -9,7 +9,6 @@ import uuid
 # Third-Party Libraries
 
 # Models
-from apps.api.models import DomainModel
 from apps.database.service import Service
 
 logger = logging.getLogger(__name__)
@@ -110,9 +109,6 @@ def update_single(uuid, put_data, collection, model, validation_model):
     service, loop = __get_service_loop(collection, model, validation_model)
     updated_timestamp = datetime.datetime.utcnow()
     current_user = "dev user"
-
-    if isinstance(model, DomainModel):
-        put_data["domain_uuid"] = uuid
 
     put_data["created_by"] = current_user
     put_data["last_updated"] = updated_timestamp

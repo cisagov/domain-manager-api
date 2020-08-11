@@ -3,10 +3,8 @@
 from marshmallow import Schema, fields
 
 
-class DomainSerializer(Schema):
-    """Domain Models."""
+class WebsiteSerializer(Schema):
+    """Website Serializer."""
 
     name = fields.Str(required=True)
     url = fields.Str(required=True)
-    created_by = fields.Str(required=True)
-    last_updated = fields.DateTime()
