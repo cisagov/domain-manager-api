@@ -3,10 +3,10 @@
 import os
 
 # Third-Party Libraries
-from apps.api import api
 import aws_lambda_wsgi
 
 # cisagov Libraries
+from api import api
 from flask import Flask, jsonify
 
 app = Flask(__name__)
