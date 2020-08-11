@@ -1,12 +1,14 @@
 """Synchronize database script."""
-import os
+# Standard Python Libraries
 import logging
+import os
 
 # Third-Party Libraries
 import boto3
-import pymongo
 from dotenv import load_dotenv
 
+# cisagov Libraries
+import pymongo
 
 load_dotenv()
 logger = logging.getLogger()
@@ -31,9 +33,7 @@ def load_s3():
     websites = s3.list_objects(Bucket="con-pca-dev-websites")
 
     # Pull Available websites
-    available_prefixes = set(
-        [i.get("Key").split("/")[0] for i in websites.get("Contents")]
-    )
+    available_prefixes = {i.get("Key").split("/")[0] for i in websites.get("Contents")}
 
     # Create load data
     s3_load = [
