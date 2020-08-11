@@ -1,47 +1,46 @@
-"""API serializers."""
+"""API routes."""
+# Third-Party Libraries
+from utils.db_utils import db
+
 # cisagov Libraries
-from api.serializers.domain_serializers import DomainSerializer
+from api.documents.domain_documents import Domain
+from api.documents.website_documents import Website
+from api.schemas.domain_schema import DomainSchema
+from api.schemas.website_schema import WebsiteSchema
 from flask import Blueprint, jsonify, request
 
 api = Blueprint("api", __name__, url_prefix="/api")
 
 # Schemas
-domains_schema = DomainSerializer(many=True)
-domain_schema = DomainSerializer()
+domains_schema = DomainSchema(many=True)
+domain_schema = DomainSchema()
+websites_schema = WebsiteSchema(many=True)
+website_schema = WebsiteSchema()
 
 
-@api.route("/domains/", methods=["GET", "POST"])
+@api.route("/domains/", methods=["GET"])
 def domain_list():
-    """Get a list of domains. Create a new domain object."""
-    # post_data = request.get_json()
-    if request.method == "POST":
+    """Get a list of domains."""
+    response = domains_schema.dump(Domain.get_all())
+    return jsonify(response), 200
 
-        # domain_filter = {
-        #     "name": post_data.get("name"),
-        # }
-        # existing_domain = get_list(
-        #     domain_filter, "domain", DomainModel, validate_domain
-        # )
-        # if existing_domain:
-        #     return jsonify({"message": "A domain with this name already exists."}), 202
 
-        # response = save_single(post_data, "domain", DomainModel, validate_domain)
-        response = {"test": "test"}
-    else:
-        # response = domains_schema.dump(
-        #     get_list(post_data, "domain", DomainModel, validate_domain)
-        # )
-        response = {"test": "test"}
-
+@api.route("/domain/<domain_id>/")
+def get_domain(domain_id):
+    """Get a domain by its id."""
+    response = domain_schema.dump(Domain.get_by_id(domain_id))
     return jsonify(response), 200
 
 
 @api.route("/websites/", methods=["GET"])
 def website_list():
     """Get a list of websites."""
-    # post_data = request.get_json()
-    # response = domains_schema.dump(
-    #     get_list(post_data, "website", WebsiteModel, validate_website)
-    # )
+    response = websites_schema.dump(Website.get_all())
+    return jsonify(response), 200
 
-    return jsonify({"test": "test"}), 200
+
+@api.route("/website/<website_id>/")
+def get_website(website_id):
+    """Get a website's data by its id."""
+    response = website_schema.dump(Website.get_by_id(website_id))
+    return jsonify(response), 200
