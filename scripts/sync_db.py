@@ -1,3 +1,4 @@
+"""Synchronize database script."""
 import os
 import logging
 
@@ -21,9 +22,7 @@ db = client.domain_management
 
 
 def load_s3():
-    """
-    Load the latest website data from s3 into the database.
-    """
+    """Load the latest website data from s3 into the database."""
     db_sites = db.websites
 
     s3 = boto3.client("s3")
