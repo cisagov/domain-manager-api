@@ -33,8 +33,8 @@ def package_vars(version_file):
 setup(
     name="example-aws-lambda",
     # Versions should comply with PEP440
-    version=package_vars("eal/_version.py")["__version__"],
-    description="A skeleton with an example AWS lambda to build from.",
+    version=package_vars("_version.py")["__version__"],
+    description="Domain Management API",
     long_description=readme(),
     long_description_content_type="text/markdown",
     # NCATS "homepage"

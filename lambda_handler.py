@@ -4,7 +4,7 @@
 import logging
 import os
 
-# cisagov Libraries
+# Third-Party Libraries
 from eal import example_aws_lambda as eal
 
 # This Lambda function expects the following environment variables to be

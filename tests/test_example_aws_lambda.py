@@ -8,8 +8,10 @@ import os
 import sys
 from unittest.mock import patch
 
-# cisagov Libraries
+# Third-Party Libraries
 from eal import example_aws_lambda as eal
+
+# cisagov Libraries
 import pytest
 
 log_levels = (
