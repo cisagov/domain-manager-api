@@ -9,16 +9,11 @@ from utils.db_utils import db
 
 api = Blueprint("api", __name__, url_prefix="/api")
 
-# Schemas
-domains_schema = DomainSchema(many=True)
-domain_schema = DomainSchema()
-websites_schema = WebsiteSchema(many=True)
-website_schema = WebsiteSchema()
-
 
 @api.route("/domains/", methods=["GET"])
 def domain_list():
     """Get a list of domains."""
+    domains_schema = DomainSchema(many=True)
     response = domains_schema.dump(Domain.get_all())
     return jsonify(response), 200
 
@@ -26,6 +21,7 @@ def domain_list():
 @api.route("/domain/<domain_id>/")
 def get_domain(domain_id):
     """Get a domain by its id."""
+    domain_schema = DomainSchema()
     response = domain_schema.dump(Domain.get_by_id(domain_id))
     return jsonify(response), 200
 
@@ -33,6 +29,7 @@ def get_domain(domain_id):
 @api.route("/websites/", methods=["GET"])
 def website_list():
     """Get a list of websites."""
+    websites_schema = WebsiteSchema(many=True)
     response = websites_schema.dump(Website.get_all())
     return jsonify(response), 200
 
@@ -40,5 +37,6 @@ def website_list():
 @api.route("/website/<website_id>/")
 def get_website(website_id):
     """Get a website's data by its id."""
+    website_schema = WebsiteSchema()
     response = website_schema.dump(Website.get_by_id(website_id))
     return jsonify(response), 200
