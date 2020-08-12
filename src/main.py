@@ -4,7 +4,6 @@ import os
 
 # Third-Party Libraries
 from api import api
-import aws_lambda_wsgi
 from flask import Flask, jsonify
 
 app = Flask(__name__)
@@ -18,11 +17,6 @@ app.register_blueprint(api)
 def home():
     """Homepage view."""
     return jsonify(message="Congrats! Your API is now live", status=200)
-
-
-def lambda_handler(event, context):
-    """Lambda handler."""
-    return aws_lambda_wsgi.response(app, event, context)
 
 
 if __name__ == "__main__":
