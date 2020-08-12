@@ -1,8 +1,10 @@
 """API routes."""
 # Third-Party Libraries
+from api.documents.active_site_documents import ActiveSite
 from api.documents.application_documents import Application
 from api.documents.domain_documents import Domain
 from api.documents.website_documents import Website
+from api.schemas.active_site_schema import ActiveSiteSchema
 from api.schemas.application_schema import ApplicationSchema
 from api.schemas.domain_schema import DomainSchema
 from api.schemas.website_schema import WebsiteSchema
@@ -61,7 +63,7 @@ def application_list():
 
 @api.route("/application/<application_id>/", methods=["GET", "DELETE", "PUT"])
 def get_application(application_id):
-    """Get an application by its id. Delete an application by its id."""
+    """Get an application by its id. Update application data. Delete an application by its id."""
     if request.method == "DELETE":
         Application.delete(application_id)
         response = {"message": "Application has been deleted."}
@@ -72,4 +74,44 @@ def get_application(application_id):
     else:
         application_schema = ApplicationSchema()
         response = application_schema.dump(Application.get_by_id(application_id))
+    return jsonify(response), 200
+
+
+@api.route("/active-sites/", methods=["GET", "POST"])
+def active_site_list():
+    """Get a list of active sites. Create a new active site."""
+    if request.method == "POST":
+        post_data = request.json
+        active_site = ActiveSite.create(
+            domain_id=post_data.get("domain_id"),
+            website_id=post_data.get("website_id"),
+            application_id=post_data.get("application_id"),
+        )
+        response = {
+            "message": f"Active with id {active_site.inserted_id} has been launched."
+        }
+    else:
+        active_sites_schema = ActiveSiteSchema(many=True)
+        response = active_sites_schema.dump(ActiveSite.get_all())
+    return jsonify(response), 200
+
+
+@api.route("/active-site/<active_site_id>/", methods=["GET", "DELETE", "PUT"])
+def get_active_site(active_site_id):
+    """Get an active site by its id. Update active site data. Delete an active site by its id."""
+    if request.method == "DELETE":
+        ActiveSite.delete(active_site_id)
+        response = {"message": "Active site is now inactive and deleted."}
+    elif request.method == "PUT":
+        put_data = request.json
+        ActiveSite.update(
+            active_site_id=active_site_id,
+            domain_id=put_data.get("domain_id"),
+            website_id=put_data.get("website_id"),
+            application_id=put_data.get("application_id"),
+        )
+        response = {"message": "Active site has been updated."}
+    else:
+        active_site_schema = ActiveSiteSchema()
+        response = active_site_schema.dump(ActiveSite.get_by_id(active_site_id))
     return jsonify(response), 200
