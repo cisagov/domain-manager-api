@@ -10,6 +10,7 @@ from api.schemas.domain_schema import DomainSchema
 from api.schemas.website_schema import WebsiteSchema
 from flask import Blueprint, jsonify, request
 from utils.db_utils import db
+from utils.s3_utils import delete_site, launch_site
 
 api = Blueprint("api", __name__, url_prefix="/api")
 
@@ -82,13 +83,15 @@ def active_site_list():
     """Get a list of active sites. Create a new active site."""
     if request.method == "POST":
         post_data = request.json
+        website = Website.get_by_id(post_data.get("website_id"))
+        live_site = launch_site(website.get("name"))
         active_site = ActiveSite.create(
             domain_id=post_data.get("domain_id"),
             website_id=post_data.get("website_id"),
             application_id=post_data.get("application_id"),
         )
         response = {
-            "message": f"Active with id {active_site.inserted_id} has been launched."
+            "message": f"Active site with id {active_site.inserted_id} has been launched. Visit: {live_site}"
         }
     else:
         active_sites_schema = ActiveSiteSchema(many=True)
@@ -100,6 +103,11 @@ def active_site_list():
 def get_active_site(active_site_id):
     """Get an active site by its id. Update active site data. Delete an active site by its id."""
     if request.method == "DELETE":
+        active_site = ActiveSite.get_by_id(active_site_id)
+        website_name = active_site.get("website").get("name")
+        # delete s3 bucket
+        delete_site(website_name)
+        # delete from database
         ActiveSite.delete(active_site_id)
         response = {"message": "Active site is now inactive and deleted."}
     elif request.method == "PUT":
