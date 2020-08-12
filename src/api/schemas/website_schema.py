@@ -8,4 +8,3 @@ class WebsiteSchema(Schema):
 
     _id = fields.Str(required=True)
     name = fields.Str(required=True)
-    url = fields.Str(required=True)
