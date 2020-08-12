@@ -13,6 +13,12 @@ RUN pip install -r requirements.txt
 
 ADD . /var/www/
 
-EXPOSE 5000
+# Entrypoint
+COPY ./etc/entrypoint.sh /usr/local/bin/entrypoint.sh
+RUN chmod a+x /usr/local/bin/entrypoint.sh
 
-CMD ["flask", "run", "-h", "0.0.0.0"]
+EXPOSE 5000
+EXPOSE 80
+EXPOSE 443
+
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]

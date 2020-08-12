@@ -31,7 +31,7 @@ def package_vars(version_file):
 
 
 setup(
-    name="example-aws-lambda",
+    name="domain-manager-api",
     # Versions should comply with PEP440
     version=package_vars("_version.py")["__version__"],
     description="Domain Management API",
@@ -40,7 +40,7 @@ setup(
     # NCATS "homepage"
     url="https://www.us-cert.gov/resources/ncats",
     # The project's main homepage
-    download_url="https://github.com/cisagov/skeleton-aws-lambda",
+    download_url="https://github.com/cisagov/domain-manager-api",
     # Author details
     author="Cyber and Infrastructure Security Agency",
     author_email="ncats@hq.dhs.gov",
@@ -65,9 +65,9 @@ setup(
     ],
     python_requires=">=3.6",
     # What does your project relate to?
-    keywords="skeleton",
+    keywords="domain",
     packages=find_packages(where="."),
-    py_modules=[splitext(basename(path))[0] for path in glob("eal/*.py")],
+    py_modules=[splitext(basename(path))[0] for path in glob("src/*.py")],
     install_requires=["docopt", "setuptools"],
     extras_require={
         "test": [
