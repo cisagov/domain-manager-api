@@ -5,7 +5,11 @@ from utils.db_utils import Document, db
 
 
 class Website(Document):
-    """Document model for websites."""
+    """
+    Document model for websites.
+
+    Note: DO NOT MODIFY. Website data is managed by AWS S3.
+    """
 
     def __init__(self, **kwargs):
         """Initialize arguments."""
