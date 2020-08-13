@@ -14,6 +14,7 @@ class ActiveSite(Document):
         """Initialize arguments."""
         self.fields = [
             "name",
+            "s3_url",
             "domain",
             "website",
             "application",
@@ -34,7 +35,7 @@ class ActiveSite(Document):
         return [x for x in db.active_sites.find()]
 
     @staticmethod
-    def create(domain_id, website_id, application_id):
+    def create(s3_url, domain_id, website_id, application_id):
         """Launch an active site."""
         # make names unique
         if "active_sites" not in db.list_collection_names():
@@ -43,6 +44,7 @@ class ActiveSite(Document):
         website = db.websites.find_one({"_id": ObjectId(website_id)})
         post_data = {
             "name": website.get("name"),
+            "s3_url": s3_url,
             "domain": db.domains.find_one({"_id": ObjectId(domain_id)}),
             "website": website,
             "application": db.applications.find_one({"_id": ObjectId(application_id)}),

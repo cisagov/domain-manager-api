@@ -16,13 +16,11 @@ s3_resource = boto3.resource("s3")
 content_source = os.environ.get("SOURCE_BUCKET")
 
 
-def launch_site(website_name):
+def launch_site(website_name, bucket_name):
     """Launch an active site onto s3."""
     available_buckets = [
         bucket.get("Name") for bucket in s3.list_buckets().get("Buckets")
     ]
-    site_name = website_name.lower()
-    bucket_name = f"domain-manager-{site_name}"
 
     # Create S3 bucket
     if bucket_name not in available_buckets:
@@ -79,9 +77,8 @@ def launch_site(website_name):
     return f"http://{bucket_name}.s3-website-us-east-1.amazonaws.com/"
 
 
-def delete_site(name):
+def delete_site(bucket_name):
     """Delete an active site off s3."""
-    bucket_name = f"domain-manager-{name.lower()}"
     bucket = s3_resource.Bucket(bucket_name)
 
     # Delete all objects in bucket
