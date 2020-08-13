@@ -1,14 +1,14 @@
 {
   "info": {
-    "description": "Domain Manager API",
-    "title": "Domain Manager",
+    "description": "Domain manager launches static websites and categorizes domains",
+    "title": "Domain Manager API",
     "version": "1.0.0"
   },
   "openapi": "3.0.0",
   "paths": {
-    "/api": {
+    "/api/domains/": {
       "get": {
-        "description": "Returns hello in specified language",
+        "description": "Returns a list of domains",
         "parameters": [
           {
             "description": "language",
@@ -35,7 +35,40 @@
           }
         },
         "tags": [
-          "Hello"
+          "Domains"
+        ]
+      }
+    },
+    "/api/websites/": {
+      "get": {
+        "description": "Returns a list of websites",
+        "parameters": [
+          {
+            "description": "language",
+            "in": "query",
+            "name": "lang",
+            "required": true,
+            "schema": {
+              "example": "es",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "example": "hola",
+                  "type": "string"
+                }
+              }
+            },
+            "description": "hello in the requested language"
+          }
+        },
+        "tags": [
+          "Websites"
         ]
       }
     }

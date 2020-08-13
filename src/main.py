@@ -14,12 +14,6 @@ app.register_blueprint(api)
 
 
 @app.route("/")
-def home():
-    """Homepage view."""
-    return jsonify(message="Congrats! Your API is now live", status=200)
-
-
-@app.route("/swagger/")
 def get_docs():
     """Access swagger UI."""
     return render_template("swagger.html")

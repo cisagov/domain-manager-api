@@ -63,6 +63,11 @@ Count lines of code
 
 - `make loc`
 
+## API Documentation
+
+- To access the api documentation to this project, visit:
+  - `localhost:5000`
+
 ## Contributing
 
 We welcome contributions! Please see [here](CONTRIBUTING.md) for
