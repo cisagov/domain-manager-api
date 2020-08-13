@@ -8592,9 +8592,9 @@
   background-color: #1b1b1b;
 }
 
-.topbar-wrapper img {
+/* .topbar-wrapper img {
   content: url("../img/cisa-logo-api.png");
-}
+} */
 
 .swagger-ui .topbar .topbar-wrapper,
 .swagger-ui .topbar a {
