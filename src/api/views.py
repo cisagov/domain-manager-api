@@ -10,6 +10,7 @@ from api.schemas.domain_schema import DomainSchema
 from api.schemas.website_schema import WebsiteSchema
 from flask import Blueprint, jsonify, request
 from utils.db_utils import db
+from utils.decorator_utils import auth_required
 from utils.namecheap_utils import delete_dns, setup_dns
 from utils.s3_utils import delete_site, launch_site
 
@@ -17,6 +18,7 @@ api = Blueprint("api", __name__, url_prefix="/api")
 
 
 @api.route("/domains/", methods=["GET"])
+@auth_required
 def domain_list():
     """Get a list of domains managed by namecheap."""
     domains_schema = DomainSchema(many=True)
@@ -25,6 +27,7 @@ def domain_list():
 
 
 @api.route("/domain/<domain_id>/")
+@auth_required
 def get_domain(domain_id):
     """Get a domain by its id."""
     domain_schema = DomainSchema()
@@ -33,6 +36,7 @@ def get_domain(domain_id):
 
 
 @api.route("/websites/", methods=["GET"])
+@auth_required
 def website_list():
     """Get a list of websites managed by aws s3 bucket."""
     websites_schema = WebsiteSchema(many=True)
@@ -41,6 +45,7 @@ def website_list():
 
 
 @api.route("/website/<website_id>/")
+@auth_required
 def get_website(website_id):
     """Get a website's data by its id."""
     website_schema = WebsiteSchema()
@@ -49,6 +54,7 @@ def get_website(website_id):
 
 
 @api.route("/applications/", methods=["GET", "POST"])
+@auth_required
 def application_list():
     """Get a list of applications. Create a new application."""
     if request.method == "POST":
@@ -64,6 +70,7 @@ def application_list():
 
 
 @api.route("/application/<application_id>/", methods=["GET", "DELETE", "PUT"])
+@auth_required
 def get_application(application_id):
     """Get an application by its id. Update application data. Delete an application by its id."""
     if request.method == "DELETE":
@@ -80,8 +87,10 @@ def get_application(application_id):
 
 
 @api.route("/active-sites/", methods=["GET", "POST"])
+@auth_required
 def active_site_list():
     """Get a list of active sites. Create a new active site."""
+    print(request.headers.get("api_key"))
     if request.method == "POST":
         post_data = request.json
         website = Website.get_by_id(post_data.get("website_id"))
@@ -108,6 +117,7 @@ def active_site_list():
 
 
 @api.route("/active-site/<active_site_id>/", methods=["GET", "DELETE", "PUT"])
+@auth_required
 def get_active_site(active_site_id):
     """Get an active site by its id. Update active site data. Delete an active site by its id."""
     if request.method == "DELETE":
