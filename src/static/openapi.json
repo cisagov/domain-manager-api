@@ -6,6 +6,39 @@
   },
   "openapi": "3.0.0",
   "paths": {
+    "/api/domain/{domain_id}": {
+      "get": {
+        "description": "Returns a domains by its id",
+        "parameters": [
+          {
+            "description": "language",
+            "in": "query",
+            "name": "lang",
+            "required": true,
+            "schema": {
+              "example": "es",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "example": "hola",
+                  "type": "string"
+                }
+              }
+            },
+            "description": "hello in the requested language"
+          }
+        },
+        "tags": [
+          "Domains"
+        ]
+      }
+    },
     "/api/domains/": {
       "get": {
         "description": "Returns a list of domains",
@@ -36,6 +69,39 @@
         },
         "tags": [
           "Domains"
+        ]
+      }
+    },
+    "/api/website/{website_id}": {
+      "get": {
+        "description": "Returns a website by its id",
+        "parameters": [
+          {
+            "description": "language",
+            "in": "query",
+            "name": "lang",
+            "required": true,
+            "schema": {
+              "example": "es",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "example": "hola",
+                  "type": "string"
+                }
+              }
+            },
+            "description": "hello in the requested language"
+          }
+        },
+        "tags": [
+          "Websites"
         ]
       }
     },
