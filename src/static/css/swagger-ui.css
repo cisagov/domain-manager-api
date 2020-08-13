@@ -8591,6 +8591,11 @@
   padding: 10px 0;
   background-color: #1b1b1b;
 }
+
+.topbar-wrapper img {
+  content: url("../img/cisa-logo-api.png");
+}
+
 .swagger-ui .topbar .topbar-wrapper,
 .swagger-ui .topbar a {
   display: flex;
@@ -8617,7 +8622,7 @@
 .swagger-ui .topbar .download-url-wrapper input[type="text"] {
   width: 100%;
   margin: 0;
-  border: 2px solid #62a03f;
+  border: 2px solid #2d74a2;
   border-radius: 4px 0 0 4px;
   outline: none;
 }
@@ -8638,7 +8643,7 @@
 .swagger-ui .topbar .download-url-wrapper .select-label select {
   flex: 2;
   width: 100%;
-  border: 2px solid #62a03f;
+  border: 2px solid #2d74a2;
   outline: none;
   box-shadow: none;
 }
@@ -8648,7 +8653,7 @@
   padding: 4px 30px;
   border: none;
   border-radius: 0 4px 4px 0;
-  background: #62a03f;
+  background: #2d74a2;
   font-family: sans-serif;
   color: #fff;
 }
