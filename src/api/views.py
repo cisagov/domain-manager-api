@@ -10,6 +10,7 @@ from api.schemas.domain_schema import DomainSchema
 from api.schemas.website_schema import WebsiteSchema
 from flask import Blueprint, jsonify, request
 from utils.db_utils import db
+from utils.namecheap_utils import delete_dns, setup_dns
 from utils.s3_utils import delete_site, launch_site
 
 api = Blueprint("api", __name__, url_prefix="/api")
@@ -84,14 +85,21 @@ def active_site_list():
     if request.method == "POST":
         post_data = request.json
         website = Website.get_by_id(post_data.get("website_id"))
-        live_site = launch_site(website.get("name"))
+        domain = Domain.get_by_id(post_data.get("domain_id"))
+        domain_name = domain.get("Name")
+        # launch S3
+        live_site = launch_site(website.get("name"), domain_name)
+        # setup DNS
+        setup_dns(domain_name, live_site)
+        # save data
         active_site = ActiveSite.create(
+            s3_url=live_site,
             domain_id=post_data.get("domain_id"),
             website_id=post_data.get("website_id"),
             application_id=post_data.get("application_id"),
         )
         response = {
-            "message": f"Active site with id {active_site.inserted_id} has been launched. Visit: {live_site}"
+            "message": f"Active site with id {active_site.inserted_id} has been launched. Visit: http://{domain_name}"
         }
     else:
         active_sites_schema = ActiveSiteSchema(many=True)
@@ -104,9 +112,11 @@ def get_active_site(active_site_id):
     """Get an active site by its id. Update active site data. Delete an active site by its id."""
     if request.method == "DELETE":
         active_site = ActiveSite.get_by_id(active_site_id)
-        website_name = active_site.get("website").get("name")
+        domain_name = active_site.get("domain").get("Name")
         # delete s3 bucket
-        delete_site(website_name)
+        delete_site(domain_name)
+        # remove dns from domain
+        delete_dns(domain_name, active_site.get("s3_url"))
         # delete from database
         ActiveSite.delete(active_site_id)
         response = {"message": "Active site is now inactive and deleted."}
