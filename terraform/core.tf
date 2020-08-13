@@ -16,7 +16,7 @@ resource "tls_self_signed_cert" "_" {
     "server_auth"
   ]
 
-  dns_names = module.alb.alb_dns_name
+  dns_names = [module.alb.alb_dns_name]
 
   subject {
     common_name  = module.alb.alb_dns_name
@@ -61,6 +61,7 @@ module "alb" {
   vpc_id             = var.vpc_id
   security_group_ids = [aws_security_group.alb.id]
   subnet_ids         = var.public_subnet_ids
+  target_group_name  = "${var.app}-${var.env}-tg"
 }
 
 #=================================================
