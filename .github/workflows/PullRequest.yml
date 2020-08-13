@@ -1,0 +1,119 @@
+---
+  name: Pull Request
+  
+  on:
+    pull_request:
+    repository_dispatch:
+      types: [apb]
+  
+  env:
+    ENVIRONMENT: dev
+    IMAGE_NAME: domain-manager-api
+    REGION: us-east-1
+    PIP_CACHE_DIR: ~/.cache/pip
+    PRE_COMMIT_CACHE_DIR: ~/.cache/pre-commit
+    AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+    AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+    TF_BUCKET: con-pca-terraform
+    TF_DYNAMO_TABLE: con-pca-tf-lock
+  
+  jobs:
+    lint:
+      runs-on: ubuntu-latest
+      steps:
+        - uses: actions/checkout@v2
+        - uses: actions/setup-python@v1
+          with:
+            python-version: 3.8
+        - name: Store installed Python version
+          run: |
+            echo "::set-env name=PY_VERSION::"\
+            "$(python -c "import platform;print(platform.python_version())")"
+        - name: Cache pip test requirements
+          uses: actions/cache@v1
+          with:
+            path: ${{ env.PIP_CACHE_DIR }}
+            key: "${{ runner.os }}-pip-test-py${{ env.PY_VERSION }}-\
+              ${{ hashFiles('**/requirements-test.txt') }}"
+            restore-keys: |
+              ${{ runner.os }}-pip-test-py${{ env.PY_VERSION }}-
+              ${{ runner.os }}-pip-test-
+              ${{ runner.os }}-pip-
+        - name: Cache pre-commit hooks
+          uses: actions/cache@v1
+          with:
+            path: ${{ env.PRE_COMMIT_CACHE_DIR }}
+            key: "${{ runner.os }}-pre-commit-py${{ env.PY_VERSION }}-\
+              ${{ hashFiles('**/.pre-commit-config.yaml') }}"
+        - name: Install dependencies
+          run: |
+            python -m pip install --upgrade pip
+            pip install --upgrade --requirement requirements-test.txt
+        - name: Set up pre-commit hook environments
+          run: pre-commit install-hooks
+        - name: Run pre-commit on all files
+          run: pre-commit run --all-files
+  
+    test_build:
+      runs-on: ubuntu-latest
+  
+      steps:
+        - uses: actions/checkout@v2
+  
+        - name: Build Docker image
+          run: docker build -t example .
+  
+    terraform_plan:
+      runs-on: ubuntu-latest
+  
+      steps:
+        - uses: actions/checkout@v2
+  
+        - uses: hashicorp/setup-terraform@v1
+          with:
+            terraform_version: 0.12.28
+  
+        - name: Terraform Init
+          working-directory: ./terraform
+          run: terraform init -input=false -backend-config="bucket=$TF_BUCKET" -backend-config="key=tfstate/$ENVIRONMENT/$IMAGE_NAME.tfstate" -backend-config="region=$REGION" -backend-config="dynamodb_table=$TF_DYNAMO_TABLE"
+  
+        - name: Terraform Validate
+          working-directory: ./terraform
+          run: terraform validate
+  
+        - name: Get Tag
+          id: vars
+          run: echo ::set-output name=tag::$(echo ${GITHUB_SHA:0:10})
+  
+        - name: Terraform Plan
+          working-directory: ./terraform
+          run: terraform plan -input=false -var="image_tag=${{steps.vars.outputs.tag}}" -var="env=$ENVIRONMENT"
+  
+    python_tests:
+      runs-on: ubuntu-latest
+      steps:
+        - uses: actions/checkout@v2
+        - uses: actions/setup-python@v1
+          with:
+            python-version: 3.8
+        - name: Cache pip test requirements
+          uses: actions/cache@v2
+          with:
+            path: ${{ env.PIP_CACHE_DIR }}
+            key: "${{ runner.os }}-pip-test-\
+              ${{ hashFiles('**/requirements-test.txt') }}"
+            restore-keys: |
+              ${{ runner.os }}-pip-test-
+              ${{ runner.os }}-pip-
+  
+        - name: Upgrade Pip
+          run: python -m pip install --upgrade pip
+  
+        - name: Install Requirements
+          run: pip install --upgrade --requirement requirements-test.txt
+  
+        - name: Pytest/Coverage
+          run: |
+            coverage run --omit *.venv*,*test* -m pytest ./src/ --disable-warnings
+            coverage report
+  

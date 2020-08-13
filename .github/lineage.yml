@@ -3,4 +3,4 @@ version: "1"
 
 lineage:
   skeleton:
-    remote-url: https://github.com/cisagov/skeleton-aws-lambda.git
+    remote-url: https://github.com/cisagov/skeleton-docker.git
