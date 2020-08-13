@@ -4,7 +4,7 @@ import os
 
 # Third-Party Libraries
 from api import api
-from flask import Flask, jsonify
+from flask import Flask, jsonify, render_template
 
 app = Flask(__name__)
 
@@ -17,6 +17,12 @@ app.register_blueprint(api)
 def home():
     """Homepage view."""
     return jsonify(message="Congrats! Your API is now live", status=200)
+
+
+@app.route("/swagger/")
+def get_docs():
+    """Access swagger UI."""
+    return render_template("swagger.html")
 
 
 if __name__ == "__main__":
