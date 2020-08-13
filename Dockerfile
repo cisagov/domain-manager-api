@@ -11,7 +11,10 @@ WORKDIR /var/www/
 ADD ./requirements.txt /var/www/requirements.txt
 RUN pip install -r requirements.txt
 
-ADD . /var/www/
+ADD ./src/ /var/www/
+
+# Get certs for document db
+RUN  wget https://s3.amazonaws.com/rds-downloads/rds-combined-ca-bundle.pem
 
 # Entrypoint
 COPY ./etc/entrypoint.sh /usr/local/bin/entrypoint.sh

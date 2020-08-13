@@ -5,12 +5,22 @@ import os
 # Third-Party Libraries
 from pymongo import MongoClient
 
-CONN_STR = "mongodb://{}:{}@{}:{}/".format(
-    os.environ.get("DB_USER"),
-    os.environ.get("DB_PW"),
-    os.environ.get("DB_HOST"),
-    os.environ.get("DB_PORT"),
-)
+
+if os.environ.get('MONGO_TYPE', 'MONGO') == 'DOCUMENTDB':
+    CONN_STR = "mongodb://{}:{}@{}:{}/?ssl=true&ssl_ca_certs=/var/www/rds-combined-ca-bundle.pem&retryWrites=false".format(
+        os.environ.get("DB_USER"),
+        os.environ.get("DB_PW"),
+        os.environ.get("DB_HOST"),
+        os.environ.get("DB_PORT"),
+    )
+
+else:
+    CONN_STR = "mongodb://{}:{}@{}:{}/".format(
+        os.environ.get("DB_USER"),
+        os.environ.get("DB_PW"),
+        os.environ.get("DB_HOST"),
+        os.environ.get("DB_PORT"),
+    )
 
 client = MongoClient(CONN_STR)
 

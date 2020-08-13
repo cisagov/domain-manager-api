@@ -103,7 +103,8 @@ locals {
     "WEBSITE_STORAGE" : aws_s3_bucket.websites.id,
     "WEBSITE_STORAGE_URL" : aws_s3_bucket.websites.website_endpoint,
     "SOURCE_BUCKET" : aws_s3_bucket.websites.id,
-    "NC_IP" : "0.0.0.0"
+    "NC_IP" : "0.0.0.0",
+    "WORKERS" : 4
   }
 
   secrets = {
