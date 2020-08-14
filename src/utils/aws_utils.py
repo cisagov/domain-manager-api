@@ -9,16 +9,19 @@ import boto3
 
 logger = logging.getLogger(__name__)
 
+HOSTED_ZONE_ID = os.environ.get("HOSTED_ZONE_ID")
+CONTENT_SOURCE = os.environ.get("SOURCE_BUCKET")
+
 # Initialize aws clients
 s3 = boto3.client("s3")
 s3_resource = boto3.resource("s3")
 route53 = boto3.client("route53")
 
-content_source = os.environ.get("SOURCE_BUCKET")
 
-
-def launch_site(website_name, bucket_name):
+def launch_site(website, domain):
     """Launch an active site onto s3."""
+    bucket_name = domain.get("Name")[:-1]
+    website_name = website.get("name")
     available_buckets = [
         bucket.get("Name") for bucket in s3.list_buckets().get("Buckets")
     ]
@@ -32,14 +35,14 @@ def launch_site(website_name, bucket_name):
     waiter.wait(Bucket=bucket_name)
 
     # Copy contents from source
-    source_bucket = s3_resource.Bucket(content_source)
+    source_bucket = s3_resource.Bucket(CONTENT_SOURCE)
     source_keys = [
         obj.key for obj in source_bucket.objects.all() if website_name in obj.key
     ]
 
     for key in source_keys:
         copy_source = {
-            "Bucket": content_source,
+            "Bucket": CONTENT_SOURCE,
             "Key": key,
         }
         bucket = s3_resource.Bucket(bucket_name)
@@ -75,11 +78,15 @@ def launch_site(website_name, bucket_name):
         WebsiteConfiguration={"IndexDocument": {"Suffix": "index.html"}},
     )
 
-    return f"http://{bucket_name}.s3-website-us-east-1.amazonaws.com/"
+    # Setup DNS
+    setup_dns(dns_id=domain.get("Id"), bucket_name=bucket_name)
+
+    return bucket_name
 
 
-def delete_site(bucket_name):
+def delete_site(domain):
     """Delete an active site off s3."""
+    bucket_name = domain.get("Name")[:-1]
     bucket = s3_resource.Bucket(bucket_name)
 
     # delete all objects in bucket
@@ -92,25 +99,57 @@ def delete_site(bucket_name):
     # delete bucket
     s3.delete_bucket(Bucket=bucket_name)
 
+    response = delete_dns(domain.get("Id"), bucket_name)
+    return response
 
-def setup_dns(domain_name, url):
+
+def setup_dns(dns_id, bucket_name):
     """Setup a domain's DNS."""
-    # url = url.replace("http://", "").replace("/", "")
-    # host = nc_api.domains_dns_addHost(
-    #     domain_name,
-    #     {
-    #         "RecordType": "CNAME",
-    #         "HostName": "@",
-    #         "Address": url,
-    #         "MXPref": 10,
-    #         "TTL": 60,
-    #     },
-    # )
-    return None
+    response = route53.change_resource_record_sets(
+        HostedZoneId=dns_id,
+        ChangeBatch={
+            "Comment": bucket_name,
+            "Changes": [
+                {
+                    "Action": "UPSERT",
+                    "ResourceRecordSet": {
+                        "Name": bucket_name,
+                        "Type": "A",
+                        "AliasTarget": {
+                            "HostedZoneId": HOSTED_ZONE_ID,
+                            "EvaluateTargetHealth": False,
+                            "DNSName": "s3-website-us-east-1.amazonaws.com",
+                        },
+                    },
+                }
+            ],
+        },
+    )
+    logger.info(response)
+    return response
 
 
-def delete_dns(domain_name, url):
-    """Delete a domain's host."""
-    # url = url.replace("http://", "").replace("/", "")
-    # host = None
-    return None
+def delete_dns(dns_id, bucket_name):
+    """Setup a domain's DNS."""
+    response = route53.change_resource_record_sets(
+        HostedZoneId=dns_id,
+        ChangeBatch={
+            "Comment": bucket_name,
+            "Changes": [
+                {
+                    "Action": "DELETE",
+                    "ResourceRecordSet": {
+                        "Name": bucket_name,
+                        "Type": "A",
+                        "AliasTarget": {
+                            "HostedZoneId": HOSTED_ZONE_ID,
+                            "EvaluateTargetHealth": False,
+                            "DNSName": "s3-website-us-east-1.amazonaws.com",
+                        },
+                    },
+                }
+            ],
+        },
+    )
+    logger.info(response)
+    return response

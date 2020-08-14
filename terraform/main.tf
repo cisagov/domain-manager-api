@@ -111,8 +111,7 @@ locals {
     "API_KEY" : aws_ssm_parameter.api_key.arn,
     "DB_PW" : aws_ssm_parameter.docdb_password.arn,
     "DB_USER" : aws_ssm_parameter.docdb_username.arn,
-    "NC_USERNAME" : data.aws_ssm_parameter.nc_username.arn,
-    "NC_API_KEY" : data.aws_ssm_parameter.nc_api_key.arn
+    "HOSTED_ZONE_ID" : data.aws_ssm_parameter.hosted_zone_id.arn,
   }
 }
 
