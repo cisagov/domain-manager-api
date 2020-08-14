@@ -119,16 +119,14 @@ def get_active_site(active_site_id):
         active_site = ActiveSite.get_by_id(active_site_id)
         domain = Domain.get_by_id(active_site.get("domain").get("_id"))
         # delete s3 bucket and remove dns from domain
-        response = delete_site(domain)
+        delete_site(domain)
         # delete from database
         ActiveSite.delete(active_site_id)
-        response = {"message": f"Active site is now inactive and deleted. {response}"}
+        response = {"message": "Active site is now inactive and deleted."}
     elif request.method == "PUT":
         put_data = request.json
         ActiveSite.update(
             active_site_id=active_site_id,
-            domain_id=put_data.get("domain_id"),
-            website_id=put_data.get("website_id"),
             application_id=put_data.get("application_id"),
         )
         response = {"message": "Active site has been updated."}

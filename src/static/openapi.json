@@ -1,4 +1,13 @@
 {
+  "components": {
+    "securitySchemes": {
+      "ApiKeyAuth": {
+        "in": "header",
+        "name": "api_key",
+        "type": "apiKey"
+      }
+    }
+  },
   "info": {
     "description": "Domain manager launches static websites and categorizes domains",
     "title": "Domain Manager API",
@@ -6,17 +15,15 @@
   },
   "openapi": "3.0.0",
   "paths": {
-    "/api/domain/{domain_id}": {
+    "/api/domain/{domain_id}/": {
       "get": {
         "description": "Returns a domains by its id",
         "parameters": [
           {
-            "description": "language",
-            "in": "query",
-            "name": "lang",
+            "in": "path",
+            "name": "domain_id",
             "required": true,
             "schema": {
-              "example": "es",
               "type": "string"
             }
           }
@@ -24,9 +31,9 @@
         "responses": {
           "200": {
             "content": {
-              "text/plain": {
+              "application/json": {
                 "schema": {
-                  "example": "hola",
+                  "example": {},
                   "type": "string"
                 }
               }
@@ -34,6 +41,11 @@
             "description": "hello in the requested language"
           }
         },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
         "tags": [
           "Domains"
         ]
@@ -42,24 +54,12 @@
     "/api/domains/": {
       "get": {
         "description": "Returns a list of domains",
-        "parameters": [
-          {
-            "description": "language",
-            "in": "query",
-            "name": "lang",
-            "required": true,
-            "schema": {
-              "example": "es",
-              "type": "string"
-            }
-          }
-        ],
         "responses": {
           "200": {
             "content": {
-              "text/plain": {
+              "application/json": {
                 "schema": {
-                  "example": "hola",
+                  "example": [],
                   "type": "string"
                 }
               }
@@ -67,6 +67,11 @@
             "description": "hello in the requested language"
           }
         },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
         "tags": [
           "Domains"
         ]
@@ -77,12 +82,10 @@
         "description": "Returns a website by its id",
         "parameters": [
           {
-            "description": "language",
-            "in": "query",
-            "name": "lang",
+            "in": "path",
+            "name": "website_id",
             "required": true,
             "schema": {
-              "example": "es",
               "type": "string"
             }
           }
@@ -90,9 +93,9 @@
         "responses": {
           "200": {
             "content": {
-              "text/plain": {
+              "application/json": {
                 "schema": {
-                  "example": "hola",
+                  "example": {},
                   "type": "string"
                 }
               }
@@ -100,6 +103,11 @@
             "description": "hello in the requested language"
           }
         },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
         "tags": [
           "Websites"
         ]
@@ -108,24 +116,12 @@
     "/api/websites/": {
       "get": {
         "description": "Returns a list of websites",
-        "parameters": [
-          {
-            "description": "language",
-            "in": "query",
-            "name": "lang",
-            "required": true,
-            "schema": {
-              "example": "es",
-              "type": "string"
-            }
-          }
-        ],
         "responses": {
           "200": {
             "content": {
-              "text/plain": {
+              "application/json": {
                 "schema": {
-                  "example": "hola",
+                  "example": [],
                   "type": "string"
                 }
               }
@@ -133,6 +129,11 @@
             "description": "hello in the requested language"
           }
         },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
         "tags": [
           "Websites"
         ]
