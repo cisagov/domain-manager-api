@@ -9,10 +9,9 @@ from api.schemas.application_schema import ApplicationSchema
 from api.schemas.domain_schema import DomainSchema
 from api.schemas.website_schema import WebsiteSchema
 from flask import Blueprint, jsonify, request
+from utils.aws_utils import delete_site, launch_site
 from utils.db_utils import db
 from utils.decorator_utils import auth_required
-from utils.namecheap_utils import delete_dns, setup_dns
-from utils.s3_utils import delete_site, launch_site
 
 api = Blueprint("api", __name__, url_prefix="/api")
 
@@ -20,7 +19,7 @@ api = Blueprint("api", __name__, url_prefix="/api")
 @api.route("/domains/", methods=["GET"])
 @auth_required
 def domain_list():
-    """Get a list of domains managed by namecheap."""
+    """Get a list of domains managed by route53."""
     domains_schema = DomainSchema(many=True)
     response = domains_schema.dump(Domain.get_all())
     return jsonify(response), 200
@@ -96,11 +95,9 @@ def active_site_list():
         website = Website.get_by_id(post_data.get("website_id"))
         domain = Domain.get_by_id(post_data.get("domain_id"))
         domain_name = domain.get("Name")
-        # launch S3
+        # launch s3 bucket and setup DNS
         live_site = launch_site(website.get("name"), domain_name)
-        # setup DNS
-        setup_dns(domain_name, live_site)
-        # save data
+        # save to database
         active_site = ActiveSite.create(
             s3_url=live_site,
             domain_id=post_data.get("domain_id"),
@@ -123,10 +120,8 @@ def get_active_site(active_site_id):
     if request.method == "DELETE":
         active_site = ActiveSite.get_by_id(active_site_id)
         domain_name = active_site.get("domain").get("Name")
-        # delete s3 bucket
+        # delete s3 bucket and remove dns from domain
         delete_site(domain_name)
-        # remove dns from domain
-        delete_dns(domain_name, active_site.get("s3_url"))
         # delete from database
         ActiveSite.delete(active_site_id)
         response = {"message": "Active site is now inactive and deleted."}

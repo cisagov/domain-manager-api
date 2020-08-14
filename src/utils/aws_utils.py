@@ -9,9 +9,10 @@ import boto3
 
 logger = logging.getLogger(__name__)
 
-# Initializse S3 clients
+# Initialize aws clients
 s3 = boto3.client("s3")
 s3_resource = boto3.resource("s3")
+route53 = boto3.client("route53")
 
 content_source = os.environ.get("SOURCE_BUCKET")
 
@@ -81,12 +82,35 @@ def delete_site(bucket_name):
     """Delete an active site off s3."""
     bucket = s3_resource.Bucket(bucket_name)
 
-    # Delete all objects in bucket
+    # delete all objects in bucket
     bucket.objects.all().delete()
 
-    # Set waiter
+    # set waiter
     waiter = s3.get_waiter("object_not_exists")
     waiter.wait(Bucket=bucket_name, Key="index.html")
 
-    # Delete bucket
+    # delete bucket
     s3.delete_bucket(Bucket=bucket_name)
+
+
+def setup_dns(domain_name, url):
+    """Setup a domain's DNS."""
+    # url = url.replace("http://", "").replace("/", "")
+    # host = nc_api.domains_dns_addHost(
+    #     domain_name,
+    #     {
+    #         "RecordType": "CNAME",
+    #         "HostName": "@",
+    #         "Address": url,
+    #         "MXPref": 10,
+    #         "TTL": 60,
+    #     },
+    # )
+    return None
+
+
+def delete_dns(domain_name, url):
+    """Delete a domain's host."""
+    # url = url.replace("http://", "").replace("/", "")
+    # host = None
+    return None

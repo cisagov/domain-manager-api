@@ -8,23 +8,17 @@ class Domain(Document):
     """
     Document model for domains.
 
-    Note: DO NOT MODIFY. Domain data is managed by the Namecheap API.
+    Note: DO NOT MODIFY. Domain data is managed by the route53.
     """
 
     def __init__(self, **kwargs):
         """Initialize arguments."""
         self.fields = [
-            "ID",
+            "Id",
             "Name",
-            "User",
-            "Created",
-            "Expires",
-            "IsExpired",
-            "IsLocked",
-            "AutoRenew",
-            "WhoisGuard",
-            "IsPremium",
-            "IsOurDNS",
+            "CallerReference",
+            "Config",
+            "ResourceRecordSetCount",
         ]
         self.document = {k: kwargs.get(k) for k in self.fields}
 
