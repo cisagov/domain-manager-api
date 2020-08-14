@@ -1,7 +1,6 @@
 app    = "domain-manager"
 region = "us-east-1"
 vpc_id = "vpc-074f7db64238a2d16"
-ssm_hosted_zone_id_arn = ""
 
 private_subnet_ids = [
     "subnet-0153f175feb0dfce5",

@@ -29,10 +29,6 @@ variable "docdb_instance_class" {
   default = "db.r5.large"
 }
 
-variable "ssm_hosted_zone_id_arn" {
-  type = string
-}
-
 variable "image_repo" {
   type = string
 }
