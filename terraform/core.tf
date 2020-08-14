@@ -101,4 +101,3 @@ resource "aws_ssm_parameter" "domain" {
   type        = "SecureString"
   value       = aws_cognito_user_pool_domain.domain.domain
 }
-
