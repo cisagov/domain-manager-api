@@ -9,6 +9,7 @@
   env:
     ENVIRONMENT: dev
     IMAGE_NAME: domain-manager-api
+    ECR_URI: ${{ secrets.ECR_URI }}
     REGION: us-east-1
     PIP_CACHE_DIR: ~/.cache/pip
     PRE_COMMIT_CACHE_DIR: ~/.cache/pre-commit
@@ -87,7 +88,7 @@
   
         - name: Terraform Plan
           working-directory: ./terraform
-          run: terraform plan -input=false -var="image_tag=${{steps.vars.outputs.tag}}" -var="env=$ENVIRONMENT"
+          run: terraform plan -input=false -var="image_tag=${{steps.vars.outputs.tag}}" -var="env=$ENVIRONMENT" -var="image_repo=$ECR_URI"
   
     python_tests:
       runs-on: ubuntu-latest
