@@ -55,18 +55,14 @@ class ActiveSite(Document):
         return db.active_sites.insert_one(post_data)
 
     @staticmethod
-    def update(active_site_id, domain_id, website_id, application_id):
+    def update(active_site_id, application_id):
         """Update an existing active site."""
-        website = db.websites.find_one({"_id": ObjectId(website_id)})
-        post_data = {
-            "name": website.get("name"),
-            "domain": db.domains.find_one({"_id": ObjectId(domain_id)}),
-            "website": website,
+        put_data = {
             "application": db.applications.find_one({"_id": ObjectId(application_id)}),
         }
 
         db.active_sites.find_one_and_update(
-            {"_id": ObjectId(active_site_id)}, {"$set": post_data},
+            {"_id": ObjectId(active_site_id)}, {"$set": put_data},
         )
 
     @staticmethod
