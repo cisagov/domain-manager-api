@@ -1,10 +1,6 @@
 # ===================================
-# NameCheap Credentials
+# Hosted Zone Credentials
 # ===================================
-data "aws_ssm_parameter" "nc_username" {
-  name = "/${var.env}/${var.app}/namecheap/username"
-}
-
-data "aws_ssm_parameter" "nc_api_key" {
-  name = "/${var.env}/${var.app}/namecheap/api-key"
+data "aws_ssm_parameter" "hosted_zone_id" {
+  name = "/${var.env}/${var.app}/hosted-zone-id"
 }

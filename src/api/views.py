@@ -9,10 +9,9 @@ from api.schemas.application_schema import ApplicationSchema
 from api.schemas.domain_schema import DomainSchema
 from api.schemas.website_schema import WebsiteSchema
 from flask import Blueprint, jsonify, request
+from utils.aws_utils import delete_dns, delete_site, launch_site, setup_dns
 from utils.db_utils import db
 from utils.decorator_utils import auth_required
-from utils.namecheap_utils import delete_dns, setup_dns
-from utils.s3_utils import delete_site, launch_site
 
 api = Blueprint("api", __name__, url_prefix="/api")
 
@@ -20,7 +19,7 @@ api = Blueprint("api", __name__, url_prefix="/api")
 @api.route("/domains/", methods=["GET"])
 @auth_required
 def domain_list():
-    """Get a list of domains managed by namecheap."""
+    """Get a list of domains managed by route53."""
     domains_schema = DomainSchema(many=True)
     response = domains_schema.dump(Domain.get_all())
     return jsonify(response), 200
@@ -90,17 +89,13 @@ def get_application(application_id):
 @auth_required
 def active_site_list():
     """Get a list of active sites. Create a new active site."""
-    print(request.headers.get("api_key"))
     if request.method == "POST":
         post_data = request.json
         website = Website.get_by_id(post_data.get("website_id"))
         domain = Domain.get_by_id(post_data.get("domain_id"))
-        domain_name = domain.get("Name")
-        # launch S3
-        live_site = launch_site(website.get("name"), domain_name)
-        # setup DNS
-        setup_dns(domain_name, live_site)
-        # save data
+        # launch s3 bucket and set dns
+        live_site = launch_site(website, domain)
+        # save to database
         active_site = ActiveSite.create(
             s3_url=live_site,
             domain_id=post_data.get("domain_id"),
@@ -108,7 +103,7 @@ def active_site_list():
             application_id=post_data.get("application_id"),
         )
         response = {
-            "message": f"Active site with id {active_site.inserted_id} has been launched. Visit: http://{domain_name}"
+            "message": f"Active site with id {active_site.inserted_id} has been launched. Visit: http://{live_site}"
         }
     else:
         active_sites_schema = ActiveSiteSchema(many=True)
@@ -122,14 +117,12 @@ def get_active_site(active_site_id):
     """Get an active site by its id. Update active site data. Delete an active site by its id."""
     if request.method == "DELETE":
         active_site = ActiveSite.get_by_id(active_site_id)
-        domain_name = active_site.get("domain").get("Name")
-        # delete s3 bucket
-        delete_site(domain_name)
-        # remove dns from domain
-        delete_dns(domain_name, active_site.get("s3_url"))
+        domain = Domain.get_by_id(active_site.get("domain").get("_id"))
+        # delete s3 bucket and remove dns from domain
+        response = delete_site(domain)
         # delete from database
         ActiveSite.delete(active_site_id)
-        response = {"message": "Active site is now inactive and deleted."}
+        response = {"message": f"Active site is now inactive and deleted. {response}"}
     elif request.method == "PUT":
         put_data = request.json
         ActiveSite.update(

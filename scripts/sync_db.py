@@ -6,36 +6,42 @@ import os
 # Third-Party Libraries
 import boto3
 from dotenv import load_dotenv
-from namecheap import Api
 import pymongo
 
 load_dotenv()
 logger = logging.getLogger()
 
 WEBSITE_STORAGE_URL = os.environ.get("WEBSITE_STORAGE_URL")
-CONN_STR = "mongodb://{}:{}@localhost:27016/".format(
-    os.environ.get("DB_USER"), os.environ.get("DB_PW"),
-)
+
+
+if os.environ.get("MONGO_TYPE", "MONGO") == "DOCUMENTDB":
+    CONN_STR = "mongodb://{}:{}@{}:{}/?ssl=true&ssl_ca_certs=/var/www/rds-combined-ca-bundle.pem&retryWrites=false".format(
+        os.environ.get("DB_USER"),
+        os.environ.get("DB_PW"),
+        os.environ.get("DB_HOST"),
+        os.environ.get("DB_PORT"),
+    )
+
+else:
+    CONN_STR = "mongodb://{}:{}@{}:{}/".format(
+        os.environ.get("DB_USER"),
+        os.environ.get("DB_PW"),
+        os.environ.get("DB_HOST"),
+        os.environ.get("DB_PORT"),
+    )
 
 client = pymongo.MongoClient(CONN_STR)
 
 db = client.domain_management
 
-# Initialize namecheap api client
-nc_api = Api(
-    ApiUser=os.environ.get("NC_USERNAME"),
-    UserName=os.environ.get("NC_USERNAME"),
-    ApiKey=os.environ.get("NC_API_KEY"),
-    ClientIP=os.environ.get("NC_IP"),
-    sandbox=False,
-)
+# Initialize AWS Clients
+s3 = boto3.client("s3")
+route53 = boto3.client("route53")
 
 
 def load_s3():
     """Load the latest website data from s3 into the database."""
     db_sites = db.websites
-
-    s3 = boto3.client("s3")
 
     # List websites within the S3 Repository
     websites = s3.list_objects(Bucket="con-pca-dev-websites")
@@ -57,13 +63,9 @@ def load_s3():
 
 
 def load_domains():
-    """Load the latest domain data from namecheap into the database."""
+    """Load the latest domain data from route53 into the database."""
     db_domains = db.domains
-    domain_load = [
-        i
-        for i in nc_api.domains_getList()
-        if not db_domains.find_one({"Name": i.get("Name")})
-    ]
+    domain_load = route53.list_hosted_zones().get("HostedZones")
 
     # Save latest data to the database
     if domain_load != []:

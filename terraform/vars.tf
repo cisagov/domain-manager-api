@@ -29,14 +29,6 @@ variable "docdb_instance_class" {
   default = "db.r5.large"
 }
 
-variable "ssm_nc_username_arn" {
-  type = string
-}
-
-variable "ssm_nc_api_key_arn" {
-  type = string
-}
-
 variable "image_repo" {
   type = string
 }
