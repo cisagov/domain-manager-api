@@ -15,7 +15,7 @@
   },
   "openapi": "3.0.0",
   "paths": {
-    "/api/application/{application_id}": {
+    "/api/application/{application_id}/": {
       "delete": {
         "parameters": [
           {
@@ -58,7 +58,12 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "example": {},
+                  "example": {
+                    "_id": "12345d",
+                    "name": "application name",
+                    "requested_date": "2020-08-14T20:54:43.058000",
+                    "requester_name": "user"
+                  },
                   "type": "string"
                 }
               }
@@ -81,14 +86,6 @@
           {
             "in": "path",
             "name": "application_id",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "in": "query",
-            "name": "name",
             "required": true,
             "schema": {
               "type": "string"
@@ -154,16 +151,6 @@
         ]
       },
       "post": {
-        "parameters": [
-          {
-            "in": "query",
-            "name": "name",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
         "requestBody": {
           "content": {
             "application/json": {
