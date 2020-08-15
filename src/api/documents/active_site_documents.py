@@ -18,16 +18,16 @@ class ActiveSite(Document):
             "domain",
             "website",
             "application",
-            "is_available",
+            "is_categorized",
             "is_registered_on_mailgun",
             "launch_date",
         ]
         self.document = {k: kwargs.get(k) for k in self.fields}
 
     @staticmethod
-    def get_by_id(active_site_id):
+    def get_by_id(live_site_id):
         """Get an active site by id."""
-        return db.active_sites.find_one({"_id": ObjectId(active_site_id)})
+        return db.active_sites.find_one({"_id": ObjectId(live_site_id)})
 
     @staticmethod
     def get_all():
@@ -36,7 +36,7 @@ class ActiveSite(Document):
 
     @staticmethod
     def create(s3_url, domain_id, website_id, application_id):
-        """Launch an active site."""
+        """Launch a live website."""
         # make names unique
         if "active_sites" not in db.list_collection_names():
             db.active_sites.create_index("name", unique=True)
@@ -48,24 +48,24 @@ class ActiveSite(Document):
             "domain": db.domains.find_one({"_id": ObjectId(domain_id)}),
             "website": website,
             "application": db.applications.find_one({"_id": ObjectId(application_id)}),
-            "is_available": True,
-            "is_registered_on_mailgun": True,
+            "is_categorized": False,
+            "is_registered_on_mailgun": False,
             "launch_date": datetime.datetime.utcnow(),
         }
         return db.active_sites.insert_one(post_data)
 
     @staticmethod
-    def update(active_site_id, application_id):
+    def update(live_site_id, application_id):
         """Update an existing active site."""
         put_data = {
             "application": db.applications.find_one({"_id": ObjectId(application_id)}),
         }
 
         db.active_sites.find_one_and_update(
-            {"_id": ObjectId(active_site_id)}, {"$set": put_data},
+            {"_id": ObjectId(live_site_id)}, {"$set": put_data},
         )
 
     @staticmethod
-    def delete(active_site_id):
+    def delete(live_site_id):
         """Delete an active site by id."""
-        return db.active_sites.delete_one({"_id": ObjectId(active_site_id)})
+        return db.active_sites.delete_one({"_id": ObjectId(live_site_id)})

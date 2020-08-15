@@ -12,6 +12,6 @@ class ActiveSiteSchema(Schema):
     domain = fields.Nested(domain_schema.DomainSchema)
     website = fields.Nested(website_schema.WebsiteSchema)
     application = fields.Nested(application_schema.ApplicationSchema)
-    is_available = fields.Boolean(required=True)
+    is_categorized = fields.Boolean(required=True)
     is_registered_on_mailgun = fields.Boolean(required=True)
     launch_date = fields.DateTime(required=True)

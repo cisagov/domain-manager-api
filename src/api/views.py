@@ -85,7 +85,7 @@ def get_application(application_id):
     return jsonify(response), 200
 
 
-@api.route("/active-sites/", methods=["GET", "POST"])
+@api.route("/live-sites/", methods=["GET", "POST"])
 @auth_required
 def active_site_list():
     """Get a list of active sites. Create a new active site."""
@@ -111,26 +111,25 @@ def active_site_list():
     return jsonify(response), 200
 
 
-@api.route("/active-site/<active_site_id>/", methods=["GET", "DELETE", "PUT"])
+@api.route("/live-site/<live_site_id>/", methods=["GET", "DELETE", "PUT"])
 @auth_required
-def get_active_site(active_site_id):
+def get_active_site(live_site_id):
     """Get an active site by its id. Update active site data. Delete an active site by its id."""
     if request.method == "DELETE":
-        active_site = ActiveSite.get_by_id(active_site_id)
+        active_site = ActiveSite.get_by_id(live_site_id)
         domain = Domain.get_by_id(active_site.get("domain").get("_id"))
         # delete s3 bucket and remove dns from domain
         delete_site(domain)
         # delete from database
-        ActiveSite.delete(active_site_id)
+        ActiveSite.delete(live_site_id)
         response = {"message": "Active site is now inactive and deleted."}
     elif request.method == "PUT":
         put_data = request.json
         ActiveSite.update(
-            active_site_id=active_site_id,
-            application_id=put_data.get("application_id"),
+            live_site_id=live_site_id, application_id=put_data.get("application_id"),
         )
         response = {"message": "Active site has been updated."}
     else:
         active_site_schema = ActiveSiteSchema()
-        response = active_site_schema.dump(ActiveSite.get_by_id(active_site_id))
+        response = active_site_schema.dump(ActiveSite.get_by_id(live_site_id))
     return jsonify(response), 200
