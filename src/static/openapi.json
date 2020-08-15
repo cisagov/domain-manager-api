@@ -246,7 +246,7 @@
         ]
       }
     },
-    "/api/website/{website_id}": {
+    "/api/website/{website_id}/": {
       "get": {
         "parameters": [
           {
