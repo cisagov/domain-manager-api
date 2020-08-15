@@ -15,9 +15,177 @@
   },
   "openapi": "3.0.0",
   "paths": {
+    "/api/application/{application_id}/": {
+      "delete": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "application_id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "summary": "Deletes an application",
+        "tags": [
+          "Applications"
+        ]
+      },
+      "get": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "application_id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "_id": "12345d",
+                    "name": "application name",
+                    "requested_date": "2020-08-14T20:54:43.058000",
+                    "requester_name": "user"
+                  },
+                  "type": "string"
+                }
+              }
+            },
+            "description": "Returns an application by its id"
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "summary": "Get a specific application by its id",
+        "tags": [
+          "Applications"
+        ]
+      },
+      "put": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "application_id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "example": {
+                  "name": "Con-PCA"
+                },
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  }
+                },
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "summary": "Updates an existing application",
+        "tags": [
+          "Applications"
+        ]
+      }
+    },
+    "/api/applications/": {
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": [],
+                  "type": "string"
+                }
+              }
+            },
+            "description": "List of applications."
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "summary": "Get a list of applications",
+        "tags": [
+          "Applications"
+        ]
+      },
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "example": {
+                  "name": "Con-PCA"
+                },
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  }
+                },
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "summary": "Adds a new application",
+        "tags": [
+          "Applications"
+        ]
+      }
+    },
     "/api/domain/{domain_id}/": {
       "get": {
-        "description": "Returns a domains by its id",
         "parameters": [
           {
             "in": "path",
@@ -38,7 +206,7 @@
                 }
               }
             },
-            "description": "hello in the requested language"
+            "description": "Returns domain details."
           }
         },
         "security": [
@@ -46,6 +214,7 @@
             "ApiKeyAuth": []
           }
         ],
+        "summary": "Get a registered domain by its id",
         "tags": [
           "Domains"
         ]
@@ -53,7 +222,6 @@
     },
     "/api/domains/": {
       "get": {
-        "description": "Returns a list of domains",
         "responses": {
           "200": {
             "content": {
@@ -64,7 +232,7 @@
                 }
               }
             },
-            "description": "hello in the requested language"
+            "description": "List of domains"
           }
         },
         "security": [
@@ -72,6 +240,7 @@
             "ApiKeyAuth": []
           }
         ],
+        "summary": "Get a list of of registered domains",
         "tags": [
           "Domains"
         ]
@@ -79,7 +248,6 @@
     },
     "/api/website/{website_id}": {
       "get": {
-        "description": "Returns a website by its id",
         "parameters": [
           {
             "in": "path",
@@ -100,7 +268,7 @@
                 }
               }
             },
-            "description": "hello in the requested language"
+            "description": "Returns website details."
           }
         },
         "security": [
@@ -108,6 +276,7 @@
             "ApiKeyAuth": []
           }
         ],
+        "summary": "Get website content by its id",
         "tags": [
           "Websites"
         ]
@@ -115,7 +284,6 @@
     },
     "/api/websites/": {
       "get": {
-        "description": "Returns a list of websites",
         "responses": {
           "200": {
             "content": {
@@ -126,7 +294,7 @@
                 }
               }
             },
-            "description": "hello in the requested language"
+            "description": "List of available s3 websites"
           }
         },
         "security": [
@@ -134,6 +302,7 @@
             "ApiKeyAuth": []
           }
         ],
+        "summary": "Get a list of website content",
         "tags": [
           "Websites"
         ]
