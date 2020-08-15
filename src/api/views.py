@@ -134,23 +134,3 @@ def get_active_site(active_site_id):
         active_site_schema = ActiveSiteSchema()
         response = active_site_schema.dump(ActiveSite.get_by_id(active_site_id))
     return jsonify(response), 200
-
-
-@api.route("/websitedata/", methods=["POST"])
-@auth_required
-def website_data():
-    """Temporary."""
-    post_data = request.json
-    domain_db = db.websites
-    domain_db.insert_many(post_data)
-    return jsonify({"message": "pass"}), 200
-
-
-@api.route("/domaindata/", methods=["POST"])
-@auth_required
-def domain_data():
-    """Temporary."""
-    post_data = request.json
-    domain_db = db.domains
-    domain_db.insert_many(post_data)
-    return jsonify({"message": "pass"}), 200
