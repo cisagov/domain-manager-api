@@ -197,7 +197,7 @@ module "browserless" {
   stage     = var.env
   name      = "browserless"
 
-  vpc_id     = data.aws_vpc.vpc.id
-  subnet_ids = data.aws_subnet_ids.private.ids
+  vpc_id     = var.vpc_id
+  subnet_ids = var.private_subnet_ids
   lb_port    = 3000
 }
