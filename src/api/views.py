@@ -11,7 +11,7 @@ from api.schemas.website_schema import WebsiteSchema
 from flask import Blueprint, jsonify, request
 from utils.aws_utils import delete_dns, delete_site, launch_site, setup_dns
 from utils.db_utils import db
-from utils.decorator_utils import auth_required
+from utils.decorators.auth import auth_required
 
 api = Blueprint("api", __name__, url_prefix="/api")
 
