@@ -163,6 +163,7 @@ module "api_fargate" {
   health_check_interval = 60
   health_check_path     = "/"
   health_check_codes    = "200"
+  iam_policy_document   = data.aws_iam_policy_document.api.json
   load_balancer_arn     = module.alb.alb_arn
   load_balancer_port    = local.api_lb_port
   desired_count         = 1
