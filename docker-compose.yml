@@ -29,6 +29,16 @@ services:
       - .env
     networks:
       - backend
+  browserless:
+    image: browserless/chrome:latest
+    container_name: dm-browserless
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env
+    networks:
+      - backend
+
 volumes:
   mongodb_data:
 

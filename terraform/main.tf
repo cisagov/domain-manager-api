@@ -104,6 +104,7 @@ locals {
     "WEBSITE_STORAGE_URL" : aws_s3_bucket.websites.website_endpoint,
     "SOURCE_BUCKET" : aws_s3_bucket.websites.id,
     "NC_IP" : "0.0.0.0",
+    "BROWSERLESS_ENDPOINT" : module.browserless.lb_dns_name,
     "WORKERS" : 4
   }
 
@@ -133,6 +134,19 @@ module "api_container" {
 # ===================================
 # Fargate Service
 # ===================================
+data "aws_iam_policy_document" "api" {
+  statement {
+    actions = [
+      "s3:*",
+      "route53:*"
+    ]
+
+    resources = [
+      "*"
+    ]
+  }
+}
+
 module "api_fargate" {
   source    = "github.com/cisagov/fargate-service-tf-module"
   namespace = var.app
@@ -184,4 +198,19 @@ resource "aws_security_group" "api" {
   tags = {
     "Name" = "${var.app}-${var.env}-api-alb"
   }
+}
+
+# ===========================
+# BROWSERLESS
+# ===========================
+module "browserless" {
+  source    = "github.com/cisagov/fargate-browserless-tf-module"
+  region    = var.region
+  namespace = var.app
+  stage     = var.env
+  name      = "browserless"
+
+  vpc_id     = var.vpc_id
+  subnet_ids = var.private_subnet_ids
+  lb_port    = 3000
 }
