@@ -104,6 +104,7 @@ locals {
     "WEBSITE_STORAGE_URL" : aws_s3_bucket.websites.website_endpoint,
     "SOURCE_BUCKET" : aws_s3_bucket.websites.id,
     "NC_IP" : "0.0.0.0",
+    "BROWSERLESS_ENDPOINT" : "${aws_lb.network.dns_name}:3000",
     "WORKERS" : 4
   }
 
