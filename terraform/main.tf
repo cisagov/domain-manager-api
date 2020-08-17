@@ -104,7 +104,7 @@ locals {
     "WEBSITE_STORAGE_URL" : aws_s3_bucket.websites.website_endpoint,
     "SOURCE_BUCKET" : aws_s3_bucket.websites.id,
     "NC_IP" : "0.0.0.0",
-    "BROWSERLESS_ENDPOINT" : "${aws_lb.network.dns_name}:3000",
+    "BROWSERLESS_ENDPOINT" : module.browserless.lb_dns_name,
     "WORKERS" : 4
   }
 
@@ -185,4 +185,19 @@ resource "aws_security_group" "api" {
   tags = {
     "Name" = "${var.app}-${var.env}-api-alb"
   }
+}
+
+# ===========================
+# BROWSERLESS
+# ===========================
+module "browserless" {
+  source    = "github.com/cisagov/fargate-browserless-tf-module"
+  region    = var.region
+  namespace = var.app
+  stage     = var.env
+  name      = "browserless"
+
+  vpc_id     = data.aws_vpc.vpc.id
+  subnet_ids = data.aws_subnet_ids.private.ids
+  lb_port    = 3000
 }
