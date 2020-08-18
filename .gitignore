@@ -89,3 +89,8 @@ venv.bak/
 
 # DS Store
 **/.DS_Store
+
+# Terraform
+.Terraform
+terraform/python
+terraform/output
