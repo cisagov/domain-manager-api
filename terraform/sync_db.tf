@@ -20,14 +20,14 @@ resource "aws_lambda_layer_version" "layer" {
 # ===================================
 data "archive_file" "sync_db" {
   type        = "zip"
-  source_file = "${path.module}/../src/lambda_functions/sync_db.py"
+  source_dir = "${path.module}/../src/lambda_functions/sync_db/"
   output_path = "${path.module}/output/sync_db.zip"
 }
 
 resource "aws_lambda_function" "sync_db" {
   filename         = data.archive_file.sync_db.output_path
   function_name    = "${var.app}-${var.env}-sync_db"
-  handler          = "sync_db.lambda_handler"
+  handler          = "handler.lambda_handler"
   layers           = [aws_lambda_layer_version.layer.arn]
   role             = aws_iam_role.lambda_exec_role.arn
   memory_size      = 128
@@ -36,7 +36,14 @@ resource "aws_lambda_function" "sync_db" {
   timeout          = 300
 
   environment {
-    variables = local.environment
+    variables = {
+      "DB_USER": aws_ssm_parameter.docdb_username.value,
+      "DB_PW": aws_ssm_parameter.docdb_password.value,
+      "DB_HOST": module.documentdb.endpoint,
+      "DB_PORT": 27017,
+      "WEBSITE_STORAGE_URL": aws_s3_bucket.websites.website_endpoint,
+      "SOURCE_BUCKET": aws_s3_bucket.websites.id
+    }
   }
 
   vpc_config {

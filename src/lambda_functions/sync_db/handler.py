@@ -8,7 +8,6 @@ import boto3
 from dotenv import load_dotenv
 import pymongo
 
-load_dotenv()
 logger = logging.getLogger()
 
 WEBSITE_STORAGE_URL = os.environ.get("WEBSITE_STORAGE_URL")
@@ -81,5 +80,6 @@ def lambda_handler(event, context):
 
 
 if __name__ == "__main__":
+    load_dotenv()
     load_domains()
     load_s3()
