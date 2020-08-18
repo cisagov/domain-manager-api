@@ -184,6 +184,34 @@
         ]
       }
     },
+    "/api/categorize/{live_site_id}/": {
+      "get": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "live_site_id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Categorize an active site's domain"
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "summary": "Categorize an active site's domain",
+        "tags": [
+          "Categorization"
+        ]
+      }
+    },
     "/api/domain/{domain_id}/": {
       "get": {
         "parameters": [
