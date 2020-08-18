@@ -1,16 +1,7 @@
 # ===================================
 # Lambda Layer
 # ===================================
-resource "null_resource" "install_layer" {
-  provisioner "local-exec" {
-    command     = "mkdir layer && mkdir layer/python  && pip install -r ../requirements.txt -t layer/python/"
-    working_dir = path.module
-  }
-}
-
 data "archive_file" "layer" {
-  depends_on = [null_resource.install_layer]
-
   type        = "zip"
   source_dir  = "${path.module}/layer"
   output_path = "${path.module}/output/layer.zip"

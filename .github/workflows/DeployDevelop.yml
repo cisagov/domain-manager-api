@@ -59,6 +59,14 @@ jobs:
         with:
           terraform_version: 0.12.28
 
+      - name: Create Layer
+        working-directory: ./terraform
+        run: |
+          mkdir layer
+          mkdir layer/python
+          pip install -r ../requirements.txt -t layer/python/
+        
+
       - name: Verify Terraform version
         run: terraform --version
 
