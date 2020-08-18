@@ -74,6 +74,12 @@ def load_domains():
         logger.info("Database has been synchronized with domain data.")
 
 
+def lambda_handler(event, context):
+    """Lambda handler."""
+    load_domains()
+    load_s3()
+
+
 if __name__ == "__main__":
     load_domains()
     load_s3()
