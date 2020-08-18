@@ -15,7 +15,7 @@ SOURCE_BUCKET = os.environ.get("SOURCE_BUCKET")
 
 
 if os.environ.get("MONGO_TYPE", "MONGO") == "DOCUMENTDB":
-    CONN_STR = "mongodb://{}:{}@{}:{}/?ssl=true&ssl_ca_certs=/var/www/rds-combined-ca-bundle.pem&retryWrites=false".format(
+    CONN_STR = "mongodb://{}:{}@{}:{}/?ssl=true&ssl_ca_certs=rds-combined-ca-bundle.pem&retryWrites=false".format(
         os.environ.get("DB_USER"),
         os.environ.get("DB_PW"),
         os.environ.get("DB_HOST"),
