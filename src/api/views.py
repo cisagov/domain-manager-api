@@ -12,6 +12,7 @@ from flask import Blueprint, jsonify, request
 from utils.aws_utils import delete_dns, delete_site, launch_site, setup_dns
 from utils.db_utils import db
 from utils.decorators.auth import auth_required
+from utils.domain_categorization.proxies import trustedsource
 
 api = Blueprint("api", __name__, url_prefix="/api")
 
@@ -133,3 +134,22 @@ def get_active_site(live_site_id):
         active_site_schema = ActiveSiteSchema()
         response = active_site_schema.dump(ActiveSite.get_by_id(live_site_id))
     return jsonify(response), 200
+
+
+@api.route("/categorize/<live_site_id>/", methods=["GET"])
+@auth_required
+def categorize_domain(live_site_id):
+    """Categorize an active site by using available proxies."""
+    active_site = ActiveSite.get_by_id(live_site_id)
+    domain = active_site.get("domain").get("Name")
+    if active_site.get("is_categorized"):
+        return jsonify({"Error": f"{domain} has already been categorized."})
+
+    # Submit domain to trusted source proxy
+    trusted_source = trustedsource.submit_url(domain)
+
+    # Update database
+    ActiveSite.update(live_site_id=live_site_id, is_categorized=True)
+    return jsonify(
+        {"message": f"{domain} has been categorized", "proxy message": trusted_source}
+    )

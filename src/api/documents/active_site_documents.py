@@ -55,11 +55,19 @@ class ActiveSite(Document):
         return db.active_sites.insert_one(post_data)
 
     @staticmethod
-    def update(live_site_id, application_id):
+    def update(live_site_id, **kwargs):
         """Update an existing active site."""
-        put_data = {
-            "application": db.applications.find_one({"_id": ObjectId(application_id)}),
-        }
+        put_data = {}
+        if "application_id" in kwargs:
+            put_data.update(
+                {
+                    "application": db.applications.find_one(
+                        {"_id": ObjectId(kwargs.get("application_id"))}
+                    ),
+                }
+            )
+        if "is_categorized" in kwargs:
+            put_data.update({"is_categorized": kwargs.get("is_categorized")})
 
         db.active_sites.find_one_and_update(
             {"_id": ObjectId(live_site_id)}, {"$set": put_data},
