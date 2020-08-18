@@ -12,6 +12,7 @@ load_dotenv()
 logger = logging.getLogger()
 
 WEBSITE_STORAGE_URL = os.environ.get("WEBSITE_STORAGE_URL")
+SOURCE_BUCKET = os.environ.get("SOURCE_BUCKET")
 
 
 if os.environ.get("MONGO_TYPE", "MONGO") == "DOCUMENTDB":
@@ -44,7 +45,7 @@ def load_s3():
     db_sites = db.websites
 
     # List websites within the S3 Repository
-    websites = s3.list_objects(Bucket="con-pca-dev-websites")
+    websites = s3.list_objects(Bucket=SOURCE_BUCKET)
 
     # Pull Available websites
     available_prefixes = {i.get("Key").split("/")[0] for i in websites.get("Contents")}
