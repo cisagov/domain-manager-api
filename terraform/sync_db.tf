@@ -115,6 +115,15 @@ data "aws_iam_policy_document" "lambda_policy_doc" {
       "ec2:DeleteNetworkInterface"
     ]
   }
+
+  statement {
+    actions = [
+      "s3:*", 
+      "route53:*"
+    ]
+
+    resources = ["*"]
+  }
 }
 
 resource "aws_iam_policy" "lambda_iam_policy" {
