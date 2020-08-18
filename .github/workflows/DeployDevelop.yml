@@ -48,6 +48,13 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
+      - uses: actions/setup-python@v1
+        with:
+          python-version: 3.8
+
+      - name: Upgrade Pip
+        run: pip install --upgrade pip
+
       - uses: hashicorp/setup-terraform@v1
         with:
           terraform_version: 0.12.28

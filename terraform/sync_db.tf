@@ -44,6 +44,10 @@ resource "aws_lambda_function" "sync_db" {
   source_code_hash = data.archive_file.sync_db.output_base64sha256
   timeout          = 300
 
+  environment {
+    variables = local.environment
+  }
+
   vpc_config {
     subnet_ids         = var.private_subnet_ids
     security_group_ids = [aws_security_group.api.id]
