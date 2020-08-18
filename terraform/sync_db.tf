@@ -95,7 +95,7 @@ data "aws_iam_policy_document" "lambda_policy_doc" {
   }
 
   statement {
-    sid = "Allow Attaching to VPC"
+    sid = "AllowVPC"
     effect = "Allow"
     
     resources = [
