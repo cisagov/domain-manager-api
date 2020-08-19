@@ -149,7 +149,7 @@ resource "aws_cloudwatch_event_rule" "every_one_hour" {
 resource "aws_cloudwatch_event_target" "check_every_one_hour" {
   rule      = "${aws_cloudwatch_event_rule.every_one_hour.name}"
   target_id = "lambda"
-  arn       = "${aws_lambda_function.lambda.arn}"
+  arn       = "${aws_lambda_function.sync_db.arn}"
 }
 resource "aws_lambda_permission" "allow_cloudwatch_to_call_check_sync_db" {
   statement_id  = "AllowExecutionFromCloudWatch"
