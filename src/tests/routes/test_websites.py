@@ -4,7 +4,7 @@ import json
 from unittest import mock
 
 # Third-Party Libraries
-from api.documents.website_documents import Website
+from api.documents.website import Website
 from faker import Faker
 import pytest
 

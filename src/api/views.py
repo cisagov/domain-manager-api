@@ -1,16 +1,16 @@
 """API routes."""
 # Third-Party Libraries
-from api.documents.active_site_documents import ActiveSite
-from api.documents.application_documents import Application
-from api.documents.domain_documents import Domain
-from api.documents.website_documents import Website
+from api.documents.active_site import ActiveSite
+from api.documents.application import Application
+from api.documents.domain import Domain
+from api.documents.website import Website
 from api.schemas.active_site_schema import ActiveSiteSchema
 from api.schemas.application_schema import ApplicationSchema
 from api.schemas.domain_schema import DomainSchema
 from api.schemas.website_schema import WebsiteSchema
 from flask import Blueprint, current_app, jsonify, request
-from utils.aws_utils import delete_dns, delete_site, launch_site, setup_dns
-from utils.db_utils import db
+from utils.aws import delete_dns, delete_site, launch_site, setup_dns
+from utils.db import db
 from utils.decorators.auth import auth_required
 from utils.domain_categorization.proxies import trustedsource
 
