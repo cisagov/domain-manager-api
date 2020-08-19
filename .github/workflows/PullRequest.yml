@@ -112,6 +112,9 @@ jobs:
 
       # - name: Install Requirements
       #   run: pip install --upgrade --requirement requirements-test.txt
+      - name: create env file
+        run: |
+          touch .env
 
       - name: docker-compose up
         env:
