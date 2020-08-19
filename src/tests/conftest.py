@@ -1,0 +1,29 @@
+"""Unit testing config."""
+# Standard Python Libraries
+import os
+
+# Third-Party Libraries
+from main import app as current_app
+import pytest
+
+API_KEY = os.environ.get("API_KEY")
+
+
+@pytest.fixture
+def auth_header():
+    """Api key for authorized access."""
+    return {"api_key": API_KEY}
+
+
+@pytest.fixture
+def app():
+    """App fixture."""
+    yield current_app
+
+
+@pytest.fixture
+def client(app):
+    """Initialize test client."""
+    app.config["TESTING"] = True
+
+    return app.test_client()

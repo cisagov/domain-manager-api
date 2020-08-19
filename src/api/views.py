@@ -8,7 +8,7 @@ from api.schemas.active_site_schema import ActiveSiteSchema
 from api.schemas.application_schema import ApplicationSchema
 from api.schemas.domain_schema import DomainSchema
 from api.schemas.website_schema import WebsiteSchema
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, current_app, jsonify, request
 from utils.aws_utils import delete_dns, delete_site, launch_site, setup_dns
 from utils.db_utils import db
 from utils.decorators.auth import auth_required
@@ -146,7 +146,9 @@ def categorize_domain(live_site_id):
         return jsonify({"Error": f"{domain} has already been categorized."})
 
     # Submit domain to trusted source proxy
-    trusted_source = trustedsource.submit_url(domain)
+    trusted_source = ""
+    if not current_app.config["TESTING"]:
+        trusted_source = trustedsource.submit_url(domain)
 
     # Update database
     ActiveSite.update(live_site_id=live_site_id, is_categorized=True)
