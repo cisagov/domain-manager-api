@@ -94,26 +94,37 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - uses: actions/setup-python@v1
-        with:
-          python-version: 3.8
-      - name: Cache pip test requirements
-        uses: actions/cache@v2
-        with:
-          path: ${{ env.PIP_CACHE_DIR }}
-          key: "${{ runner.os }}-pip-test-\
-            ${{ hashFiles('**/requirements-test.txt') }}"
-          restore-keys: |
-            ${{ runner.os }}-pip-test-
-            ${{ runner.os }}-pip-
+      # - uses: actions/setup-python@v1
+      #   with:
+      #     python-version: 3.8
+      # - name: Cache pip test requirements
+      #   uses: actions/cache@v2
+      #   with:
+      #     path: ${{ env.PIP_CACHE_DIR }}
+      #     key: "${{ runner.os }}-pip-test-\
+      #       ${{ hashFiles('**/requirements-test.txt') }}"
+      #     restore-keys: |
+      #       ${{ runner.os }}-pip-test-
+      #       ${{ runner.os }}-pip-
 
-      - name: Upgrade Pip
-        run: python -m pip install --upgrade pip
+      # - name: Upgrade Pip
+      #   run: python -m pip install --upgrade pip
 
-      - name: Install Requirements
-        run: pip install --upgrade --requirement requirements-test.txt
+      # - name: Install Requirements
+      #   run: pip install --upgrade --requirement requirements-test.txt
 
+      - name: docker-compose up
+        env:
+          MONGO_INITDB_ROOT_PASSWORD: test
+          MONGO_INITDB_ROOT_USERNAME: root
+          MONGO_INITDB_DATABASE: domain_management
+          DB_HOST: db
+          DB_PORT: 27017
+          DB_PW: test
+          DB_USER: root
+          MONGO_TYPE: MONGO
+        run: docker-compose up -d
       - name: Pytest/Coverage
         run: |
-          coverage run --omit *.venv*,*test* -m pytest ./src/ --disable-warnings
+          docker exec dm-api coverage run --omit *.venv*,*test* -m pytest ./src/ --disable-warnings
           coverage report
