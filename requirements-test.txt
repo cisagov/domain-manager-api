@@ -1,3 +1,2 @@
 --requirement requirements.txt
 -e .[test]
-faker==4.1.2

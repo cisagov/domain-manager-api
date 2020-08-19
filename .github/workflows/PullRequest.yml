@@ -94,24 +94,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      # - uses: actions/setup-python@v1
-      #   with:
-      #     python-version: 3.8
-      # - name: Cache pip test requirements
-      #   uses: actions/cache@v2
-      #   with:
-      #     path: ${{ env.PIP_CACHE_DIR }}
-      #     key: "${{ runner.os }}-pip-test-\
-      #       ${{ hashFiles('**/requirements-test.txt') }}"
-      #     restore-keys: |
-      #       ${{ runner.os }}-pip-test-
-      #       ${{ runner.os }}-pip-
-
-      # - name: Upgrade Pip
-      #   run: python -m pip install --upgrade pip
-
-      # - name: Install Requirements
-      #   run: pip install --upgrade --requirement requirements-test.txt
       - name: create env file
         run: |
           touch .env
@@ -129,9 +111,9 @@ jobs:
           DB_USER=root
           MONGO_TYPE=MONGO
           EOT
-      - name: docker-compose up
-        run: docker-compose up -d
+      - name: make up
+        run: docker-compose up api -d
       - name: Pytest/Coverage
         run: |
           docker exec dm-api coverage run -m pytest ./src/ --disable-warnings
-          coverage report
+          docker exec dm-api coverage report
