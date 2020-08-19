@@ -112,7 +112,7 @@ jobs:
           MONGO_TYPE=MONGO
           EOT
       - name: make up
-        run: docker-compose up -d api
+        run: docker-compose up -d
       - name: Pytest/Coverage
         run: |
           docker exec dm-api coverage run -m pytest --disable-warnings
