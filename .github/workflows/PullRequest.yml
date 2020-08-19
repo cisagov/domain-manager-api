@@ -115,17 +115,21 @@ jobs:
       - name: create env file
         run: |
           touch .env
-
+          cat <<EOT >> .env
+          FLASK_APP=main
+          FLASK_ENV=development
+          DEBUG=1
+          API_KEY=test
+          MONGO_INITDB_ROOT_PASSWORD=rootpassword
+          MONGO_INITDB_ROOT_USERNAME=root
+          MONGO_INITDB_DATABASE=domain_management
+          DB_HOST=db
+          DB_PORT=27017
+          DB_PW=rootpassword
+          DB_USER=root
+          MONGO_TYPE=MONGO
+          EOT
       - name: docker-compose up
-        env:
-          MONGO_INITDB_ROOT_PASSWORD: test
-          MONGO_INITDB_ROOT_USERNAME: root
-          MONGO_INITDB_DATABASE: domain_management
-          DB_HOST: db
-          DB_PORT: 27017
-          DB_PW: test
-          DB_USER: root
-          MONGO_TYPE: MONGO
         run: docker-compose up -d
       - name: Pytest/Coverage
         run: |
