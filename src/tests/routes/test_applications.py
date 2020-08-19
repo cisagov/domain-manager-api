@@ -20,7 +20,6 @@ def test_post_application(mock_create, client, auth_header):
         data=json.dumps(dict(name=faker.company())),
         content_type="application/json",
     )
-
     assert response.status_code == 200
     # Assert mocked method is called with the right parameters
     assert mock.call(response, mock_create.call_args_list)
