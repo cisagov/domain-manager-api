@@ -1,4 +1,4 @@
-.PHONY: all help build logs loc up stop down
+.PHONY: all help build logs loc up stop down shell test
 
 # make all - Default Target. Does nothing.
 all:
@@ -36,3 +36,7 @@ down:
 # target: shell - python shell within container
 shell:
 	docker exec -it dm-api python3
+
+# target: test - run unit tests
+test:
+	docker exec -it dm-api coverage run -m pytest --disable-warnings
