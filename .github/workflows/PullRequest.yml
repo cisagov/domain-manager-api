@@ -133,5 +133,5 @@ jobs:
         run: docker-compose up -d
       - name: Pytest/Coverage
         run: |
-          docker exec dm-api coverage run --omit *.venv*,*test* -m pytest ./src/ --disable-warnings
+          docker exec dm-api coverage run -m pytest ./src/ --disable-warnings
           coverage report
