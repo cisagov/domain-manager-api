@@ -74,6 +74,12 @@ jobs:
         with:
           terraform_version: 0.12.28
 
+      - name: Create Dummy Layer
+        working-directory: ./terraform
+        run: |
+          mkdir layer
+          mkdir layer/python
+
       - name: Terraform Init
         working-directory: ./terraform
         run: terraform init -input=false -backend-config="bucket=$TF_BUCKET" -backend-config="key=tfstate/$ENVIRONMENT/$IMAGE_NAME.tfstate" -backend-config="region=$REGION" -backend-config="dynamodb_table=$TF_DYNAMO_TABLE"

@@ -105,7 +105,7 @@ data "aws_iam_policy_document" "lambda_policy_doc" {
   statement {
     sid = "AllowVPC"
     effect = "Allow"
-    
+
     resources = [
       "*"
     ]
@@ -119,7 +119,7 @@ data "aws_iam_policy_document" "lambda_policy_doc" {
 
   statement {
     actions = [
-      "s3:*", 
+      "s3:*",
       "route53:*"
     ]
 
@@ -135,4 +135,26 @@ resource "aws_iam_policy" "lambda_iam_policy" {
 resource "aws_iam_role_policy_attachment" "lambda_policy_attachment" {
   policy_arn = aws_iam_policy.lambda_iam_policy.arn
   role       = aws_iam_role.lambda_exec_role.name
+}
+
+# ===================================
+# Cloudwatch Event rule
+# ===================================
+
+resource "aws_cloudwatch_event_rule" "every_one_hour" {
+  name                = "${var.app}-${var.env}-sync_db"
+  description         = "Fires every hour"
+  schedule_expression = "rate(1 hour)"
+}
+resource "aws_cloudwatch_event_target" "check_every_one_hour" {
+  rule      = "${aws_cloudwatch_event_rule.every_one_hour.name}"
+  target_id = "lambda"
+  arn       = "${aws_lambda_function.sync_db.arn}"
+}
+resource "aws_lambda_permission" "allow_cloudwatch_to_call_check_sync_db" {
+  statement_id  = "AllowExecutionFromCloudWatch"
+  action        = "lambda:InvokeFunction"
+  function_name = "${aws_lambda_function.sync_db.function_name}"
+  principal     = "events.amazonaws.com"
+  source_arn    = "${aws_cloudwatch_event_rule.every_one_hour.arn}"
 }
