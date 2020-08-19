@@ -8,9 +8,7 @@ from api.documents.website import Website
 from api.schemas.domain_schema import DomainSchema
 from api.schemas.website_schema import WebsiteSchema
 from flask import Blueprint, jsonify, request
-from utils.db import db
 from utils.decorators.auth import auth_required
-from utils.domain_categorization.proxies import trustedsource
 
 api = Blueprint("api", __name__, url_prefix="/api")
 
