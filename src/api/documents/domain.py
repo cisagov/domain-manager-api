@@ -1,7 +1,7 @@
 """Domain documents."""
 # Third-Party Libraries
 from bson.objectid import ObjectId
-from utils.db_utils import Document, db
+from utils.db import Document, db
 
 
 class Domain(Document):

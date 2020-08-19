@@ -124,4 +124,4 @@ jobs:
       - name: Pytest/Coverage
         run: |
           docker exec dm-api coverage run -m pytest --disable-warnings
-          docker exec dm-api coverage report
+          docker exec dm-api coverage report -i
