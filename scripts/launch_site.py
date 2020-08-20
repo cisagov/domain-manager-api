@@ -1,7 +1,6 @@
 """A sample python script."""
 # Standard Python Libraries
 import os
-import json
 
 # Third-Party Libraries
 from dotenv import load_dotenv
@@ -39,12 +38,6 @@ def get_application_list():
     return resp.json()
 
 
-def get_live_website_list():
-    """Returns a list of active websites."""
-    resp = requests.get(f"{URL}/api/live-sites/", headers=auth, verify=False)
-    return resp.json()
-
-
 def launch_live_website(application_id, domain_id, website_id):
     """
     Launch a live website.
@@ -63,19 +56,6 @@ def launch_live_website(application_id, domain_id, website_id):
         f"{URL}/api/live-sites/", headers=auth, json=post_data, verify=False
     )
 
-    return resp.json()
-
-
-def categorize_live_site(live_site_id):
-    """
-    Categorize an active site.
-
-    Check if the domain has already been categorized.
-    Categorize the domain on multiple proxies.
-    """
-    resp = requests.get(
-        f"{URL}/api/categorize/{live_site_id}/", headers=auth, verify=False
-    )
     return resp.json()
 
 
