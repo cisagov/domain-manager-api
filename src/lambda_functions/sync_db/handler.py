@@ -5,7 +5,6 @@ import os
 
 # Third-Party Libraries
 import boto3
-from dotenv import load_dotenv
 import pymongo
 
 logger = logging.getLogger()
@@ -67,9 +66,15 @@ def load_domains():
     db_domains = db.domains
     domain_load = route53.list_hosted_zones().get("HostedZones")
 
+    domain_list = [
+        domain
+        for domain in domain_load
+        if not db_domains.find_one({"Name": domain.get("Name")})
+    ]
+
     # Save latest data to the database
-    if domain_load != []:
-        db_domains.insert_many(domain_load)
+    if domain_list != []:
+        db_domains.insert_many(domain_list)
         logger.info("Database has been synchronized with domain data.")
 
 
@@ -80,6 +85,5 @@ def lambda_handler(event, context):
 
 
 if __name__ == "__main__":
-    load_dotenv()
     load_domains()
     load_s3()
