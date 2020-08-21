@@ -89,5 +89,5 @@ def get_active_site(live_site_id):
 @auth_required
 def categorize_domain(live_site_id):
     """Categorize an active site by using available proxies."""
-    domain = categorization_manager(live_site_id=live_site_id)
-    return jsonify({"message": f"{domain} has been categorized"})
+    response = categorization_manager(live_site_id=live_site_id)
+    return jsonify(response)
