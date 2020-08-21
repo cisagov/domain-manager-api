@@ -66,9 +66,9 @@ if __name__ == "__main__":
     application_list = get_application_list()
 
     # Define the desired data
-    domain_name = "thisisreal.xyz."
-    content_name = "Dentist"
-    application_name = "Con-PCA"
+    domain_name = input("Please enter domain name: ")
+    content_name = input("Please enter content name: ")
+    application_name = input("Please enter application name: ")
 
     # Access data by their uuids
     domain_id = "".join(

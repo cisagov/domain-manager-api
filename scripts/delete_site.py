@@ -45,7 +45,7 @@ if __name__ == "__main__":
     live_sites = get_live_site_list()
 
     # Define the desired site name from list
-    site_name = "Dentist"
+    site_name = input("Please enter site name: ")
 
     # Access live site data by uuid
     live_site_id = "".join(
