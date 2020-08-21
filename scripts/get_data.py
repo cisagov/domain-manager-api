@@ -46,6 +46,11 @@ if __name__ == "__main__":
         application.get("name") for application in get_application_list()
     ]
 
-    print("Domains: ", domain_list)
-    print("Website Content: ", content_list)
-    print("Applications: ", application_list)
+    print("*** Domains ***")
+    print(domain_list)
+    print()
+    print("*** Website Content ***")
+    print(content_list)
+    print()
+    print("*** Applications ***")
+    print(application_list)
