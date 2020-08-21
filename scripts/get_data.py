@@ -38,19 +38,35 @@ def get_application_list():
     return resp.json()
 
 
+def get_live_site_list():
+    """Returns a list of active websites."""
+    resp = requests.get(f"{URL}/api/live-sites/", headers=auth, verify=False)
+    return resp.json()
+
+
 if __name__ == "__main__":
     # Pull available data from the database
-    domain_list = [domain.get("Name") for domain in get_domain_list()]
-    content_list = [content.get("name") for content in get_website_content_list()]
-    application_list = [
-        application.get("name") for application in get_application_list()
-    ]
-
-    print("*** Domains ***")
-    print(domain_list)
-    print()
-    print("*** Website Content ***")
-    print(content_list)
-    print()
-    print("*** Applications ***")
-    print(application_list)
+    print(
+        """
+    **** Domains ****
+    """
+    )
+    [print(domain.get("Name")) for domain in get_domain_list()]
+    print(
+        """
+    **** Website Content ****
+    """
+    )
+    [print(content.get("name")) for content in get_website_content_list()]
+    print(
+        """
+    **** Applications ****
+    """
+    )
+    [print(application.get("name")) for application in get_application_list()]
+    print(
+        """
+    **** Live Sites ****
+    """
+    )
+    [print(site.get("name")) for site in get_live_site_list()]
