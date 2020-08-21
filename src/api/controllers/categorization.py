@@ -14,8 +14,11 @@ def categorization_manager(live_site_id):
 
     # Submit domain to trusted source proxy
     if not current_app.config["TESTING"]:
-        trustedsource.submit_url(domain)
+        try:
+            trustedsource.submit_url(domain)
+        except Exception:
+            return {"error": f"can not categorize {domain} at this time."}
 
     # Update database
     ActiveSite.update(live_site_id=live_site_id, is_categorized=True)
-    return domain
+    return {"message": f"{domain} has been categorized"}
