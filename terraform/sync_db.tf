@@ -20,7 +20,7 @@ resource "aws_lambda_layer_version" "layer" {
 # ===================================
 data "archive_file" "sync_db" {
   type        = "zip"
-  source_dir = "${path.module}/../src/lambda_functions/sync_db/"
+  source_dir  = "${path.module}/../src/lambda_functions/sync_db/"
   output_path = "${path.module}/output/sync_db.zip"
 }
 
@@ -37,13 +37,13 @@ resource "aws_lambda_function" "sync_db" {
 
   environment {
     variables = {
-      "DB_USER": aws_ssm_parameter.docdb_username.value,
-      "DB_PW": aws_ssm_parameter.docdb_password.value,
-      "DB_HOST": module.documentdb.endpoint,
-      "DB_PORT": 27017,
-      "WEBSITE_STORAGE_URL": aws_s3_bucket.websites.website_endpoint,
-      "SOURCE_BUCKET": aws_s3_bucket.websites.id,
-      "MONGO_TYPE": "DOCUMENTDB"
+      "DB_USER" : aws_ssm_parameter.docdb_username.value,
+      "DB_PW" : aws_ssm_parameter.docdb_password.value,
+      "DB_HOST" : module.documentdb.endpoint,
+      "DB_PORT" : 27017,
+      "WEBSITE_STORAGE_URL" : aws_s3_bucket.websites.website_endpoint,
+      "SOURCE_BUCKET" : aws_s3_bucket.websites.id,
+      "MONGO_TYPE" : "DOCUMENTDB"
     }
   }
 
@@ -103,7 +103,7 @@ data "aws_iam_policy_document" "lambda_policy_doc" {
   }
 
   statement {
-    sid = "AllowVPC"
+    sid    = "AllowVPC"
     effect = "Allow"
 
     resources = [
@@ -140,21 +140,20 @@ resource "aws_iam_role_policy_attachment" "lambda_policy_attachment" {
 # ===================================
 # Cloudwatch Event rule
 # ===================================
-
 resource "aws_cloudwatch_event_rule" "every_one_hour" {
   name                = "${var.app}-${var.env}-sync_db"
   description         = "Fires every hour"
   schedule_expression = "rate(1 hour)"
 }
 resource "aws_cloudwatch_event_target" "check_every_one_hour" {
-  rule      = "${aws_cloudwatch_event_rule.every_one_hour.name}"
+  rule      = aws_cloudwatch_event_rule.every_one_hour.name
   target_id = "lambda"
-  arn       = "${aws_lambda_function.sync_db.arn}"
+  arn       = aws_lambda_function.sync_db.arn
 }
 resource "aws_lambda_permission" "allow_cloudwatch_to_call_check_sync_db" {
   statement_id  = "AllowExecutionFromCloudWatch"
   action        = "lambda:InvokeFunction"
-  function_name = "${aws_lambda_function.sync_db.function_name}"
+  function_name = aws_lambda_function.sync_db.function_name
   principal     = "events.amazonaws.com"
-  source_arn    = "${aws_cloudwatch_event_rule.every_one_hour.arn}"
+  source_arn    = aws_cloudwatch_event_rule.every_one_hour.arn
 }
