@@ -82,7 +82,13 @@ jobs:
 
       - name: Terraform Init
         working-directory: ./terraform
-        run: terraform init -input=false -backend-config="bucket=$TF_BUCKET" -backend-config="key=tfstate/$ENVIRONMENT/$IMAGE_NAME.tfstate" -backend-config="region=$REGION" -backend-config="dynamodb_table=$TF_DYNAMO_TABLE"
+        run: terraform init -input=false
+
+      - name: Terraform Workspace
+        working-directory: ./terraform
+        run: |
+          terraform workspace select $ENVIRONMENT
+          terraform workspace show
 
       - name: Terraform Validate
         working-directory: ./terraform
@@ -94,7 +100,7 @@ jobs:
 
       - name: Terraform Plan
         working-directory: ./terraform
-        run: terraform plan -input=false -var="image_tag=${{steps.vars.outputs.tag}}" -var="env=$ENVIRONMENT" -var="image_repo=$ECR_URI"
+        run: terraform plan -input=false -var="image_tag=${{steps.vars.outputs.tag}}" -var-file ./vars/$ENVIRONMENT.tfvars
 
   python_tests:
     runs-on: ubuntu-latest

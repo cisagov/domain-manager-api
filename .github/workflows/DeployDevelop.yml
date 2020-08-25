@@ -69,18 +69,24 @@ jobs:
       - name: Verify Terraform version
         run: terraform --version
 
-      - name: Terraform init
+        - name: Terraform init
         working-directory: ./terraform
-        run: terraform init -input=false -backend-config="bucket=$TF_BUCKET" -backend-config="key=tfstate/$ENVIRONMENT/$IMAGE_NAME.tfstate" -backend-config="region=$REGION" -backend-config="dynamodb_table=$TF_DYNAMO_TABLE"
+        run: terraform init -input=false
+
+      - name: Terraform Workspace
+        working-directory: ./terraform
+        run: |
+          terraform workspace select $ENVIRONMENT
+          terraform workspace show
 
       - name: Terraform validation
         working-directory: ./terraform
         run: terraform validate
 
-      - name: Terraform Plan
+      - name: Terraform plan
         working-directory: ./terraform
-        run: terraform plan -input=false -var="image_tag=${{needs.build.outputs.tag}}" -var="env=$ENVIRONMENT" -var="image_repo=$ECR_URI"
+        run: terraform plan -input=false -var="image_tag=${{needs.build.outputs.tag}}" -var-file ./vars/$ENVIRONMENT.tfvars
 
       - name: Terraform Apply
         working-directory: ./terraform
-        run: terraform apply -auto-approve -input=false -var="image_tag=${{needs.build.outputs.tag}}" -var="env=$ENVIRONMENT" -var="image_repo=$ECR_URI"
+        run: terraform apply -auto-approve -input=false -var="image_tag=${{needs.build.outputs.tag}}" -var-file ./vars/$ENVIRONMENT.tfvars
