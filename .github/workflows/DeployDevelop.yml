@@ -69,7 +69,7 @@ jobs:
       - name: Verify Terraform version
         run: terraform --version
 
-        - name: Terraform init
+      - name: Terraform init
         working-directory: ./terraform
         run: terraform init -input=false
 
