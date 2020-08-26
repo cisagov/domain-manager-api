@@ -36,41 +36,39 @@ repos:
     hooks:
       - id: pyupgrade
   # Run bandit on "tests" tree with a configuration
-  # TODO: Currently fails due to sample python script,
-  # Skipping this step for now.
-  # - repo: https://github.com/PyCQA/bandit
-  #   rev: 1.6.2
-  #   hooks:
-  #     - id: bandit
-  #       name: bandit (tests tree)
-  #       files: tests
-  #       args:
-  #         - --config=.bandit.yml
+  - repo: https://github.com/PyCQA/bandit
+    rev: 1.6.2
+    hooks:
+      - id: bandit
+        name: bandit (tests tree)
+        files: tests
+        args:
+          - --config=.bandit.yml
   # Run bandit everything but tests directory
-  # - repo: https://github.com/PyCQA/bandit
-  #   rev: 1.6.2
-  #   hooks:
-  #     - id: bandit
-  #       name: bandit (everything else)
-  #       exclude: tests
-  # - repo: https://github.com/python/black
-  #   rev: 19.10b0
-  #   hooks:
-  #     - id: black
-  # - repo: https://github.com/asottile/seed-isort-config
-  #   rev: v2.2.0
-  #   hooks:
-  #     - id: seed-isort-config
-  # - repo: https://github.com/timothycrosley/isort
-  #   rev: 5.0.7
-  #   hooks:
-  #     - id: isort
-  # files: molecule/default/playbook.yml
+  - repo: https://github.com/PyCQA/bandit
+    rev: 1.6.2
+    hooks:
+      - id: bandit
+        name: bandit (everything else)
+        exclude: tests
+  - repo: https://github.com/python/black
+    rev: 19.10b0
+    hooks:
+      - id: black
+  - repo: https://github.com/asottile/seed-isort-config
+    rev: v2.2.0
+    hooks:
+      - id: seed-isort-config
+  - repo: https://github.com/timothycrosley/isort
+    rev: 5.0.7
+    hooks:
+      - id: isort
+        files: molecule/default/playbook.yml
   - repo: https://github.com/prettier/prettier
     rev: 2.0.5
     hooks:
       - id: prettier
-  # - repo: https://github.com/pre-commit/mirrors-mypy
-  #   rev: v0.782
-  #   hooks:
-  #     - id: mypy
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v0.782
+    hooks:
+      - id: mypy

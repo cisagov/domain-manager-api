@@ -98,6 +98,10 @@ jobs:
         id: vars
         run: echo ::set-output name=tag::$(echo ${GITHUB_SHA:0:10})
 
+      - name: Terraform init
+        working-directory: ./terraform
+        run: terraform init -input=false
+
       - name: Terraform Plan
         working-directory: ./terraform
         run: terraform plan -input=false -var="image_tag=${{steps.vars.outputs.tag}}" -var-file ./vars/$ENVIRONMENT.tfvars
