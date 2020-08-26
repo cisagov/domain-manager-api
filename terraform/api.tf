@@ -153,7 +153,7 @@ module "api_fargate" {
   stage     = var.env
   name      = "api"
 
-  iam_server_cert_arn   = aws_iam_server_certificate._.arn
+  https_cert_arn        = aws_acm_certificate.cert.arn
   container_port        = local.api_port
   container_definition  = module.api_container.json
   container_name        = "${var.app}-api"

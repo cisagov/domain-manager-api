@@ -36,3 +36,7 @@ variable "image_repo" {
 variable "image_tag" {
   type = string
 }
+
+variable "route53_zone_name" {
+  type = string
+}
