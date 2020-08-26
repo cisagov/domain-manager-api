@@ -83,6 +83,10 @@ jobs:
         working-directory: ./terraform
         run: terraform validate
 
+      - name: Terraform init 2
+        working-directory: ./terraform
+        run: terraform init -input=false
+
       - name: Terraform plan
         working-directory: ./terraform
         run: terraform plan -input=false -var="image_tag=${{needs.build.outputs.tag}}" -var-file ./vars/$ENVIRONMENT.tfvars
