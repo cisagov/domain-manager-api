@@ -1,36 +1,4 @@
 # ===================================
-# IAM Certs
-# ===================================
-resource "tls_private_key" "_" {
-  algorithm = "RSA"
-  rsa_bits  = 2048
-}
-
-resource "tls_self_signed_cert" "_" {
-  key_algorithm         = tls_private_key._.algorithm
-  private_key_pem       = tls_private_key._.private_key_pem
-  validity_period_hours = 720
-  allowed_uses = [
-    "key_encipherment",
-    "digital_signature",
-    "server_auth"
-  ]
-
-  dns_names = [module.alb.alb_dns_name]
-
-  subject {
-    common_name  = module.alb.alb_dns_name
-    organization = "${var.app}-${var.env}-alb"
-  }
-}
-
-resource "aws_iam_server_certificate" "_" {
-  name             = "${var.app}-${var.env}-alb"
-  certificate_body = tls_self_signed_cert._.cert_pem
-  private_key      = tls_private_key._.private_key_pem
-}
-
-# ===================================
 # Route 53
 # ===================================
 resource "aws_route53_record" "domain" {
