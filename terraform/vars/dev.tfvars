@@ -15,3 +15,5 @@ public_subnet_ids = [
 ]
 
 image_repo = "780016325729.dkr.ecr.us-east-1.amazonaws.com/domain-manager-api"
+
+route53_zone_name = "inltesting.xyz"
