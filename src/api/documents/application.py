@@ -34,17 +34,20 @@ class Application(Document):
 
         post_data = {
             "name": name,
+            "is_available": True,
             "requester_name": "dev_user",
             "requested_date": datetime.datetime.utcnow(),
         }
         return db.applications.insert_one(post_data)
 
     @staticmethod
-    def update(application_id, name):
+    def update(application_id, **kwargs):
         """Update an existing post document."""
-        db.applications.find_one_and_update(
-            {"_id": ObjectId(application_id)}, {"$set": {"name": name}},
-        )
+        if "name" in kwargs:
+            db.applications.find_one_and_update(
+                {"_id": ObjectId(application_id)},
+                {"$set": {"name": kwargs.get("name")}},
+            )
 
     @staticmethod
     def delete(application_id):
