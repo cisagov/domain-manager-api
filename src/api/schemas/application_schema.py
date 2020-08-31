@@ -8,5 +8,6 @@ class ApplicationSchema(Schema):
 
     _id = fields.Str(required=True)
     name = fields.Str(required=True)
+    is_available = fields.Boolean(required=True)
     requester_name = fields.Str(required=True)
     requested_date = fields.DateTime(required=True)
