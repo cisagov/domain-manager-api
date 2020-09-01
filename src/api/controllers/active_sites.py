@@ -1,6 +1,7 @@
 """Active sites controller."""
 # Third-Party Libraries
 from api.documents.active_site import ActiveSite
+from api.documents.application import Application
 from api.documents.domain import Domain
 from api.documents.website import Website
 from api.schemas.active_site_schema import ActiveSiteSchema
@@ -12,6 +13,7 @@ def active_site_manager(request, live_site_id=None):
     if not live_site_id:
         if request.method == "POST":
             post_data = request.json
+            application_id = post_data.get("application_id")
             website = Website.get_by_id(post_data.get("website_id"))
             domain = Domain.get_by_id(post_data.get("domain_id"))
             # launch s3 bucket and set dns
@@ -21,8 +23,10 @@ def active_site_manager(request, live_site_id=None):
                 s3_url=live_site,
                 domain_id=post_data.get("domain_id"),
                 website_id=post_data.get("website_id"),
-                application_id=post_data.get("application_id"),
+                application_id=application_id,
             )
+            # set application state to not available
+            Application.update(application_id=application_id, is_available=False)
             response = {
                 "message": f"Active site with id {active_site.inserted_id} has been launched. Visit: http://{live_site}"
             }
@@ -38,6 +42,10 @@ def active_site_manager(request, live_site_id=None):
         delete_site(domain)
         # delete from database
         ActiveSite.delete(live_site_id)
+        # set application state to available
+        Application.update(
+            application_id=active_site.get("application").get("_id"), is_available=True
+        )
         response = {"message": "Active site is now inactive and deleted."}
     elif request.method == "PUT":
         put_data = request.json
