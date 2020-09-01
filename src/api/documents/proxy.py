@@ -48,6 +48,12 @@ class Proxy(Document):
         if "name" in kwargs:
             update["name"] = kwargs.get("name")
 
+        if "url" in kwargs:
+            update["url"] = kwargs.get("url")
+
+        if "script" in kwargs:
+            update["script"] = kwargs.get("script")
+
         db.proxies.find_one_and_update({"_id": ObjectId(proxy_id)}, {"$set": update})
 
     @staticmethod
