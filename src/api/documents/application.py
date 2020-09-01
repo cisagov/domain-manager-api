@@ -12,7 +12,7 @@ class Application(Document):
 
     def __init__(self, **kwargs):
         """Initialize arguments."""
-        self.fields = ["name", "requester_name", "requested_date"]
+        self.fields = ["name", "is_available", "requester_name", "requested_date"]
         self.document = {k: kwargs.get(k) for k in self.fields}
 
     @staticmethod
@@ -43,11 +43,16 @@ class Application(Document):
     @staticmethod
     def update(application_id, **kwargs):
         """Update an existing post document."""
+        update = dict()
         if "name" in kwargs:
-            db.applications.find_one_and_update(
-                {"_id": ObjectId(application_id)},
-                {"$set": {"name": kwargs.get("name")}},
-            )
+            update["name"] = kwargs.get("name")
+
+        if "is_available" in kwargs:
+            update["is_available"] = kwargs.get("is_available")
+
+        db.applications.find_one_and_update(
+            {"_id": ObjectId(application_id)}, {"$set": update}
+        )
 
     @staticmethod
     def delete(application_id):
