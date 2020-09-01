@@ -12,7 +12,14 @@ class Proxy(Document):
 
     def __init__(self, **kwargs):
         """Initialize arguments."""
-        self.fields = ["name", "url", "script", "created_by", "created_date"]
+        self.fields = [
+            "name",
+            "url",
+            "script",
+            "categories",
+            "created_by",
+            "created_date",
+        ]
         self.document = {k: kwargs.get(k) for k in self.fields}
 
     @staticmethod
@@ -26,7 +33,7 @@ class Proxy(Document):
         return [x for x in db.proxies.find()]
 
     @staticmethod
-    def create(name, url, script):
+    def create(name, url, script, categories):
         """Create a proxy."""
         # make names unique
         if "proxies" not in db.list_collection_names():
@@ -36,6 +43,7 @@ class Proxy(Document):
             "name": name,
             "url": url,
             "script": script,
+            "categories": categories,
             "created_by": "dev_user",
             "created_date": datetime.datetime.utcnow(),
         }

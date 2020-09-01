@@ -3,6 +3,12 @@
 from marshmallow import Schema, fields
 
 
+class CategorySchema(Schema):
+    """Category Schema."""
+
+    category = fields.Str(required=True)
+
+
 class ProxySchema(Schema):
     """Proxy Schema."""
 
@@ -10,5 +16,6 @@ class ProxySchema(Schema):
     name = fields.Str(required=True)
     url = fields.Str(required=True)
     script = fields.Str(required=True)
+    categories = fields.List(fields.Nested(CategorySchema), required=True)
     created_by = fields.Str(required=True)
     created_date = fields.DateTime(required=True)
