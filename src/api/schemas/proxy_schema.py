@@ -3,8 +3,8 @@
 from marshmallow import Schema, fields
 
 
-class ApplicationSchema(Schema):
-    """Application Schema."""
+class ProxySchema(Schema):
+    """Proxy Schema."""
 
     _id = fields.Str(required=True)
     name = fields.Str(required=True)
