@@ -41,6 +41,5 @@ def submit_url(domain):
     dropdown.find_element(By.XPATH, "//option[. = 'Health']").click()
     driver.find_element(By.CSS_SELECTOR, ".button:nth-child(10) > input").click()
     success_msg = driver.find_element(By.CSS_SELECTOR, "h2").text
-    driver.quit()
 
     return success_msg
