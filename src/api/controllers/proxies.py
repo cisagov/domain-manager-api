@@ -12,6 +12,7 @@ def proxy_manager(request, proxy_id=None):
                 name=post_data.get("name"),
                 url=post_data.get("url"),
                 script=post_data.get("script"),
+                categories=post_data.get("categories"),
             )
             response = {
                 "message": f"Proxy with id {proxy.inserted_id} has been created."
