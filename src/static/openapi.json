@@ -473,6 +473,177 @@
         ]
       }
     },
+    "/api/proxies/": {
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": [],
+                  "type": "string"
+                }
+              }
+            },
+            "description": "List of proxies."
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "summary": "Get a list of proxies",
+        "tags": [
+          "Proxies"
+        ]
+      },
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "example": {
+                  "name": "Trusted Source",
+                  "script": "driver.find_element()",
+                  "url": "https://exampleproxy.com"
+                },
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  }
+                },
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "summary": "Adds a new proxy",
+        "tags": [
+          "Proxies"
+        ]
+      }
+    },
+    "/api/proxy/{proxy_id}/": {
+      "delete": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "proxy_id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "summary": "Deletes a proxy",
+        "tags": [
+          "Proxies"
+        ]
+      },
+      "get": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "proxy_id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "_id": "12345d",
+                    "name": "proxy name",
+                    "requested_date": "2020-08-14T20:54:43.058000",
+                    "requester_name": "user"
+                  },
+                  "type": "string"
+                }
+              }
+            },
+            "description": "Returns a proxy by its id"
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "summary": "Get a specific proxy by its id",
+        "tags": [
+          "Proxies"
+        ]
+      },
+      "put": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "proxy_id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "example": {
+                  "name": "Trusted Source"
+                },
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  }
+                },
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "summary": "Updates an existing proxy",
+        "tags": [
+          "Proxies"
+        ]
+      }
+    },
     "/api/website/{website_id}/": {
       "get": {
         "parameters": [

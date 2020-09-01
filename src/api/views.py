@@ -3,6 +3,7 @@
 from api.controllers.active_sites import active_site_manager
 from api.controllers.applications import applications_manager
 from api.controllers.categorization import categorization_manager
+from api.controllers.proxies import proxy_manager
 from api.documents.domain import Domain
 from api.documents.website import Website
 from api.schemas.domain_schema import DomainSchema
@@ -65,6 +66,24 @@ def get_application(application_id):
     Update application data. Delete an application by its id.
     """
     return jsonify(applications_manager(request, application_id=application_id)), 200
+
+
+@api.route("/proxies/", methods=["GET", "POST"])
+@auth_required
+def proxy_list():
+    """Get a list of proxies. Create a new proxy."""
+    return jsonify(proxy_manager(request)), 200
+
+
+@api.route("/proxy/<proxy_id>/", methods=["GET", "DELETE", "PUT"])
+@auth_required
+def get_proxy(proxy_id):
+    """
+    Manage proxy by its id.
+
+    Update proxy data. Delete a proxy by its id.
+    """
+    return jsonify(proxy_manager(request, proxy_id=proxy_id)), 200
 
 
 @api.route("/live-sites/", methods=["GET", "POST"])
