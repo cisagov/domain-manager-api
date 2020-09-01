@@ -504,6 +504,11 @@
             "application/json": {
               "schema": {
                 "example": {
+                  "categories": [
+                    "Health",
+                    "Chat",
+                    "Finance"
+                  ],
                   "name": "Trusted Source",
                   "script": "driver.find_element()",
                   "url": "https://exampleproxy.com"
