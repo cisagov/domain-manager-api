@@ -1,6 +1,8 @@
 """Categorization controller."""
 # Third-Party Libraries
 from api.documents.active_site import ActiveSite
+from api.documents.proxy import Proxy
+from utils.domain_categorization.driver import driver
 from flask import current_app
 
 
@@ -11,12 +13,17 @@ def categorization_manager(live_site_id):
     if active_site.get("is_categorized"):
         return {"Error": f"{domain} has already been categorized."}
 
-    # Submit domain to trusted source proxy
-    # if not current_app.config["TESTING"]:
-    #     try:
-    #         trustedsource.submit_url(domain)
-    #     except Exception:
-    #         return {"error": f"can not categorize {domain} at this time."}
+    # Submit domain to proxy
+    if not current_app.config["TESTING"]:
+        proxies = Proxy.get_all()
+        for proxy in proxies:
+            try:
+                exec(
+                    proxy.get("script").decode(),
+                    {"driver": driver, "domain": proxy.get("url")},
+                )
+            except Exception as err:
+                return {"error": str(err)}
 
     # Update database
     ActiveSite.update(live_site_id=live_site_id, is_categorized=True)

@@ -13,6 +13,10 @@ help:
 build:
 	docker-compose build
 
+# target: init = load initial data to database
+init:
+	docker exec dm-api python scripts/initialize.py
+
 # target: app logs - Runs flask logs in the terminal
 logs:
 	 docker attach --sig-proxy=false dm-api
