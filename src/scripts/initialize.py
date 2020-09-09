@@ -1,5 +1,6 @@
 """Initialize database script."""
 # Standard Python Libraries
+from bson.binary import Binary
 from datetime import datetime
 import logging
 import json
@@ -42,12 +43,15 @@ s3 = boto3.client("s3")
 route53 = boto3.client("route53")
 
 
-def load_file(data_file):
+def load_file(data_file, data_type="json"):
     """Load json files."""
     current_dir = os.path.dirname(os.path.abspath(__file__))
     data_file = os.path.join(current_dir, data_file)
-    with open(data_file, "r") as f:
-        data = json.load(f)
+    with open(data_file, "rb") as f:
+        if data_type == "script":
+            data = f.read()
+        else:
+            data = json.load(f)
     return data
 
 
@@ -109,8 +113,38 @@ def load_applications():
         return logger.info("Application data has been loaded into the database.")
 
 
+def load_proxy_scripts():
+    """Load categorization proxy scripts."""
+    db_proxies = db.proxies
+
+    proxy_json = load_file("data/proxies.json")
+
+    # load scripts
+    trustedsource_script = load_file("data/proxies/bluecoat.py", data_type="script")
+    bluecoat_script = load_file("data/proxies/trusted_source.py", data_type="script")
+
+    proxy_data = []
+    for proxy in proxy_json:
+        name = proxy.get("name")
+        if not db_proxies.find_one({"name": name}):
+            proxy["created_date"] = datetime.utcnow()
+
+            if name == "Trusted Source":
+                proxy["script"] = Binary(trustedsource_script)
+            elif name == "Blue Coat":
+                proxy["script"] = Binary(bluecoat_script)
+
+            proxy_data.append(proxy)
+
+    # Save latest data to the database
+    if proxy_data != []:
+        db_proxies.insert_many(proxy_data)
+        return logger.info("Proxy data has been loaded into the database.")
+
+
 if __name__ == "__main__":
     load_domains()
     load_s3()
     load_applications()
+    load_proxy_scripts()
     logger.info("Database has been initialized.")
