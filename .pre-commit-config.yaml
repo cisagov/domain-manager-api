@@ -51,6 +51,8 @@ repos:
       - id: bandit
         name: bandit (everything else)
         exclude: tests
+        args:
+          - --config=.bandit.yml
   - repo: https://github.com/python/black
     rev: 19.10b0
     hooks:
