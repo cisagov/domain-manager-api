@@ -1,6 +1,8 @@
 """Initialize database script."""
 # Standard Python Libraries
+from datetime import datetime
 import logging
+import json
 import os
 
 # Third-Party Libraries
@@ -36,6 +38,15 @@ db = client.domain_management
 # Initialize AWS Clients
 s3 = boto3.client("s3")
 route53 = boto3.client("route53")
+
+
+def load_file(data_file):
+    """Load json files."""
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    data_file = os.path.join(current_dir, data_file)
+    with open(data_file, "r") as f:
+        data = json.load(f)
+    return data
 
 
 def load_s3():
@@ -78,6 +89,23 @@ def load_domains():
         logger.info("Database has been synchronized with domain data.")
 
 
+def load_applications():
+    """Load dummy application data to the database."""
+    db_applications = db.applications
+
+    application_json = load_file("data/applications.json")
+
+    application_data = []
+    for application in application_json:
+        if not db_applications.find_one({"name": application.get("name")}):
+            application["requested_date"] = datetime.utcnow()
+            application_data.append(application)
+
+    # Load dummy data into database
+    db_applications.insert_many(application_data)
+
+
 if __name__ == "__main__":
     load_domains()
     load_s3()
+    load_applications()
