@@ -9,7 +9,9 @@ import os
 import boto3
 import pymongo
 
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger()
+
 
 WEBSITE_STORAGE_URL = os.environ.get("WEBSITE_STORAGE_URL")
 SOURCE_BUCKET = os.environ.get("SOURCE_BUCKET")
@@ -101,11 +103,14 @@ def load_applications():
             application["requested_date"] = datetime.utcnow()
             application_data.append(application)
 
-    # Load dummy data into database
-    db_applications.insert_many(application_data)
+    # Save latest data to the database
+    if application_data != []:
+        db_applications.insert_many(application_data)
+        return logger.info("Application data has been loaded into the database.")
 
 
 if __name__ == "__main__":
     load_domains()
     load_s3()
     load_applications()
+    logger.info("Database has been initialized.")
