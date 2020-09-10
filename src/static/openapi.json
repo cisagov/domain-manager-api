@@ -438,6 +438,7 @@
               "schema": {
                 "example": {
                   "application_id": "insert-application-uuid",
+                  "description": "add a description",
                   "domain_id": "insert-domain-uuid",
                   "ip_address": "insert-ip-address",
                   "website_id": "insert-website-uuid"
