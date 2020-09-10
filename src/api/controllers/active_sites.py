@@ -19,6 +19,7 @@ def active_site_manager(request, live_site_id=None):
             live_site = launch_site(website, domain)
             # save to database
             active_site = ActiveSite.create(
+                description=post_data.get("description"),
                 s3_url=live_site,
                 domain_id=post_data.get("domain_id"),
                 website_id=post_data.get("website_id"),
