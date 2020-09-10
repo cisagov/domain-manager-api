@@ -9,8 +9,10 @@ class ActiveSiteSchema(Schema):
 
     _id = fields.Str(required=True)
     name = fields.Str(required=True)
+    description = fields.Str(required=False)
     domain = fields.Nested(domain_schema.DomainSchema)
     website = fields.Nested(website_schema.WebsiteSchema)
+    ip_address = fields.Str(required=False)
     application = fields.Nested(application_schema.ApplicationSchema)
     is_categorized = fields.Boolean(required=True)
     is_registered_on_mailgun = fields.Boolean(required=True)

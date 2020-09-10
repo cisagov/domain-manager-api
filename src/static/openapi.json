@@ -438,7 +438,9 @@
               "schema": {
                 "example": {
                   "application_id": "insert-application-uuid",
+                  "description": "add a description",
                   "domain_id": "insert-domain-uuid",
+                  "ip_address": "insert-ip-address",
                   "website_id": "insert-website-uuid"
                 },
                 "properties": {
@@ -448,10 +450,17 @@
                   "domain_id": {
                     "type": "string"
                   },
+                  "ip_address": {
+                    "type": "string"
+                  },
                   "website_id": {
                     "type": "string"
                   }
                 },
+                "required": [
+                  "domain_id",
+                  "application_id"
+                ],
                 "type": "object"
               }
             }

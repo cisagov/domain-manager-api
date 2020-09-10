@@ -14,6 +14,7 @@ class ActiveSite(Document):
         """Initialize arguments."""
         self.fields = [
             "name",
+            "description",
             "s3_url",
             "domain",
             "website",
@@ -35,7 +36,9 @@ class ActiveSite(Document):
         return [x for x in db.active_sites.find()]
 
     @staticmethod
-    def create(s3_url, domain_id, website_id, application_id):
+    def create(
+        description, s3_url, domain_id, application_id, website_id=None, ip_address=None
+    ):
         """Launch a live website."""
         # make names unique
         if "active_sites" not in db.list_collection_names():
@@ -44,6 +47,7 @@ class ActiveSite(Document):
         website = db.websites.find_one({"_id": ObjectId(website_id)})
         post_data = {
             "name": website.get("name"),
+            "description": description,
             "s3_url": s3_url,
             "domain": db.domains.find_one({"_id": ObjectId(domain_id)}),
             "website": website,
@@ -66,6 +70,8 @@ class ActiveSite(Document):
                     ),
                 }
             )
+        if "description" in kwargs:
+            put_data.update({"description": kwargs.get("description")})
         if "is_categorized" in kwargs:
             put_data.update({"is_categorized": kwargs.get("is_categorized")})
 
