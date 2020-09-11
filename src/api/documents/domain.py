@@ -19,6 +19,7 @@ class Domain(Document):
             "CallerReference",
             "Config",
             "ResourceRecordSetCount",
+            "Tags",
         ]
         self.document = {k: kwargs.get(k) for k in self.fields}
 
@@ -31,3 +32,10 @@ class Domain(Document):
     def get_all():
         """Get all registered domains."""
         return [x for x in db.domains.find()]
+
+    @staticmethod
+    def add_tag(domain_id, tag_id):
+        """Add a tag to a domain document."""
+        db.tags.find_one_and_update(
+            {"_id": ObjectId(tag_id)}, {"$push": {"$tags": tag_id}}
+        )
