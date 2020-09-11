@@ -1,4 +1,4 @@
-"""Domain documents."""
+"""Application documents."""
 # Standard Python Libraries
 import datetime
 
@@ -41,7 +41,7 @@ class Application(Document):
 
     @staticmethod
     def update(application_id, **kwargs):
-        """Update an existing post document."""
+        """Update an existing application document."""
         update = dict()
         if "name" in kwargs:
             update["name"] = kwargs.get("name")
