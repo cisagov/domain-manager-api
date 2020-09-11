@@ -7,7 +7,7 @@ from bson.objectid import ObjectId
 from utils.db import Document, db
 
 
-class Application(Document):
+class Tag(Document):
     """Document model for domain tags."""
 
     def __init__(self, **kwargs):
