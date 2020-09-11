@@ -36,6 +36,6 @@ class Domain(Document):
     @staticmethod
     def add_tag(domain_id, tag_id):
         """Add a tag to a domain document."""
-        db.tags.find_one_and_update(
-            {"_id": ObjectId(tag_id)}, {"$push": {"$tags": tag_id}}
+        db.domains.find_one_and_update(
+            {"_id": ObjectId(domain_id)}, {"$push": {"Tags": tag_id}}
         )

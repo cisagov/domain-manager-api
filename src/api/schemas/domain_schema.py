@@ -21,4 +21,4 @@ class DomainSchema(Schema):
     CallerReference = fields.Str(required=True)
     Config = fields.Nested(DomainConfigSchema)
     ResourceRecordSetCount = fields.Int(required=True)
-    Tags = fields.List(fields.Nested(TagSchema), required=False)
+    Tags = fields.List(fields.Nested(TagSchema), required=True)

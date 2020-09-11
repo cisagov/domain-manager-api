@@ -246,6 +246,49 @@
         "tags": [
           "Domains"
         ]
+      },
+      "put": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "domain_id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "example": {
+                  "tag_id": "get-tag-uuid"
+                },
+                "properties": {
+                  "tag_id": {
+                    "type": "string"
+                  }
+                },
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "summary": "Add a tag to a domain",
+        "tags": [
+          "Domains"
+        ]
       }
     },
     "/api/domains/": {
