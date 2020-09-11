@@ -726,7 +726,7 @@
         "parameters": [
           {
             "in": "path",
-            "name": "application_id",
+            "name": "tag_id",
             "required": true,
             "schema": {
               "type": "string"
