@@ -3,6 +3,7 @@
 from api.controllers.active_sites import active_site_manager
 from api.controllers.applications import applications_manager
 from api.controllers.categorization import categorization_manager
+from api.controllers.domains import domains_manager
 from api.controllers.proxies import proxy_manager
 from api.controllers.tags import tags_manager
 from api.documents.domain import Domain
@@ -24,12 +25,11 @@ def domain_list():
     return jsonify(response), 200
 
 
-@api.route("/domain/<domain_id>/")
+@api.route("/domain/<domain_id>/", methods=["GET", "PUT"])
 @auth_required
 def get_domain(domain_id):
     """Get a domain by its id."""
-    domain_schema = DomainSchema()
-    response = domain_schema.dump(Domain.get_by_id(domain_id))
+    response = domains_manager(request, domain_id=domain_id)
     return jsonify(response), 200
 
 
