@@ -658,6 +658,173 @@
         ]
       }
     },
+    "/api/tag/{tag_id}/": {
+      "delete": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "tag_id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "summary": "Deletes a domain tag",
+        "tags": [
+          "Tags"
+        ]
+      },
+      "get": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "tag_id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "_id": "12345d",
+                    "name": "tag name"
+                  },
+                  "type": "string"
+                }
+              }
+            },
+            "description": "Returns an tag by its id"
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "summary": "Get a specific domain tag by its id",
+        "tags": [
+          "Tags"
+        ]
+      },
+      "put": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "application_id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "example": {
+                  "name": "Red Team"
+                },
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  }
+                },
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "summary": "Updates an existing domain tag",
+        "tags": [
+          "Tags"
+        ]
+      }
+    },
+    "/api/tags/": {
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": [],
+                  "type": "string"
+                }
+              }
+            },
+            "description": "List of domain tags."
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "summary": "Get a list of domain tags",
+        "tags": [
+          "Tags"
+        ]
+      },
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "example": {
+                  "name": "Red Team"
+                },
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  }
+                },
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "summary": "Adds a new domain tag",
+        "tags": [
+          "Tags"
+        ]
+      }
+    },
     "/api/website/{website_id}/": {
       "get": {
         "parameters": [
