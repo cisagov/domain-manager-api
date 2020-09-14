@@ -116,9 +116,9 @@ def setup_dns(domain, bucket_name=None, ip_address=None):
                     {
                         "Action": "UPSERT",
                         "ResourceRecordSet": {
-                            "Name": domain.get("Name"),
+                            "Name": domain.get("Name")[:-1],
                             "Type": "A",
-                            "TTL": "15",
+                            "TTL": 15,
                             "ResourceRecords": [{"Value": ip_address}],
                         },
                     }
@@ -157,13 +157,14 @@ def delete_dns(domain, bucket_name=None, ip_address=None):
         response = route53.change_resource_record_sets(
             HostedZoneId=dns_id,
             ChangeBatch={
-                "Comment": bucket_name,
+                "Comment": ip_address,
                 "Changes": [
                     {
                         "Action": "DELETE",
                         "ResourceRecordSet": {
-                            "Name": domain,
+                            "Name": domain.get("Name")[:-1],
                             "Type": "A",
+                            "TTL": 15,
                             "ResourceRecords": [{"Value": ip_address}],
                         },
                     }
