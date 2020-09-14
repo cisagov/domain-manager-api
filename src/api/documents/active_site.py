@@ -37,7 +37,12 @@ class ActiveSite(Document):
 
     @staticmethod
     def create(
-        description, s3_url, domain_id, application_id, website_id=None, ip_address=None
+        description,
+        domain_id,
+        application_id,
+        website_id=None,
+        ip_address=None,
+        s3_url=None,
     ):
         """Launch a live website."""
         # make names unique
@@ -45,17 +50,23 @@ class ActiveSite(Document):
             db.active_sites.create_index("name", unique=True)
 
         website = db.websites.find_one({"_id": ObjectId(website_id)})
+        domain = db.domains.find_one({"_id": ObjectId(domain_id)})
         post_data = {
-            "name": website.get("name"),
             "description": description,
-            "s3_url": s3_url,
-            "domain": db.domains.find_one({"_id": ObjectId(domain_id)}),
-            "website": website,
+            "domain": domain,
             "application": db.applications.find_one({"_id": ObjectId(application_id)}),
             "is_categorized": False,
             "is_registered_on_mailgun": False,
             "launch_date": datetime.datetime.utcnow(),
         }
+        if ip_address:
+            post_data["name"] = domain.get("Name")[:-1]
+            post_data["ip_address"] = ip_address
+        else:
+            post_data["name"] = website.get("name")
+            post_data["s3_url"] = s3_url
+            post_data["website"] = website
+
         return db.active_sites.insert_one(post_data)
 
     @staticmethod
