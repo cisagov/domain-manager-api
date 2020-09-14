@@ -20,6 +20,7 @@ route53 = boto3.client("route53")
 
 def launch_site(website, domain):
     """Launch an active site onto s3."""
+    # Name new bucket after its domain
     bucket_name = domain.get("Name")[:-1]
     website_name = website.get("name")
     available_buckets = [
@@ -79,7 +80,7 @@ def launch_site(website, domain):
     )
 
     # Setup DNS
-    setup_dns(dns_id=domain.get("Id"), bucket_name=bucket_name)
+    setup_dns(domain=domain, bucket_name=bucket_name)
 
     return bucket_name
 
@@ -99,57 +100,96 @@ def delete_site(domain):
     # delete bucket
     s3.delete_bucket(Bucket=bucket_name)
 
-    response = delete_dns(domain.get("Id"), bucket_name)
+    response = delete_dns(domain=domain, bucket_name=bucket_name)
     return response
 
 
-def setup_dns(dns_id, bucket_name):
+def setup_dns(domain, bucket_name=None, ip_address=None):
     """Setup a domain's DNS."""
-    response = route53.change_resource_record_sets(
-        HostedZoneId=dns_id,
-        ChangeBatch={
-            "Comment": bucket_name,
-            "Changes": [
-                {
-                    "Action": "UPSERT",
-                    "ResourceRecordSet": {
-                        "Name": bucket_name,
-                        "Type": "A",
-                        "AliasTarget": {
-                            "HostedZoneId": HOSTED_ZONE_ID,
-                            "EvaluateTargetHealth": False,
-                            "DNSName": "s3-website-us-east-1.amazonaws.com",
+    dns_id = domain.get("Id")
+    if ip_address:
+        response = route53.change_resource_record_sets(
+            HostedZoneId=dns_id,
+            ChangeBatch={
+                "Comment": ip_address,
+                "Changes": [
+                    {
+                        "Action": "UPSERT",
+                        "ResourceRecordSet": {
+                            "Name": domain.get("Name"),
+                            "Type": "A",
+                            "TTL": "15",
+                            "ResourceRecords": [{"Value": ip_address}],
                         },
-                    },
-                }
-            ],
-        },
-    )
+                    }
+                ],
+            },
+        )
+    else:
+        response = route53.change_resource_record_sets(
+            HostedZoneId=dns_id,
+            ChangeBatch={
+                "Comment": bucket_name,
+                "Changes": [
+                    {
+                        "Action": "UPSERT",
+                        "ResourceRecordSet": {
+                            "Name": bucket_name,
+                            "Type": "A",
+                            "AliasTarget": {
+                                "HostedZoneId": HOSTED_ZONE_ID,
+                                "EvaluateTargetHealth": False,
+                                "DNSName": "s3-website-us-east-1.amazonaws.com",
+                            },
+                        },
+                    }
+                ],
+            },
+        )
     logger.info(response)
     return response
 
 
-def delete_dns(dns_id, bucket_name):
+def delete_dns(domain, bucket_name=None, ip_address=None):
     """Setup a domain's DNS."""
-    response = route53.change_resource_record_sets(
-        HostedZoneId=dns_id,
-        ChangeBatch={
-            "Comment": bucket_name,
-            "Changes": [
-                {
-                    "Action": "DELETE",
-                    "ResourceRecordSet": {
-                        "Name": bucket_name,
-                        "Type": "A",
-                        "AliasTarget": {
-                            "HostedZoneId": HOSTED_ZONE_ID,
-                            "EvaluateTargetHealth": False,
-                            "DNSName": "s3-website-us-east-1.amazonaws.com",
+    dns_id = domain.get("Id")
+    if ip_address:
+        response = route53.change_resource_record_sets(
+            HostedZoneId=dns_id,
+            ChangeBatch={
+                "Comment": bucket_name,
+                "Changes": [
+                    {
+                        "Action": "DELETE",
+                        "ResourceRecordSet": {
+                            "Name": domain,
+                            "Type": "A",
+                            "ResourceRecords": [{"Value": ip_address}],
                         },
-                    },
-                }
-            ],
-        },
-    )
+                    }
+                ],
+            },
+        )
+    else:
+        response = route53.change_resource_record_sets(
+            HostedZoneId=dns_id,
+            ChangeBatch={
+                "Comment": bucket_name,
+                "Changes": [
+                    {
+                        "Action": "DELETE",
+                        "ResourceRecordSet": {
+                            "Name": bucket_name,
+                            "Type": "A",
+                            "AliasTarget": {
+                                "HostedZoneId": HOSTED_ZONE_ID,
+                                "EvaluateTargetHealth": False,
+                                "DNSName": "s3-website-us-east-1.amazonaws.com",
+                            },
+                        },
+                    }
+                ],
+            },
+        )
     logger.info(response)
     return response
