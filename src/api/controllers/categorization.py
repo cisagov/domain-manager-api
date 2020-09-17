@@ -23,6 +23,7 @@ def categorization_manager(live_site_id):
     """Manage categorization of active sites."""
     active_site = ActiveSite.get_by_id(live_site_id)
     domain = active_site.get("domain").get("Name")
+    domain_url = domain[:-1]
     if active_site.get("is_categorized"):
         return {"Error": f"{domain} has already been categorized."}
 
@@ -33,10 +34,14 @@ def categorization_manager(live_site_id):
             try:
                 exec(
                     proxy.get("script").decode(),
-                    {"driver": driver, "domain": proxy.get("url")},
+                    {"driver": driver, "url": proxy.get("url"), "domain": domain_url},
                 )
             except Exception as err:
+                driver.quit()
                 return {"error": str(err)}
+
+    # Quit WebDriver
+    driver.quit()
 
     # Update database
     ActiveSite.update(live_site_id=live_site_id, is_categorized=True)

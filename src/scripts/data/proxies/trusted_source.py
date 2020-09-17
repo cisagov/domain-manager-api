@@ -2,6 +2,7 @@
 # flake8: noqa
 from selenium.webdriver.common.by import By
 
+driver.get(url)
 driver.set_window_size(2061, 1265)
 driver.find_element(By.NAME, "product").click()
 dropdown = driver.find_element(By.NAME, "product")
