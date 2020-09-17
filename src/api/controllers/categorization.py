@@ -13,11 +13,6 @@ chrome_options = webdriver.ChromeOptions()
 chrome_options.add_argument("--no-sandbox")
 chrome_options.add_argument("--headless")
 
-driver = webdriver.Remote(
-    command_executor=f"http://{browserless_endpoint}/webdriver",
-    desired_capabilities=chrome_options.to_capabilities(),
-)
-
 
 def categorization_manager(live_site_id):
     """Manage categorization of active sites."""
@@ -32,10 +27,15 @@ def categorization_manager(live_site_id):
         proxies = Proxy.get_all()
         for proxy in proxies:
             try:
+                driver = webdriver.Remote(
+                    command_executor=f"http://{browserless_endpoint}/webdriver",
+                    desired_capabilities=chrome_options.to_capabilities(),
+                )
                 exec(
                     proxy.get("script").decode(),
                     {"driver": driver, "url": proxy.get("url"), "domain": domain_url},
                 )
+                driver.quit()
             except Exception as err:
                 driver.quit()
                 return {"error": str(err)}
