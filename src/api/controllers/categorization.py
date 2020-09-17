@@ -1,9 +1,22 @@
 """Categorization controller."""
+import os
+
 # Third-Party Libraries
 from api.documents.active_site import ActiveSite
 from api.documents.proxy import Proxy
-from utils.domain_categorization.driver import driver
+from selenium import webdriver
 from flask import current_app
+
+
+browserless_endpoint = os.environ.get("BROWSERLESS_ENDPOINT")
+chrome_options = webdriver.ChromeOptions()
+chrome_options.add_argument("--no-sandbox")
+chrome_options.add_argument("--headless")
+
+driver = webdriver.Remote(
+    command_executor=f"http://{browserless_endpoint}/webdriver",
+    desired_capabilities=chrome_options.to_capabilities(),
+)
 
 
 def categorization_manager(live_site_id):
