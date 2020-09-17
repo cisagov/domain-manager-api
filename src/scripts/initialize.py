@@ -122,6 +122,7 @@ def load_proxy_scripts():
     # load scripts
     trustedsource_script = load_file("data/proxies/bluecoat.py", data_type="script")
     bluecoat_script = load_file("data/proxies/trusted_source.py", data_type="script")
+    fortiguard_script = load_file("data/proxies/fortiguard.py", data_type="script")
 
     proxy_data = []
     for proxy in proxy_json:
@@ -133,6 +134,8 @@ def load_proxy_scripts():
                 proxy["script"] = Binary(trustedsource_script)
             elif name == "Blue Coat":
                 proxy["script"] = Binary(bluecoat_script)
+            elif name == "Fortiguard":
+                proxy["script"] = Binary(fortiguard_script)
 
             proxy_data.append(proxy)
 

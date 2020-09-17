@@ -3,7 +3,7 @@
 from selenium.webdriver.common.by import By
 
 
-driver.get("https://sitereview.bluecoat.com/")
+driver.get(url)
 driver.set_window_size(1765, 1040)
 driver.find_element(By.ID, "txtUrl").click()
 driver.find_element(By.ID, "txtUrl").send_keys(f"http://{domain}")

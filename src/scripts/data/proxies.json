@@ -7,6 +7,11 @@
   {
     "created_by": "dev_user",
     "name": "Blue Coat",
-    "url": "https://sitereview.bluecoat.com/"
+    "url": "https://sitereview.bluecoat.com/#/"
+  },
+  {
+    "created_by": "dev_user",
+    "name": "Fortiguard",
+    "url": "https://www.fortiguard.com/faq/wfratingsubmit"
   }
 ]
