@@ -52,6 +52,7 @@ class ActiveSite(Document):
         website = db.websites.find_one({"_id": ObjectId(website_id)})
         domain = db.domains.find_one({"_id": ObjectId(domain_id)})
         post_data = {
+            "name": domain.get("Name")[:-1],
             "description": description,
             "domain": domain,
             "application": db.applications.find_one({"_id": ObjectId(application_id)}),
@@ -60,10 +61,8 @@ class ActiveSite(Document):
             "launch_date": datetime.datetime.utcnow(),
         }
         if ip_address:
-            post_data["name"] = domain.get("Name")[:-1]
             post_data["ip_address"] = ip_address
         else:
-            post_data["name"] = website.get("name")
             post_data["s3_url"] = s3_url
             post_data["website"] = website
 
