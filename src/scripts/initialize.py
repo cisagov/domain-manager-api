@@ -120,8 +120,10 @@ def load_proxy_scripts():
     proxy_json = load_file("data/proxies.json")
 
     # load scripts
-    trustedsource_script = load_file("data/proxies/bluecoat.py", data_type="script")
-    bluecoat_script = load_file("data/proxies/trusted_source.py", data_type="script")
+    trustedsource_script = load_file(
+        "data/proxies/trusted_source.py", data_type="script"
+    )
+    bluecoat_script = load_file("data/proxies/bluecoat.py", data_type="script")
     fortiguard_script = load_file("data/proxies/fortiguard.py", data_type="script")
 
     proxy_data = []

@@ -6,7 +6,7 @@ from api.documents.active_site import ActiveSite
 from api.documents.proxy import Proxy
 from selenium import webdriver
 from flask import current_app
-
+from selenium.webdriver.common.by import By
 
 browserless_endpoint = os.environ.get("BROWSERLESS_ENDPOINT")
 chrome_options = webdriver.ChromeOptions()
@@ -20,7 +20,7 @@ def categorization_manager(live_site_id):
     domain = active_site.get("domain").get("Name")
     domain_url = domain[:-1]
     if active_site.get("is_categorized"):
-        return {"Error": f"{domain} has already been categorized."}
+        return {"error": f"{domain} has already been categorized."}
 
     # Submit domain to proxy
     if not current_app.config["TESTING"]:
