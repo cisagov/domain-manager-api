@@ -28,6 +28,11 @@ class Proxy(Document):
         return db.proxies.find_one({"_id": ObjectId(proxy_id)})
 
     @staticmethod
+    def get_by_name(proxy_name):
+        """Get proxy by name."""
+        return db.proxies.find_one({"name": proxy_name})
+
+    @staticmethod
     def get_all():
         """Get all proxies."""
         return [x for x in db.proxies.find()]
