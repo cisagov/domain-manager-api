@@ -19,7 +19,7 @@ class ActiveSite(Document):
             "domain",
             "website",
             "application",
-            "is_categorized",
+            "is_submitted",
             "is_registered_on_mailgun",
             "launch_date",
         ]
@@ -56,7 +56,7 @@ class ActiveSite(Document):
             "description": description,
             "domain": domain,
             "application": db.applications.find_one({"_id": ObjectId(application_id)}),
-            "is_categorized": False,
+            "is_submitted": None,
             "is_registered_on_mailgun": False,
             "launch_date": datetime.datetime.utcnow(),
         }
@@ -82,8 +82,8 @@ class ActiveSite(Document):
             )
         if "description" in kwargs:
             put_data.update({"description": kwargs.get("description")})
-        if "is_categorized" in kwargs:
-            put_data.update({"is_categorized": kwargs.get("is_categorized")})
+        if "is_submitted" in kwargs:
+            put_data.update({"is_submitted": kwargs.get("is_submitted")})
 
         db.active_sites.find_one_and_update(
             {"_id": ObjectId(live_site_id)}, {"$set": put_data},
