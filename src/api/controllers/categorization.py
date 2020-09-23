@@ -1,5 +1,6 @@
 """Categorization controller."""
 import os
+from bson.son import SON
 
 # Third-Party Libraries
 from api.documents.active_site import ActiveSite
@@ -22,6 +23,7 @@ def categorization_manager(live_site_id):
     if active_site.get("is_categorized"):
         return {"error": f"{domain} has already been categorized."}
 
+    is_submitted = []
     # Submit domain to proxy
     if not current_app.config["TESTING"]:
         proxies = Proxy.get_all()
@@ -36,6 +38,13 @@ def categorization_manager(live_site_id):
                     {"driver": driver, "url": proxy.get("url"), "domain": domain_url},
                 )
                 driver.quit()
+                is_submitted.append(
+                    {
+                        "_id": proxy["_id"],
+                        "name": proxy["name"],
+                        "is_categorized": False,
+                    }
+                )
             except Exception as err:
                 driver.quit()
                 return {"error": str(err)}
@@ -44,7 +53,7 @@ def categorization_manager(live_site_id):
     driver.quit()
 
     # Update database
-    ActiveSite.update(live_site_id=live_site_id, is_categorized=True)
+    ActiveSite.update(live_site_id=live_site_id, is_submitted=is_submitted)
     return {
         "message": f"{domain} has been successfully categorized with Bluecoat, Fortiguard and McAfee"
     }

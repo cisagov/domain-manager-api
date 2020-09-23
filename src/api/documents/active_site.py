@@ -82,8 +82,8 @@ class ActiveSite(Document):
             )
         if "description" in kwargs:
             put_data.update({"description": kwargs.get("description")})
-        if "is_categorized" in kwargs:
-            put_data.update({"is_categorized": kwargs.get("is_categorized")})
+        if "is_submitted" in kwargs:
+            put_data.update({"is_submitted": kwargs.get("is_submitted")})
 
         db.active_sites.find_one_and_update(
             {"_id": ObjectId(live_site_id)}, {"$set": put_data},
