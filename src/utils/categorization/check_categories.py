@@ -54,9 +54,3 @@ def check_cisco(domain):
     print("\033[1;34m[*] Targeting Cisco Talos\033[0;0m")
     xf = ciscotalos.CiscoTalos()
     xf.check_category(domain)
-
-
-def expired_search(filename, argfilter):
-    """Expired search check."""
-    es = expireddomfilter.ExpiredDom()
-    es.check_filter(filename, argfilter)
