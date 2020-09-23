@@ -19,7 +19,7 @@ class ActiveSite(Document):
             "domain",
             "website",
             "application",
-            "is_categorized",
+            "is_submitted",
             "is_registered_on_mailgun",
             "launch_date",
         ]
@@ -56,7 +56,7 @@ class ActiveSite(Document):
             "description": description,
             "domain": domain,
             "application": db.applications.find_one({"_id": ObjectId(application_id)}),
-            "is_categorized": False,
+            "is_submitted": None,
             "is_registered_on_mailgun": False,
             "launch_date": datetime.datetime.utcnow(),
         }
