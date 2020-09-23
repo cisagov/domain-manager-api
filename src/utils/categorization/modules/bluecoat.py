@@ -9,8 +9,8 @@ import threading
 import time
 
 
-def check_category(self, domain):
-    """Check domain category on Blue coat."""
+def check_category(domain):
+    """Check domain category on Bluecoat."""
     print("[*] Checking category for " + domain)
     data = {"url": domain, "captcha": ""}
     headers = {
