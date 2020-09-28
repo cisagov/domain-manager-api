@@ -133,6 +133,7 @@ def categorize_domain(live_site_id):
 
 
 @api.route("/check/", methods=["GET"])
+@auth_required
 def check_domain():
     """Check domain categorization."""
     response = check_categories_manager(request.args.get("domain"))
