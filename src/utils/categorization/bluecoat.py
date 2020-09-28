@@ -28,7 +28,6 @@ def check_category(domain):
         json=data,
         cookies=cookies,
     )
-
     try:
         resp = response.text
         cat = re.findall(

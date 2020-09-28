@@ -6,9 +6,8 @@ import urllib
 from bs4 import BeautifulSoup
 
 
-def check_category(self, domain):
+def check_category(domain):
     """Check domain category on McAfee trusted source."""
-    print("[-] Getting anti-automation tokens")
     session = requests.Session()
     headers = {
         "User-Agent": "Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 6.1)",
@@ -40,8 +39,6 @@ def check_category(self, domain):
     )
     bs = BeautifulSoup(response.content, "html.parser")
     form = bs.find("form", {"class": "contactForm"})
-    sid = form.find("input", {"name": "sid"}).get("value")
     results_table = bs.find("table", {"class": "result-table"})
     td = results_table.find_all("td")
-    print("\033[1;32m[!] Site categorized as: " + td[len(td) - 2].text + "\033[0;0m")
-    return td[len(td) - 2].text, sid
+    return "Category " + td[len(td) - 2].text
