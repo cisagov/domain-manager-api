@@ -1,10 +1,11 @@
 """Check categories controller."""
-from utils.categorization.modules import (
+from utils.categorization import (
     trustedsource,
     bluecoat,
     ciscotalos,
     ibmxforce,
     fortiguard,
+    websense,
 )
 
 
@@ -16,4 +17,5 @@ def check_categories_manager(domain):
         "Cisco Talos": ciscotalos.check_category(domain),
         "IBM X-Force": ibmxforce.check_category(domain),
         "Fortiguard": fortiguard.check_category(domain),
+        "Websense": websense.check_category(domain),
     }
