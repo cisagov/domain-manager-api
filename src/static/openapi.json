@@ -212,6 +212,42 @@
         ]
       }
     },
+    "/api/check/?domain={domain}": {
+      "get": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "domain",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {},
+                  "type": "string"
+                }
+              }
+            },
+            "description": "Returns category details"
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "summary": "Check a domain's category on multiple proxies",
+        "tags": [
+          "Check Categories"
+        ]
+      }
+    },
     "/api/domain/{domain_id}/": {
       "get": {
         "parameters": [
