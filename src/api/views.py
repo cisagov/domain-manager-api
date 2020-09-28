@@ -3,6 +3,7 @@
 from api.controllers.active_sites import active_site_manager
 from api.controllers.applications import applications_manager
 from api.controllers.categorization import categorization_manager
+from api.controllers.check import check_categories_manager
 from api.controllers.domains import domains_manager
 from api.controllers.proxies import proxy_manager
 from api.controllers.tags import tags_manager
@@ -134,5 +135,5 @@ def categorize_domain(live_site_id):
 @api.route("/check/", methods=["GET"])
 def check_domain():
     """Check domain categorization."""
-    response = request.args.get("domain")
+    response = check_categories_manager(request.args.get("domain"))
     return jsonify(response)
