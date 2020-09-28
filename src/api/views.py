@@ -129,3 +129,10 @@ def categorize_domain(live_site_id):
     """Categorize an active site by using available proxies."""
     response = categorization_manager(live_site_id=live_site_id)
     return jsonify(response)
+
+
+@api.route("/check/", methods=["GET"])
+def check_domain():
+    """Check domain categorization."""
+    response = request.args.get("domain")
+    return jsonify(response)
