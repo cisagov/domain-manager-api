@@ -1,5 +1,5 @@
 """Fortiguard categorization check."""
-import requests
+import urllib
 import re
 from bs4 import BeautifulSoup
 import json
@@ -7,15 +7,13 @@ import json
 
 def check_category(domain):
     """Check domain category on Fortiguard."""
-    print("[*] Checking category for " + domain)
-    response = requests.get(
-        f"https://fortiguard.com/webfilter?q={domain}",
-        headers={
-            "User-Agent": "Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 6.1)",
-            "Origin": "https://fortiguard.com",
-            "Referer": "https://fortiguard.com/webfilter",
-        },
+    request = urllib.request.Request("https://fortiguard.com/webfilter?q=" + domain)
+    request.add_header(
+        "User-Agent", "Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 6.1)"
     )
+    request.add_header("Origin", "https://fortiguard.com")
+    request.add_header("Referer", "https://fortiguard.com/webfilter")
+    response = urllib.request.urlopen(request)
     try:
         resp = response.read().decode("utf-8")
         cat = re.findall('Category: (.*?)" />', resp, re.DOTALL)
