@@ -125,6 +125,11 @@ def load_proxy_scripts():
     )
     bluecoat_script = load_file("data/proxies/bluecoat.py", data_type="script")
     fortiguard_script = load_file("data/proxies/fortiguard.py", data_type="script")
+    palo_alto_script = load_file("data/proxies/palo_alto.py", data_type="script")
+    trustedsource_script = load_file(
+        "data/proxies/trusted_source.py", data_type="script"
+    )
+    trendmicro_script = load_file("data/proxies/trendmicro.py", data_type="script")
 
     proxy_data = []
     for proxy in proxy_json:
@@ -138,6 +143,10 @@ def load_proxy_scripts():
                 proxy["script"] = Binary(bluecoat_script)
             elif name == "Fortiguard":
                 proxy["script"] = Binary(fortiguard_script)
+            elif name == "Palo Alto Networks":
+                proxy["script"] = Binary(palo_alto_script)
+            elif name == "Trend Micro":
+                proxy["script"] = Binary(trendmicro_script)
 
             proxy_data.append(proxy)
 
