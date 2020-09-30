@@ -60,6 +60,4 @@ def categorization_manager(live_site_id):
 
     # Update database
     ActiveSite.update(live_site_id=live_site_id, is_submitted=is_submitted)
-    return {
-        "message": f"{domain} has been successfully categorized with Bluecoat, Fortiguard and McAfee"
-    }
+    return {"message": f"{domain} has been successfully categorized"}
