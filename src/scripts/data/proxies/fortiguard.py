@@ -1,37 +1,58 @@
 # mypy: ignore-errors
 # flake8: noqa
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
+# Standard Python Libraries
+import os
+import time
 
+# Third-Party Libraries
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.wait import WebDriverWait
+from twocaptcha import TwoCaptcha
 
 driver.get(url)
-driver.set_window_size(1058, 979)
+driver.set_window_size(1680, 979)
+driver.find_element(By.ID, "__agreementButton").click()
+time.sleep(3)
+driver.find_element(By.ID, "web_filter_rating_info_form_url").click()
 driver.find_element(By.ID, "web_filter_rating_info_form_url").click()
 driver.find_element(By.ID, "web_filter_rating_info_form_url").send_keys(
     f"http://{domain}"
 )
+wait = WebDriverWait(driver, 10)
+wait.until(
+    EC.presence_of_element_located(
+        (By.ID, "web_filter_rating_info_form_categorysuggestion")
+    )
+)
 driver.find_element(By.ID, "web_filter_rating_info_form_categorysuggestion").click()
 dropdown = driver.find_element(By.ID, "web_filter_rating_info_form_categorysuggestion")
 dropdown.find_element(By.XPATH, "//option[. = 'Health and Wellness']").click()
-driver.find_element(By.ID, "web_filter_rating_info_form_name").click()
-driver.find_element(By.ID, "web_filter_rating_info_form_name").send_keys("INL")
-driver.find_element(By.ID, "web_filter_rating_info_form_email").send_keys(
-    "test@inltesting.xyz"
-)
-driver.find_element(By.ID, "web_filter_rating_info_form_companyname").click()
-driver.find_element(By.ID, "web_filter_rating_info_form_companyname").send_keys(
-    "INL Testing"
-)
 driver.find_element(By.CSS_SELECTOR, ".page-section > .row:nth-child(2)").click()
-driver.switch_to.frame(0)
-WebDriverWait(driver, 10).until(
-    EC.frame_to_be_available_and_switch_to_it(
-        By.CSS_SELECTOR, ".recaptcha-checkbox-border"
-    ).click()
+wait.until(EC.presence_of_element_located((By.ID, "web_filter_rating_info_form_name")))
+driver.find_element(By.ID, "web_filter_rating_info_form_name").click()
+driver.find_element(By.ID, "web_filter_rating_info_form_name").send_keys("Barry Hansen")
+driver.find_element(By.ID, "web_filter_rating_info_form_email").send_keys(
+    "barry.k.hansen@gmail.com"
 )
-WebDriverWait(driver, 10).until(
-    EC.element_to_be_clickable((By.XPATH, "//span[@id='recaptcha-anchor']"))
-).click()
-driver.switch_to.default_content()
-driver.find_element(By.ID, "web_filter_rating_info_form_submit").click()
+driver.find_element(By.ID, "web_filter_rating_info_form_companyname").send_keys("INL")
+recaptcha_element = driver.find_element(By.CLASS_NAME, "g-recaptcha")
+sitekey = recaptcha_element.get_attribute("data-sitekey")
+print(sitekey)
+
+solver = TwoCaptcha(api_key)
+try:
+    result = solver.recaptcha(
+        sitekey=sitekey, url="https://www.fortiguard.com/faq/wfratingsubmit"
+    )
+
+except Exception as e:
+    print(e)
+else:
+    driver.execute_script(
+        "document.getElementById('g-recaptcha-response').innerHTML='"
+        + result["code"]
+        + "';"
+    )
+    driver.find_element(By.ID, "web_filter_rating_info_form_submit").click()
+    time.sleep(3)

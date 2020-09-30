@@ -1,7 +1,7 @@
 # mypy: ignore-errors
 # flake8: noqa
+# Third-Party Libraries
 from selenium.webdriver.common.by import By
-
 
 driver.get(url)
 driver.set_window_size(1765, 1040)
