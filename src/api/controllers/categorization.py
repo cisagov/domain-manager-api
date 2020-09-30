@@ -5,6 +5,7 @@ from bson.son import SON
 # Third-Party Libraries
 from api.documents.active_site import ActiveSite
 from api.documents.proxy import Proxy
+from utils.two_captcha import two_captcha_api_key
 from selenium import webdriver
 from flask import current_app
 from selenium.webdriver.common.by import By
@@ -35,7 +36,12 @@ def categorization_manager(live_site_id):
                 )
                 exec(
                     proxy.get("script").decode(),
-                    {"driver": driver, "url": proxy.get("url"), "domain": domain_url},
+                    {
+                        "driver": driver,
+                        "url": proxy.get("url"),
+                        "domain": domain_url,
+                        "api_key": two_captcha_api_key,
+                    },
                 )
                 driver.quit()
                 is_submitted.append(

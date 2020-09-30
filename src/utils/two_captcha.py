@@ -3,4 +3,5 @@ import os
 from twocaptcha import TwoCaptcha
 
 
-solver = TwoCaptcha(os.environ.get("TWO_CAPTCHA"))
+two_captcha_api_key = os.environ.get("TWO_CAPTCHA")
+solver = TwoCaptcha(two_captcha_api_key)
