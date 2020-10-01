@@ -1,6 +1,23 @@
 [
   {
-    "name": "Activist Groups"
+    "name": "Activist Groups",
+    "proxies": [
+      {
+        "bluecoat": "Activist Groups"
+      },
+      {
+        "trusted_source": "Politics/Opinion"
+      },
+      {
+        "fortiguard": "Political Organizations"
+      },
+      {
+        "palo_alto": "Philosophy and Political Advocacy"
+      },
+      {
+        "trend_micro": "Politics"
+      }
+    ]
   },
   {
     "name": "Advertising"
