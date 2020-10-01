@@ -1,0 +1,392 @@
+[
+  {
+    "name": "Activist Groups"
+  },
+  {
+    "name": "Advertising"
+  },
+  {
+    "name": "Advocacy Organizations"
+  },
+  {
+    "name": "Alternative Beliefs"
+  },
+  {
+    "name": "Art"
+  },
+  {
+    "name": "Auction"
+  },
+  {
+    "name": "Audio/Video Clips"
+  },
+  {
+    "name": "Blogs"
+  },
+  {
+    "name": "Brokerage"
+  },
+  {
+    "name": "Business"
+  },
+  {
+    "name": "Charitable Organizations"
+  },
+  {
+    "name": "Chat"
+  },
+  {
+    "name": "Child Education"
+  },
+  {
+    "name": "Coin Miners"
+  },
+  {
+    "name": "Command and Control"
+  },
+  {
+    "name": "Communications"
+  },
+  {
+    "name": "Computers / Internet"
+  },
+  {
+    "name": "Consumer Protection"
+  },
+  {
+    "name": "Content Delivery Networks"
+  },
+  {
+    "name": "Content Server"
+  },
+  {
+    "name": "Cultural Institutions"
+  },
+  {
+    "name": "Dating"
+  },
+  {
+    "name": "Digital Postcards"
+  },
+  {
+    "name": "Disease Vector"
+  },
+  {
+    "name": "Dynamic Content"
+  },
+  {
+    "name": "Dynamic DNS"
+  },
+  {
+    "name": "E-Card/Invitations"
+  },
+  {
+    "name": "Education"
+  },
+  {
+    "name": "Email"
+  },
+  {
+    "name": "Entertainment"
+  },
+  {
+    "name": "Fashion/Beauty"
+  },
+  {
+    "name": "File Sharing and Storage"
+  },
+  {
+    "name": "Finance"
+  },
+  {
+    "name": "Folklore"
+  },
+  {
+    "name": "For Kids"
+  },
+  {
+    "name": "Forum/Bulletin Boards"
+  },
+  {
+    "name": "Freeware and Software Downloads"
+  },
+  {
+    "name": "Games"
+  },
+  {
+    "name": "General News"
+  },
+  {
+    "name": "General Organizations"
+  },
+  {
+    "name": "Global Religion"
+  },
+  {
+    "name": "Government"
+  },
+  {
+    "name": "Gun Clubs / Hunting"
+  },
+  {
+    "name": "Health"
+  },
+  {
+    "name": "Historical Revisionism"
+  },
+  {
+    "name": "Home and Garden"
+  },
+  {
+    "name": "Humor"
+  },
+  {
+    "name": "Hunting and Fishing"
+  },
+  {
+    "name": "Information Security"
+  },
+  {
+    "name": "Information Technology"
+  },
+  {
+    "name": "Interactive Web Applications"
+  },
+  {
+    "name": "Internet Communications and Telephony"
+  },
+  {
+    "name": "Internet Connected Devices"
+  },
+  {
+    "name": "Internet Infrastructure"
+  },
+  {
+    "name": "Internet Radio and TV"
+  },
+  {
+    "name": "Internet Services"
+  },
+  {
+    "name": "Job Search"
+  },
+  {
+    "name": "Legal"
+  },
+  {
+    "name": "Marketing/Merchandising"
+  },
+  {
+    "name": "Media Downloads"
+  },
+  {
+    "name": "Media Sharing"
+  },
+  {
+    "name": "Medicine"
+  },
+  {
+    "name": "Messaging"
+  },
+  {
+    "name": "Military"
+  },
+  {
+    "name": "Mobile Phone"
+  },
+  {
+    "name": "Moderated"
+  },
+  {
+    "name": "Motor Vehicles"
+  },
+  {
+    "name": "Music"
+  },
+  {
+    "name": "News"
+  },
+  {
+    "name": "Non-Profit/Advocacy/NGO"
+  },
+  {
+    "name": "Office/Business Applications"
+  },
+  {
+    "name": "Online Meetings"
+  },
+  {
+    "name": "Online Shopping"
+  },
+  {
+    "name": "Online Storage and Backup"
+  },
+  {
+    "name": "P2P/File Sharing"
+  },
+  {
+    "name": "Pay to Surf"
+  },
+  {
+    "name": "Peer-to-Peer (P2P)"
+  },
+  {
+    "name": "Personal Network Storage"
+  },
+  {
+    "name": "Personal Pages"
+  },
+  {
+    "name": "Personal Privacy"
+  },
+  {
+    "name": "Personal Sites"
+  },
+  {
+    "name": "Personal Vehicles"
+  },
+  {
+    "name": "Pharmacy"
+  },
+  {
+    "name": "Philosophy and Political Advocacy"
+  },
+  {
+    "name": "Photo Searches"
+  },
+  {
+    "name": "Placeholders"
+  },
+  {
+    "name": "Plagiarism"
+  },
+  {
+    "name": "Political Organizations"
+  },
+  {
+    "name": "Politics/Opinion"
+  },
+  {
+    "name": "Portal Sites"
+  },
+  {
+    "name": "Private IP Addresses"
+  },
+  {
+    "name": "Profanity"
+  },
+  {
+    "name": "Professional Networking"
+  },
+  {
+    "name": "Public Information"
+  },
+  {
+    "name": "Radio/Audio Streams"
+  },
+  {
+    "name": "Real Estate"
+  },
+  {
+    "name": "Recreation and Hobbies"
+  },
+  {
+    "name": "Reference and Research"
+  },
+  {
+    "name": "Religion"
+  },
+  {
+    "name": "Remote Access"
+  },
+  {
+    "name": "Residential IP Addresses"
+  },
+  {
+    "name": "Resource Sharing"
+  },
+  {
+    "name": "Restaurants"
+  },
+  {
+    "name": "Ringtones / Mobile Phone Downloads"
+  },
+  {
+    "name": "School Cheating Information"
+  },
+  {
+    "name": "Search Engines"
+  },
+  {
+    "name": "Secure Websites"
+  },
+  {
+    "name": "Shareware and Freeware"
+  },
+  {
+    "name": "Sharing Services"
+  },
+  {
+    "name": "Shopping"
+  },
+  {
+    "name": "Social Networking"
+  },
+  {
+    "name": "Society"
+  },
+  {
+    "name": "Software Downloads"
+  },
+  {
+    "name": "Software/Hardware"
+  },
+  {
+    "name": "Sports"
+  },
+  {
+    "name": "Stock Trading"
+  },
+  {
+    "name": "Streaming Media"
+  },
+  {
+    "name": "Technical Information"
+  },
+  {
+    "name": "Technology/Internet"
+  },
+  {
+    "name": "Text Translators"
+  },
+  {
+    "name": "Text/Spoken Only"
+  },
+  {
+    "name": "Training and Tools"
+  },
+  {
+    "name": "Translation"
+  },
+  {
+    "name": "Travel"
+  },
+  {
+    "name": "Uncategorized"
+  },
+  {
+    "name": "Vehicles"
+  },
+  {
+    "name": "Visual Search Engines"
+  },
+  {
+    "name": "Web Advertisements"
+  },
+  {
+    "name": "Web Analytics"
+  },
+  {
+    "name": "Web Phone"
+  }
+]

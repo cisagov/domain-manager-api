@@ -156,9 +156,28 @@ def load_proxy_scripts():
         return logger.info("Proxy data has been loaded into the database.")
 
 
+def load_categories():
+    """Load general categories."""
+    db_categories = db.categories
+
+    categories_json = load_file("data/categories.json")
+
+    categories_data = []
+    for category in categories_json:
+        name = category.get("name")
+        if not db_categories.find_one({"name": name}):
+            categories_data.append(category)
+
+    # Save latest data to the database
+    if categories_data != []:
+        db_categories.insert_many(categories_data)
+        return logger.info("Category data has been loaded into the database.")
+
+
 if __name__ == "__main__":
     load_domains()
     load_s3()
     load_applications()
     load_proxy_scripts()
+    load_categories()
     logger.info("Database has been initialized.")
