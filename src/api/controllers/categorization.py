@@ -5,6 +5,8 @@ from bson.son import SON
 # Third-Party Libraries
 from api.documents.active_site import ActiveSite
 from api.documents.proxy import Proxy
+from api.documents.categories import Category
+from api.schemas.category_schema import CategorySchema
 from utils.two_captcha import two_captcha_api_key
 from selenium import webdriver
 from flask import current_app
@@ -14,6 +16,13 @@ browserless_endpoint = os.environ.get("BROWSERLESS_ENDPOINT")
 chrome_options = webdriver.ChromeOptions()
 chrome_options.add_argument("--no-sandbox")
 chrome_options.add_argument("--headless")
+
+
+def categories_manager():
+    """Manage categories types."""
+    categories = Category.get_all()
+    category_schema = CategorySchema(many=True)
+    return category_schema.dump(categories)
 
 
 def categorization_manager(live_site_id):
@@ -60,6 +69,4 @@ def categorization_manager(live_site_id):
 
     # Update database
     ActiveSite.update(live_site_id=live_site_id, is_submitted=is_submitted)
-    return {
-        "message": f"{domain} has been successfully categorized with Bluecoat, Fortiguard and McAfee"
-    }
+    return {"message": f"{domain} has been successfully categorized"}

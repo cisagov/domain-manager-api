@@ -2,7 +2,7 @@
 # Third-Party Libraries
 from api.controllers.active_sites import active_site_manager
 from api.controllers.applications import applications_manager
-from api.controllers.categorization import categorization_manager
+from api.controllers.categorization import categorization_manager, categories_manager
 from api.controllers.check import check_categories_manager
 from api.controllers.domains import domains_manager
 from api.controllers.proxies import proxy_manager
@@ -137,4 +137,12 @@ def categorize_domain(live_site_id):
 def check_domain():
     """Check domain categorization."""
     response = check_categories_manager(request.args.get("domain"))
+    return jsonify(response)
+
+
+@api.route("/categories/", methods=["GET"])
+@auth_required
+def get_categories():
+    """Check all categories."""
+    response = categories_manager()
     return jsonify(response)
