@@ -141,6 +141,7 @@ def check_domain():
 
 
 @api.route("/categories/", methods=["GET"])
+@auth_required
 def get_categories():
     """Check all categories."""
     response = categories_manager()
