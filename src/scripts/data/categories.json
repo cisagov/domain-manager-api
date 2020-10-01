@@ -20,390 +20,674 @@
     ]
   },
   {
-    "name": "Advertising"
-  },
-  {
-    "name": "Advocacy Organizations"
-  },
-  {
-    "name": "Alternative Beliefs"
-  },
-  {
-    "name": "Art"
-  },
-  {
-    "name": "Auction"
-  },
-  {
-    "name": "Audio/Video Clips"
-  },
-  {
-    "name": "Blogs"
-  },
-  {
-    "name": "Brokerage"
-  },
-  {
-    "name": "Business"
-  },
-  {
-    "name": "Charitable Organizations"
-  },
-  {
-    "name": "Chat"
-  },
-  {
-    "name": "Child Education"
-  },
-  {
-    "name": "Coin Miners"
-  },
-  {
-    "name": "Command and Control"
-  },
-  {
-    "name": "Communications"
-  },
-  {
-    "name": "Computers / Internet"
-  },
-  {
-    "name": "Consumer Protection"
-  },
-  {
-    "name": "Content Delivery Networks"
-  },
-  {
-    "name": "Content Server"
-  },
-  {
-    "name": "Cultural Institutions"
-  },
-  {
-    "name": "Dating"
-  },
-  {
-    "name": "Digital Postcards"
-  },
-  {
-    "name": "Disease Vector"
-  },
-  {
-    "name": "Dynamic Content"
-  },
-  {
-    "name": "Dynamic DNS"
-  },
-  {
-    "name": "E-Card/Invitations"
-  },
-  {
-    "name": "Education"
-  },
-  {
-    "name": "Email"
-  },
-  {
-    "name": "Entertainment"
-  },
-  {
-    "name": "Fashion/Beauty"
-  },
-  {
-    "name": "File Sharing and Storage"
-  },
-  {
-    "name": "Finance"
-  },
-  {
-    "name": "Folklore"
-  },
-  {
-    "name": "For Kids"
-  },
-  {
-    "name": "Forum/Bulletin Boards"
-  },
-  {
-    "name": "Freeware and Software Downloads"
-  },
-  {
-    "name": "Games"
-  },
-  {
-    "name": "General News"
-  },
-  {
-    "name": "General Organizations"
-  },
-  {
-    "name": "Global Religion"
-  },
-  {
-    "name": "Government"
-  },
-  {
-    "name": "Gun Clubs / Hunting"
-  },
-  {
-    "name": "Health"
-  },
-  {
-    "name": "Historical Revisionism"
-  },
-  {
-    "name": "Home and Garden"
-  },
-  {
-    "name": "Humor"
-  },
-  {
-    "name": "Hunting and Fishing"
-  },
-  {
-    "name": "Information Security"
-  },
-  {
-    "name": "Information Technology"
-  },
-  {
-    "name": "Interactive Web Applications"
-  },
-  {
-    "name": "Internet Communications and Telephony"
-  },
-  {
-    "name": "Internet Connected Devices"
-  },
-  {
-    "name": "Internet Infrastructure"
-  },
-  {
-    "name": "Internet Radio and TV"
-  },
-  {
-    "name": "Internet Services"
-  },
-  {
-    "name": "Job Search"
-  },
-  {
-    "name": "Legal"
-  },
-  {
-    "name": "Marketing/Merchandising"
-  },
-  {
-    "name": "Media Downloads"
-  },
-  {
-    "name": "Media Sharing"
-  },
-  {
-    "name": "Medicine"
-  },
-  {
-    "name": "Messaging"
-  },
-  {
-    "name": "Military"
-  },
-  {
-    "name": "Mobile Phone"
-  },
-  {
-    "name": "Moderated"
-  },
-  {
-    "name": "Motor Vehicles"
-  },
-  {
-    "name": "Music"
-  },
-  {
-    "name": "News"
-  },
-  {
-    "name": "Non-Profit/Advocacy/NGO"
-  },
-  {
-    "name": "Office/Business Applications"
-  },
-  {
-    "name": "Online Meetings"
-  },
-  {
-    "name": "Online Shopping"
-  },
-  {
-    "name": "Online Storage and Backup"
-  },
-  {
-    "name": "P2P/File Sharing"
-  },
-  {
-    "name": "Pay to Surf"
-  },
-  {
-    "name": "Peer-to-Peer (P2P)"
-  },
-  {
-    "name": "Personal Network Storage"
-  },
-  {
-    "name": "Personal Pages"
-  },
-  {
-    "name": "Personal Privacy"
-  },
-  {
-    "name": "Personal Sites"
-  },
-  {
-    "name": "Personal Vehicles"
-  },
-  {
-    "name": "Pharmacy"
-  },
-  {
-    "name": "Philosophy and Political Advocacy"
-  },
-  {
-    "name": "Photo Searches"
-  },
-  {
-    "name": "Placeholders"
-  },
-  {
-    "name": "Plagiarism"
-  },
-  {
-    "name": "Political Organizations"
-  },
-  {
-    "name": "Politics/Opinion"
-  },
-  {
-    "name": "Portal Sites"
-  },
-  {
-    "name": "Private IP Addresses"
-  },
-  {
-    "name": "Profanity"
-  },
-  {
-    "name": "Professional Networking"
-  },
-  {
-    "name": "Public Information"
-  },
-  {
-    "name": "Radio/Audio Streams"
-  },
-  {
-    "name": "Real Estate"
-  },
-  {
-    "name": "Recreation and Hobbies"
-  },
-  {
-    "name": "Reference and Research"
-  },
-  {
-    "name": "Religion"
-  },
-  {
-    "name": "Remote Access"
-  },
-  {
-    "name": "Residential IP Addresses"
-  },
-  {
-    "name": "Resource Sharing"
-  },
-  {
-    "name": "Restaurants"
-  },
-  {
-    "name": "Ringtones / Mobile Phone Downloads"
-  },
-  {
-    "name": "School Cheating Information"
-  },
-  {
-    "name": "Search Engines"
-  },
-  {
-    "name": "Secure Websites"
-  },
-  {
-    "name": "Shareware and Freeware"
-  },
-  {
-    "name": "Sharing Services"
-  },
-  {
-    "name": "Shopping"
-  },
-  {
-    "name": "Social Networking"
-  },
-  {
-    "name": "Society"
-  },
-  {
-    "name": "Software Downloads"
-  },
-  {
-    "name": "Software/Hardware"
-  },
-  {
-    "name": "Sports"
-  },
-  {
-    "name": "Stock Trading"
-  },
-  {
-    "name": "Streaming Media"
-  },
-  {
-    "name": "Technical Information"
-  },
-  {
-    "name": "Technology/Internet"
-  },
-  {
-    "name": "Text Translators"
-  },
-  {
-    "name": "Text/Spoken Only"
-  },
-  {
-    "name": "Training and Tools"
-  },
-  {
-    "name": "Translation"
-  },
-  {
-    "name": "Travel"
-  },
-  {
-    "name": "Uncategorized"
-  },
-  {
-    "name": "Vehicles"
-  },
-  {
-    "name": "Visual Search Engines"
-  },
-  {
-    "name": "Web Advertisements"
-  },
-  {
-    "name": "Web Analytics"
-  },
-  {
-    "name": "Web Phone"
+    "name": "Advertising",
+    "proxies": [
+      {
+        "bluecoat": "Activist Groups"
+      },
+      {
+        "trusted_source": "Web Ads/Analytics"
+      },
+      {
+        "fortiguard": "Advertising"
+      },
+      {
+        "palo_alto": "Web Advertisements"
+      },
+      {
+        "trend_micro": "Web Advertisements"
+      }
+    ]
+  },
+  {
+    "name": "Advocacy Organizations",
+    "proxies": [
+      {
+        "bluecoat": "Political/Social Advocacy"
+      },
+      {
+        "trusted_source": "Politics/Opinion"
+      },
+      {
+        "fortiguard": "Advocacy Organizations"
+      },
+      {
+        "palo_alto": "Philosophy and Political Advocacy"
+      },
+      {
+        "trend_micro": "Politics"
+      }]
+  },
+  {
+    "name": "Alternative Beliefs",
+    "proxies": [
+      {
+        "trusted_source": "Religion/Ideology"
+      },
+      {
+        "bluecoat": "Alternative Spirituality/Belief"
+      },      
+      {
+        "fortiguard": "Alternative Beliefs"
+      },
+      {
+        "palo_alto": "Philosophy and Political Advocacy"
+      },
+      {
+        "trend_micro": "Alternative Journals"
+      }]
+  },
+  {
+    "name": "Art",
+    "proxies": [
+      {
+        "trusted_source": "Art/Culture/Heritage"
+      },
+      {
+        "bluecoat": "Art/Culture"
+      },      
+      {
+        "fortiguard": "Arts and Culture"
+      },
+      {
+        "palo_alto": "Entertainment and Arts"
+      },
+      {
+        "trend_micro": "Arts"
+      }]
+  },
+  {
+    "name": "Auction",
+    "proxies": [
+      {
+        "trusted_source": "Auctions/Classifieds"
+      },
+      {
+        "bluecoat": "Auctions"
+      },      
+      {
+        "fortiguard": "Auction"
+      },
+      {
+        "palo_alto":"Auctions"
+      },
+      {
+        "trend_micro": "Auctions"
+      }]
+  },
+  {
+    "name": "Blogs",
+    "proxies": [
+      {
+        "trusted_source": "Blogs/Wiki"
+      },
+      {
+        "bluecoat": "Social Networking"
+      },      
+      {
+        "fortiguard": "Social Networking"
+      },
+      {
+        "palo_alto":"Social Networking"
+      },
+      {
+        "trend_micro":  "Blogs / Web Communications"
+      }]
+  },
+  {
+    "name": "Financial Brokerage",
+    "proxies": [
+      {
+        "trusted_source": "Finance/Banking"
+      },
+      {
+        "bluecoat": "Brokerage/Trading"
+      },      
+      {
+        "fortiguard": "Brokerage and Trading"
+      },
+      {
+        "palo_alto": "Business and Economy"
+      },
+      {
+        "trend_micro": "Brokerages / Trading"
+      }]
+  },
+  {
+    "name": "Business",
+    "proxies": [
+      {
+        "trusted_source": "Business"
+      },
+      {
+        "bluecoat": "Business/Economy"
+      },      
+      {
+        "fortiguard": "Business"
+      },
+      {
+        "palo_alto": "Business and Economy"
+      },
+      {
+        "trend_micro": "Business / Economy"
+      }]
+  },
+  {
+    "name": "Charitable Organizations",
+    "proxies": [
+      {
+        "trusted_source":  "Business"
+      },
+      {
+        "bluecoat": "Charitable/Non-Profit"
+      },      
+      {
+        "fortiguard": "Charitable Organizations"
+      },
+      {
+        "palo_alto":"Business and Economy"
+      },
+      {
+        "trend_micro": "Business / Economy"
+      }]
+  },
+  {
+    "name": "Chat",
+    "proxies": [
+      {
+        "trusted_source": "Chat"
+      },
+      {
+        "bluecoat": "Chat (IM)/SMS"
+      },      
+      {
+        "fortiguard": "Instant Messaging"
+      },
+      {
+        "palo_alto": "Internet Communications and Telephony"
+      },
+      {
+        "trend_micro": "Chat / Instant Messaging"
+      }]
+  },  
+  {
+    
+    
+    
+    "name": "Computers / Internet",
+    "proxies": [
+      {
+        "trusted_source": "Internet Services"
+      },
+      {
+        "bluecoat": "Computer/Information Security"
+      },      
+      {
+        "fortiguard": "Information Technology"
+      },
+      {
+        "palo_alto":"Computer and Internet Info"
+      },
+      {
+        "trend_micro": "Computers / Internet"
+      }]
+  }, 
+  {    
+    "name": "Content Delivery Networks",
+    "proxies": [
+      {
+        "trusted_source": "Content Server"
+      },
+      {
+        "bluecoat": "Content Delivery Networks"
+      },      
+      {
+        "fortiguard": "Content Servers"
+      },
+      {
+        "palo_alto": "Content Delivery Networks"
+      },
+      {
+        "trend_micro": "Pay to Surf"
+      }]
+  },   
+  {
+    "name": "Dating",
+    "proxies": [
+      {
+        "trusted_source": "Dating/Personals"
+      },
+      {
+        "bluecoat": "Personals/Dating"
+      },      
+      {
+        "fortiguard": "Dating"
+      },
+      {
+        "palo_alto": "Dating"
+      },
+      {
+        "trend_micro": "Personals / Dating"
+      }]
+  }, 
+  {    
+    "name": "Education",
+    "proxies": [
+      {
+        "trusted_source": "Education/Reference"
+      },
+      {
+        "bluecoat": "Education"
+      },      
+      {
+        "fortiguard": "Education"
+      },
+      {
+        "palo_alto":"Educational Institutions"
+      },
+      {
+        "trend_micro": "Education"
+      }]
+  },
+  {
+    "name": "Entertainment",
+    "proxies": [
+      {
+        "trusted_source": "Entertainment"
+      },
+      {
+        "bluecoat": "Entertainment"
+      },      
+      {
+        "fortiguard": "Entertainment"
+      },
+      {
+        "palo_alto":"Entertainment and Arts"
+      },
+      {
+        "trend_micro": "Entertainment"
+      }]
+  },    
+  {
+    "name": "Finance",
+    "proxies": [
+      {
+        "trusted_source": "Finance/Banking"
+      },
+      {
+        "bluecoat": "Finance"
+      },      
+      {
+        "fortiguard": "Finance and Banking"
+      },
+      {
+        "palo_alto":"Financial Services"
+      },
+      {
+        "trend_micro": "Financial Services"
+      }]
+  },
+  {
+    "name": "For Kids",
+    "proxies": [
+      {
+        "trusted_source": "For Kids"
+      },
+      {
+        "bluecoat": "For Kids"
+      },      
+      {
+        "fortiguard": "Child Education"
+      },
+      {
+        "palo_alto": "Entertainment and Arts"
+      },
+      {
+        "trend_micro": "For Kids"
+      }]
+  }, 
+  {
+    
+    "name": "Games",
+    "proxies": [
+      {
+        "trusted_source":  "Games"
+      },
+      {
+        "bluecoat":  "Games"
+      },      
+      {
+        "fortiguard":  "Games"
+      },
+      {
+        "palo_alto": "Games"
+      },
+      {
+        "trend_micro":  "Games"
+      }]
+  },
+  {
+    "name": "News",
+    "proxies": [
+      {
+        "trusted_source": "General News"
+      },
+      {
+        "bluecoat": "News"
+      },      
+      {
+        "fortiguard": "News and Media"
+      },
+      {
+        "palo_alto":"News"
+      },
+      {
+        "trend_micro": "News / Media"
+      }]
+  },
+  {
+    "name": "Government",
+    "proxies": [
+      {
+        "trusted_source": "Government/Military"
+      },
+      {
+        "bluecoat": "Government/Legal"
+      },      
+      {
+        "fortiguard": "Government and Legal Organizations"
+      },
+      {
+        "palo_alto":"Government"
+      },
+      {
+        "trend_micro": "Government / Legal"
+      }]
+  },
+  {
+    "name": "Health",
+    "proxies": [
+      {
+        "trusted_source": "Health"
+      },
+      {
+        "bluecoat": "Health"
+      },      
+      {
+        "fortiguard": "Health and Wellness"        
+      },
+      {
+        "palo_alto":   "Health and Medicine"
+        
+      },
+      {
+        "trend_micro": "Health"
+      }]
+  },  
+  {
+    "name": "Humor",
+    "proxies": [
+      {
+        "trusted_source": "Humor/Comics"        
+      },
+      {
+        "bluecoat": "Humor/Jokes"
+      },      
+      {
+        "fortiguard": "Entertainment"
+      },
+      {
+        "palo_alto": "Entertainment and Arts"
+      },
+      {
+        "trend_micro": "Humor"        
+      }]
+  },
+  {
+    "name": "Hunting and Fishing",
+    "proxies": [
+      {
+        "trusted_source": "Entertainment"
+      },
+      {
+        "bluecoat": "Entertainment"
+      },      
+      {
+        "fortiguard": "Entertainment"
+      },
+      {
+        "palo_alto":"Hunting and Fishing"        
+      },
+      {
+        "trend_micro": "Gun Clubs / Hunting"
+      }]
+  },
+  {
+    "name": "Job Search",
+    "proxies": [
+      {
+        "trusted_source": "Job Search"
+      },
+      {
+        "bluecoat": "Job Search/Careers"
+      },      
+      {
+        "fortiguard": "Job Search"
+      },
+      {
+        "palo_alto":"Job Search"
+      },
+      {
+        "trend_micro": "Job Search / Careers"
+      }]
+  },  
+  {
+    "name": "Military",
+    "proxies": [
+      {
+        "trusted_source": "Government/Military"
+      },
+      {
+        "bluecoat": "Military"
+      },      
+      {
+        "fortiguard": "Armed Forces"
+      },
+      {
+        "palo_alto":"Military"
+      },
+      {
+        "trend_micro": "Military"
+      }]
+  },
+  {
+    "name": "Politics/Opinion",
+      "proxies": [
+        {
+          "trusted_source": "Politics/Opinion"
+        },
+        {
+          "bluecoat": "Political/Social Advocacy"
+        },      
+        {
+          "fortiguard": "Political Organizations"
+        },
+        {
+          "palo_alto": "Philosophy and Political Advocacy"
+        },
+        {
+          "trend_micro": "Politics"
+        }]
+  },
+  {
+    "name": "Real Estate",
+    "proxies": [
+      {
+        "trusted_source":"Real Estate" 
+      },
+      {
+        "bluecoat": "Real Estate"
+      },      
+      {
+        "fortiguard": "Real Estate"
+      },
+      {
+        "palo_alto":"Real Estate"
+      },
+      {
+        "trend_micro": "Real Estate"
+      }]
+  },
+  {
+    "name": "Religion",
+      "proxies": [
+        {
+          "trusted_source":   "Religion/Ideology"
+        },
+        {
+          "bluecoat": "Religion"
+        },      
+        {
+          "fortiguard": "Global Religion"
+        },
+        {
+          "palo_alto":"Religion"
+        },
+        {
+          "trend_micro": "Religion"
+        }]
+  },
+  {
+    "name": "Restaurants",
+    "proxies": [
+      {
+        "trusted_source": "Restaurants"
+      },
+      {
+        "bluecoat": "Restaurants/Food"
+      },      
+      {
+        "fortiguard": "Restaurant and Dining"
+      },
+      {
+        "palo_alto":"Shopping"
+      },
+      {
+        "trend_micro": "Restaurants / Food"
+      }]
+  },
+  {
+    "name": "Search Engines",
+    "proxies": [
+      {
+        "trusted_source": "Search Engines"
+      },
+      {
+        "bluecoat": "Search Engines/Portals"
+      },      
+      {
+        "fortiguard": "Search Engines and Portals"
+      },
+      {
+        "palo_alto":"Search Engines"
+      },
+      {
+        "trend_micro": "Search Engines / Portals"
+      }]
+  },  
+  {
+    "name": "Shopping",
+    "proxies": [
+      {
+        "trusted_source": "Online Shopping"
+      },
+      {
+        "bluecoat": "Shopping"
+      },      
+      {
+        "fortiguard": "Shopping"
+      },
+      {
+        "palo_alto":"Shopping"
+      },
+      {
+        "trend_micro": "Shopping"
+      }]
+  },
+  {
+    "name": "Social Networking",
+    "proxies": [
+      {
+        "trusted_source": "Social Networking"
+      },
+      {
+        "bluecoat": "Social Networking"
+      },      
+      {
+        "fortiguard": "Social Networking"
+      },
+      {
+        "palo_alto":"Social Networking"
+      },
+      {
+        "trend_micro": "Social Networking"
+      }]
+  },  
+  {
+    "name": "Sports",    
+    "proxies": [
+      {
+        "trusted_source": "Sports"
+      },
+      {
+        "bluecoat": "Sports/Recreation"
+      },      
+      {
+        "fortiguard": "Sports"
+      },
+      {
+        "palo_alto":"Sports"
+      },
+      {
+        "trend_micro": "Sports"
+      }]
+  }, 
+  {
+    "name": "Travel",
+    "proxies": [
+      {
+        "trusted_source": "Travel"
+      },
+      {
+        "bluecoat": "Travel"
+      },      
+      {
+        "fortiguard": "Travel"
+      },
+      {
+        "palo_alto":"Travel"
+      },
+      {
+        "trend_micro": "Travel"
+      }]
+  },
+  {
+    "name": "Web Hosting",
+    "proxies": [
+      {
+        "trusted_source": "Internet Services"
+      },
+      {
+        "bluecoat": "Web Hosting"
+      },      
+      {
+        "fortiguard": "Web Hosting"
+      },
+      {
+        "palo_alto":"Web Hosting"
+      },
+      {
+        "trend_micro": "Web Hosting"
+      }]
   }
 ]
