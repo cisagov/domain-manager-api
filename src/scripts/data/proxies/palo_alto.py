@@ -15,7 +15,6 @@ from twocaptcha import TwoCaptcha
 def get_and_solve(url):
     recaptcha_element = driver.find_element(By.CLASS_NAME, "g-recaptcha")
     sitekey = recaptcha_element.get_attribute("data-sitekey")
-    print(sitekey)
 
     solver = TwoCaptcha(api_key)
     try:
@@ -45,7 +44,8 @@ time.sleep(3)
 driver.find_element(By.CSS_SELECTOR, ".fa-plus-square").click()
 time.sleep(1)
 driver.find_element(By.ID, "searchInput").click()
-driver.find_element(By.ID, "searchInput").send_keys("Computer and Internet Info")
+driver.find_element(By.ID, "searchInput").send_keys("Health and Medicine")
+time.sleep(1)
 driver.find_element(By.CSS_SELECTOR, ".cate-list-group-item:nth-child(23) > p").click()
 driver.find_element(By.ID, "id_comment").click()
 driver.find_element(By.ID, "id_comment").send_keys("Test Comment")
