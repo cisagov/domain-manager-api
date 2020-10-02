@@ -29,13 +29,18 @@ def categories_manager():
     return category_schema.dump(categories)
 
 
-def categorization_manager(live_site_id):
+def categorization_manager(live_site_id, category):
     """Manage categorization of active sites."""
     active_site = ActiveSite.get_by_id(live_site_id)
     domain = active_site.get("domain").get("Name")
     domain_url = domain[:-1]
     if active_site.get("is_categorized"):
         return {"error": f"{domain} has already been categorized."}
+
+    categories = [category.get("name") for category in Category.get_all()]
+
+    if category not in categories:
+        return {"error": "Category does not exist"}
 
     is_submitted = []
     # Submit domain to proxy
@@ -56,6 +61,7 @@ def categorization_manager(live_site_id):
                         "url": proxy.get("url"),
                         "domain": domain_url,
                         "api_key": two_captcha_api_key,
+                        "category": category,
                     },
                 )
                 driver.quit()

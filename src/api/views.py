@@ -128,7 +128,9 @@ def get_tag(tag_id):
 @auth_required
 def categorize_domain(live_site_id):
     """Categorize an active site by using available proxies."""
-    response = categorization_manager(live_site_id=live_site_id)
+    response = categorization_manager(
+        live_site_id=live_site_id, category=request.args.get("category")
+    )
     return jsonify(response)
 
 
