@@ -23,7 +23,6 @@ def get_and_solve(url):
 
     recaptcha_element = driver.find_element(By.CLASS_NAME, "g-recaptcha")
     sitekey = recaptcha_element.get_attribute("data-sitekey")
-    print(sitekey)
 
     solver = TwoCaptcha(api_key)
     try:

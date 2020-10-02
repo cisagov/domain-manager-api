@@ -36,7 +36,7 @@ filtering_service.click()
 category_dropdown = driver.find_element(By.CSS_SELECTOR, "#txtCat1 input")
 category_dropdown.click()
 category_name = category_dropdown.find_element_by_xpath(
-    "//*[contains(text(),'Technology/Internet')]"
+    "//*[contains(text(),'Health')]"
 )
 scroll_to_category = ActionChains(driver).move_to_element(category_name)
 scroll_to_category.perform()
