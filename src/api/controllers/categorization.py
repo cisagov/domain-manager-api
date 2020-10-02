@@ -48,6 +48,7 @@ def categorization_manager(live_site_id):
                     command_executor=f"http://{browserless_endpoint}/webdriver",
                     desired_capabilities=chrome_options.to_capabilities(),
                 )
+                driver.set_page_load_timeout(60)
                 exec(
                     proxy.get("script").decode(),
                     {
