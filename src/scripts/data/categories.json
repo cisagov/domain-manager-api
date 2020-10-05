@@ -56,7 +56,8 @@
       },
       {
         "trend_micro": "Politics"
-      }]
+      }
+    ]
   },
   {
     "name": "Alternative Beliefs",
@@ -66,7 +67,7 @@
       },
       {
         "bluecoat": "Alternative Spirituality/Belief"
-      },      
+      },
       {
         "fortiguard": "Alternative Beliefs"
       },
@@ -75,7 +76,8 @@
       },
       {
         "trend_micro": "Alternative Journals"
-      }]
+      }
+    ]
   },
   {
     "name": "Art",
@@ -85,7 +87,7 @@
       },
       {
         "bluecoat": "Art/Culture"
-      },      
+      },
       {
         "fortiguard": "Arts and Culture"
       },
@@ -94,7 +96,8 @@
       },
       {
         "trend_micro": "Arts"
-      }]
+      }
+    ]
   },
   {
     "name": "Auction",
@@ -104,16 +107,17 @@
       },
       {
         "bluecoat": "Auctions"
-      },      
+      },
       {
         "fortiguard": "Auction"
       },
       {
-        "palo_alto":"Auctions"
+        "palo_alto": "Auctions"
       },
       {
         "trend_micro": "Auctions"
-      }]
+      }
+    ]
   },
   {
     "name": "Blogs",
@@ -123,16 +127,17 @@
       },
       {
         "bluecoat": "Social Networking"
-      },      
+      },
       {
         "fortiguard": "Social Networking"
       },
       {
-        "palo_alto":"Social Networking"
+        "palo_alto": "Social Networking"
       },
       {
-        "trend_micro":  "Blogs / Web Communications"
-      }]
+        "trend_micro": "Blogs / Web Communications"
+      }
+    ]
   },
   {
     "name": "Financial Brokerage",
@@ -142,7 +147,7 @@
       },
       {
         "bluecoat": "Brokerage/Trading"
-      },      
+      },
       {
         "fortiguard": "Brokerage and Trading"
       },
@@ -151,7 +156,8 @@
       },
       {
         "trend_micro": "Brokerages / Trading"
-      }]
+      }
+    ]
   },
   {
     "name": "Business",
@@ -161,7 +167,7 @@
       },
       {
         "bluecoat": "Business/Economy"
-      },      
+      },
       {
         "fortiguard": "Business"
       },
@@ -170,26 +176,28 @@
       },
       {
         "trend_micro": "Business / Economy"
-      }]
+      }
+    ]
   },
   {
     "name": "Charitable Organizations",
     "proxies": [
       {
-        "trusted_source":  "Business"
+        "trusted_source": "Business"
       },
       {
         "bluecoat": "Charitable/Non-Profit"
-      },      
+      },
       {
         "fortiguard": "Charitable Organizations"
       },
       {
-        "palo_alto":"Business and Economy"
+        "palo_alto": "Business and Economy"
       },
       {
         "trend_micro": "Business / Economy"
-      }]
+      }
+    ]
   },
   {
     "name": "Chat",
@@ -199,7 +207,7 @@
       },
       {
         "bluecoat": "Chat (IM)/SMS"
-      },      
+      },
       {
         "fortiguard": "Instant Messaging"
       },
@@ -208,12 +216,10 @@
       },
       {
         "trend_micro": "Chat / Instant Messaging"
-      }]
-  },  
+      }
+    ]
+  },
   {
-    
-    
-    
     "name": "Computers / Internet",
     "proxies": [
       {
@@ -221,18 +227,19 @@
       },
       {
         "bluecoat": "Computer/Information Security"
-      },      
+      },
       {
         "fortiguard": "Information Technology"
       },
       {
-        "palo_alto":"Computer and Internet Info"
+        "palo_alto": "Computer and Internet Info"
       },
       {
         "trend_micro": "Computers / Internet"
-      }]
-  }, 
-  {    
+      }
+    ]
+  },
+  {
     "name": "Content Delivery Networks",
     "proxies": [
       {
@@ -240,7 +247,7 @@
       },
       {
         "bluecoat": "Content Delivery Networks"
-      },      
+      },
       {
         "fortiguard": "Content Servers"
       },
@@ -249,8 +256,9 @@
       },
       {
         "trend_micro": "Pay to Surf"
-      }]
-  },   
+      }
+    ]
+  },
   {
     "name": "Dating",
     "proxies": [
@@ -259,7 +267,7 @@
       },
       {
         "bluecoat": "Personals/Dating"
-      },      
+      },
       {
         "fortiguard": "Dating"
       },
@@ -268,9 +276,10 @@
       },
       {
         "trend_micro": "Personals / Dating"
-      }]
-  }, 
-  {    
+      }
+    ]
+  },
+  {
     "name": "Education",
     "proxies": [
       {
@@ -278,16 +287,17 @@
       },
       {
         "bluecoat": "Education"
-      },      
+      },
       {
         "fortiguard": "Education"
       },
       {
-        "palo_alto":"Educational Institutions"
+        "palo_alto": "Educational Institutions"
       },
       {
         "trend_micro": "Education"
-      }]
+      }
+    ]
   },
   {
     "name": "Entertainment",
@@ -297,17 +307,18 @@
       },
       {
         "bluecoat": "Entertainment"
-      },      
+      },
       {
         "fortiguard": "Entertainment"
       },
       {
-        "palo_alto":"Entertainment and Arts"
+        "palo_alto": "Entertainment and Arts"
       },
       {
         "trend_micro": "Entertainment"
-      }]
-  },    
+      }
+    ]
+  },
   {
     "name": "Finance",
     "proxies": [
@@ -316,16 +327,17 @@
       },
       {
         "bluecoat": "Finance"
-      },      
+      },
       {
         "fortiguard": "Finance and Banking"
       },
       {
-        "palo_alto":"Financial Services"
+        "palo_alto": "Financial Services"
       },
       {
         "trend_micro": "Financial Services"
-      }]
+      }
+    ]
   },
   {
     "name": "For Kids",
@@ -335,7 +347,7 @@
       },
       {
         "bluecoat": "For Kids"
-      },      
+      },
       {
         "fortiguard": "Child Education"
       },
@@ -344,27 +356,28 @@
       },
       {
         "trend_micro": "For Kids"
-      }]
-  }, 
+      }
+    ]
+  },
   {
-    
     "name": "Games",
     "proxies": [
       {
-        "trusted_source":  "Games"
+        "trusted_source": "Games"
       },
       {
-        "bluecoat":  "Games"
-      },      
+        "bluecoat": "Games"
+      },
       {
-        "fortiguard":  "Games"
+        "fortiguard": "Games"
       },
       {
         "palo_alto": "Games"
       },
       {
-        "trend_micro":  "Games"
-      }]
+        "trend_micro": "Games"
+      }
+    ]
   },
   {
     "name": "News",
@@ -374,16 +387,17 @@
       },
       {
         "bluecoat": "News"
-      },      
+      },
       {
         "fortiguard": "News and Media"
       },
       {
-        "palo_alto":"News"
+        "palo_alto": "News"
       },
       {
         "trend_micro": "News / Media"
-      }]
+      }
+    ]
   },
   {
     "name": "Government",
@@ -393,16 +407,17 @@
       },
       {
         "bluecoat": "Government/Legal"
-      },      
+      },
       {
         "fortiguard": "Government and Legal Organizations"
       },
       {
-        "palo_alto":"Government"
+        "palo_alto": "Government"
       },
       {
         "trend_micro": "Government / Legal"
-      }]
+      }
+    ]
   },
   {
     "name": "Health",
@@ -412,27 +427,27 @@
       },
       {
         "bluecoat": "Health"
-      },      
-      {
-        "fortiguard": "Health and Wellness"        
       },
       {
-        "palo_alto":   "Health and Medicine"
-        
+        "fortiguard": "Health and Wellness"
+      },
+      {
+        "palo_alto": "Health and Medicine"
       },
       {
         "trend_micro": "Health"
-      }]
-  },  
+      }
+    ]
+  },
   {
     "name": "Humor",
     "proxies": [
       {
-        "trusted_source": "Humor/Comics"        
+        "trusted_source": "Humor/Comics"
       },
       {
         "bluecoat": "Humor/Jokes"
-      },      
+      },
       {
         "fortiguard": "Entertainment"
       },
@@ -440,8 +455,9 @@
         "palo_alto": "Entertainment and Arts"
       },
       {
-        "trend_micro": "Humor"        
-      }]
+        "trend_micro": "Humor"
+      }
+    ]
   },
   {
     "name": "Hunting and Fishing",
@@ -451,16 +467,17 @@
       },
       {
         "bluecoat": "Entertainment"
-      },      
+      },
       {
         "fortiguard": "Entertainment"
       },
       {
-        "palo_alto":"Hunting and Fishing"        
+        "palo_alto": "Hunting and Fishing"
       },
       {
         "trend_micro": "Gun Clubs / Hunting"
-      }]
+      }
+    ]
   },
   {
     "name": "Job Search",
@@ -470,17 +487,18 @@
       },
       {
         "bluecoat": "Job Search/Careers"
-      },      
+      },
       {
         "fortiguard": "Job Search"
       },
       {
-        "palo_alto":"Job Search"
+        "palo_alto": "Job Search"
       },
       {
         "trend_micro": "Job Search / Careers"
-      }]
-  },  
+      }
+    ]
+  },
   {
     "name": "Military",
     "proxies": [
@@ -489,73 +507,77 @@
       },
       {
         "bluecoat": "Military"
-      },      
+      },
       {
         "fortiguard": "Armed Forces"
       },
       {
-        "palo_alto":"Military"
+        "palo_alto": "Military"
       },
       {
         "trend_micro": "Military"
-      }]
+      }
+    ]
   },
   {
     "name": "Politics/Opinion",
-      "proxies": [
-        {
-          "trusted_source": "Politics/Opinion"
-        },
-        {
-          "bluecoat": "Political/Social Advocacy"
-        },      
-        {
-          "fortiguard": "Political Organizations"
-        },
-        {
-          "palo_alto": "Philosophy and Political Advocacy"
-        },
-        {
-          "trend_micro": "Politics"
-        }]
+    "proxies": [
+      {
+        "trusted_source": "Politics/Opinion"
+      },
+      {
+        "bluecoat": "Political/Social Advocacy"
+      },
+      {
+        "fortiguard": "Political Organizations"
+      },
+      {
+        "palo_alto": "Philosophy and Political Advocacy"
+      },
+      {
+        "trend_micro": "Politics"
+      }
+    ]
   },
   {
     "name": "Real Estate",
     "proxies": [
       {
-        "trusted_source":"Real Estate" 
+        "trusted_source": "Real Estate"
       },
       {
         "bluecoat": "Real Estate"
-      },      
+      },
       {
         "fortiguard": "Real Estate"
       },
       {
-        "palo_alto":"Real Estate"
+        "palo_alto": "Real Estate"
       },
       {
         "trend_micro": "Real Estate"
-      }]
+      }
+    ]
   },
   {
     "name": "Religion",
-      "proxies": [
-        {
-          "trusted_source":   "Religion/Ideology"
-        },
-        {
-          "bluecoat": "Religion"
-        },      
-        {
-          "fortiguard": "Global Religion"
-        },
-        {
-          "palo_alto":"Religion"
-        },
-        {
-          "trend_micro": "Religion"
-        }]
+    "proxies": [
+      {
+        "trusted_source": "Religion/Ideology"
+      },
+      {
+        "bluecoat": "Religion"
+      },
+      {
+        "fortiguard": "Global Religion"
+      },
+      {
+        "palo_alto": "Religion"
+      },
+      {
+        "trend_micro": "Religion"
+      }
+    ]
   },
   {
     "name": "Restaurants",
@@ -565,16 +587,17 @@
       },
       {
         "bluecoat": "Restaurants/Food"
-      },      
+      },
       {
         "fortiguard": "Restaurant and Dining"
       },
       {
-        "palo_alto":"Shopping"
+        "palo_alto": "Shopping"
       },
       {
         "trend_micro": "Restaurants / Food"
-      }]
+      }
+    ]
   },
   {
     "name": "Search Engines",
@@ -584,17 +607,18 @@
       },
       {
         "bluecoat": "Search Engines/Portals"
-      },      
+      },
       {
         "fortiguard": "Search Engines and Portals"
       },
       {
-        "palo_alto":"Search Engines"
+        "palo_alto": "Search Engines"
       },
       {
         "trend_micro": "Search Engines / Portals"
-      }]
-  },  
+      }
+    ]
+  },
   {
     "name": "Shopping",
     "proxies": [
@@ -603,16 +627,17 @@
       },
       {
         "bluecoat": "Shopping"
-      },      
+      },
       {
         "fortiguard": "Shopping"
       },
       {
-        "palo_alto":"Shopping"
+        "palo_alto": "Shopping"
       },
       {
         "trend_micro": "Shopping"
-      }]
+      }
+    ]
   },
   {
     "name": "Social Networking",
@@ -622,36 +647,38 @@
       },
       {
         "bluecoat": "Social Networking"
-      },      
+      },
       {
         "fortiguard": "Social Networking"
       },
       {
-        "palo_alto":"Social Networking"
+        "palo_alto": "Social Networking"
       },
       {
         "trend_micro": "Social Networking"
-      }]
-  },  
+      }
+    ]
+  },
   {
-    "name": "Sports",    
+    "name": "Sports",
     "proxies": [
       {
         "trusted_source": "Sports"
       },
       {
         "bluecoat": "Sports/Recreation"
-      },      
+      },
       {
         "fortiguard": "Sports"
       },
       {
-        "palo_alto":"Sports"
+        "palo_alto": "Sports"
       },
       {
         "trend_micro": "Sports"
-      }]
-  }, 
+      }
+    ]
+  },
   {
     "name": "Travel",
     "proxies": [
@@ -660,16 +687,17 @@
       },
       {
         "bluecoat": "Travel"
-      },      
+      },
       {
         "fortiguard": "Travel"
       },
       {
-        "palo_alto":"Travel"
+        "palo_alto": "Travel"
       },
       {
         "trend_micro": "Travel"
-      }]
+      }
+    ]
   },
   {
     "name": "Web Hosting",
@@ -679,15 +707,16 @@
       },
       {
         "bluecoat": "Web Hosting"
-      },      
+      },
       {
         "fortiguard": "Web Hosting"
       },
       {
-        "palo_alto":"Web Hosting"
+        "palo_alto": "Web Hosting"
       },
       {
         "trend_micro": "Web Hosting"
-      }]
+      }
+    ]
   }
 ]

@@ -63,7 +63,8 @@ def active_site_manager(request, live_site_id=None):
     elif request.method == "PUT":
         put_data = request.json
         ActiveSite.update(
-            live_site_id=live_site_id, application_id=put_data.get("application_id"),
+            live_site_id=live_site_id,
+            application_id=put_data.get("application_id"),
         )
         response = {"message": "Active site has been updated."}
     else:
