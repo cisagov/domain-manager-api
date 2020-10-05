@@ -86,7 +86,8 @@ class ActiveSite(Document):
             put_data.update({"is_submitted": kwargs.get("is_submitted")})
 
         db.active_sites.find_one_and_update(
-            {"_id": ObjectId(live_site_id)}, {"$set": put_data},
+            {"_id": ObjectId(live_site_id)},
+            {"$set": put_data},
         )
 
     @staticmethod

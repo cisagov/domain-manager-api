@@ -66,7 +66,8 @@ def launch_site(website, domain):
     # Attach policy
     bucket_policy = json.dumps(bucket_policy)
     s3.put_bucket_policy(
-        Bucket=bucket_name, Policy=bucket_policy,
+        Bucket=bucket_name,
+        Policy=bucket_policy,
     )
 
     # Set waiter

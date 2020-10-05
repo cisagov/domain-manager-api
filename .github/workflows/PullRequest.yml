@@ -52,6 +52,8 @@ jobs:
           pip install --upgrade --requirement requirements-test.txt
       - name: Set up pre-commit hook environments
         run: pre-commit install-hooks
+      - name: pre-commit autoupdate
+        run: pre-commit autoupdate
       - name: Run pre-commit on all files
         run: pre-commit run --all-files
 

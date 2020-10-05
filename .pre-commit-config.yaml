@@ -5,7 +5,7 @@ default_language_version:
 
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v3.1.0
+    rev: v3.2.0
     hooks:
       - id: check-json
       - id: check-merge-conflict
@@ -26,13 +26,13 @@ repos:
       - id: requirements-txt-fixer
       - id: trailing-whitespace
   - repo: https://gitlab.com/pycqa/flake8
-    rev: 3.8.3
+    rev: 3.8.4
     hooks:
       - id: flake8
         additional_dependencies:
           - flake8-docstrings
   - repo: https://github.com/asottile/pyupgrade
-    rev: v2.7.0
+    rev: v2.7.2
     hooks:
       - id: pyupgrade
   # Run bandit on "tests" tree with a configuration
@@ -54,7 +54,7 @@ repos:
         args:
           - --config=.bandit.yml
   - repo: https://github.com/python/black
-    rev: 19.10b0
+    rev: 20.8b1
     hooks:
       - id: black
   - repo: https://github.com/asottile/seed-isort-config
@@ -62,12 +62,12 @@ repos:
     hooks:
       - id: seed-isort-config
   - repo: https://github.com/timothycrosley/isort
-    rev: 5.0.7
+    rev: 5.5.4
     hooks:
       - id: isort
         files: molecule/default/playbook.yml
   - repo: https://github.com/prettier/prettier
-    rev: 2.0.5
+    rev: 2.1.2
     hooks:
       - id: prettier
   - repo: https://github.com/pre-commit/mirrors-mypy
