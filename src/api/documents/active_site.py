@@ -20,7 +20,7 @@ class ActiveSite(Document):
             "website",
             "application",
             "is_submitted",
-            "is_registered_on_mailgun",
+            "is_email_active",
             "launch_date",
         ]
         self.document = {k: kwargs.get(k) for k in self.fields}
@@ -57,7 +57,7 @@ class ActiveSite(Document):
             "domain": domain,
             "application": db.applications.find_one({"_id": ObjectId(application_id)}),
             "is_submitted": None,
-            "is_registered_on_mailgun": False,
+            "is_email_active": False,
             "launch_date": datetime.datetime.utcnow(),
         }
         if ip_address:
