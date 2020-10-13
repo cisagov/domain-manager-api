@@ -34,9 +34,7 @@ def generate_hosted_zone(domain_name):
             if hosted_zone.get("Name") == f"{domain_name}."
         )
         hosted_zone = route53.get_hosted_zone(Id=hosted_zone_id)
-        return "\n".join(
-            nameserver for nameserver in hosted_zone["DelegationSet"]["NameServers"]
-        )
+        return {domain_name: hosted_zone["DelegationSet"]["NameServers"]}
 
     # used as unique identifier generation
     # every hosted zone must have unique identifer
@@ -47,9 +45,7 @@ def generate_hosted_zone(domain_name):
         CallerReference=unique_identifier,
     )
 
-    return "\n".join(
-        nameserver for nameserver in hosted_zone["DelegationSet"]["NameServers"]
-    )
+    return {domain_name: hosted_zone["DelegationSet"]["NameServers"]}
 
 
 def delete_hosted_zone(domain_name):
@@ -61,4 +57,5 @@ def delete_hosted_zone(domain_name):
             if hosted_zone.get("Name") == f"{domain_name}."
         )
         route53.delete_hosted_zone(Id=hosted_zone_id)
-        return f"{domain_name} hosted zone has been deleted."
+        return {"message": f"{domain_name} hosted zone has been deleted."}
+    return {"message": f"{domain_name} hosted zone does not exist"}
