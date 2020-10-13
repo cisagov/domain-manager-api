@@ -23,5 +23,5 @@ class ActiveSiteSchema(Schema):
     ip_address = fields.Str(required=False)
     application = fields.Nested(application_schema.ApplicationSchema)
     is_submitted = fields.List(fields.Nested(IsCategorySubmitted, required=False))
-    is_registered_on_mailgun = fields.Boolean(required=True)
+    is_email_active = fields.Boolean(required=True)
     launch_date = fields.DateTime(required=True)

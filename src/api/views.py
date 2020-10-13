@@ -5,6 +5,7 @@ from api.controllers.applications import applications_manager
 from api.controllers.categorization import categorization_manager, categories_manager
 from api.controllers.check import check_categories_manager
 from api.controllers.domains import domains_manager
+from api.controllers.hosted_zones import hosted_zones_manager
 from api.controllers.proxies import proxy_manager
 from api.controllers.tags import tags_manager
 from api.documents.domain import Domain
@@ -147,4 +148,12 @@ def check_domain():
 def get_categories():
     """Check all categories."""
     response = categories_manager()
+    return jsonify(response)
+
+
+@api.route("/generate-dns/", methods=["POST", "DELETE"])
+@auth_required
+def generate_dns_record_handler():
+    """Generate DNS record handlers in AWS Route53."""
+    response = hosted_zones_manager(request)
     return jsonify(response)

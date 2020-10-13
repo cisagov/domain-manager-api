@@ -1,4 +1,4 @@
-"""S3 utilities."""
+"""AWS site gneeration utilities."""
 # Standard Python Libraries
 import json
 import logging

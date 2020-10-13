@@ -416,7 +416,7 @@
                       "_id": "12345"
                     },
                     "is_categorized": false,
-                    "is_registered_on_mailgun": false,
+                    "is_email_active": false,
                     "launch_date": "2020-08-15T19:14:27.302000",
                     "name": "Dental-Surgeon",
                     "website": {

@@ -4,7 +4,7 @@ from api.documents.active_site import ActiveSite
 from api.documents.domain import Domain
 from api.documents.website import Website
 from api.schemas.active_site_schema import ActiveSiteSchema
-from utils.aws import delete_site, launch_site, setup_dns, delete_dns
+from utils.aws.site_handler import delete_site, launch_site, setup_dns, delete_dns
 
 
 def active_site_manager(request, live_site_id=None):
