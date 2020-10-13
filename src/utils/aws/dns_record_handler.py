@@ -1,7 +1,6 @@
 """Hosted Zone generator."""
 # Standard Python Libraries
-import argparse
-import time
+from datetime import datetime
 
 # Third-Party Libraries
 import boto3
@@ -34,18 +33,18 @@ def generate_hosted_zone(domain_name):
             if hosted_zone.get("Name") == f"{domain_name}."
         )
         hosted_zone = route53.get_hosted_zone(Id=hosted_zone_id)
-        return {domain_name: hosted_zone["DelegationSet"]["NameServers"]}
+        return hosted_zone["DelegationSet"]["NameServers"]
 
     # used as unique identifier generation
     # every hosted zone must have unique identifer
-    unique_identifier = time.asctime()
+    unique_identifier = datetime.now().strftime("%Y-%m-%d %H:%M:%S:%f")
 
     hosted_zone = route53.create_hosted_zone(
         Name=domain_name,
         CallerReference=unique_identifier,
     )
 
-    return {domain_name: hosted_zone["DelegationSet"]["NameServers"]}
+    return hosted_zone["DelegationSet"]["NameServers"]
 
 
 def delete_hosted_zone(domain_name):
@@ -57,5 +56,5 @@ def delete_hosted_zone(domain_name):
             if hosted_zone.get("Name") == f"{domain_name}."
         )
         route53.delete_hosted_zone(Id=hosted_zone_id)
-        return {"message": f"{domain_name} hosted zone has been deleted."}
-    return {"message": f"{domain_name} hosted zone does not exist"}
+        return "hosted zone has been deleted."
+    return "hosted zone does not exist"
