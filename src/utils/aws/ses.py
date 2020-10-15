@@ -85,4 +85,5 @@ def create_email_address(domain_name):
         },
     )
 
+    ses.verify_email_identity(EmailAddress=f"admin@{domain_name}")
     return response
