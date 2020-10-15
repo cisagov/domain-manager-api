@@ -35,6 +35,11 @@ def create_email_address(domain_name):
         "VerificationToken"
     ]
 
+    # Generate CNAME record DKIM tokens
+    dkim_token_1, dkim_token_2, dkim_token_3 = ses.verify_domain_dkim(
+        Domain=domain_name
+    )["DkimTokens"]
+
     response = route53.change_resource_record_sets(
         HostedZoneId=dns_id,
         ChangeBatch={
@@ -48,7 +53,34 @@ def create_email_address(domain_name):
                         "TTL": 300,
                         "ResourceRecords": [{"Value": f'"{verification_token}"'}],
                     },
-                }
+                },
+                {
+                    "Action": "UPSERT",
+                    "ResourceRecordSet": {
+                        "Name": f"{dkim_token_1}._domainkey.{domain_name}",
+                        "Type": "CNAME",
+                        "TTL": 300,
+                        "ResourceRecords": [{"Value": f"{dkim_token_1}.amazonses.com"}],
+                    },
+                },
+                {
+                    "Action": "UPSERT",
+                    "ResourceRecordSet": {
+                        "Name": f"{dkim_token_2}._domainkey.{domain_name}",
+                        "Type": "CNAME",
+                        "TTL": 300,
+                        "ResourceRecords": [{"Value": f"{dkim_token_2}.amazonses.com"}],
+                    },
+                },
+                {
+                    "Action": "UPSERT",
+                    "ResourceRecordSet": {
+                        "Name": f"{dkim_token_3}._domainkey.{domain_name}",
+                        "Type": "CNAME",
+                        "TTL": 300,
+                        "ResourceRecords": [{"Value": f"{dkim_token_3}.amazonses.com"}],
+                    },
+                },
             ],
         },
     )
