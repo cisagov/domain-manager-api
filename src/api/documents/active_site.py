@@ -31,6 +31,11 @@ class ActiveSite(Document):
         return db.active_sites.find_one({"_id": ObjectId(live_site_id)})
 
     @staticmethod
+    def get_by_name(live_site_name):
+        """Get an active site by id."""
+        return db.active_sites.find_one({"name": live_site_name})
+
+    @staticmethod
     def get_all():
         """Get all active websites."""
         return [x for x in db.active_sites.find()]
@@ -84,6 +89,8 @@ class ActiveSite(Document):
             put_data.update({"description": kwargs.get("description")})
         if "is_submitted" in kwargs:
             put_data.update({"is_submitted": kwargs.get("is_submitted")})
+        if "is_email_active" in kwargs:
+            put_data.update({"is_email_active": kwargs.get("is_email_active")})
 
         db.active_sites.find_one_and_update(
             {"_id": ObjectId(live_site_id)},
