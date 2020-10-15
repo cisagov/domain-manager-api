@@ -6,7 +6,6 @@ def hosted_zones_manager(request):
     """Manage Route53 hosted zones for DNS records."""
     post_data = request.json
     domains = post_data.get("domains")
-
     response = {}
     if request.method == "POST":
         for domain in domains:
