@@ -5,6 +5,7 @@ from api.controllers.applications import applications_manager
 from api.controllers.categorization import categorization_manager, categories_manager
 from api.controllers.check import check_categories_manager
 from api.controllers.domains import domains_manager
+from api.controllers.email_address import email_address_manager
 from api.controllers.hosted_zones import hosted_zones_manager
 from api.controllers.proxies import proxy_manager
 from api.controllers.tags import tags_manager
@@ -156,4 +157,12 @@ def get_categories():
 def generate_dns_record_handler():
     """Generate DNS record handlers in AWS Route53."""
     response = hosted_zones_manager(request)
+    return jsonify(response)
+
+
+@api.route("/generate-email-address/")
+@auth_required
+def generate_email_address():
+    """Generate an email address using AWS SES."""
+    response = email_address_manager(request.args.get("domain"))
     return jsonify(response)
