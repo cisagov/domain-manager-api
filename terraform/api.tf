@@ -69,6 +69,11 @@ POLICY
   }
 }
 
+resource "aws_s3_bucket" "templates" {
+  bucket = "${var.app}-${var.env}-templates"
+  acl    = "private"
+}
+
 # ===================================
 # Credentials
 # ===================================
