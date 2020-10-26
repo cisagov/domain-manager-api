@@ -68,7 +68,7 @@ def load_domains():
 
     domain_load = []
     for zone in initial_load:
-        zone["Name"] = zone["Name"].replace(".", "")
+        zone["Name"] = zone["Name"][:-1]
         domain_load.append(zone)
 
     domain_list = [
