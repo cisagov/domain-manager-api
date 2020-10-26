@@ -25,6 +25,12 @@ logs:
 loc:
 	 loc src
 
+# target: restart - Stop and restart all containers
+restart:
+	docker-compose stop
+	docker-compose up -d
+	docker attach --sig-proxy=false dm-api
+
 # target: up - Run local web server.
 up:
 	 docker-compose up -d
