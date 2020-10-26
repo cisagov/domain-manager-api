@@ -6,6 +6,7 @@ services:
     build:
       context: .
     stdin_open: true
+    tty: true
     restart: unless-stopped
     volumes:
       - ./src:/var/www
