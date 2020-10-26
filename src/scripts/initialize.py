@@ -81,7 +81,12 @@ def load_s3():
 def load_domains():
     """Load the latest domain data from route53 into the database."""
     db_domains = db.domains
-    domain_load = route53.list_hosted_zones().get("HostedZones")
+    initial_load = route53.list_hosted_zones().get("HostedZones")
+
+    domain_load = []
+    for zone in initial_load:
+        zone["Name"] = zone["Name"].replace(".", "")
+        domain_load.append(zone)
 
     domain_list = [
         domain

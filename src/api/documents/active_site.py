@@ -57,7 +57,7 @@ class ActiveSite(Document):
         website = db.websites.find_one({"_id": ObjectId(website_id)})
         domain = db.domains.find_one({"_id": ObjectId(domain_id)})
         post_data = {
-            "name": domain.get("Name")[:-1],
+            "name": domain.get("Name"),
             "description": description,
             "domain": domain,
             "application": db.applications.find_one({"_id": ObjectId(application_id)}),
