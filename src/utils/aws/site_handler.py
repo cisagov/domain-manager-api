@@ -123,10 +123,40 @@ def setup_cloudfront(domain_name):
             "Items": [domain_name],
         },
         "DefaultRootObject": "index.html",
+        "Comment": "Managed by Domain Manager",
         "Enabled": True,
+        "Origins": {
+            "Quantity": 1,
+            "Items": [
+                {
+                    "Id": "1",
+                    "DomainName": f"{domain_name}.s3.amazonaws.com",
+                    "S3OriginConfig": {"OriginAccessIdentity": ""},
+                }
+            ],
+        },
+        "DefaultCacheBehavior": {
+            "TargetOriginId": "1",
+            "ViewerProtocolPolicy": "redirect-to-https",
+            "TrustedSigners": {
+                "Quantity": 0,
+                "Enabled": False,
+            },
+            "ForwardedValues": {
+                "QueryString": False,
+                "Cookies": {"Forward": "all"},
+                "Headers": {
+                    "Quantity": 0,
+                },
+                "QueryStringCacheKeys": {
+                    "Quantity": 0,
+                },
+            },
+            "MinTTL": 1000,
+        },
     }
 
-    cloudfront.create_distribution(distribution_config)
+    cloudfront.create_distribution(DistributionConfig=distribution_config)
 
 
 def setup_dns(domain, bucket_name=None, ip_address=None):
