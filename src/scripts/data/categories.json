@@ -3,19 +3,19 @@
     "name": "Activist Groups",
     "proxies": [
       {
-        "bluecoat": "Activist Groups"
+        "Blue Coat": "Activist Groups"
       },
       {
-        "trusted_source": "Politics/Opinion"
+        "Trusted Source": "Politics/Opinion"
       },
       {
         "fortiguard": "Political Organizations"
       },
       {
-        "palo_alto": "Philosophy and Political Advocacy"
+        "Palo Alto Networks": "Philosophy and Political Advocacy"
       },
       {
-        "trend_micro": "Politics"
+        "Trend Micro": "Politics"
       }
     ]
   },
@@ -23,19 +23,19 @@
     "name": "Advertising",
     "proxies": [
       {
-        "bluecoat": "Activist Groups"
+        "Blue Coat": "Activist Groups"
       },
       {
-        "trusted_source": "Web Ads/Analytics"
+        "Trusted Source": "Web Ads/Analytics"
       },
       {
         "fortiguard": "Advertising"
       },
       {
-        "palo_alto": "Web Advertisements"
+        "Palo Alto Networks": "Web Advertisements"
       },
       {
-        "trend_micro": "Web Advertisements"
+        "Trend Micro": "Web Advertisements"
       }
     ]
   },
@@ -43,19 +43,19 @@
     "name": "Advocacy Organizations",
     "proxies": [
       {
-        "bluecoat": "Political/Social Advocacy"
+        "Blue Coat": "Political/Social Advocacy"
       },
       {
-        "trusted_source": "Politics/Opinion"
+        "Trusted Source": "Politics/Opinion"
       },
       {
         "fortiguard": "Advocacy Organizations"
       },
       {
-        "palo_alto": "Philosophy and Political Advocacy"
+        "Palo Alto Networks": "Philosophy and Political Advocacy"
       },
       {
-        "trend_micro": "Politics"
+        "Trend Micro": "Politics"
       }
     ]
   },
@@ -63,19 +63,19 @@
     "name": "Alternative Beliefs",
     "proxies": [
       {
-        "trusted_source": "Religion/Ideology"
+        "Trusted Source": "Religion/Ideology"
       },
       {
-        "bluecoat": "Alternative Spirituality/Belief"
+        "Blue Coat": "Alternative Spirituality/Belief"
       },
       {
         "fortiguard": "Alternative Beliefs"
       },
       {
-        "palo_alto": "Philosophy and Political Advocacy"
+        "Palo Alto Networks": "Philosophy and Political Advocacy"
       },
       {
-        "trend_micro": "Alternative Journals"
+        "Trend Micro": "Alternative Journals"
       }
     ]
   },
@@ -83,19 +83,19 @@
     "name": "Art",
     "proxies": [
       {
-        "trusted_source": "Art/Culture/Heritage"
+        "Trusted Source": "Art/Culture/Heritage"
       },
       {
-        "bluecoat": "Art/Culture"
+        "Blue Coat": "Art/Culture"
       },
       {
         "fortiguard": "Arts and Culture"
       },
       {
-        "palo_alto": "Entertainment and Arts"
+        "Palo Alto Networks": "Entertainment and Arts"
       },
       {
-        "trend_micro": "Arts"
+        "Trend Micro": "Arts"
       }
     ]
   },
@@ -103,19 +103,19 @@
     "name": "Auction",
     "proxies": [
       {
-        "trusted_source": "Auctions/Classifieds"
+        "Trusted Source": "Auctions/Classifieds"
       },
       {
-        "bluecoat": "Auctions"
+        "Blue Coat": "Auctions"
       },
       {
         "fortiguard": "Auction"
       },
       {
-        "palo_alto": "Auctions"
+        "Palo Alto Networks": "Auctions"
       },
       {
-        "trend_micro": "Auctions"
+        "Trend Micro": "Auctions"
       }
     ]
   },
@@ -123,19 +123,19 @@
     "name": "Blogs",
     "proxies": [
       {
-        "trusted_source": "Blogs/Wiki"
+        "Trusted Source": "Blogs/Wiki"
       },
       {
-        "bluecoat": "Social Networking"
+        "Blue Coat": "Social Networking"
       },
       {
         "fortiguard": "Social Networking"
       },
       {
-        "palo_alto": "Social Networking"
+        "Palo Alto Networks": "Social Networking"
       },
       {
-        "trend_micro": "Blogs / Web Communications"
+        "Trend Micro": "Blogs / Web Communications"
       }
     ]
   },
@@ -143,19 +143,19 @@
     "name": "Financial Brokerage",
     "proxies": [
       {
-        "trusted_source": "Finance/Banking"
+        "Trusted Source": "Finance/Banking"
       },
       {
-        "bluecoat": "Brokerage/Trading"
+        "Blue Coat": "Brokerage/Trading"
       },
       {
         "fortiguard": "Brokerage and Trading"
       },
       {
-        "palo_alto": "Business and Economy"
+        "Palo Alto Networks": "Business and Economy"
       },
       {
-        "trend_micro": "Brokerages / Trading"
+        "Trend Micro": "Brokerages / Trading"
       }
     ]
   },
@@ -163,19 +163,19 @@
     "name": "Business",
     "proxies": [
       {
-        "trusted_source": "Business"
+        "Trusted Source": "Business"
       },
       {
-        "bluecoat": "Business/Economy"
+        "Blue Coat": "Business/Economy"
       },
       {
         "fortiguard": "Business"
       },
       {
-        "palo_alto": "Business and Economy"
+        "Palo Alto Networks": "Business and Economy"
       },
       {
-        "trend_micro": "Business / Economy"
+        "Trend Micro": "Business / Economy"
       }
     ]
   },
@@ -183,19 +183,19 @@
     "name": "Charitable Organizations",
     "proxies": [
       {
-        "trusted_source": "Business"
+        "Trusted Source": "Business"
       },
       {
-        "bluecoat": "Charitable/Non-Profit"
+        "Blue Coat": "Charitable/Non-Profit"
       },
       {
         "fortiguard": "Charitable Organizations"
       },
       {
-        "palo_alto": "Business and Economy"
+        "Palo Alto Networks": "Business and Economy"
       },
       {
-        "trend_micro": "Business / Economy"
+        "Trend Micro": "Business / Economy"
       }
     ]
   },
@@ -203,19 +203,19 @@
     "name": "Chat",
     "proxies": [
       {
-        "trusted_source": "Chat"
+        "Trusted Source": "Chat"
       },
       {
-        "bluecoat": "Chat (IM)/SMS"
+        "Blue Coat": "Chat (IM)/SMS"
       },
       {
         "fortiguard": "Instant Messaging"
       },
       {
-        "palo_alto": "Internet Communications and Telephony"
+        "Palo Alto Networks": "Internet Communications and Telephony"
       },
       {
-        "trend_micro": "Chat / Instant Messaging"
+        "Trend Micro": "Chat / Instant Messaging"
       }
     ]
   },
@@ -223,19 +223,19 @@
     "name": "Computers / Internet",
     "proxies": [
       {
-        "trusted_source": "Internet Services"
+        "Trusted Source": "Internet Services"
       },
       {
-        "bluecoat": "Computer/Information Security"
+        "Blue Coat": "Computer/Information Security"
       },
       {
         "fortiguard": "Information Technology"
       },
       {
-        "palo_alto": "Computer and Internet Info"
+        "Palo Alto Networks": "Computer and Internet Info"
       },
       {
-        "trend_micro": "Computers / Internet"
+        "Trend Micro": "Computers / Internet"
       }
     ]
   },
@@ -243,19 +243,19 @@
     "name": "Content Delivery Networks",
     "proxies": [
       {
-        "trusted_source": "Content Server"
+        "Trusted Source": "Content Server"
       },
       {
-        "bluecoat": "Content Delivery Networks"
+        "Blue Coat": "Content Delivery Networks"
       },
       {
         "fortiguard": "Content Servers"
       },
       {
-        "palo_alto": "Content Delivery Networks"
+        "Palo Alto Networks": "Content Delivery Networks"
       },
       {
-        "trend_micro": "Pay to Surf"
+        "Trend Micro": "Pay to Surf"
       }
     ]
   },
@@ -263,19 +263,19 @@
     "name": "Dating",
     "proxies": [
       {
-        "trusted_source": "Dating/Personals"
+        "Trusted Source": "Dating/Personals"
       },
       {
-        "bluecoat": "Personals/Dating"
+        "Blue Coat": "Personals/Dating"
       },
       {
         "fortiguard": "Dating"
       },
       {
-        "palo_alto": "Dating"
+        "Palo Alto Networks": "Dating"
       },
       {
-        "trend_micro": "Personals / Dating"
+        "Trend Micro": "Personals / Dating"
       }
     ]
   },
@@ -283,19 +283,19 @@
     "name": "Education",
     "proxies": [
       {
-        "trusted_source": "Education/Reference"
+        "Trusted Source": "Education/Reference"
       },
       {
-        "bluecoat": "Education"
+        "Blue Coat": "Education"
       },
       {
         "fortiguard": "Education"
       },
       {
-        "palo_alto": "Educational Institutions"
+        "Palo Alto Networks": "Educational Institutions"
       },
       {
-        "trend_micro": "Education"
+        "Trend Micro": "Education"
       }
     ]
   },
@@ -303,19 +303,19 @@
     "name": "Entertainment",
     "proxies": [
       {
-        "trusted_source": "Entertainment"
+        "Trusted Source": "Entertainment"
       },
       {
-        "bluecoat": "Entertainment"
+        "Blue Coat": "Entertainment"
       },
       {
         "fortiguard": "Entertainment"
       },
       {
-        "palo_alto": "Entertainment and Arts"
+        "Palo Alto Networks": "Entertainment and Arts"
       },
       {
-        "trend_micro": "Entertainment"
+        "Trend Micro": "Entertainment"
       }
     ]
   },
@@ -323,19 +323,19 @@
     "name": "Finance",
     "proxies": [
       {
-        "trusted_source": "Finance/Banking"
+        "Trusted Source": "Finance/Banking"
       },
       {
-        "bluecoat": "Finance"
+        "Blue Coat": "Finance"
       },
       {
         "fortiguard": "Finance and Banking"
       },
       {
-        "palo_alto": "Financial Services"
+        "Palo Alto Networks": "Financial Services"
       },
       {
-        "trend_micro": "Financial Services"
+        "Trend Micro": "Financial Services"
       }
     ]
   },
@@ -343,19 +343,19 @@
     "name": "For Kids",
     "proxies": [
       {
-        "trusted_source": "For Kids"
+        "Trusted Source": "For Kids"
       },
       {
-        "bluecoat": "For Kids"
+        "Blue Coat": "For Kids"
       },
       {
         "fortiguard": "Child Education"
       },
       {
-        "palo_alto": "Entertainment and Arts"
+        "Palo Alto Networks": "Entertainment and Arts"
       },
       {
-        "trend_micro": "For Kids"
+        "Trend Micro": "For Kids"
       }
     ]
   },
@@ -363,19 +363,19 @@
     "name": "Games",
     "proxies": [
       {
-        "trusted_source": "Games"
+        "Trusted Source": "Games"
       },
       {
-        "bluecoat": "Games"
+        "Blue Coat": "Games"
       },
       {
         "fortiguard": "Games"
       },
       {
-        "palo_alto": "Games"
+        "Palo Alto Networks": "Games"
       },
       {
-        "trend_micro": "Games"
+        "Trend Micro": "Games"
       }
     ]
   },
@@ -383,19 +383,19 @@
     "name": "News",
     "proxies": [
       {
-        "trusted_source": "General News"
+        "Trusted Source": "General News"
       },
       {
-        "bluecoat": "News"
+        "Blue Coat": "News"
       },
       {
         "fortiguard": "News and Media"
       },
       {
-        "palo_alto": "News"
+        "Palo Alto Networks": "News"
       },
       {
-        "trend_micro": "News / Media"
+        "Trend Micro": "News / Media"
       }
     ]
   },
@@ -403,19 +403,19 @@
     "name": "Government",
     "proxies": [
       {
-        "trusted_source": "Government/Military"
+        "Trusted Source": "Government/Military"
       },
       {
-        "bluecoat": "Government/Legal"
+        "Blue Coat": "Government/Legal"
       },
       {
         "fortiguard": "Government and Legal Organizations"
       },
       {
-        "palo_alto": "Government"
+        "Palo Alto Networks": "Government"
       },
       {
-        "trend_micro": "Government / Legal"
+        "Trend Micro": "Government / Legal"
       }
     ]
   },
@@ -423,19 +423,19 @@
     "name": "Health",
     "proxies": [
       {
-        "trusted_source": "Health"
+        "Trusted Source": "Health"
       },
       {
-        "bluecoat": "Health"
+        "Blue Coat": "Health"
       },
       {
         "fortiguard": "Health and Wellness"
       },
       {
-        "palo_alto": "Health and Medicine"
+        "Palo Alto Networks": "Health and Medicine"
       },
       {
-        "trend_micro": "Health"
+        "Trend Micro": "Health"
       }
     ]
   },
@@ -443,19 +443,19 @@
     "name": "Humor",
     "proxies": [
       {
-        "trusted_source": "Humor/Comics"
+        "Trusted Source": "Humor/Comics"
       },
       {
-        "bluecoat": "Humor/Jokes"
+        "Blue Coat": "Humor/Jokes"
       },
       {
         "fortiguard": "Entertainment"
       },
       {
-        "palo_alto": "Entertainment and Arts"
+        "Palo Alto Networks": "Entertainment and Arts"
       },
       {
-        "trend_micro": "Humor"
+        "Trend Micro": "Humor"
       }
     ]
   },
@@ -463,19 +463,19 @@
     "name": "Hunting and Fishing",
     "proxies": [
       {
-        "trusted_source": "Entertainment"
+        "Trusted Source": "Entertainment"
       },
       {
-        "bluecoat": "Entertainment"
+        "Blue Coat": "Entertainment"
       },
       {
         "fortiguard": "Entertainment"
       },
       {
-        "palo_alto": "Hunting and Fishing"
+        "Palo Alto Networks": "Hunting and Fishing"
       },
       {
-        "trend_micro": "Gun Clubs / Hunting"
+        "Trend Micro": "Gun Clubs / Hunting"
       }
     ]
   },
@@ -483,19 +483,19 @@
     "name": "Job Search",
     "proxies": [
       {
-        "trusted_source": "Job Search"
+        "Trusted Source": "Job Search"
       },
       {
-        "bluecoat": "Job Search/Careers"
+        "Blue Coat": "Job Search/Careers"
       },
       {
         "fortiguard": "Job Search"
       },
       {
-        "palo_alto": "Job Search"
+        "Palo Alto Networks": "Job Search"
       },
       {
-        "trend_micro": "Job Search / Careers"
+        "Trend Micro": "Job Search / Careers"
       }
     ]
   },
@@ -503,19 +503,19 @@
     "name": "Military",
     "proxies": [
       {
-        "trusted_source": "Government/Military"
+        "Trusted Source": "Government/Military"
       },
       {
-        "bluecoat": "Military"
+        "Blue Coat": "Military"
       },
       {
         "fortiguard": "Armed Forces"
       },
       {
-        "palo_alto": "Military"
+        "Palo Alto Networks": "Military"
       },
       {
-        "trend_micro": "Military"
+        "Trend Micro": "Military"
       }
     ]
   },
@@ -523,19 +523,19 @@
     "name": "Politics/Opinion",
     "proxies": [
       {
-        "trusted_source": "Politics/Opinion"
+        "Trusted Source": "Politics/Opinion"
       },
       {
-        "bluecoat": "Political/Social Advocacy"
+        "Blue Coat": "Political/Social Advocacy"
       },
       {
         "fortiguard": "Political Organizations"
       },
       {
-        "palo_alto": "Philosophy and Political Advocacy"
+        "Palo Alto Networks": "Philosophy and Political Advocacy"
       },
       {
-        "trend_micro": "Politics"
+        "Trend Micro": "Politics"
       }
     ]
   },
@@ -543,19 +543,19 @@
     "name": "Real Estate",
     "proxies": [
       {
-        "trusted_source": "Real Estate"
+        "Trusted Source": "Real Estate"
       },
       {
-        "bluecoat": "Real Estate"
+        "Blue Coat": "Real Estate"
       },
       {
         "fortiguard": "Real Estate"
       },
       {
-        "palo_alto": "Real Estate"
+        "Palo Alto Networks": "Real Estate"
       },
       {
-        "trend_micro": "Real Estate"
+        "Trend Micro": "Real Estate"
       }
     ]
   },
@@ -563,19 +563,19 @@
     "name": "Religion",
     "proxies": [
       {
-        "trusted_source": "Religion/Ideology"
+        "Trusted Source": "Religion/Ideology"
       },
       {
-        "bluecoat": "Religion"
+        "Blue Coat": "Religion"
       },
       {
         "fortiguard": "Global Religion"
       },
       {
-        "palo_alto": "Religion"
+        "Palo Alto Networks": "Religion"
       },
       {
-        "trend_micro": "Religion"
+        "Trend Micro": "Religion"
       }
     ]
   },
@@ -583,19 +583,19 @@
     "name": "Restaurants",
     "proxies": [
       {
-        "trusted_source": "Restaurants"
+        "Trusted Source": "Restaurants"
       },
       {
-        "bluecoat": "Restaurants/Food"
+        "Blue Coat": "Restaurants/Food"
       },
       {
         "fortiguard": "Restaurant and Dining"
       },
       {
-        "palo_alto": "Shopping"
+        "Palo Alto Networks": "Shopping"
       },
       {
-        "trend_micro": "Restaurants / Food"
+        "Trend Micro": "Restaurants / Food"
       }
     ]
   },
@@ -603,19 +603,19 @@
     "name": "Search Engines",
     "proxies": [
       {
-        "trusted_source": "Search Engines"
+        "Trusted Source": "Search Engines"
       },
       {
-        "bluecoat": "Search Engines/Portals"
+        "Blue Coat": "Search Engines/Portals"
       },
       {
         "fortiguard": "Search Engines and Portals"
       },
       {
-        "palo_alto": "Search Engines"
+        "Palo Alto Networks": "Search Engines"
       },
       {
-        "trend_micro": "Search Engines / Portals"
+        "Trend Micro": "Search Engines / Portals"
       }
     ]
   },
@@ -623,19 +623,19 @@
     "name": "Shopping",
     "proxies": [
       {
-        "trusted_source": "Online Shopping"
+        "Trusted Source": "Online Shopping"
       },
       {
-        "bluecoat": "Shopping"
+        "Blue Coat": "Shopping"
       },
       {
         "fortiguard": "Shopping"
       },
       {
-        "palo_alto": "Shopping"
+        "Palo Alto Networks": "Shopping"
       },
       {
-        "trend_micro": "Shopping"
+        "Trend Micro": "Shopping"
       }
     ]
   },
@@ -643,19 +643,19 @@
     "name": "Social Networking",
     "proxies": [
       {
-        "trusted_source": "Social Networking"
+        "Trusted Source": "Social Networking"
       },
       {
-        "bluecoat": "Social Networking"
+        "Blue Coat": "Social Networking"
       },
       {
         "fortiguard": "Social Networking"
       },
       {
-        "palo_alto": "Social Networking"
+        "Palo Alto Networks": "Social Networking"
       },
       {
-        "trend_micro": "Social Networking"
+        "Trend Micro": "Social Networking"
       }
     ]
   },
@@ -663,19 +663,19 @@
     "name": "Sports",
     "proxies": [
       {
-        "trusted_source": "Sports"
+        "Trusted Source": "Sports"
       },
       {
-        "bluecoat": "Sports/Recreation"
+        "Blue Coat": "Sports/Recreation"
       },
       {
         "fortiguard": "Sports"
       },
       {
-        "palo_alto": "Sports"
+        "Palo Alto Networks": "Sports"
       },
       {
-        "trend_micro": "Sports"
+        "Trend Micro": "Sports"
       }
     ]
   },
@@ -683,19 +683,19 @@
     "name": "Travel",
     "proxies": [
       {
-        "trusted_source": "Travel"
+        "Trusted Source": "Travel"
       },
       {
-        "bluecoat": "Travel"
+        "Blue Coat": "Travel"
       },
       {
         "fortiguard": "Travel"
       },
       {
-        "palo_alto": "Travel"
+        "Palo Alto Networks": "Travel"
       },
       {
-        "trend_micro": "Travel"
+        "Trend Micro": "Travel"
       }
     ]
   },
@@ -703,19 +703,19 @@
     "name": "Web Hosting",
     "proxies": [
       {
-        "trusted_source": "Internet Services"
+        "Trusted Source": "Internet Services"
       },
       {
-        "bluecoat": "Web Hosting"
+        "Blue Coat": "Web Hosting"
       },
       {
         "fortiguard": "Web Hosting"
       },
       {
-        "palo_alto": "Web Hosting"
+        "Palo Alto Networks": "Web Hosting"
       },
       {
-        "trend_micro": "Web Hosting"
+        "Trend Micro": "Web Hosting"
       }
     ]
   }
