@@ -15,6 +15,6 @@ driver.find_element(By.CSS_SELECTOR, "td > .button > input").click()
 driver.find_element(By.CSS_SELECTOR, "td > .button > input").click()
 driver.find_element(By.NAME, "cat_1").click()
 dropdown = driver.find_element(By.NAME, "cat_1")
-dropdown.find_element(By.XPATH, "//option[. = 'Health']").click()
+dropdown.find_element(By.XPATH, f"//option[. = '{category}']").click()
 driver.find_element(By.CSS_SELECTOR, ".button:nth-child(10) > input").click()
 success_msg = driver.find_element(By.CSS_SELECTOR, "h2").text

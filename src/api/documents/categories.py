@@ -19,3 +19,8 @@ class Category(Document):
     def get_all():
         """Get all categories."""
         return [x for x in db.categories.find()]
+
+    @staticmethod
+    def get_by_name(category_name):
+        """Get category by name."""
+        return db.categories.find_one({"name": category_name})

@@ -38,7 +38,7 @@ def active_site_manager(request, live_site_id=None):
                     website_id=post_data.get("website_id"),
                     application_id=application_id,
                 )
-            domain_name = domain.get("Name")[:-1]
+            domain_name = domain.get("Name")
             response = {
                 "message": f"Active site with id {active_site.inserted_id} has been launched. Visit: http://{domain_name}"
             }

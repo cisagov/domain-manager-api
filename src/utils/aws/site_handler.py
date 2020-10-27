@@ -1,5 +1,6 @@
 """AWS site gneeration utilities."""
 # Standard Python Libraries
+from datetime import datetime
 import json
 import logging
 import os
@@ -16,13 +17,15 @@ CONTENT_SOURCE = os.environ.get("SOURCE_BUCKET")
 s3 = boto3.client("s3")
 s3_resource = boto3.resource("s3")
 route53 = boto3.client("route53")
+cloudfront = boto3.client("cloudfront")
 
 
 def launch_site(website, domain):
     """Launch an active site onto s3."""
     # Name new bucket after its domain
-    bucket_name = domain.get("Name")[:-1]
-    website_name = website.get("name")
+    bucket_name = domain.get("Name")
+    content_name = website.get("name")
+
     available_buckets = [
         bucket.get("Name") for bucket in s3.list_buckets().get("Buckets")
     ]
@@ -38,7 +41,7 @@ def launch_site(website, domain):
     # Copy contents from source
     source_bucket = s3_resource.Bucket(CONTENT_SOURCE)
     source_keys = [
-        obj.key for obj in source_bucket.objects.all() if website_name in obj.key
+        obj.key for obj in source_bucket.objects.all() if content_name in obj.key
     ]
 
     for key in source_keys:
@@ -47,7 +50,7 @@ def launch_site(website, domain):
             "Key": key,
         }
         bucket = s3_resource.Bucket(bucket_name)
-        bucket.copy(copy_source, key.replace(f"{website_name}/", ""))
+        bucket.copy(copy_source, key.replace(f"{content_name}/", ""))
 
     # Attach bucket policy
     bucket_policy = {
@@ -80,6 +83,9 @@ def launch_site(website, domain):
         WebsiteConfiguration={"IndexDocument": {"Suffix": "index.html"}},
     )
 
+    # Setup CloudFront
+    # TODO: Setup Cloudfront
+
     # Setup DNS
     setup_dns(domain=domain, bucket_name=bucket_name)
 
@@ -88,7 +94,7 @@ def launch_site(website, domain):
 
 def delete_site(domain):
     """Delete an active site off s3."""
-    bucket_name = domain.get("Name")[:-1]
+    bucket_name = domain.get("Name")
     bucket = s3_resource.Bucket(bucket_name)
 
     # delete all objects in bucket
@@ -105,6 +111,54 @@ def delete_site(domain):
     return response
 
 
+def setup_cloudfront(domain_name):
+    """Setup AWS CloudFront Distribution."""
+    # Launch CloudFront distribution
+    unique_identifier = datetime.now().strftime("%Y-%m-%d %H:%M:%S:%f")
+
+    distribution_config = {
+        "CallerReference": unique_identifier,
+        "Aliases": {
+            "Quantity": 1,
+            "Items": [domain_name],
+        },
+        "DefaultRootObject": "index.html",
+        "Comment": "Managed by Domain Manager",
+        "Enabled": True,
+        "Origins": {
+            "Quantity": 1,
+            "Items": [
+                {
+                    "Id": "1",
+                    "DomainName": f"{domain_name}.s3.amazonaws.com",
+                    "S3OriginConfig": {"OriginAccessIdentity": ""},
+                }
+            ],
+        },
+        "DefaultCacheBehavior": {
+            "TargetOriginId": "1",
+            "ViewerProtocolPolicy": "redirect-to-https",
+            "TrustedSigners": {
+                "Quantity": 0,
+                "Enabled": False,
+            },
+            "ForwardedValues": {
+                "QueryString": False,
+                "Cookies": {"Forward": "all"},
+                "Headers": {
+                    "Quantity": 0,
+                },
+                "QueryStringCacheKeys": {
+                    "Quantity": 0,
+                },
+            },
+            "MinTTL": 1000,
+        },
+    }
+
+    cloudfront.create_distribution(DistributionConfig=distribution_config)
+
+
 def setup_dns(domain, bucket_name=None, ip_address=None):
     """Setup a domain's DNS."""
     dns_id = domain.get("Id")
@@ -117,7 +171,7 @@ def setup_dns(domain, bucket_name=None, ip_address=None):
                     {
                         "Action": "UPSERT",
                         "ResourceRecordSet": {
-                            "Name": domain.get("Name")[:-1],
+                            "Name": domain.get("Name"),
                             "Type": "A",
                             "TTL": 15,
                             "ResourceRecords": [{"Value": ip_address}],
@@ -163,7 +217,7 @@ def delete_dns(domain, bucket_name=None, ip_address=None):
                     {
                         "Action": "DELETE",
                         "ResourceRecordSet": {
-                            "Name": domain.get("Name")[:-1],
+                            "Name": domain.get("Name"),
                             "Type": "A",
                             "TTL": 15,
                             "ResourceRecords": [{"Value": ip_address}],

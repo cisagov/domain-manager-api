@@ -54,7 +54,9 @@ driver.find_element(By.ID, "radio5").click()
 category_dropdown = driver.find_element_by_xpath("//*[contains(text(),'General')]")
 time.sleep(1)
 category_dropdown.click()
-category_button = category_dropdown.find_element_by_xpath("//input[@value='Health']")
+category_button = category_dropdown.find_element_by_xpath(
+    f"//input[@value='{category}']"
+)
 time.sleep(1)
 category_button.click()
 time.sleep(1)

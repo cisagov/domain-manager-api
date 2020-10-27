@@ -37,9 +37,11 @@ def categorization_manager(live_site_id, category):
     if active_site.get("is_categorized"):
         return {"error": f"{domain} has already been categorized."}
 
-    categories = [category.get("name") for category in Category.get_all()]
+    # Get all categories
+    categories = Category.get_all()
+    category_names = [category.get("name") for category in categories]
 
-    if category not in categories:
+    if category not in category_names:
         return {"error": "Category does not exist"}
 
     is_submitted = []
@@ -48,6 +50,14 @@ def categorization_manager(live_site_id, category):
         proxies = Proxy.get_all()
         for proxy in proxies:
             proxy_name = proxy["name"]
+
+            # Get unique category name for each proxy
+            proxy_category = "".join(
+                detail.get(proxy_name)
+                for detail in Category.get_by_name(category).get("proxies")
+                if proxy_name in detail
+            )
+
             try:
                 driver = webdriver.Remote(
                     command_executor=f"http://{browserless_endpoint}/webdriver",
@@ -61,7 +71,7 @@ def categorization_manager(live_site_id, category):
                         "url": proxy.get("url"),
                         "domain": domain_url,
                         "api_key": two_captcha_api_key,
-                        "category": category,
+                        "category": proxy_category,
                     },
                 )
                 driver.quit()

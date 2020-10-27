@@ -28,7 +28,7 @@ wait.until(
 )
 driver.find_element(By.ID, "web_filter_rating_info_form_categorysuggestion").click()
 dropdown = driver.find_element(By.ID, "web_filter_rating_info_form_categorysuggestion")
-dropdown.find_element(By.XPATH, "//option[. = 'Health and Wellness']").click()
+dropdown.find_element(By.XPATH, f"//option[. = '{category}']").click()
 driver.find_element(By.CSS_SELECTOR, ".page-section > .row:nth-child(2)").click()
 wait.until(EC.presence_of_element_located((By.ID, "web_filter_rating_info_form_name")))
 driver.find_element(By.ID, "web_filter_rating_info_form_name").click()
