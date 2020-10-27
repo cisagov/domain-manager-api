@@ -6,6 +6,7 @@ from datetime import datetime
 import boto3
 
 route53 = boto3.client("route53")
+acm = boto3.client("acm")
 
 
 def list_hosted_zones(names_only=False):
@@ -44,17 +45,51 @@ def generate_hosted_zone(domain_name):
         CallerReference=unique_identifier,
     )
 
+    # generate ssl certificates
+    generate_ssl_certs(domain_name)
+
     return hosted_zone["DelegationSet"]["NameServers"]
 
 
 def delete_hosted_zone(domain_name):
     """Delete a hosted zone from Route53."""
     if f"{domain_name}." in list_hosted_zones(names_only=True):
+        # delete hosted zone
         hosted_zone_id = "".join(
             hosted_zone.get("Id")
             for hosted_zone in list_hosted_zones()
             if hosted_zone.get("Name") == f"{domain_name}."
         )
         route53.delete_hosted_zone(Id=hosted_zone_id)
+
+        # delete ssl certificate
+        arn_certificate = "".join(
+            certificate.get("CertificateArn")
+            for certificate in acm.list_certificates()["CertificateSummaryList"]
+            if domain_name == certificate.get("DomainName")
+        )
+        acm.delete_certificate(CertificateArn=arn_certificate)
         return "hosted zone has been deleted."
     return "hosted zone does not exist"
+
+
+def generate_ssl_certs(domain_name):
+    """Request an SSL certificate using AWS Certificate Manager."""
+    certificates = [
+        certificate.get("DomainName")
+        for certificate in acm.list_certificates()["CertificateSummaryList"]
+    ]
+
+    if domain_name not in certificates:
+        return acm.request_certificate(
+            DomainName=domain_name,
+            ValidationMethod="DNS",
+            SubjectAlternativeNames=[
+                domain_name,
+                f"www.{domain_name}",
+            ],
+            DomainValidationOptions=[
+                {"DomainName": domain_name, "ValidationDomain": domain_name},
+            ],
+            Options={"CertificateTransparencyLoggingPreference": "DISABLED"},
+        )

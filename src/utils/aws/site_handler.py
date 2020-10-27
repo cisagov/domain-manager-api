@@ -83,9 +83,6 @@ def launch_site(website, domain):
         WebsiteConfiguration={"IndexDocument": {"Suffix": "index.html"}},
     )
 
-    # Setup CloudFront
-    # TODO: Setup Cloudfront
-
     # Setup DNS
     setup_dns(domain=domain, bucket_name=bucket_name)
 
@@ -137,7 +134,7 @@ def setup_cloudfront(domain_name):
         },
         "DefaultCacheBehavior": {
             "TargetOriginId": "1",
-            "ViewerProtocolPolicy": "redirect-to-https",
+            "ViewerProtocolPolicy": "allow-all",
             "TrustedSigners": {
                 "Quantity": 0,
                 "Enabled": False,
@@ -156,7 +153,7 @@ def setup_cloudfront(domain_name):
         },
     }
 
-    cloudfront.create_distribution(DistributionConfig=distribution_config)
+    return cloudfront.create_distribution(DistributionConfig=distribution_config)
 
 
 def setup_dns(domain, bucket_name=None, ip_address=None):
