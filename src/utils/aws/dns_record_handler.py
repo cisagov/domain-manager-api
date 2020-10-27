@@ -1,6 +1,7 @@
 """Hosted Zone generator."""
 # Standard Python Libraries
 from datetime import datetime
+import time
 
 # Third-Party Libraries
 import boto3
@@ -46,8 +47,14 @@ def generate_hosted_zone(domain_name):
     )
 
     # generate ssl certificates
-    generate_ssl_certs(domain_name)
-
+    arn_certificate = generate_ssl_certs(domain_name)
+    time.sleep(5)
+    records = acm.describe_certificate(CertificateArn=arn_certificate)
+    resource_records = [
+        record["ResourceRecord"]
+        for record in records["Certificate"]["DomainValidationOptions"]
+    ]
+    resource_records
     return hosted_zone["DelegationSet"]["NameServers"]
 
 
@@ -81,7 +88,7 @@ def generate_ssl_certs(domain_name):
     ]
 
     if domain_name not in certificates:
-        return acm.request_certificate(
+        response = acm.request_certificate(
             DomainName=domain_name,
             ValidationMethod="DNS",
             SubjectAlternativeNames=[
@@ -93,3 +100,4 @@ def generate_ssl_certs(domain_name):
             ],
             Options={"CertificateTransparencyLoggingPreference": "DISABLED"},
         )
+        return response["CertificateArn"]
