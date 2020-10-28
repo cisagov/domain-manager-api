@@ -69,8 +69,7 @@ def launch_site(website, domain):
     # Attach policy
     bucket_policy = json.dumps(bucket_policy)
     s3.put_bucket_policy(
-        Bucket=bucket_name,
-        Policy=bucket_policy,
+        Bucket=bucket_name, Policy=bucket_policy,
     )
 
     # Set waiter
@@ -115,10 +114,7 @@ def setup_cloudfront(domain_name):
 
     distribution_config = {
         "CallerReference": unique_identifier,
-        "Aliases": {
-            "Quantity": 1,
-            "Items": [domain_name],
-        },
+        "Aliases": {"Quantity": 1, "Items": [domain_name],},
         "DefaultRootObject": "index.html",
         "Comment": "Managed by Domain Manager",
         "Enabled": True,
@@ -127,31 +123,37 @@ def setup_cloudfront(domain_name):
             "Items": [
                 {
                     "Id": "1",
-                    "DomainName": f"{domain_name}.s3.amazonaws.com",
-                    "S3OriginConfig": {"OriginAccessIdentity": ""},
+                    # TODO: Programatically get region for s3 website bucket
+                    "DomainName": f"{domain_name}.s3-website-us-east-1.amazonaws.com",
+                    "CustomOriginConfig": {
+                        "HTTPPort": 80,
+                        "HTTPSPort": 443,
+                        "OriginProtocolPolicy": "http-only",
+                    },
                 }
             ],
         },
         "DefaultCacheBehavior": {
             "TargetOriginId": "1",
-            "ViewerProtocolPolicy": "allow-all",
-            "TrustedSigners": {
-                "Quantity": 0,
-                "Enabled": False,
-            },
+            "ViewerProtocolPolicy": "redirect-to-https",
+            "TrustedSigners": {"Quantity": 0, "Enabled": False,},
             "ForwardedValues": {
                 "QueryString": False,
                 "Cookies": {"Forward": "all"},
-                "Headers": {
-                    "Quantity": 0,
-                },
-                "QueryStringCacheKeys": {
-                    "Quantity": 0,
-                },
+                "Headers": {"Quantity": 0,},
+                "QueryStringCacheKeys": {"Quantity": 0,},
             },
             "MinTTL": 1000,
         },
+        "ViewerCertificate": {
+            # TODO: programtically get ARN for acm certificate
+            "ACMCertificateArn": "arn:aws:acm:us-east-1:780016325729:certificate/549d0dd9-2565-4520-abe2-081c625e20e7",
+            "SSLSupportMethod": "sni-only",
+            "MinimumProtocolVersion": "TLSv1.2_2019",
+        },
     }
+
+    # TODO: Generate route53 records for cloudfront distribution
 
     return cloudfront.create_distribution(DistributionConfig=distribution_config)
 
