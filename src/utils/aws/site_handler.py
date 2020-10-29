@@ -8,6 +8,8 @@ import time
 
 # Third-Party Libraries
 import boto3
+from api.documents.active_site import ActiveSite
+
 
 logger = logging.getLogger(__name__)
 
@@ -35,14 +37,20 @@ def launch_site(website, domain):
     certificate_arn = generate_ssl_certs(domain=domain)
 
     # setup cloudfront
-    distribution_endpoint = setup_cloudfront(
+    distribution_id, distribution_endpoint = setup_cloudfront(
         domain_name=domain_name, certificate_arn=certificate_arn
     )
 
     # Setup DNS
     setup_dns(domain=domain, endpoint=distribution_endpoint)
 
-    return domain_name
+    return {
+        "cloudfront": {
+            "id": distribution_id,
+            "distribution_endpoint": distribution_endpoint,
+        },
+        "acm": {"certificate_arn": certificate_arn},
+    }
 
 
 def delete_site(domain):
@@ -190,7 +198,10 @@ def setup_cloudfront(domain_name, certificate_arn):
         DistributionConfig=distribution_config
     )
 
-    return distribution["Distribution"]["DomainName"]
+    return (
+        distribution["Distribution"]["Id"],
+        distribution["Distribution"]["DomainName"],
+    )
 
 
 def setup_dns(domain, endpoint=None, ip_address=None):

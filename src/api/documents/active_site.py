@@ -13,6 +13,7 @@ class ActiveSite(Document):
     def __init__(self, **kwargs):
         """Initialize arguments."""
         self.fields = [
+            "metadata",
             "name",
             "description",
             "s3_url",
@@ -45,9 +46,9 @@ class ActiveSite(Document):
         description,
         domain_id,
         application_id,
+        metadata=None,
         website_id=None,
         ip_address=None,
-        s3_url=None,
     ):
         """Launch a live website."""
         # make names unique
@@ -57,6 +58,7 @@ class ActiveSite(Document):
         website = db.websites.find_one({"_id": ObjectId(website_id)})
         domain = db.domains.find_one({"_id": ObjectId(domain_id)})
         post_data = {
+            "metadata": metadata,
             "name": domain.get("Name"),
             "description": description,
             "domain": domain,
@@ -68,7 +70,7 @@ class ActiveSite(Document):
         if ip_address:
             post_data["ip_address"] = ip_address
         else:
-            post_data["s3_url"] = s3_url
+            post_data["metadata"] = metadata
             post_data["website"] = website
 
         return db.active_sites.insert_one(post_data)
@@ -91,6 +93,8 @@ class ActiveSite(Document):
             put_data.update({"is_submitted": kwargs.get("is_submitted")})
         if "is_email_active" in kwargs:
             put_data.update({"is_email_active": kwargs.get("is_email_active")})
+        if "metadata" in kwargs:
+            put_data.update({"metadata": kwargs.get("metadata")})
 
         db.active_sites.find_one_and_update(
             {"_id": ObjectId(live_site_id)},

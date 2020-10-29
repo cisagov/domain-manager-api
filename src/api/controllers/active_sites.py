@@ -29,11 +29,11 @@ def active_site_manager(request, live_site_id=None):
                 )
             else:
                 # launch s3 bucket and set dns
-                live_site = launch_site(website, domain)
+                metadata = launch_site(website, domain)
                 # save to database
                 active_site = ActiveSite.create(
+                    metadata=metadata,
                     description=post_data.get("description"),
-                    s3_url=live_site,
                     domain_id=post_data.get("domain_id"),
                     website_id=post_data.get("website_id"),
                     application_id=application_id,
