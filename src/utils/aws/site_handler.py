@@ -4,6 +4,7 @@ from datetime import datetime
 import json
 import logging
 import os
+import time
 
 # Third-Party Libraries
 import boto3
@@ -15,10 +16,11 @@ CONTENT_SOURCE = os.environ.get("SOURCE_BUCKET")
 REGION = boto3.session.Session().region_name
 
 # Initialize aws clients
+acm = boto3.client("acm")
+cloudfront = boto3.client("cloudfront")
 s3 = boto3.client("s3")
 s3_resource = boto3.resource("s3")
 route53 = boto3.client("route53")
-cloudfront = boto3.client("cloudfront")
 
 
 def launch_site(website, domain):
@@ -29,8 +31,13 @@ def launch_site(website, domain):
     # setup s3 bucket
     setup_s3_bucket(bucket_name=domain_name, content_name=website.get("name"))
 
+    # generate ssl certs and return certificate ARN
+    certificate_arn = generate_ssl_certs(domain=domain)
+
     # setup cloudfront
-    distribution_endpoint = setup_cloudfront(domain_name=domain_name)
+    distribution_endpoint = setup_cloudfront(
+        domain_name=domain_name, certificate_arn=certificate_arn
+    )
 
     # Setup DNS
     setup_dns(domain=domain, endpoint=distribution_endpoint)
@@ -125,7 +132,7 @@ def setup_s3_bucket(bucket_name, content_name):
     )
 
 
-def setup_cloudfront(domain_name):
+def setup_cloudfront(domain_name, certificate_arn):
     """Setup AWS CloudFront Distribution."""
     # Launch CloudFront distribution
     unique_identifier = datetime.now().strftime("%Y-%m-%d %H:%M:%S:%f")
@@ -173,8 +180,7 @@ def setup_cloudfront(domain_name):
             "MinTTL": 1000,
         },
         "ViewerCertificate": {
-            # TODO: programtically get ARN for acm certificate
-            "ACMCertificateArn": "arn:aws:acm:us-east-1:780016325729:certificate/549d0dd9-2565-4520-abe2-081c625e20e7",
+            "ACMCertificateArn": certificate_arn,
             "SSLSupportMethod": "sni-only",
             "MinimumProtocolVersion": "TLSv1.2_2019",
         },
@@ -216,7 +222,7 @@ def setup_dns(domain, endpoint=None, ip_address=None):
                 "Comment": domain_name,
                 "Changes": [
                     {
-                        "Action": "CREATE",
+                        "Action": "UPSERT",
                         "ResourceRecordSet": {
                             "Name": domain_name,
                             "Type": "A",
@@ -279,3 +285,66 @@ def delete_dns(domain, endpoint=None, ip_address=None):
         )
     logger.info(response)
     return response
+
+
+def generate_ssl_certs(domain):
+    """Request and Validate an SSL certificate using AWS Certificate Manager."""
+    domain_name = domain.get("Name")
+    dns_id = domain.get("Id")
+    requested_certificate = acm.request_certificate(
+        DomainName=domain_name,
+        ValidationMethod="DNS",
+        SubjectAlternativeNames=[
+            domain_name,
+        ],
+        DomainValidationOptions=[
+            {
+                "DomainName": domain_name,
+                "ValidationDomain": domain_name,
+            },
+        ],
+        Options={"CertificateTransparencyLoggingPreference": "DISABLED"},
+    )
+
+    certificate_arn = requested_certificate["CertificateArn"]
+    resource_records = {}
+    while not resource_records:
+        time.sleep(2)
+        certificate_description = acm.describe_certificate(
+            CertificateArn=certificate_arn
+        )
+        resource_records = [
+            description.get("ResourceRecord", None)
+            for description in certificate_description.get("Certificate", {}).get(
+                "DomainValidationOptions"
+            )
+        ][0]
+
+    # add validation record to the dns
+    route53.change_resource_record_sets(
+        HostedZoneId=dns_id,
+        ChangeBatch={
+            "Comment": domain_name,
+            "Changes": [
+                {
+                    "Action": "UPSERT",
+                    "ResourceRecordSet": {
+                        "Name": resource_records["Name"],
+                        "Type": "CNAME",
+                        "TTL": 30,
+                        "ResourceRecords": [
+                            {
+                                "Value": resource_records["Value"],
+                            },
+                        ],
+                    },
+                }
+            ],
+        },
+    )
+
+    # wait until the certificate has been validated
+    waiter = acm.get_waiter("certificate_validated")
+    waiter.wait(CertificateArn=certificate_arn)
+
+    return certificate_arn

@@ -40,7 +40,7 @@ def active_site_manager(request, live_site_id=None):
                 )
             domain_name = domain.get("Name")
             response = {
-                "message": f"Active site with id {active_site.inserted_id} has been launched. Visit: http://{domain_name}"
+                "message": f"Active site with id {active_site.inserted_id} has been launched. Visit: https://{domain_name}"
             }
         else:
             active_sites_schema = ActiveSiteSchema(many=True)
