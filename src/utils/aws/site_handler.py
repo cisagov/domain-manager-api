@@ -12,6 +12,7 @@ logger = logging.getLogger(__name__)
 
 HOSTED_ZONE_ID = os.environ.get("HOSTED_ZONE_ID")
 CONTENT_SOURCE = os.environ.get("SOURCE_BUCKET")
+REGION = boto3.session.Session().region_name
 
 # Initialize aws clients
 s3 = boto3.client("s3")
@@ -22,23 +23,64 @@ cloudfront = boto3.client("cloudfront")
 
 def launch_site(website, domain):
     """Launch an active site onto s3."""
-    # Name new bucket after its domain
-    bucket_name = domain.get("Name")
-    content_name = website.get("name")
+    # get domain name
+    domain_name = domain.get("Name")
 
+    # setup s3 bucket
+    setup_s3_bucket(bucket_name=domain_name, content_name=website.get("name"))
+
+    # setup cloudfront
+    distribution_endpoint = setup_cloudfront(domain_name=domain_name)
+
+    # Setup DNS
+    setup_dns(domain=domain, endpoint=distribution_endpoint)
+
+    return domain_name
+
+
+def delete_site(domain):
+    """Delete an active site off s3."""
+    domain_name = domain.get("Name")
+
+    distributions = cloudfront.list_distributions()["DistributionList"]
+
+    # TODO: Return distribution ID
+    [distribution for distribution in distributions]
+
+    # delete cloudfront distribution
+    distribution_endpoint = cloudfront.delete_distribution(Id="")
+
+    bucket = s3_resource.Bucket(domain_name)
+
+    # delete all objects in bucket
+    bucket.objects.all().delete()
+
+    # set waiter
+    waiter = s3.get_waiter("object_not_exists")
+    waiter.wait(Bucket=domain_name, Key="index.html")
+
+    # delete bucket
+    s3.delete_bucket(Bucket=domain_name)
+
+    response = delete_dns(domain=domain, endpoint=distribution_endpoint)
+    return response
+
+
+def setup_s3_bucket(bucket_name, content_name):
+    """Setup a static website S3 Bucket."""
     available_buckets = [
         bucket.get("Name") for bucket in s3.list_buckets().get("Buckets")
     ]
 
-    # Create S3 bucket
+    # create S3 bucket
     if bucket_name not in available_buckets:
         s3.create_bucket(Bucket=bucket_name)
 
-    # Set waiter
+    # set waiter
     waiter = s3.get_waiter("bucket_exists")
     waiter.wait(Bucket=bucket_name)
 
-    # Copy contents from source
+    # copy contents from source
     source_bucket = s3_resource.Bucket(CONTENT_SOURCE)
     source_keys = [
         obj.key for obj in source_bucket.objects.all() if content_name in obj.key
@@ -52,7 +94,7 @@ def launch_site(website, domain):
         bucket = s3_resource.Bucket(bucket_name)
         bucket.copy(copy_source, key.replace(f"{content_name}/", ""))
 
-    # Attach bucket policy
+    # attach bucket policy
     bucket_policy = {
         "Version": "2012-10-17",
         "Statement": [
@@ -66,45 +108,21 @@ def launch_site(website, domain):
         ],
     }
 
-    # Attach policy
     bucket_policy = json.dumps(bucket_policy)
     s3.put_bucket_policy(
-        Bucket=bucket_name, Policy=bucket_policy,
+        Bucket=bucket_name,
+        Policy=bucket_policy,
     )
 
-    # Set waiter
+    # set waiter
     waiter = s3.get_waiter("object_exists")
     waiter.wait(Bucket=bucket_name, Key="index.html")
 
-    # Launch static site
+    # launch static site
     s3.put_bucket_website(
         Bucket=bucket_name,
         WebsiteConfiguration={"IndexDocument": {"Suffix": "index.html"}},
     )
-
-    # Setup DNS
-    setup_dns(domain=domain, bucket_name=bucket_name)
-
-    return bucket_name
-
-
-def delete_site(domain):
-    """Delete an active site off s3."""
-    bucket_name = domain.get("Name")
-    bucket = s3_resource.Bucket(bucket_name)
-
-    # delete all objects in bucket
-    bucket.objects.all().delete()
-
-    # set waiter
-    waiter = s3.get_waiter("object_not_exists")
-    waiter.wait(Bucket=bucket_name, Key="index.html")
-
-    # delete bucket
-    s3.delete_bucket(Bucket=bucket_name)
-
-    response = delete_dns(domain=domain, bucket_name=bucket_name)
-    return response
 
 
 def setup_cloudfront(domain_name):
@@ -114,7 +132,10 @@ def setup_cloudfront(domain_name):
 
     distribution_config = {
         "CallerReference": unique_identifier,
-        "Aliases": {"Quantity": 1, "Items": [domain_name],},
+        "Aliases": {
+            "Quantity": 1,
+            "Items": [domain_name],
+        },
         "DefaultRootObject": "index.html",
         "Comment": "Managed by Domain Manager",
         "Enabled": True,
@@ -123,8 +144,7 @@ def setup_cloudfront(domain_name):
             "Items": [
                 {
                     "Id": "1",
-                    # TODO: Programatically get region for s3 website bucket
-                    "DomainName": f"{domain_name}.s3-website-us-east-1.amazonaws.com",
+                    "DomainName": f"{domain_name}.s3-website-{REGION}.amazonaws.com",
                     "CustomOriginConfig": {
                         "HTTPPort": 80,
                         "HTTPSPort": 443,
@@ -136,12 +156,19 @@ def setup_cloudfront(domain_name):
         "DefaultCacheBehavior": {
             "TargetOriginId": "1",
             "ViewerProtocolPolicy": "redirect-to-https",
-            "TrustedSigners": {"Quantity": 0, "Enabled": False,},
+            "TrustedSigners": {
+                "Quantity": 0,
+                "Enabled": False,
+            },
             "ForwardedValues": {
                 "QueryString": False,
                 "Cookies": {"Forward": "all"},
-                "Headers": {"Quantity": 0,},
-                "QueryStringCacheKeys": {"Quantity": 0,},
+                "Headers": {
+                    "Quantity": 0,
+                },
+                "QueryStringCacheKeys": {
+                    "Quantity": 0,
+                },
             },
             "MinTTL": 1000,
         },
@@ -153,13 +180,16 @@ def setup_cloudfront(domain_name):
         },
     }
 
-    # TODO: Generate route53 records for cloudfront distribution
+    distribution = cloudfront.create_distribution(
+        DistributionConfig=distribution_config
+    )
 
-    return cloudfront.create_distribution(DistributionConfig=distribution_config)
+    return distribution["Distribution"]["DomainName"]
 
 
-def setup_dns(domain, bucket_name=None, ip_address=None):
+def setup_dns(domain, endpoint=None, ip_address=None):
     """Setup a domain's DNS."""
+    domain_name = domain.get("Name")
     dns_id = domain.get("Id")
     if ip_address:
         response = route53.change_resource_record_sets(
@@ -170,7 +200,7 @@ def setup_dns(domain, bucket_name=None, ip_address=None):
                     {
                         "Action": "UPSERT",
                         "ResourceRecordSet": {
-                            "Name": domain.get("Name"),
+                            "Name": domain_name,
                             "Type": "A",
                             "TTL": 15,
                             "ResourceRecords": [{"Value": ip_address}],
@@ -183,17 +213,17 @@ def setup_dns(domain, bucket_name=None, ip_address=None):
         response = route53.change_resource_record_sets(
             HostedZoneId=dns_id,
             ChangeBatch={
-                "Comment": bucket_name,
+                "Comment": domain_name,
                 "Changes": [
                     {
-                        "Action": "UPSERT",
+                        "Action": "CREATE",
                         "ResourceRecordSet": {
-                            "Name": bucket_name,
+                            "Name": domain_name,
                             "Type": "A",
                             "AliasTarget": {
-                                "HostedZoneId": HOSTED_ZONE_ID,
+                                "HostedZoneId": "Z2FDTNDATAQYW2",
                                 "EvaluateTargetHealth": False,
-                                "DNSName": "s3-website-us-east-1.amazonaws.com",
+                                "DNSName": endpoint,
                             },
                         },
                     }
@@ -204,8 +234,9 @@ def setup_dns(domain, bucket_name=None, ip_address=None):
     return response
 
 
-def delete_dns(domain, bucket_name=None, ip_address=None):
+def delete_dns(domain, endpoint=None, ip_address=None):
     """Setup a domain's DNS."""
+    domain_name = domain.get("Name")
     dns_id = domain.get("Id")
     if ip_address:
         response = route53.change_resource_record_sets(
@@ -216,7 +247,7 @@ def delete_dns(domain, bucket_name=None, ip_address=None):
                     {
                         "Action": "DELETE",
                         "ResourceRecordSet": {
-                            "Name": domain.get("Name"),
+                            "Name": domain_name,
                             "Type": "A",
                             "TTL": 15,
                             "ResourceRecords": [{"Value": ip_address}],
@@ -229,17 +260,17 @@ def delete_dns(domain, bucket_name=None, ip_address=None):
         response = route53.change_resource_record_sets(
             HostedZoneId=dns_id,
             ChangeBatch={
-                "Comment": bucket_name,
+                "Comment": domain_name,
                 "Changes": [
                     {
                         "Action": "DELETE",
                         "ResourceRecordSet": {
-                            "Name": bucket_name,
+                            "Name": domain_name,
                             "Type": "A",
                             "AliasTarget": {
-                                "HostedZoneId": HOSTED_ZONE_ID,
+                                "HostedZoneId": "Z2FDTNDATAQYW2",
                                 "EvaluateTargetHealth": False,
-                                "DNSName": "s3-website-us-east-1.amazonaws.com",
+                                "DNSName": endpoint,
                             },
                         },
                     }
