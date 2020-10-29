@@ -1,11 +1,13 @@
 """Hosted Zone generator."""
 # Standard Python Libraries
 from datetime import datetime
+import time
 
 # Third-Party Libraries
 import boto3
 
 route53 = boto3.client("route53")
+acm = boto3.client("acm")
 
 
 def list_hosted_zones(names_only=False):
@@ -50,6 +52,7 @@ def generate_hosted_zone(domain_name):
 def delete_hosted_zone(domain_name):
     """Delete a hosted zone from Route53."""
     if f"{domain_name}." in list_hosted_zones(names_only=True):
+        # delete hosted zone
         hosted_zone_id = "".join(
             hosted_zone.get("Id")
             for hosted_zone in list_hosted_zones()
