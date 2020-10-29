@@ -45,15 +45,6 @@ def generate_hosted_zone(domain_name):
         Name=domain_name, CallerReference=unique_identifier,
     )
 
-    # generate ssl certificates
-    arn_certificate = generate_ssl_certs(domain_name)
-    time.sleep(5)
-    records = acm.describe_certificate(CertificateArn=arn_certificate)
-    resource_records = [
-        record["ResourceRecord"]
-        for record in records["Certificate"]["DomainValidationOptions"]
-    ]
-    resource_records
     return hosted_zone["DelegationSet"]["NameServers"]
 
 
@@ -67,14 +58,6 @@ def delete_hosted_zone(domain_name):
             if hosted_zone.get("Name") == f"{domain_name}."
         )
         route53.delete_hosted_zone(Id=hosted_zone_id)
-
-        # delete ssl certificate
-        arn_certificate = "".join(
-            certificate.get("CertificateArn")
-            for certificate in acm.list_certificates()["CertificateSummaryList"]
-            if domain_name == certificate.get("DomainName")
-        )
-        acm.delete_certificate(CertificateArn=arn_certificate)
         return "hosted zone has been deleted."
     return "hosted zone does not exist"
 
