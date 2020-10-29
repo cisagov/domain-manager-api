@@ -53,17 +53,34 @@ def launch_site(website, domain):
     }
 
 
-def delete_site(domain):
+def delete_site(active_site, domain):
     """Delete an active site off s3."""
     domain_name = domain.get("Name")
+    cloudfront_metadata = active_site["metadata"]["cloudfront"]
 
-    distributions = cloudfront.list_distributions()["DistributionList"]
+    # get distribution config
+    distribution = cloudfront.get_distribution(Id=cloudfront_metadata["id"])
 
-    # TODO: Return distribution ID
-    [distribution for distribution in distributions]
+    # disable cloudfront distribution
+    distribution["Distribution"]["DistributionConfig"]["Enabled"] = False
+    cloudfront.update_distribution(
+        Id=cloudfront_metadata["id"],
+        IfMatch=distribution["ETag"],
+        DistributionConfig=distribution["Distribution"]["DistributionConfig"],
+    )
+
+    # wait until distribution is fully disabled
+    while True:
+        time.sleep(2)
+        status = cloudfront.get_distribution(Id=cloudfront_metadata["id"])
+        if (
+            status["Distribution"]["DistributionConfig"]["Enabled"] is False
+            and status["Distribution"]["Status"] == "Deployed"
+        ):
+            break
 
     # delete cloudfront distribution
-    distribution_endpoint = cloudfront.delete_distribution(Id="")
+    cloudfront.delete_distribution(Id=cloudfront_metadata["id"], IfMatch=status["ETag"])
 
     bucket = s3_resource.Bucket(domain_name)
 
@@ -77,7 +94,14 @@ def delete_site(domain):
     # delete bucket
     s3.delete_bucket(Bucket=domain_name)
 
-    response = delete_dns(domain=domain, endpoint=distribution_endpoint)
+    # delete acm ssl certificates
+    acm.delete_certificate(
+        CertificateArn=active_site["metadata"]["acm"]["certificate_arn"]
+    )
+
+    response = delete_dns(
+        domain=domain, endpoint=cloudfront_metadata["distribution_endpoint"]
+    )
     return response
 
 

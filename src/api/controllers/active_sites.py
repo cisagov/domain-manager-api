@@ -40,7 +40,7 @@ def active_site_manager(request, live_site_id=None):
                 )
             domain_name = domain.get("Name")
             response = {
-                "message": f"Active site with id {active_site.inserted_id} has been launched. Visit: https://{domain_name}"
+                "message": f"Your website has been launched. Visit: https://{domain_name}"
             }
         else:
             active_sites_schema = ActiveSiteSchema(many=True)
@@ -56,7 +56,7 @@ def active_site_manager(request, live_site_id=None):
             delete_dns(domain=domain, ip_address=ip_address)
         else:
             # delete s3 bucket and remove dns from domain
-            delete_site(domain)
+            delete_site(active_site, domain)
         # delete from database
         ActiveSite.delete(live_site_id)
         response = {"message": "Active site is now inactive and deleted."}
