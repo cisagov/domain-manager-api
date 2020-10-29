@@ -42,8 +42,7 @@ def generate_hosted_zone(domain_name):
     unique_identifier = datetime.now().strftime("%Y-%m-%d %H:%M:%S:%f")
 
     hosted_zone = route53.create_hosted_zone(
-        Name=domain_name,
-        CallerReference=unique_identifier,
+        Name=domain_name, CallerReference=unique_identifier,
     )
 
     # generate ssl certificates
@@ -91,13 +90,10 @@ def generate_ssl_certs(domain_name):
         response = acm.request_certificate(
             DomainName=domain_name,
             ValidationMethod="DNS",
-            SubjectAlternativeNames=[
-                domain_name,
-                f"www.{domain_name}",
-            ],
+            SubjectAlternativeNames=[domain_name, f"www.{domain_name}",],
             DomainValidationOptions=[
                 {"DomainName": domain_name, "ValidationDomain": domain_name},
             ],
-            Options={"CertificateTransparencyLoggingPreference": "DISABLED"},
+            Options={"CertificateTransparencyLoggingPreference": "ENABLED"},
         )
         return response["CertificateArn"]
