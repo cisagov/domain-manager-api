@@ -303,7 +303,7 @@ def generate_ssl_certs(domain):
                 "ValidationDomain": domain_name,
             },
         ],
-        Options={"CertificateTransparencyLoggingPreference": "DISABLED"},
+        Options={"CertificateTransparencyLoggingPreference": "ENABLED"},
     )
 
     certificate_arn = requested_certificate["CertificateArn"]

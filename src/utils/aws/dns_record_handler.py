@@ -42,7 +42,8 @@ def generate_hosted_zone(domain_name):
     unique_identifier = datetime.now().strftime("%Y-%m-%d %H:%M:%S:%f")
 
     hosted_zone = route53.create_hosted_zone(
-        Name=domain_name, CallerReference=unique_identifier,
+        Name=domain_name,
+        CallerReference=unique_identifier,
     )
 
     return hosted_zone["DelegationSet"]["NameServers"]
@@ -60,23 +61,3 @@ def delete_hosted_zone(domain_name):
         route53.delete_hosted_zone(Id=hosted_zone_id)
         return "hosted zone has been deleted."
     return "hosted zone does not exist"
-
-
-def generate_ssl_certs(domain_name):
-    """Request an SSL certificate using AWS Certificate Manager."""
-    certificates = [
-        certificate.get("DomainName")
-        for certificate in acm.list_certificates()["CertificateSummaryList"]
-    ]
-
-    if domain_name not in certificates:
-        response = acm.request_certificate(
-            DomainName=domain_name,
-            ValidationMethod="DNS",
-            SubjectAlternativeNames=[domain_name, f"www.{domain_name}",],
-            DomainValidationOptions=[
-                {"DomainName": domain_name, "ValidationDomain": domain_name},
-            ],
-            Options={"CertificateTransparencyLoggingPreference": "ENABLED"},
-        )
-        return response["CertificateArn"]
