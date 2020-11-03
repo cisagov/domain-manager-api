@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 
 HOSTED_ZONE_ID = os.environ.get("HOSTED_ZONE_ID")
 CONTENT_SOURCE = os.environ.get("SOURCE_BUCKET")
-REGION = boto3.session.Session().region_name
+REGION = os.environ.get("AWS_DEFAULT_REGION")
 
 # Initialize aws clients
 acm = boto3.client("acm")
