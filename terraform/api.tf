@@ -99,18 +99,19 @@ locals {
   api_lb_port = 8043
 
   environment = {
-    "FLASK_APP" : "main",
-    "FLASK_ENV" : "development",
-    "DEBUG" : 1,
-    "DB_HOST" : module.documentdb.endpoint,
-    "DB_PORT" : 27017,
-    "MONGO_TYPE" : "DOCUMENTDB",
-    "WEBSITE_STORAGE" : aws_s3_bucket.websites.id,
-    "WEBSITE_STORAGE_URL" : aws_s3_bucket.websites.website_endpoint,
-    "SOURCE_BUCKET" : aws_s3_bucket.websites.id,
-    "NC_IP" : "0.0.0.0",
-    "BROWSERLESS_ENDPOINT" : module.browserless.lb_dns_name,
+    "FLASK_APP" : "main"
+    "FLASK_ENV" : "development"
+    "DEBUG" : 1
+    "DB_HOST" : module.documentdb.endpoint
+    "DB_PORT" : 27017
+    "MONGO_TYPE" : "DOCUMENTDB"
+    "WEBSITE_STORAGE" : aws_s3_bucket.websites.id
+    "WEBSITE_STORAGE_URL" : aws_s3_bucket.websites.website_endpoint
+    "SOURCE_BUCKET" : aws_s3_bucket.websites.id
+    "NC_IP" : "0.0.0.0"
+    "BROWSERLESS_ENDPOINT" : module.browserless.lb_dns_name
     "WORKERS" : 4
+    "AWS_DEFAULT_REGION" : var.region
   }
 
   secrets = {
