@@ -1,5 +1,0 @@
-[submodule "hugo"]
-	path = hugo
-	url = git@github.com:gohugoio/hugo.git
-	ignore = untracked
-	shallow = true
