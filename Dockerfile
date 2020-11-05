@@ -1,3 +1,10 @@
+FROM golang:1.15-alpine AS build
+
+WORKDIR /hugo/
+COPY  hugo/ /hugo/
+RUN CGO_ENABLED=1 go install
+
+
 FROM python:3.8
 
 ENV PYTHONDONTWRITEBYTECODE 1
@@ -8,8 +15,11 @@ RUN apt-get update -y && \
 
 WORKDIR /var/www/
 
+COPY --from=build /go/bin/hugo /var/www/hugo
+
 ADD ./requirements.txt /var/www/requirements.txt
-RUN pip install -r requirements.txt
+RUN pip install --upgrade pip \
+    pip install -r requirements.txt
 
 ADD ./src/ /var/www/
 
