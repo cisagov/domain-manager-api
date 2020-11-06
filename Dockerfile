@@ -9,12 +9,21 @@ RUN apt-get update -y && \
 WORKDIR /var/www/
 
 ADD ./requirements.txt /var/www/requirements.txt
-RUN pip install -r requirements.txt
+RUN pip install --upgrade pip \
+    pip install -r requirements.txt
 
 ADD ./src/ /var/www/
 
 # Get certs for document db
 RUN  wget https://s3.amazonaws.com/rds-downloads/rds-combined-ca-bundle.pem
+
+# install hugo static site gen
+RUN wget https://github.com/gohugoio/hugo/releases/download/v0.78.1/hugo_0.78.1_Linux-64bit.tar.gz
+
+RUN mkdir /tmp/hugo
+RUN tar -C /tmp/hugo -xzf hugo_0.78.1_Linux-64bit.tar.gz
+
+ENV PATH="/tmp/hugo:${PATH}"
 
 # Entrypoint
 COPY ./etc/entrypoint.sh /usr/local/bin/entrypoint.sh
