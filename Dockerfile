@@ -23,7 +23,8 @@ RUN wget https://github.com/gohugoio/hugo/releases/download/v0.78.1/hugo_0.78.1_
 RUN mkdir /tmp/hugo
 RUN tar -C /tmp/hugo -xzf hugo_0.78.1_Linux-64bit.tar.gz
 
-ENV PATH="/tmp/hugo:${PATH}"
+ENV PATH "/tmp/hugo:${PATH}"
+ENV PYTHONPATH "${PYTHONPATH}:/var/www"
 
 # Entrypoint
 COPY ./etc/entrypoint.sh /usr/local/bin/entrypoint.sh
