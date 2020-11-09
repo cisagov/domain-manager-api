@@ -10,7 +10,7 @@ import time
 import boto3
 from api.documents.active_site import ActiveSite
 
-from static import TEMPLATE_BUCKET, AWS_REGION
+from settings import TEMPLATE_BUCKET, AWS_REGION
 
 
 logger = logging.getLogger(__name__)
@@ -147,7 +147,8 @@ def setup_s3_bucket(bucket_name, content_name):
 
     bucket_policy = json.dumps(bucket_policy)
     s3.put_bucket_policy(
-        Bucket=bucket_name, Policy=bucket_policy,
+        Bucket=bucket_name,
+        Policy=bucket_policy,
     )
 
     # set waiter

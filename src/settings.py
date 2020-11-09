@@ -1,3 +1,5 @@
+"""Contains static vars to be used in application."""
+
 import os
 
 AWS_REGION = os.environ.get("AWS_DEFAULT_REGION", "us-east-1")

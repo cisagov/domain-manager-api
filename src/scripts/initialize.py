@@ -10,7 +10,7 @@ import os
 import boto3
 import pymongo
 
-from static import TEMPLATE_BUCKET, TEMPLATE_BUCKET_URL
+from settings import TEMPLATE_BUCKET, TEMPLATE_BUCKET_URL
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger()
