@@ -131,6 +131,7 @@ jobs:
           BROWSERLESS_ENDPOINT=dm-browserless:3000
           MAX_CONCURRENT_SESSIONS=10
           AWS_DEFAULT_REGION=us-east-1
+          TEMPLATE_BUCKET=test
           EOT
       - name: make up
         run: docker-compose up -d
