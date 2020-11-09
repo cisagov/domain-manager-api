@@ -7,10 +7,9 @@ import os
 import boto3
 import pymongo
 
-logger = logging.getLogger()
+from static import TEMPLATE_BUCKET, TEMPLATE_BUCKET_URL
 
-WEBSITE_STORAGE_URL = os.environ.get("WEBSITE_STORAGE_URL")
-SOURCE_BUCKET = os.environ.get("SOURCE_BUCKET")
+logger = logging.getLogger()
 
 
 if os.environ.get("MONGO_TYPE", "MONGO") == "DOCUMENTDB":
@@ -43,14 +42,14 @@ def load_s3():
     db_sites = db.websites
 
     # List websites within the S3 Repository
-    websites = s3.list_objects(Bucket=SOURCE_BUCKET)
+    websites = s3.list_objects(Bucket=TEMPLATE_BUCKET)
 
     # Pull Available websites
     available_prefixes = {i.get("Key").split("/")[0] for i in websites.get("Contents")}
 
     # Create load data
     s3_load = [
-        {"name": i, "url": WEBSITE_STORAGE_URL + i}
+        {"name": i, "url": TEMPLATE_BUCKET_URL + i}
         for i in available_prefixes
         if not db_sites.find_one({"name": i})
     ]

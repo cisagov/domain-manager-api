@@ -106,8 +106,7 @@ locals {
     "DB_PORT" : 27017
     "MONGO_TYPE" : "DOCUMENTDB"
     "WEBSITE_STORAGE" : aws_s3_bucket.websites.id
-    "WEBSITE_STORAGE_URL" : aws_s3_bucket.websites.website_endpoint
-    "SOURCE_BUCKET" : aws_s3_bucket.websites.id
+    "TEMPLATE_BUCKET" : aws_s3_bucket.websites.id
     "NC_IP" : "0.0.0.0"
     "BROWSERLESS_ENDPOINT" : module.browserless.lb_dns_name
     "WORKERS" : 4
@@ -118,7 +117,6 @@ locals {
     "API_KEY" : aws_ssm_parameter.api_key.arn,
     "DB_PW" : aws_ssm_parameter.docdb_password.arn,
     "DB_USER" : aws_ssm_parameter.docdb_username.arn,
-    "HOSTED_ZONE_ID" : data.aws_ssm_parameter.hosted_zone_id.arn,
   }
 }
 
