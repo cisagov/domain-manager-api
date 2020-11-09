@@ -10,12 +10,10 @@ import time
 import boto3
 from api.documents.active_site import ActiveSite
 
+from settings import TEMPLATE_BUCKET, AWS_REGION
+
 
 logger = logging.getLogger(__name__)
-
-HOSTED_ZONE_ID = os.environ.get("HOSTED_ZONE_ID")
-CONTENT_SOURCE = os.environ.get("SOURCE_BUCKET")
-REGION = os.environ.get("AWS_DEFAULT_REGION")
 
 # Initialize aws clients
 acm = boto3.client("acm")
@@ -120,14 +118,14 @@ def setup_s3_bucket(bucket_name, content_name):
     waiter.wait(Bucket=bucket_name)
 
     # copy contents from source
-    source_bucket = s3_resource.Bucket(CONTENT_SOURCE)
+    template_bucket = s3_resource.Bucket(TEMPLATE_BUCKET)
     source_keys = [
-        obj.key for obj in source_bucket.objects.all() if content_name in obj.key
+        obj.key for obj in template_bucket.objects.all() if content_name in obj.key
     ]
 
     for key in source_keys:
         copy_source = {
-            "Bucket": CONTENT_SOURCE,
+            "Bucket": TEMPLATE_BUCKET,
             "Key": key,
         }
         bucket = s3_resource.Bucket(bucket_name)
@@ -171,10 +169,7 @@ def setup_cloudfront(domain_name, certificate_arn):
 
     distribution_config = {
         "CallerReference": unique_identifier,
-        "Aliases": {
-            "Quantity": 1,
-            "Items": [domain_name],
-        },
+        "Aliases": {"Quantity": 1, "Items": [domain_name]},
         "DefaultRootObject": "index.html",
         "Comment": "Managed by Domain Manager",
         "Enabled": True,
@@ -183,7 +178,7 @@ def setup_cloudfront(domain_name, certificate_arn):
             "Items": [
                 {
                     "Id": "1",
-                    "DomainName": f"{domain_name}.s3-website-{REGION}.amazonaws.com",
+                    "DomainName": f"{domain_name}.s3-website-{AWS_REGION}.amazonaws.com",
                     "CustomOriginConfig": {
                         "HTTPPort": 80,
                         "HTTPSPort": 443,
@@ -195,19 +190,12 @@ def setup_cloudfront(domain_name, certificate_arn):
         "DefaultCacheBehavior": {
             "TargetOriginId": "1",
             "ViewerProtocolPolicy": "redirect-to-https",
-            "TrustedSigners": {
-                "Quantity": 0,
-                "Enabled": False,
-            },
+            "TrustedSigners": {"Quantity": 0, "Enabled": False},
             "ForwardedValues": {
                 "QueryString": False,
                 "Cookies": {"Forward": "all"},
-                "Headers": {
-                    "Quantity": 0,
-                },
-                "QueryStringCacheKeys": {
-                    "Quantity": 0,
-                },
+                "Headers": {"Quantity": 0},
+                "QueryStringCacheKeys": {"Quantity": 0},
             },
             "MinTTL": 1000,
         },
@@ -329,14 +317,9 @@ def generate_ssl_certs(domain):
     requested_certificate = acm.request_certificate(
         DomainName=domain_name,
         ValidationMethod="DNS",
-        SubjectAlternativeNames=[
-            domain_name,
-        ],
+        SubjectAlternativeNames=[domain_name],
         DomainValidationOptions=[
-            {
-                "DomainName": domain_name,
-                "ValidationDomain": domain_name,
-            },
+            {"DomainName": domain_name, "ValidationDomain": domain_name},
         ],
         Options={"CertificateTransparencyLoggingPreference": "ENABLED"},
     )
@@ -367,11 +350,7 @@ def generate_ssl_certs(domain):
                         "Name": resource_records["Name"],
                         "Type": "CNAME",
                         "TTL": 30,
-                        "ResourceRecords": [
-                            {
-                                "Value": resource_records["Value"],
-                            },
-                        ],
+                        "ResourceRecords": [{"Value": resource_records["Value"]}],
                     },
                 }
             ],

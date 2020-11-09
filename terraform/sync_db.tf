@@ -41,8 +41,7 @@ resource "aws_lambda_function" "sync_db" {
       "DB_PW" : aws_ssm_parameter.docdb_password.value,
       "DB_HOST" : module.documentdb.endpoint,
       "DB_PORT" : 27017,
-      "WEBSITE_STORAGE_URL" : aws_s3_bucket.websites.website_endpoint,
-      "SOURCE_BUCKET" : aws_s3_bucket.websites.id,
+      "TEMPLATE_BUCKET" : aws_s3_bucket.websites.id,
       "MONGO_TYPE" : "DOCUMENTDB"
     }
   }
