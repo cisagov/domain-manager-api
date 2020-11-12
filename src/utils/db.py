@@ -1,6 +1,10 @@
 """Database utilities."""
 # Standard Python Libraries
 import os
+import json
+from datetime import datetime
+from dataclasses import dataclass
+from bson.objectid import ObjectId
 
 # Third-Party Libraries
 from pymongo import MongoClient
@@ -30,19 +34,28 @@ db = client.domain_management
 class Document:
     """Database Document structure."""
 
-    def __init__(self):
-        """Initialize arguements."""
-        self.keys = []
-        self.document = {}
+    def to_dict(self):
+        """Return dictionary."""
+        return self.__dict__
 
-    def to_json(self):
-        """Get json."""
-        return self.document
+    def create(self):
+        """Create a document."""
+        self.requester_name = "Dev User"
+        self.created = datetime.now()
+        return self.get_collection().insert_one(self.to_dict())
 
-    def __getitem__(self, key):
-        """Get item."""
-        return self.document.get(key)
+    def all(self):
+        """Get all documents."""
+        return [document for document in self.get_collection().find()]
 
-    def __setitem__(self, key, value):
-        """Set item."""
-        self.document[key] = value
+    def get(self, _id=None):
+        """Get a single document."""
+        if _id:
+            response = self.get_collection().find_one({"_id": ObjectId(_id)})
+        else:
+            response = self.get_collection().find_one(self.to_dict())
+        return response
+
+    def delete(self, _id):
+        """Delete a document by its id."""
+        return self.get_collection().delete_one({"_id": ObjectId(_id)})
