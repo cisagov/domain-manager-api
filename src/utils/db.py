@@ -34,6 +34,10 @@ db = client.domain_management
 class Document:
     """Database Document structure."""
 
+    def get_collection(self):
+        """Set collection name."""
+        return getattr(db, self.collection)
+
     def asdict(self):
         """Return dictionary."""
         response = {

@@ -22,8 +22,8 @@ def applications_manager(request, application_id=None):
         application.delete()
         response = {"message": "Application has been deleted."}
     elif request.method == "PUT":
-        name = request.json.get("name")
-        application.update(name=name)
+        application.name = request.json.get("name")
+        application.update()
         response = {"message": "Application has been updated."}
     else:
         application_schema = ApplicationSchema()
