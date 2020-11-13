@@ -34,28 +34,37 @@ db = client.domain_management
 class Document:
     """Database Document structure."""
 
-    def to_dict(self):
+    def asdict(self):
         """Return dictionary."""
-        return self.__dict__
+        response = {
+            key: value for key, value in self.__dict__.items() if value is not None
+        }
+        response.pop("_id", None)
+        return response
 
     def create(self):
         """Create a document."""
-        self.requester_name = "Dev User"
-        self.created = datetime.now()
-        return self.get_collection().insert_one(self.to_dict())
+        return self.get_collection().insert_one(self.asdict())
 
     def all(self):
         """Get all documents."""
         return [document for document in self.get_collection().find()]
 
-    def get(self, _id=None):
+    def get(self):
         """Get a single document."""
-        if _id:
-            response = self.get_collection().find_one({"_id": ObjectId(_id)})
+        if self._id:
+            response = self.get_collection().find_one({"_id": ObjectId(self._id)})
         else:
-            response = self.get_collection().find_one(self.to_dict())
+            response = self.get_collection().find_one(self.asdict())
         return response
 
-    def delete(self, _id):
+    def update(self):
+        """Update an existing document."""
+        if self._id:
+            return self.get_collection().find_one_and_update(
+                {"_id": ObjectId(self._id)}, {"$set": self.asdict()}
+            )
+
+    def delete(self):
         """Delete a document by its id."""
-        return self.get_collection().delete_one({"_id": ObjectId(_id)})
+        return self.get_collection().delete_one({"_id": ObjectId(self._id)})
