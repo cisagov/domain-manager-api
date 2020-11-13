@@ -107,7 +107,7 @@ def load_applications():
     application_data = []
     for application in application_json:
         if not db_applications.find_one({"name": application.get("name")}):
-            application["requested_date"] = datetime.utcnow()
+            application["created"] = datetime.utcnow()
             application_data.append(application)
 
     # Save latest data to the database
