@@ -48,7 +48,7 @@ class Document:
 
     def all(self):
         """Get all documents."""
-        return [document for document in self.get_collection().find()]
+        return list(self.get_collection().find())
 
     def get(self):
         """Get a single document."""
