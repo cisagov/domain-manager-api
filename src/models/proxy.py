@@ -5,7 +5,7 @@ from typing import Union
 
 # Third-Party Libraries
 from utils.db.base import Document
-from utils.db.datatypes import Bytes, Datetime, ListType, StringType
+from utils.db.datatypes import BytesType, DatetimeType, ListType, StringType
 
 
 class Proxy(Document):
@@ -14,10 +14,10 @@ class Proxy(Document):
     _id: StringType
     name: StringType
     url: StringType
-    script: Bytes
+    script: BytesType
     categories: ListType
     created_by: StringType
-    created: Datetime
+    created: DatetimeType
 
     def __init__(self, _id=None):
         """Initialize collection and indicies."""

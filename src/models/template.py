@@ -4,7 +4,7 @@ from datetime import datetime
 
 # Third-Party Libraries
 from utils.db.base import Document
-from utils.db.datatypes import StringType, Datetime
+from utils.db.datatypes import StringType, DatetimeType
 
 
 class Template(Document):
@@ -12,7 +12,7 @@ class Template(Document):
 
     name: StringType
     url: StringType
-    created: Datetime
+    created: DatetimeType
 
     def __init__(self, _id=None):
         """Initialize collection and indices."""
@@ -23,6 +23,5 @@ class Template(Document):
     def create(self, name):
         """Create a new template."""
         self.name = name
-        self.requester_name = "Dev User"
         self.created = datetime.now()
         return super().create()

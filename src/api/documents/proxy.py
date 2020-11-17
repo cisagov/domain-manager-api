@@ -4,7 +4,7 @@ import datetime
 
 # Third-Party Libraries
 from bson.objectid import ObjectId
-from utils.db.doc import Document, db
+from utils.db.base import Document, db
 
 
 class Proxy(Document):

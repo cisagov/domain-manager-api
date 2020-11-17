@@ -4,35 +4,15 @@ from api.controllers.active_sites import active_site_manager
 from api.controllers.applications import applications_manager
 from api.controllers.categorization import categorization_manager, categories_manager
 from api.controllers.check import check_categories_manager
-from api.controllers.domains import domains_manager
 from api.controllers.email_address import email_address_manager
 from api.controllers.hosted_zones import hosted_zones_manager
 from api.controllers.proxies import proxy_manager
-from api.documents.domain import Domain
 from api.documents.website import Website
-from api.schemas.domain_schema import DomainSchema
 from api.schemas.website_schema import WebsiteSchema
 from flask import Blueprint, jsonify, request
 from utils.decorators.auth import auth_required
 
 api = Blueprint("api", __name__, url_prefix="/api")
-
-
-@api.route("/domains/", methods=["GET"])
-@auth_required
-def domain_list():
-    """Get a list of domains managed by route53."""
-    domains_schema = DomainSchema(many=True)
-    response = domains_schema.dump(Domain.get_all())
-    return jsonify(response), 200
-
-
-@api.route("/domain/<domain_id>/", methods=["GET", "PUT"])
-@auth_required
-def get_domain(domain_id):
-    """Get a domain by its id."""
-    response = domains_manager(request, domain_id=domain_id)
-    return jsonify(response), 200
 
 
 @api.route("/websites/", methods=["GET"])

@@ -4,7 +4,7 @@ from datetime import datetime
 
 # Third-Party Libraries
 from utils.db.base import Document
-from utils.db.datatypes import StringType, Datetime
+from utils.db.datatypes import StringType, DatetimeType
 
 
 class Application(Document):
@@ -12,7 +12,7 @@ class Application(Document):
 
     name: StringType
     requester_name: StringType
-    created: Datetime
+    created: DatetimeType
 
     def __init__(self, _id=None):
         """Initialize collection and indices."""
