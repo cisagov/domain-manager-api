@@ -1,7 +1,6 @@
 """Active sites controller."""
 # Third-Party Libraries
 from api.documents.active_site import ActiveSite
-from api.documents.domain import Domain
 from api.documents.website import Website
 from api.schemas.active_site_schema import ActiveSiteSchema
 from utils.aws.site_handler import delete_site, launch_site, setup_dns, delete_dns
@@ -12,7 +11,7 @@ def active_site_manager(request, live_site_id=None):
     if not live_site_id:
         if request.method == "POST":
             post_data = request.json
-            domain = Domain.get_by_id(post_data.get("domain_id"))
+            domain = post_data.get("domain_id")
             application_id = post_data.get("application_id")
             website = Website.get_by_id(post_data.get("website_id"))
             ip_address = post_data.get("ip_address")
@@ -49,7 +48,7 @@ def active_site_manager(request, live_site_id=None):
 
     if request.method == "DELETE":
         active_site = ActiveSite.get_by_id(live_site_id)
-        domain = Domain.get_by_id(active_site.get("domain").get("_id"))
+        domain = active_site.get("domain").get("_id")
         ip_address = active_site.get("ip_address")
         if ip_address:
             # delete A record from dns

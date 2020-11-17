@@ -1,32 +1,32 @@
 """Applications controller."""
 # Third-Party Libraries
-from api.documents.application import Application
+from models.application import Application
 from api.schemas.application_schema import ApplicationSchema
 
 
 def applications_manager(request, application_id=None):
     """Manage applications."""
     if not application_id:
+        application = Application()
         if request.method == "POST":
-            post_data = request.json
-            application = Application.create(post_data.get("name"))
-            response = {
-                "message": f"Application with id {application.inserted_id} has been created."
-            }
+            name = request.json.get("name")
+            application.create(name=name)
+            response = {"message": f"Application with name {name} has been created."}
         else:
             applications_schema = ApplicationSchema(many=True)
-            response = applications_schema.dump(Application.get_all())
+            response = applications_schema.dump(application.all())
         return response
 
+    application = Application(_id=application_id)
     if request.method == "DELETE":
-        Application.delete(application_id)
+        application.delete()
         response = {"message": "Application has been deleted."}
     elif request.method == "PUT":
-        put_data = request.json
-        Application.update(application_id=application_id, name=put_data.get("name"))
+        application.name = request.json.get("name")
+        application.update()
         response = {"message": "Application has been updated."}
     else:
         application_schema = ApplicationSchema()
-        response = application_schema.dump(Application.get_by_id(application_id))
+        response = application_schema.dump(application.get())
 
     return response

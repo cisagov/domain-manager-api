@@ -107,7 +107,7 @@ def load_applications():
     application_data = []
     for application in application_json:
         if not db_applications.find_one({"name": application.get("name")}):
-            application["requested_date"] = datetime.utcnow()
+            application["created"] = datetime.utcnow()
             application_data.append(application)
 
     # Save latest data to the database
@@ -138,7 +138,7 @@ def load_proxy_scripts():
     for proxy in proxy_json:
         name = proxy.get("name")
         if not db_proxies.find_one({"name": name}):
-            proxy["created_date"] = datetime.utcnow()
+            proxy["created"] = datetime.utcnow()
 
             if name == "Trusted Source":
                 proxy["script"] = Binary(trustedsource_script)

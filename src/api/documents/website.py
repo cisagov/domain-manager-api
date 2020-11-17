@@ -1,7 +1,7 @@
 """Websites documents."""
 # Third-Party Libraries
 from bson.objectid import ObjectId
-from utils.db import Document, db
+from utils.db.base import Document, db
 
 
 class Website(Document):
