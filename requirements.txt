@@ -4,7 +4,7 @@ appnope==0.1.0
 attrs==19.3.0
 backcall==0.2.0
 beautifulsoup4==4.9.1
-black==19.10b0
+black==20.8b1
 boto3==1.14.39
 botocore==1.17.39
 bs4==0.0.1
