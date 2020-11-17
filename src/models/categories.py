@@ -1,22 +1,22 @@
-"""Category documents."""
+"""Category Document."""
 # Standard Python Libraries
 from datetime import datetime
 from typing import Union
 
 # Third-Party Libraries
-from utils.db.doc import Document
-from utils.db.types import string_type, dict_type
+from utils.db.base import Document
+from utils.db.datatypes import Stringtype, Dicttype
 
 
 class Category(Document):
     """Category document model."""
 
-    _id: string_type
-    name: string_type
-    proxies: dict_type
+    _id: Stringtype
+    name: Stringtype
+    proxies: Dicttype
 
     def __init__(self, _id=None):
-        """Initialize collection name."""
+        """Initialize collection and indices."""
         self._id = _id
         self.collection = "categories"
         self.indexes = ["name"]
