@@ -4,7 +4,7 @@ import datetime
 
 # Third-Party Libraries
 from bson.objectid import ObjectId
-from utils.db import Document, db
+from utils.db.doc import Document, db
 
 
 class Category(Document):

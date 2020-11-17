@@ -7,7 +7,7 @@ from dataclasses import dataclass
 from bson.objectid import ObjectId
 
 # Third-Party Libraries
-from pymongo import MongoClient
+from pymongo import MongoClient, errors
 
 if os.environ.get("MONGO_TYPE", "MONGO") == "DOCUMENTDB":
     CONN_STR = "mongodb://{}:{}@{}:{}/?ssl=true&ssl_ca_certs=/var/www/rds-combined-ca-bundle.pem&retryWrites=false".format(
@@ -40,15 +40,26 @@ class Document:
 
     def asdict(self):
         """Return dictionary."""
+        exclude = ["_id", "collection", "indexes"]
         response = {
-            key: value for key, value in self.__dict__.items() if value is not None
+            key: value
+            for key, value in self.__dict__.items()
+            if value is not None and key not in exclude
         }
-        response.pop("_id", None)
+
         return response
 
     def create(self):
         """Create a document."""
-        return self.get_collection().insert_one(self.asdict())
+        # make specified fields unique if it does not already exist
+        for index in self.indexes:
+            self.get_collection().create_index(index, unique=True)
+
+        try:
+            response = self.get_collection().insert_one(self.asdict())
+        except errors.DuplicateKeyError:
+            response = "Saving a duplicate is not allowed."
+        return response
 
     def all(self):
         """Get all documents."""
