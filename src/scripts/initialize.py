@@ -138,7 +138,7 @@ def load_proxy_scripts():
     for proxy in proxy_json:
         name = proxy.get("name")
         if not db_proxies.find_one({"name": name}):
-            proxy["created_date"] = datetime.utcnow()
+            proxy["created"] = datetime.utcnow()
 
             if name == "Trusted Source":
                 proxy["script"] = Binary(trustedsource_script)

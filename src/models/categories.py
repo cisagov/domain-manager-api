@@ -5,15 +5,15 @@ from typing import Union
 
 # Third-Party Libraries
 from utils.db.base import Document
-from utils.db.datatypes import Stringtype, Dicttype
+from utils.db.datatypes import StringType, DictType
 
 
 class Category(Document):
     """Category document model."""
 
-    _id: Stringtype
-    name: Stringtype
-    proxies: Dicttype
+    _id: StringType
+    name: StringType
+    proxies: DictType
 
     def __init__(self, _id=None):
         """Initialize collection and indices."""

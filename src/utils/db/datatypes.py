@@ -5,7 +5,7 @@ from datetime import datetime
 
 Bytes = Union[bytes, None]
 Datetime = Union[datetime, None]
-Dicttype = Union[Dict[Any, Any], None]
-Integertype = Union[int, None]
-Listtype = Union[List[Any], None]
-Stringtype = Union[str, None]
+DictType = Union[Dict[Any, Any], None]
+IntegerType = Union[int, None]
+ListType = Union[List[Any], None]
+StringType = Union[str, None]

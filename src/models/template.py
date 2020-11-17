@@ -1,4 +1,4 @@
-"""Application Document."""
+"""Template document."""
 # Standard Python Libraries
 from datetime import datetime
 
@@ -7,21 +7,21 @@ from utils.db.base import Document
 from utils.db.datatypes import StringType, Datetime
 
 
-class Application(Document):
-    """Application document model."""
+class Template(Document):
+    """Template document model."""
 
     name: StringType
-    requester_name: StringType
+    url: StringType
     created: Datetime
 
     def __init__(self, _id=None):
         """Initialize collection and indices."""
         self._id = _id
-        self.collection = "applications"
+        self.collection = "templates"
         self.indexes = ["name"]
 
     def create(self, name):
-        """Create a new application."""
+        """Create a new template."""
         self.name = name
         self.requester_name = "Dev User"
         self.created = datetime.now()

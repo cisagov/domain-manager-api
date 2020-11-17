@@ -5,18 +5,18 @@ from typing import Union
 
 # Third-Party Libraries
 from utils.db.base import Document
-from utils.db.datatypes import Bytes, Datetime, Dicttype, Listtype, Stringtype
+from utils.db.datatypes import Bytes, Datetime, ListType, StringType
 
 
 class Proxy(Document):
     """Proxy document model."""
 
-    _id: Stringtype
-    name: Stringtype
-    url: Stringtype
+    _id: StringType
+    name: StringType
+    url: StringType
     script: Bytes
-    categories: Listtype
-    created_by: Stringtype
+    categories: ListType
+    created_by: StringType
     created: Datetime
 
     def __init__(self, _id=None):
@@ -26,7 +26,7 @@ class Proxy(Document):
         self.indexes = ["name"]
 
     def create(self, name):
-        """Create a new application."""
+        """Create a new proxy."""
         self.name = name
         self.requester_name = "Dev User"
         self.created = datetime.now()
