@@ -6,10 +6,11 @@ from unittest import mock
 
 # Third-Party Libraries
 from api.controllers.applications import applications_manager
-from api.documents.application import Application
+from models.application import Application
 from bson.objectid import ObjectId
 from faker import Faker
 import pytest
+
 
 faker = Faker()
 
@@ -32,7 +33,7 @@ def test_post_application(mock_create, app):
     assert mock.call(response, mock_create.call_args_list)
 
 
-@mock.patch.object(Application, "get_all")
+@mock.patch.object(Application, "all")
 def test_get_applications(mock_get_all, app):
     """Test get application list."""
     mock_get_all.return_value = [
@@ -64,7 +65,7 @@ def test_get_applications(mock_get_all, app):
     assert mock.call(response, mock_get_all.call_args_list)
 
 
-@mock.patch.object(Application, "get_by_id")
+@mock.patch.object(Application, "get")
 def test_get_application(mock_get, app):
     """Test get an application."""
     name = faker.company()
