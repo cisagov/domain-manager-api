@@ -1,18 +1,7 @@
----
 name: Pull Request
 
 on:
   pull_request:
-
-env:
-  ENVIRONMENT: dev
-  IMAGE_NAME: domain-manager-api
-  ECR_URI: ${{ secrets.ECR_URI }}
-  REGION: us-east-1
-  PIP_CACHE_DIR: ~/.cache/pip
-  PRE_COMMIT_CACHE_DIR: ~/.cache/pre-commit
-  AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-  AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
 jobs:
   lint:
