@@ -4,7 +4,7 @@ import logging
 from bson.son import SON
 
 # Third-Party Libraries
-from api.documents.active_site import ActiveSite
+from models.website import Website
 from api.documents.proxy import Proxy
 from api.documents.categories import Category
 from api.schemas.category_schema import CategorySchema
@@ -31,7 +31,7 @@ def categories_manager():
 
 def categorization_manager(live_site_id, category):
     """Manage categorization of active sites."""
-    active_site = ActiveSite.get_by_id(live_site_id)
+    active_site = Website.get_by_id(live_site_id)
     domain = active_site.get("domain").get("Name")
     domain_url = domain[:-1]
     if active_site.get("is_categorized"):
@@ -88,5 +88,5 @@ def categorization_manager(live_site_id, category):
     driver.quit()
 
     # Update database
-    ActiveSite.update(live_site_id=live_site_id, is_submitted=is_submitted)
+    Website.update(live_site_id=live_site_id, is_submitted=is_submitted)
     return {"message": f"{domain} has been successfully categorized"}

@@ -1,5 +1,5 @@
 """Proxy controller."""
-from api.documents.proxy import Proxy
+from models.proxy import Proxy
 from api.schemas.proxy_schema import ProxySchema
 
 

@@ -8,7 +8,6 @@ import time
 
 # Third-Party Libraries
 import boto3
-from api.documents.active_site import ActiveSite
 
 from settings import TEMPLATE_BUCKET, AWS_REGION
 

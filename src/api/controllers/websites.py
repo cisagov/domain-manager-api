@@ -1,13 +1,12 @@
-"""Active sites controller."""
+"""Websites controller."""
 # Third-Party Libraries
-from api.documents.active_site import ActiveSite
-from api.documents.website import Website
-from api.schemas.active_site_schema import ActiveSiteSchema
+from models.website import Website
+from api.schemas.website_schema import WebsiteSchema
 from utils.aws.site_handler import delete_site, launch_site, setup_dns, delete_dns
 
 
-def active_site_manager(request, live_site_id=None):
-    """Manage active sites."""
+def website_manager(request, live_site_id=None):
+    """Manage websites."""
     if not live_site_id:
         if request.method == "POST":
             post_data = request.json
@@ -20,7 +19,7 @@ def active_site_manager(request, live_site_id=None):
                 # set dns
                 setup_dns(domain=domain, ip_address=ip_address)
                 # save to database
-                active_site = ActiveSite.create(
+                active_site = Website.create(
                     description=post_data.get("description"),
                     domain_id=post_data.get("domain_id"),
                     ip_address=ip_address,
@@ -30,7 +29,7 @@ def active_site_manager(request, live_site_id=None):
                 # launch s3 bucket and set dns
                 metadata = launch_site(website, domain)
                 # save to database
-                active_site = ActiveSite.create(
+                active_site = Website.create(
                     metadata=metadata,
                     description=post_data.get("description"),
                     domain_id=post_data.get("domain_id"),
@@ -42,12 +41,12 @@ def active_site_manager(request, live_site_id=None):
                 "message": f"Your website has been launched. Visit: https://{domain_name}"
             }
         else:
-            active_sites_schema = ActiveSiteSchema(many=True)
-            response = active_sites_schema.dump(ActiveSite.get_all())
+            active_sites_schema = Website(many=True)
+            response = active_sites_schema.dump(Website.get_all())
         return response
 
     if request.method == "DELETE":
-        active_site = ActiveSite.get_by_id(live_site_id)
+        active_site = Website.get_by_id(live_site_id)
         domain = active_site.get("domain").get("_id")
         ip_address = active_site.get("ip_address")
         if ip_address:
@@ -57,17 +56,17 @@ def active_site_manager(request, live_site_id=None):
             # delete s3 bucket and remove dns from domain
             delete_site(active_site, domain)
         # delete from database
-        ActiveSite.delete(live_site_id)
+        Website.delete(live_site_id)
         response = {"message": "Active site is now inactive and deleted."}
     elif request.method == "PUT":
         put_data = request.json
-        ActiveSite.update(
+        Website.update(
             live_site_id=live_site_id,
             application_id=put_data.get("application_id"),
         )
         response = {"message": "Active site has been updated."}
     else:
-        active_site_schema = ActiveSiteSchema()
-        response = active_site_schema.dump(ActiveSite.get_by_id(live_site_id))
+        active_site_schema = WebsiteSchema()
+        response = active_site_schema.dump(Website.get_by_id(live_site_id))
 
     return response
