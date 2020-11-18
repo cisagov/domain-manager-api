@@ -6,7 +6,7 @@ from unittest import mock
 
 # Third-Party Libraries
 from api.controllers.proxies import proxy_manager
-from api.documents.proxy import Proxy
+from models.proxy import Proxy
 from bson.objectid import ObjectId
 from faker import Faker
 import pytest

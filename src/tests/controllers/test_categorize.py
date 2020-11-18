@@ -4,13 +4,13 @@ from unittest import mock
 
 # Third-Party Libraries
 from api.controllers.categorization import categorization_manager
-from api.documents.active_site import ActiveSite
+from models.website import Website
 from faker import Faker
 
 faker = Faker()
 
 
-@mock.patch.object(ActiveSite, "get_by_id")
+@mock.patch.object(Website, "get")
 def test_categorize_domain(mock_get, app):
     """Test categorize a domain."""
     live_site_id = faker.pyint()

@@ -5,8 +5,8 @@ from bson.son import SON
 
 # Third-Party Libraries
 from models.website import Website
-from api.documents.proxy import Proxy
-from api.documents.categories import Category
+from models.proxy import Proxy
+from models.categories import Category
 from api.schemas.category_schema import CategorySchema
 from utils.two_captcha import two_captcha_api_key
 from selenium import webdriver
