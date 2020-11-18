@@ -12,7 +12,7 @@ def website_manager(request, live_site_id=None):
             post_data = request.json
             domain = post_data.get("domain_id")
             application_id = post_data.get("application_id")
-            website = Website.get_by_id(post_data.get("website_id"))
+            website = Website.create(post_data.get("website_id"))
             ip_address = post_data.get("ip_address")
 
             if ip_address:
@@ -46,7 +46,7 @@ def website_manager(request, live_site_id=None):
         return response
 
     if request.method == "DELETE":
-        active_site = Website.get_by_id(live_site_id)
+        active_site = Website(_id=live_site_id).get()
         domain = active_site.get("domain").get("_id")
         ip_address = active_site.get("ip_address")
         if ip_address:
@@ -67,6 +67,6 @@ def website_manager(request, live_site_id=None):
         response = {"message": "Active site has been updated."}
     else:
         active_site_schema = WebsiteSchema()
-        response = active_site_schema.dump(Website.get_by_id(live_site_id))
+        response = active_site_schema.dump(Website(_id=live_site_id))
 
     return response

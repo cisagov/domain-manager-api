@@ -38,5 +38,5 @@ def proxy_manager(request, proxy_id=None):
         response = {"message": "Application has been updated."}
     else:
         proxy_schema = ProxySchema()
-        response = proxy_schema.dump(Proxy.get_by_id(proxy_id))
+        response = proxy_schema.dump(Proxy(_id=proxy_id))
     return response

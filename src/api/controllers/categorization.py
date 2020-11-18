@@ -31,7 +31,7 @@ def categories_manager():
 
 def categorization_manager(live_site_id, category):
     """Manage categorization of active sites."""
-    active_site = Website.get_by_id(live_site_id)
+    active_site = Website(_id=live_site_id).get()
     domain = active_site.get("domain").get("Name")
     domain_url = domain[:-1]
     if active_site.get("is_categorized"):
