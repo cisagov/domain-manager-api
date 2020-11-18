@@ -1,5 +1,5 @@
 """Proxy controller."""
-from api.documents.proxy import Proxy
+from models.proxy import Proxy
 from api.schemas.proxy_schema import ProxySchema
 
 
@@ -19,7 +19,7 @@ def proxy_manager(request, proxy_id=None):
             }
         else:
             proxies_schema = ProxySchema(many=True)
-            response = proxies_schema.dump(Proxy.get_all())
+            response = proxies_schema.dump(Proxy().all())
         return response
 
     if request.method == "DELETE":
@@ -38,5 +38,5 @@ def proxy_manager(request, proxy_id=None):
         response = {"message": "Application has been updated."}
     else:
         proxy_schema = ProxySchema()
-        response = proxy_schema.dump(Proxy.get_by_id(proxy_id))
+        response = proxy_schema.dump(Proxy(_id=proxy_id))
     return response

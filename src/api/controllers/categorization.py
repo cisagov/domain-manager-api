@@ -4,9 +4,9 @@ import logging
 from bson.son import SON
 
 # Third-Party Libraries
-from api.documents.active_site import ActiveSite
-from api.documents.proxy import Proxy
-from api.documents.categories import Category
+from models.website import Website
+from models.proxy import Proxy
+from models.categories import Category
 from api.schemas.category_schema import CategorySchema
 from utils.two_captcha import two_captcha_api_key
 from selenium import webdriver
@@ -24,21 +24,21 @@ logger = logging.getLogger()
 
 def categories_manager():
     """Manage categories types."""
-    categories = Category.get_all()
+    categories = Category().all()
     category_schema = CategorySchema(many=True)
     return category_schema.dump(categories)
 
 
 def categorization_manager(live_site_id, category):
     """Manage categorization of active sites."""
-    active_site = ActiveSite.get_by_id(live_site_id)
+    active_site = Website(_id=live_site_id).get()
     domain = active_site.get("domain").get("Name")
     domain_url = domain[:-1]
     if active_site.get("is_categorized"):
         return {"error": f"{domain} has already been categorized."}
 
     # Get all categories
-    categories = Category.get_all()
+    categories = Category().all()
     category_names = [category.get("name") for category in categories]
 
     if category not in category_names:
@@ -47,14 +47,14 @@ def categorization_manager(live_site_id, category):
     is_submitted = []
     # Submit domain to proxy
     if not current_app.config["TESTING"]:
-        proxies = Proxy.get_all()
+        proxies = Proxy().all()
         for proxy in proxies:
             proxy_name = proxy["name"]
 
             # Get unique category name for each proxy
             proxy_category = "".join(
                 detail.get(proxy_name)
-                for detail in Category.get_by_name(category).get("proxies")
+                for detail in Category().get(category).get("proxies")
                 if proxy_name in detail
             )
 
@@ -88,5 +88,5 @@ def categorization_manager(live_site_id, category):
     driver.quit()
 
     # Update database
-    ActiveSite.update(live_site_id=live_site_id, is_submitted=is_submitted)
+    Website.update(live_site_id=live_site_id, is_submitted=is_submitted)
     return {"message": f"{domain} has been successfully categorized"}

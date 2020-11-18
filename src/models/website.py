@@ -4,21 +4,22 @@ from datetime import datetime
 
 # Third-Party Libraries
 from utils.db.base import Document
-from utils.db.datatypes import BooleanType, DictType, StringType, DatetimeType
+from utils.db.datatypes import BooleanType, DatetimeType, DictType, ListType, StringType
 
 
 class Website(Document):
     """Website document model."""
 
     name: StringType
+    description: StringType
     s3_url: StringType
+    ip_address: StringType
+    application: ListType
     is_active: BooleanType
-    is_category_submitted: BooleanType
-    is_categorized: BooleanType
+    is_category_submitted: ListType
     is_email_active: BooleanType
     launch_date: DatetimeType
-    application: DictType
-    history: DictType
+    history: ListType
     cloudfront: DictType
     acm: DictType
     route53: DictType

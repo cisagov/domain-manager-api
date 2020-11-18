@@ -37,57 +37,49 @@ s3 = boto3.client("s3")
 route53 = boto3.client("route53")
 
 
-def load_s3():
-    """Load the latest website data from s3 into the database."""
-    db_sites = db.websites
-
-    # List websites within the S3 Repository
-    websites = s3.list_objects(Bucket=TEMPLATE_BUCKET)
-
-    # Pull Available websites
-    available_prefixes = {i.get("Key").split("/")[0] for i in websites.get("Contents")}
-
-    # Create load data
-    s3_load = [
-        {"name": i, "url": TEMPLATE_BUCKET_URL + i}
-        for i in available_prefixes
-        if not db_sites.find_one({"name": i})
-    ]
-
-    # Save latest data to the database
-    if s3_load != []:
-        db_sites.insert_many(s3_load)
-        logger.info("Database has been synchronized with S3 data.")
-
-
-def load_domains():
-    """Load the latest domain data from route53 into the database."""
-    db_domains = db.domains
+def load_websites():
+    """Load the latest website data from route53 and s3 into the database."""
+    db_websites = db.websites
     initial_load = route53.list_hosted_zones().get("HostedZones")
 
     domain_load = []
     for zone in initial_load:
-        zone["Name"] = zone["Name"][:-1]
-        domain_load.append(zone)
+        hosted_zone = {
+            "name": zone["Name"][:-1],
+            "route53": {"id": zone["Id"]},
+        }
+        hosted_zone["is_active"] = False
+        domain_load.append(hosted_zone)
 
-    domain_list = [
-        domain
-        for domain in domain_load
-        if not db_domains.find_one({"Name": domain.get("Name")})
-    ]
+    # list websites within the S3 Repository
+    websites = s3.list_objects(Bucket=TEMPLATE_BUCKET)
 
-    # Save latest data to the database
-    if domain_list != []:
-        db_domains.insert_many(domain_list)
+    # load available websites if available
+    data_load = []
+    for domain in domain_load:
+        if not db_websites.find_one({"name": domain.get("name")}):
+            domain_name = domain.get("name")
+            available_sites = [
+                website.get("Key").split(domain_name)[0]
+                for website in websites.get("Contents")
+                if domain_name in website.get("Key")
+            ]
+            if available_sites:
+                domain["s3_url"] = (
+                    TEMPLATE_BUCKET_URL + available_sites[0] + domain_name
+                )
+            data_load.append(domain)
+
+    # save latest data to the database
+    if data_load != []:
+        db_websites.insert_many(data_load)
         logger.info("Database has been synchronized with domain data.")
 
 
 def lambda_handler(event, context):
     """Lambda handler."""
-    load_domains()
-    load_s3()
+    load_websites()
 
 
 if __name__ == "__main__":
-    load_domains()
-    load_s3()
+    load_websites()

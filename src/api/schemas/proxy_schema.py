@@ -18,4 +18,4 @@ class ProxySchema(Schema):
     script = fields.Str(required=True)
     categories = fields.List(fields.Nested(CategorySchema), required=True)
     created_by = fields.Str(required=True)
-    created_date = fields.DateTime(required=True)
+    created = fields.DateTime(required=True)
