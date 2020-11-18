@@ -42,7 +42,7 @@ def website_manager(request, live_site_id=None):
             }
         else:
             active_sites_schema = Website(many=True)
-            response = active_sites_schema.dump(Website.get_all())
+            response = active_sites_schema.dump(Website().all())
         return response
 
     if request.method == "DELETE":

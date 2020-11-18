@@ -19,7 +19,7 @@ def proxy_manager(request, proxy_id=None):
             }
         else:
             proxies_schema = ProxySchema(many=True)
-            response = proxies_schema.dump(Proxy.get_all())
+            response = proxies_schema.dump(Proxy().all())
         return response
 
     if request.method == "DELETE":

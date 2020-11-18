@@ -24,7 +24,7 @@ logger = logging.getLogger()
 
 def categories_manager():
     """Manage categories types."""
-    categories = Category.get_all()
+    categories = Category().all()
     category_schema = CategorySchema(many=True)
     return category_schema.dump(categories)
 
@@ -38,7 +38,7 @@ def categorization_manager(live_site_id, category):
         return {"error": f"{domain} has already been categorized."}
 
     # Get all categories
-    categories = Category.get_all()
+    categories = Category().all()
     category_names = [category.get("name") for category in categories]
 
     if category not in category_names:
@@ -47,14 +47,14 @@ def categorization_manager(live_site_id, category):
     is_submitted = []
     # Submit domain to proxy
     if not current_app.config["TESTING"]:
-        proxies = Proxy.get_all()
+        proxies = Proxy().all()
         for proxy in proxies:
             proxy_name = proxy["name"]
 
             # Get unique category name for each proxy
             proxy_category = "".join(
                 detail.get(proxy_name)
-                for detail in Category.get_by_name(category).get("proxies")
+                for detail in Category().get(category).get("proxies")
                 if proxy_name in detail
             )
 

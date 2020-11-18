@@ -5,7 +5,7 @@ from utils.aws.ses import create_email_address
 
 def email_address_manager(domain_name):
     """Manage domain associated email addresses."""
-    active_site = Website.get_by_name(domain_name)
+    active_site = Website().get(domain_name)
 
     # Check if email records already exist
     if active_site.get("is_email_active") is True:
