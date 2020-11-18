@@ -35,7 +35,7 @@ def test_post_proxy(mock_create, app):
     assert mock.call(response, mock_create.call_args_list)
 
 
-@mock.patch.object(Proxy, "get_all")
+@mock.patch.object(Proxy, "all")
 def test_get_proxies(mock_get_all, app):
     """Test get proxy list."""
     mock_get_all.return_value = [
@@ -73,7 +73,7 @@ def test_get_proxies(mock_get_all, app):
     assert mock.call(response, mock_get_all.call_args_list)
 
 
-@mock.patch.object(Proxy, "get_by_id")
+@mock.patch.object(Proxy, "get")
 def test_get_proxy(mock_get, app):
     """Test get a proxy."""
     name = faker.company()
