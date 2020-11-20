@@ -10,8 +10,7 @@ import os
 import boto3
 import pymongo
 
-from utils.db.base import db
-from settings import TEMPLATE_BUCKET, TEMPLATE_BUCKET_URL
+from settings import TEMPLATE_BUCKET, TEMPLATE_BUCKET_URL, DB
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger()
@@ -36,7 +35,7 @@ def load_file(data_file, data_type="json"):
 
 def load_websites():
     """Load the latest website data from route53 and s3 into the database."""
-    db_websites = db.websites
+    db_websites = DB.websites
     initial_load = route53.list_hosted_zones().get("HostedZones")
 
     domain_load = []
@@ -75,7 +74,7 @@ def load_websites():
 
 def load_applications():
     """Load dummy application data to the database."""
-    db_applications = db.applications
+    db_applications = DB.applications
 
     application_json = load_file("data/applications.json")
 
@@ -93,7 +92,7 @@ def load_applications():
 
 def load_proxy_scripts():
     """Load categorization proxy scripts."""
-    db_proxies = db.proxies
+    db_proxies = DB.proxies
 
     proxy_json = load_file("data/proxies.json")
 
@@ -136,7 +135,7 @@ def load_proxy_scripts():
 
 def load_categories():
     """Load general categories."""
-    db_categories = db.categories
+    db_categories = DB.categories
 
     categories_json = load_file("data/categories.json")
 
