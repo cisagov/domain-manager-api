@@ -10,31 +10,12 @@ import os
 import boto3
 import pymongo
 
+from utils.db.base import db
 from settings import TEMPLATE_BUCKET, TEMPLATE_BUCKET_URL
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger()
 
-
-if os.environ.get("MONGO_TYPE", "MONGO") == "DOCUMENTDB":
-    CONN_STR = "mongodb://{}:{}@{}:{}/?ssl=true&ssl_ca_certs=rds-combined-ca-bundle.pem&retryWrites=false".format(
-        os.environ.get("DB_USER"),
-        os.environ.get("DB_PW"),
-        os.environ.get("DB_HOST"),
-        os.environ.get("DB_PORT"),
-    )
-
-else:
-    CONN_STR = "mongodb://{}:{}@{}:{}/".format(
-        os.environ.get("DB_USER"),
-        os.environ.get("DB_PW"),
-        os.environ.get("DB_HOST"),
-        os.environ.get("DB_PORT"),
-    )
-
-client = pymongo.MongoClient(CONN_STR)
-
-db = client.domain_management
 
 # Initialize AWS Clients
 s3 = boto3.client("s3")
