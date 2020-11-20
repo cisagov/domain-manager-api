@@ -25,7 +25,6 @@ class WebsiteSchema(Schema):
     _id = fields.Str(required=True)
     name = fields.Str(required=True)
     description = fields.Str(required=False)
-    s3_url = fields.Str(required=False)
     ip_address = fields.Str(required=False)
     application = fields.Nested(application_schema.ApplicationSchema)
     is_active = fields.Boolean(required=True)

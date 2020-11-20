@@ -49,22 +49,18 @@ def get_proxy(proxy_id):
     return jsonify(proxy_manager(request, proxy_id=proxy_id)), 200
 
 
-@api.route("/live-sites/", methods=["GET", "POST"])
+@api.route("/websites/", methods=["GET"])
 @auth_required
-def active_site_list():
-    """Get a list of active sites. Create a new active site."""
+def website_list():
+    """Get a list of websites."""
     return jsonify(website_manager(request)), 200
 
 
-@api.route("/live-site/<live_site_id>/", methods=["GET", "DELETE", "PUT"])
+@api.route("/website/<website_id>/", methods=["GET", "PUT"])
 @auth_required
-def get_active_site(live_site_id):
-    """
-    Manage an active site by its id.
-
-    Update active site data. Delete an active site by its id.
-    """
-    return jsonify(website_manager(request, live_site_id=live_site_id)), 200
+def website(website_id):
+    """Manage a website by its id."""
+    return jsonify(website_manager(request, website_id=website_id)), 200
 
 
 @api.route("/categorize/<live_site_id>/", methods=["GET"])
