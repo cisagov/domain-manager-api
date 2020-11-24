@@ -10,31 +10,11 @@ import os
 import boto3
 import pymongo
 
-from settings import TEMPLATE_BUCKET, TEMPLATE_BUCKET_URL
+from settings import TEMPLATE_BUCKET, TEMPLATE_BUCKET_URL, DB
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger()
 
-
-if os.environ.get("MONGO_TYPE", "MONGO") == "DOCUMENTDB":
-    CONN_STR = "mongodb://{}:{}@{}:{}/?ssl=true&ssl_ca_certs=rds-combined-ca-bundle.pem&retryWrites=false".format(
-        os.environ.get("DB_USER"),
-        os.environ.get("DB_PW"),
-        os.environ.get("DB_HOST"),
-        os.environ.get("DB_PORT"),
-    )
-
-else:
-    CONN_STR = "mongodb://{}:{}@{}:{}/".format(
-        os.environ.get("DB_USER"),
-        os.environ.get("DB_PW"),
-        os.environ.get("DB_HOST"),
-        os.environ.get("DB_PORT"),
-    )
-
-client = pymongo.MongoClient(CONN_STR)
-
-db = client.domain_management
 
 # Initialize AWS Clients
 s3 = boto3.client("s3")
@@ -55,7 +35,7 @@ def load_file(data_file, data_type="json"):
 
 def load_websites():
     """Load the latest website data from route53 and s3 into the database."""
-    db_websites = db.websites
+    db_websites = DB.websites
     initial_load = route53.list_hosted_zones().get("HostedZones")
 
     domain_load = []
@@ -94,7 +74,7 @@ def load_websites():
 
 def load_applications():
     """Load dummy application data to the database."""
-    db_applications = db.applications
+    db_applications = DB.applications
 
     application_json = load_file("data/applications.json")
 
@@ -112,7 +92,7 @@ def load_applications():
 
 def load_proxy_scripts():
     """Load categorization proxy scripts."""
-    db_proxies = db.proxies
+    db_proxies = DB.proxies
 
     proxy_json = load_file("data/proxies.json")
 
@@ -155,7 +135,7 @@ def load_proxy_scripts():
 
 def load_categories():
     """Load general categories."""
-    db_categories = db.categories
+    db_categories = DB.categories
 
     categories_json = load_file("data/categories.json")
 

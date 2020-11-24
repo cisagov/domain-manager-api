@@ -7,28 +7,8 @@ from dataclasses import dataclass
 from bson.objectid import ObjectId
 
 # Third-Party Libraries
+from settings import DB
 from pymongo import MongoClient, errors
-
-if os.environ.get("MONGO_TYPE", "MONGO") == "DOCUMENTDB":
-    CONN_STR = "mongodb://{}:{}@{}:{}/?ssl=true&ssl_ca_certs=/var/www/rds-combined-ca-bundle.pem&retryWrites=false".format(
-        os.environ.get("DB_USER"),
-        os.environ.get("DB_PW"),
-        os.environ.get("DB_HOST"),
-        os.environ.get("DB_PORT"),
-    )
-
-else:
-    CONN_STR = "mongodb://{}:{}@{}:{}/".format(
-        os.environ.get("DB_USER"),
-        os.environ.get("DB_PW"),
-        os.environ.get("DB_HOST"),
-        os.environ.get("DB_PORT"),
-    )
-
-client = MongoClient(CONN_STR)
-
-# Set database
-db = client.domain_management
 
 
 class Document:
@@ -36,7 +16,7 @@ class Document:
 
     def _get_collection(self):
         """Set collection name."""
-        return getattr(db, self.collection)
+        return getattr(DB, self.collection)
 
     def asdict(self):
         """Return dictionary."""

@@ -9,10 +9,10 @@
 <!--- Put an `x` in what you have completed -->
 
 - [ ] My code follows the code style of this project.
-- [ ] My changes have been adequetly tested locally.
+- [ ] My changes have been adequately tested locally.
 - [ ] All automated tests are passing.
 - [ ] I have updated/added required automated tests.
-- [ ] Precommit checks are passing.
+- [ ] Pre-commit checks are passing.
 
 ## 😪 Anything Else
 

@@ -29,8 +29,3 @@ class Website(Document):
         self._id = _id
         self.collection = "websites"
         self.indexes = ["name"]
-
-    def create(self, name):
-        """Create a new website."""
-        self.launch_date = datetime.now()
-        return super().create()
