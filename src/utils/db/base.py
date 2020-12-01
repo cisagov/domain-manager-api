@@ -18,7 +18,7 @@ class Document:
         """Set collection name."""
         return getattr(DB, self.collection)
 
-    def asdict(self):
+    def _asdict(self):
         """Return dictionary."""
         _exclude = ["_id", "collection", "indexes"]
         response = {
@@ -36,7 +36,7 @@ class Document:
             self._get_collection().create_index(index, unique=True)
 
         try:
-            response = self._get_collection().insert_one(self.asdict())
+            response = self._get_collection().insert_one(self._asdict())
         except errors.DuplicateKeyError:
             response = "Saving a duplicate is not allowed."
         return response
@@ -50,14 +50,19 @@ class Document:
         if self._id:
             response = self._get_collection().find_one({"_id": ObjectId(self._id)})
         else:
-            response = self._get_collection().find_one(self.asdict())
+            response = self._get_collection().find_one(self._asdict())
+
+        # Set instance attributes
+        for key in response:
+            setattr(self, key, response[key])
+
         return response
 
     def update(self):
         """Update an existing document."""
         if self._id:
             return self._get_collection().find_one_and_update(
-                {"_id": ObjectId(self._id)}, {"$set": self.asdict()}
+                {"_id": ObjectId(self._id)}, {"$set": self._asdict()}
             )
 
     def delete(self):
