@@ -1,0 +1,23 @@
+# name: Deploy Dev
+
+# on:
+#   push:
+#     branches:
+#       - develop
+
+# jobs:
+#   dispatch:
+#     runs-on: ubuntu-latest
+#     steps:
+#       - name: Get branch name
+#         run: echo "::set-output name=branch::${GITHUB_REF#refs/heads/}"
+#         id: ref
+#       - name: Echo branch
+#         run: echo "${{ steps.ref.outputs.branch }}"
+#       - name: Repository Dispatch
+#         uses: peter-evans/repository-dispatch@v1
+#         with:
+#           token: ${{ secrets.DOMAIN_MANAGER_ACCESS_TOKEN }}
+#           repository: cisagov/domain-manager-cicd
+#           event-type: deploy
+#           client-payload: '{"trigger": "domain-manager-api", "env": "${{ steps.ref.outputs.branch }}"}'
