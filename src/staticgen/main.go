@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"html/template"
@@ -10,6 +11,13 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
+
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/awserr"
+	"github.com/aws/aws-sdk-go/aws/request"
+	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go/service/s3"
 )
 
 // Route ...
@@ -22,6 +30,8 @@ type Route struct {
 type Page struct {
 	Title   string `json:"title"`
 	Content string `json:"content"`
+	Phone   string `json:"phone"`
+	Address string `json:"address"`
 }
 
 // copy an entire directory
@@ -71,16 +81,62 @@ func generate(source, destination string) error {
 	return err
 }
 
-// WebsiteHandler recieves post requests
-func WebsiteHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Method == "GET" {
-		err := generate("template", "public")
-		if err != nil {
-			fmt.Println(err)
+// upload to s3 bucket
+func upload(category, filename string) {
+	timeout := 60 * time.Second
+	bucket := os.Getenv("TEMPLATE_BUCKET")
+
+	sess := session.Must(session.NewSession()) // initialize session
+	svc := s3.New(sess)
+
+	ctx := context.Background()
+
+	var cancelFn func() // Ensure context is canceled to prevent leaking
+	if timeout > 0 {
+		ctx, cancelFn = context.WithTimeout(ctx, timeout)
+	}
+	if cancelFn != nil {
+		defer cancelFn()
+	}
+
+	data, _ := os.Open(filename)
+
+	// Upload objects to S3
+	_, err := svc.PutObjectWithContext(ctx, &s3.PutObjectInput{
+		Bucket: aws.String(bucket),
+		Key:    aws.String(category + "/" + filename),
+		Body:   data,
+	})
+
+	if err != nil {
+		if aerr, ok := err.(awserr.Error); ok && aerr.Code() == request.CanceledErrorCode {
+			fmt.Fprintf(os.Stderr, "upload canceled due to timeout, %v\n", err)
+		} else {
+			fmt.Fprintf(os.Stderr, "failed to upload object, %v\n", err)
 		}
+		os.Exit(1)
+	}
+
+	fmt.Printf("successfully uploaded file to %s/%s\n", bucket, category)
+}
+
+// WebsiteHandler generates static websites from templates
+func WebsiteHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	if r.Method == "GET" {
+		// err := generate("template", "public")
+		// if err != nil {
+		// 	fmt.Println(err)
+		// }
+		query := r.URL.Query()
+		category := query.Get("category")
+		filename := query.Get("filename")
+
+		upload(category, filename)
 	} else {
 		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
 	}
+
 }
 
 func main() {
