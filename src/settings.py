@@ -11,6 +11,9 @@ AWS_REGION = os.environ.get("AWS_DEFAULT_REGION", "us-east-1")
 TEMPLATE_BUCKET = os.environ["TEMPLATE_BUCKET"]
 TEMPLATE_BUCKET_URL = f"http://{TEMPLATE_BUCKET}.s3-website-{AWS_REGION}.amazonaws.com/"
 
+# static gen
+STATIC_GEN_URL = os.environ.get("STATIC_GEN_URL")
+
 # database
 if os.environ.get("MONGO_TYPE", "MONGO") == "DOCUMENTDB":
     CONN_STR = "mongodb://{}:{}@{}:{}/?ssl=true&ssl_ca_certs=/var/www/rds-combined-ca-bundle.pem&retryWrites=false".format(

@@ -1,7 +1,7 @@
 """Static site utilities."""
+# Third-Party Libraries
 import requests
-
-STATIC_GEN_URL = "http://host.docker.internal:8000"
+from settings import STATIC_GEN_URL
 
 
 def generate_site():
