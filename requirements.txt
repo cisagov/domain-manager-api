@@ -47,7 +47,7 @@ prompt-toolkit==3.0.5
 ptyprocess==0.6.0
 py==1.9.0
 Pygments==2.6.1
-pymongo==3.10.1
+pymongo==3.11.1
 pyparsing==2.4.7
 pytest==5.4.3
 pytest-cov==2.10.0
