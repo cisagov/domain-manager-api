@@ -73,7 +73,7 @@ func generate(source, destination string) error {
 
 // WebsiteHandler recieves post requests
 func WebsiteHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Method == "POST" {
+	if r.Method == "GET" {
 		err := generate("template", "public")
 		if err != nil {
 			fmt.Println(err)
@@ -85,7 +85,7 @@ func WebsiteHandler(w http.ResponseWriter, r *http.Request) {
 
 func main() {
 	mux := http.NewServeMux()
-	mux.HandleFunc("/website", WebsiteHandler)
+	mux.HandleFunc("/website/", WebsiteHandler)
 
 	log.Println("listening on port 8000")
 	log.Fatal(http.ListenAndServe(":8000", mux))
