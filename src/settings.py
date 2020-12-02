@@ -7,9 +7,12 @@ from pymongo import MongoClient
 
 
 # aws
-AWS_REGION = os.environ.get("AWS_DEFAULT_REGION", "us-east-1")
+AWS_REGION = os.environ.get("AWS_REGION", "us-east-1")
 TEMPLATE_BUCKET = os.environ["TEMPLATE_BUCKET"]
 TEMPLATE_BUCKET_URL = f"http://{TEMPLATE_BUCKET}.s3-website-{AWS_REGION}.amazonaws.com/"
+
+# static gen
+STATIC_GEN_URL = os.environ.get("STATIC_GEN_URL")
 
 # database
 if os.environ.get("MONGO_TYPE", "MONGO") == "DOCUMENTDB":

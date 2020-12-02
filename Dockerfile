@@ -1,3 +1,9 @@
+FROM golang:1.15-alpine AS build
+
+WORKDIR /src/
+COPY /src/staticgen/*.go /src/staticgen/go.* /src/
+RUN CGO_ENABLED=0 GOOS=linux go build -o /bin/main
+
 FROM python:3.8
 
 ENV PYTHONDONTWRITEBYTECODE 1
@@ -17,14 +23,10 @@ ADD ./src/ /var/www/
 # Get certs for document db
 RUN  wget https://s3.amazonaws.com/rds-downloads/rds-combined-ca-bundle.pem
 
-# install hugo static site gen
-RUN wget https://github.com/gohugoio/hugo/releases/download/v0.78.1/hugo_0.78.1_Linux-64bit.tar.gz
-
-RUN mkdir /tmp/hugo
-RUN tar -C /tmp/hugo -xzf hugo_0.78.1_Linux-64bit.tar.gz
-
-ENV PATH "/tmp/hugo:${PATH}"
 ENV PYTHONPATH "${PYTHONPATH}:/var/www"
+
+# Get static gen build
+COPY --from=build /bin/main /bin/main
 
 # Entrypoint
 COPY ./etc/entrypoint.sh /usr/local/bin/entrypoint.sh

@@ -1,5 +1,10 @@
 #!/bin/bash
 
+# run staticgen
+echo "Launch static gen app"
+/bin/main &
+
+# run flask
 if [[ $DEBUG -eq 1 ]]
 then
     echo "Debug Mode"

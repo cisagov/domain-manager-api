@@ -63,12 +63,12 @@ def website(website_id):
     return jsonify(website_manager(request, website_id=website_id)), 200
 
 
-@api.route("/categorize/<live_site_id>/", methods=["GET"])
+@api.route("/categorize/<website_id>/", methods=["GET"])
 @auth_required
-def categorize_domain(live_site_id):
+def categorize_domain(website_id):
     """Categorize an active site by using available proxies."""
     response = categorization_manager(
-        live_site_id=live_site_id, category=request.args.get("category")
+        website_id=website_id, category=request.args.get("category")
     )
     return jsonify(response)
 
