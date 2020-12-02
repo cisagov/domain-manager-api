@@ -27,7 +27,7 @@ loc:
 
 # target: restart - Stop and restart all containers
 restart:
-	docker-compose stop
+	docker-compose stop api
 	docker-compose up -d
 	docker attach --sig-proxy=false dm-api
 

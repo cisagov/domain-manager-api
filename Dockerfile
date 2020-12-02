@@ -1,3 +1,9 @@
+FROM golang:1.15-alpine AS build
+
+WORKDIR /src/
+COPY /src/staticgen/main.go /src/
+RUN CGO_ENABLED=0 GOOS=linux go build -o /bin/main
+
 FROM python:3.8
 
 ENV PYTHONDONTWRITEBYTECODE 1
@@ -18,6 +24,9 @@ ADD ./src/ /var/www/
 RUN  wget https://s3.amazonaws.com/rds-downloads/rds-combined-ca-bundle.pem
 
 ENV PYTHONPATH "${PYTHONPATH}:/var/www"
+
+# Get static gen build
+COPY --from=build /bin/main /bin/main
 
 # Entrypoint
 COPY ./etc/entrypoint.sh /usr/local/bin/entrypoint.sh
