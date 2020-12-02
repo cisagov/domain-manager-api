@@ -29,9 +29,9 @@ def categories_manager():
     return category_schema.dump(categories)
 
 
-def categorization_manager(live_site_id, category):
+def categorization_manager(website_id, category):
     """Manage categorization of active sites."""
-    active_site = Website(_id=live_site_id).get()
+    active_site = Website(_id=website_id).get()
     domain = active_site.get("domain").get("Name")
     domain_url = domain[:-1]
     if active_site.get("is_categorized"):
@@ -88,5 +88,5 @@ def categorization_manager(live_site_id, category):
     driver.quit()
 
     # Update database
-    Website.update(live_site_id=live_site_id, is_submitted=is_submitted)
+    Website.update(website_id=website_id, is_submitted=is_submitted)
     return {"message": f"{domain} has been successfully categorized"}
