@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"io"
 	"log"
 	"os"
 	"path/filepath"
@@ -40,7 +41,7 @@ func (r *Route) upload() {
 		}
 
 		var contenttype string
-		var file *os.File
+		var file io.Reader
 
 		ext := strings.ToLower(filepath.Ext(path))
 		if ext == ".html" {
@@ -61,8 +62,6 @@ func (r *Route) upload() {
 				continue
 			}
 		}
-
-		defer file.Close()
 
 		_, err = uploader.Upload(&s3manager.UploadInput{
 			Bucket:      &r.bucket,

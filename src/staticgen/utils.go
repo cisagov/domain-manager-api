@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
 	"io/ioutil"
 	"log"
@@ -35,20 +36,22 @@ func (f fileWalk) Walk(path string, info os.FileInfo, err error) error {
 }
 
 // Parse html templates
-func parse(path, rel string) *os.File {
-	file, err := os.Create("tmp/" + rel)
+func parse(path, rel string) *bytes.Reader {
+	file, err := os.Open(path)
 	if err != nil {
 		log.Println("Failed opening html file", path, err)
 	}
-
+	defer file.Close()
 	jsonfile, _ := ioutil.ReadFile("data.json")
 	context := Context{}
 
 	_ = json.Unmarshal([]byte(jsonfile), &context)
 
 	t, _ := template.ParseFiles(path)
-	t.Execute(file, context)
 
-	file, _ = os.Open("tmp/" + rel)
-	return file
+	buffer := &bytes.Buffer{}
+
+	t.Execute(buffer, context)
+
+	return bytes.NewReader(buffer.Bytes())
 }
