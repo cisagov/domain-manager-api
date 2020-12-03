@@ -46,11 +46,18 @@ func (r *Route) upload() {
 		if ext == ".html" {
 			contenttype = "text/html"
 			file = parse(path, rel)
-		} else {
-			contenttype = "text/plain"
+		} else if ext == ".css" {
+			contenttype = "text/css"
 			file, err = os.Open(path)
 			if err != nil {
-				log.Println("Failed opening html file", path, err)
+				log.Println("Failed opening css file", path, err)
+				continue
+			}
+		} else {
+			contenttype = "text/css"
+			file, err = os.Open(path)
+			if err != nil {
+				log.Println("Failed opening file", path, err)
 				continue
 			}
 		}
