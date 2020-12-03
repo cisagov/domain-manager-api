@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
@@ -37,21 +38,36 @@ func (r *Route) upload() {
 		if err != nil {
 			log.Fatalln("Unable to get relative path:", path, err)
 		}
-		file, err := os.Open(path)
-		if err != nil {
-			log.Println("Failed opening file", path, err)
-			continue
+
+		var contenttype string
+		var file *os.File
+
+		ext := strings.ToLower(filepath.Ext(path))
+		if ext == ".html" {
+			contenttype = "text/html"
+			file = parse(path, rel)
+		} else {
+			contenttype = "text/plain"
+			file, err = os.Open(path)
+			if err != nil {
+				log.Println("Failed opening html file", path, err)
+				continue
+			}
 		}
+
 		defer file.Close()
+
 		_, err = uploader.Upload(&s3manager.UploadInput{
-			Bucket: &r.bucket,
-			Key:    aws.String(filepath.Join(r.category, r.domain, rel)),
-			Body:   file,
+			Bucket:      &r.bucket,
+			ContentType: &contenttype,
+			Key:         aws.String(filepath.Join(r.category, r.domain, rel)),
+			Body:        file,
 		})
 		if err != nil {
 			log.Fatalln("Failed to upload", path, err)
 		}
-		fmt.Printf("successfully uploaded staticfiles to %s/%s/%s\n", r.bucket, r.category, path)
+
+		fmt.Printf("successfully uploaded %s/%s/%s/%s\n", r.bucket, r.category, r.domain, rel)
 	}
 }
 
@@ -70,5 +86,5 @@ func (r *Route) delete() {
 		os.Exit(1)
 	}
 
-	fmt.Printf("successfully deleted staticfiles from %s/%s\n", r.bucket, r.category)
+	fmt.Printf("successfully deleted staticfiles from %s/%s/%s\n", r.bucket, r.category, r.domain)
 }
