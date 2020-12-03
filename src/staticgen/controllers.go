@@ -5,21 +5,35 @@ import (
 	"os"
 )
 
+// Set S3 bucket URL
+var bucket = os.Getenv("TEMPLATE_BUCKET")
+
 // WebsiteHandler generates static websites from templates
 func WebsiteHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	query := r.URL.Query()
-	bucket := os.Getenv("TEMPLATE_BUCKET")
 	category := query.Get("category")
 	domain := query.Get("domain")
 
-	route := Route{bucket, category, domain}
+	route := Route{bucket, category}
 	if r.Method == "GET" {
-		route.upload()
+		route.upload(domain)
 	} else if r.Method == "DELETE" {
-		route.delete()
+		route.delete(domain)
 	} else {
 		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
+	}
+}
+
+// TemplateHandler manages template files in s3
+func TemplateHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
+	query := r.URL.Query()
+	category := query.Get("category")
+	route := Route{bucket, category}
+	if r.Method == "GET" {
+		route.download()
 	}
 }

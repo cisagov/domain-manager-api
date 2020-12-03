@@ -18,11 +18,16 @@ import (
 type Route struct {
 	bucket   string
 	category string
-	domain   string
+}
+
+// Downloader for s3 bucket
+type Downloader struct {
+	*s3manager.Downloader
+	bucket, dir string
 }
 
 // upload to s3 bucket
-func (r *Route) upload() {
+func (r *Route) upload(domain string) {
 	walker := make(fileWalk)
 	go func() {
 		// Gather the files to upload by walking the path recursively
@@ -66,25 +71,25 @@ func (r *Route) upload() {
 		_, err = uploader.Upload(&s3manager.UploadInput{
 			Bucket:      &r.bucket,
 			ContentType: &contenttype,
-			Key:         aws.String(filepath.Join(r.category, r.domain, rel)),
+			Key:         aws.String(filepath.Join(r.category, domain, rel)),
 			Body:        file,
 		})
 		if err != nil {
 			log.Fatalln("Failed to upload", path, err)
 		}
 
-		fmt.Printf("successfully uploaded %s/%s/%s/%s\n", r.bucket, r.category, r.domain, rel)
+		fmt.Printf("successfully uploaded %s/%s/%s/%s\n", r.bucket, r.category, domain, rel)
 	}
 }
 
-// delete from s3 bucket
-func (r *Route) delete() {
+// delete files from s3 bucket
+func (r *Route) delete(domain string) {
 	sess, _ := session.NewSession()
 	svc := s3.New(sess)
 
 	iter := s3manager.NewDeleteListIterator(svc, &s3.ListObjectsInput{
 		Bucket: aws.String(r.bucket),
-		Prefix: aws.String(filepath.Join(r.category, r.domain)),
+		Prefix: aws.String(filepath.Join(r.category, domain)),
 	})
 
 	if err := s3manager.NewBatchDeleteWithClient(svc).Delete(aws.BackgroundContext(), iter); err != nil {
@@ -92,5 +97,45 @@ func (r *Route) delete() {
 		os.Exit(1)
 	}
 
-	fmt.Printf("successfully deleted staticfiles from %s/%s/%s\n", r.bucket, r.category, r.domain)
+	fmt.Printf("successfully deleted staticfiles from %s/%s/%s\n", r.bucket, r.category, domain)
+}
+
+// download from s3 bucket
+func (r *Route) download() {
+	manager := s3manager.NewDownloader(session.New())
+	d := Downloader{bucket: r.bucket, dir: r.category, Downloader: manager}
+
+	client := s3.New(session.New())
+	params := &s3.ListObjectsInput{Bucket: &r.bucket, Prefix: &r.category}
+	client.ListObjectsPages(params, d.eachPage)
+}
+
+// eachPage ...
+func (d *Downloader) eachPage(page *s3.ListObjectsOutput, more bool) bool {
+	for _, obj := range page.Contents {
+		d.downloadToFile(*obj.Key)
+	}
+
+	return true
+}
+
+// download to file
+func (d *Downloader) downloadToFile(key string) {
+	// Create the directories in the path
+	file := filepath.Join(d.dir, key)
+	if err := os.MkdirAll(filepath.Dir(file), 0775); err != nil {
+		panic(err)
+	}
+
+	// Set up the local file
+	fd, err := os.Create(file)
+	if err != nil {
+		panic(err)
+	}
+	defer fd.Close()
+
+	// Download the file using the AWS SDK for Go
+	fmt.Printf("Downloading s3://%s/%s to %s...\n", d.bucket, key, file)
+	params := &s3.GetObjectInput{Bucket: &d.bucket, Key: &key}
+	d.Download(fd, params)
 }
