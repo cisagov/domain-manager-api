@@ -46,7 +46,7 @@ pre-commit==2.6.0
 prompt-toolkit==3.0.5
 ptyprocess==0.6.0
 py==1.9.0
-Pygments==2.6.1
+Pygments==2.7.3
 pymongo==3.11.1
 pyparsing==2.4.7
 pytest==5.4.3
