@@ -28,7 +28,7 @@ type Downloader struct {
 }
 
 // generate static files and upload static to s3 bucket
-func (r *Route) generate() {
+func (r *Route) generate(ctx *Context) {
 	walker := make(fileWalk)
 	go func() {
 		// Gather the files to upload by walking the path recursively
@@ -52,7 +52,7 @@ func (r *Route) generate() {
 			ext := strings.ToLower(filepath.Ext(path))
 			if ext == ".html" {
 				contenttype = "text/html"
-				file = parse(path, rel)
+				file = parse(path, rel, ctx)
 			} else if ext == ".css" {
 				contenttype = "text/css"
 				file, err = os.Open(path)
@@ -155,10 +155,11 @@ func (r *Route) delete() {
 // download from s3 bucket
 func (r *Route) download() {
 	manager := s3manager.NewDownloader(session.New())
-	d := Downloader{bucket: r.bucket, dir: r.category, Downloader: manager}
+	dir := filepath.Join(r.category, r.dir)
+	d := Downloader{bucket: r.bucket, dir: dir, Downloader: manager}
 
 	client := s3.New(session.New())
-	params := &s3.ListObjectsInput{Bucket: &r.bucket, Prefix: &r.category}
+	params := &s3.ListObjectsInput{Bucket: &r.bucket, Prefix: &dir}
 	client.ListObjectsPages(params, d.eachPage)
 }
 

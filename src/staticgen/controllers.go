@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"net/http"
 	"os"
 )
@@ -17,8 +18,13 @@ func WebsiteHandler(w http.ResponseWriter, r *http.Request) {
 	domain := query.Get("domain")
 
 	route := Route{bucket, category, domain}
-	if r.Method == "GET" {
-		route.generate()
+	if r.Method == "POST" {
+		context := Context{}
+		decoder := json.NewDecoder(r.Body)
+		decoder.Decode(&context)
+		route.generate(&context)
+	} else if r.Method == "GET" {
+		route.download()
 	} else if r.Method == "DELETE" {
 		route.delete()
 	} else {
@@ -33,8 +39,10 @@ func TemplateHandler(w http.ResponseWriter, r *http.Request) {
 	query := r.URL.Query()
 	category := query.Get("category")
 	route := Route{bucket, category, "template"}
-	if r.Method == "GET" {
+	if r.Method == "POST" {
 		route.upload()
+	} else if r.Method == "GET" {
+		route.download()
 	} else if r.Method == "DELETE" {
 		route.delete()
 	} else {
