@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"path/filepath"
 	"text/template"
 )
 
@@ -29,8 +30,11 @@ func (f fileWalk) Walk(path string, info os.FileInfo, err error) error {
 	if err != nil {
 		return err
 	}
+
 	if !info.IsDir() {
-		f <- path
+		if info.Name() != "base.html" {
+			f <- path
+		}
 	}
 	return nil
 }
@@ -47,11 +51,13 @@ func parse(path, rel string) *bytes.Reader {
 
 	_ = json.Unmarshal([]byte(jsonfile), &context)
 
-	t, _ := template.ParseFiles(path)
-
+	t := template.Must(template.ParseFiles(filepath.Dir(path)+"/base.html", path))
+	if err != nil {
+		log.Println("Failed to parse html files", err)
+	}
 	buffer := &bytes.Buffer{}
 
-	t.Execute(buffer, context)
+	t.ExecuteTemplate(buffer, "base", context)
 
 	return bytes.NewReader(buffer.Bytes())
 }
