@@ -26,7 +26,7 @@ type Downloader struct {
 	bucket, dir string
 }
 
-// upload to s3 bucket
+// upload static to s3 bucket
 func (r *Route) upload(domain string) {
 	walker := make(fileWalk)
 	go func() {
@@ -59,7 +59,7 @@ func (r *Route) upload(domain string) {
 				continue
 			}
 		} else {
-			contenttype = "text/css"
+			contenttype = "text/plain"
 			file, err = os.Open(path)
 			if err != nil {
 				log.Println("Failed opening file", path, err)
