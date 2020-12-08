@@ -16,11 +16,11 @@ func WebsiteHandler(w http.ResponseWriter, r *http.Request) {
 	category := query.Get("category")
 	domain := query.Get("domain")
 
-	route := Route{bucket, category}
+	route := Route{bucket, category, domain}
 	if r.Method == "GET" {
-		route.upload(domain)
+		route.generate()
 	} else if r.Method == "DELETE" {
-		route.delete(domain)
+		route.delete()
 	} else {
 		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
 	}
@@ -32,8 +32,12 @@ func TemplateHandler(w http.ResponseWriter, r *http.Request) {
 
 	query := r.URL.Query()
 	category := query.Get("category")
-	route := Route{bucket, category}
+	route := Route{bucket, category, "template"}
 	if r.Method == "GET" {
-		route.download()
+		route.upload()
+	} else if r.Method == "DELETE" {
+		route.delete()
+	} else {
+		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
 	}
 }

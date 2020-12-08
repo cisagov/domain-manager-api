@@ -32,9 +32,7 @@ func (f fileWalk) Walk(path string, info os.FileInfo, err error) error {
 	}
 
 	if !info.IsDir() {
-		if info.Name() != "base.html" {
-			f <- path
-		}
+		f <- path
 	}
 	return nil
 }
@@ -46,7 +44,7 @@ func parse(path, rel string) *bytes.Reader {
 		log.Println("Failed opening html file", path, err)
 	}
 	defer file.Close()
-	jsonfile, _ := ioutil.ReadFile("data.json")
+	jsonfile, _ := ioutil.ReadFile("template/data.json")
 	context := Context{}
 
 	_ = json.Unmarshal([]byte(jsonfile), &context)
