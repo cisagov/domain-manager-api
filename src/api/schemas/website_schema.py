@@ -19,6 +19,16 @@ class IsCategorySubmitted(Schema):
     is_categorized = fields.Boolean(required=True)
 
 
+class Profile(Schema):
+    """Template context data."""
+
+    name = fields.Str(required=True)
+    domain = fields.Str(required=True)
+    description = fields.Str(required=False)
+    email = fields.Str(required=True)
+    phone = fields.Str(required=True)
+
+
 class WebsiteSchema(Schema):
     """Website Schema."""
 

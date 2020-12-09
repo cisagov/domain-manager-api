@@ -3,6 +3,8 @@
 import requests
 from settings import STATIC_GEN_URL
 
+from models.website import Website
+
 
 def upload_template(category):
     """Upload template files."""
@@ -16,15 +18,14 @@ def delete_template(category):
     return {"message": resp.status_code}
 
 
-def generate_site(category, domain):
+def generate_site(category, website_id):
     """Generate a static site."""
-    post_data = {
-        "description": "This is from a POST request",
-        "domain": "www.spokanepestservices.com",
-        "email": "spokane@mypestcompany.com",
-        "name": "My Spokane Pest Services FROM POST",
-        "phone": "661-456-7890",
-    }
+    website = Website(_id=website_id)
+    website.get()
+
+    post_data = website.profile
+    domain = website.name
+
     resp = requests.post(
         f"{STATIC_GEN_URL}/website/?category={category}&domain={domain}", json=post_data
     )

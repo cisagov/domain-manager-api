@@ -19,6 +19,7 @@ class Website(Document):
     is_category_submitted: ListType
     is_email_active: BooleanType
     launch_date: DatetimeType
+    profile: DictType
     history: ListType
     cloudfront: DictType
     acm: DictType
