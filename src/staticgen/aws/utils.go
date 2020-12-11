@@ -1,16 +1,19 @@
-package main
+package aws
 
 import (
-	"bytes"
-	"log"
 	"os"
-	"path/filepath"
-	"text/template"
 )
 
 type (
 	// Initialize filewalk channel
 	fileWalk chan string
+
+	// Route for s3 bucket
+	Route struct {
+		Bucket   string
+		Category string
+		Dir      string
+	}
 
 	// Context for templates
 	Context struct {
@@ -33,23 +36,4 @@ func (f fileWalk) Walk(path string, info os.FileInfo, err error) error {
 		f <- path
 	}
 	return nil
-}
-
-// Parse html templates
-func parse(path, rel string, ctx *Context) *bytes.Reader {
-	file, err := os.Open(path)
-	if err != nil {
-		log.Println("Failed opening html file", path, err)
-	}
-	defer file.Close()
-
-	t := template.Must(template.ParseFiles(filepath.Dir(path)+"/base.html", path))
-	if err != nil {
-		log.Println("Failed to parse html files", err)
-	}
-	buffer := &bytes.Buffer{}
-
-	t.ExecuteTemplate(buffer, "base", ctx)
-
-	return bytes.NewReader(buffer.Bytes())
 }

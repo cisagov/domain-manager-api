@@ -2,8 +2,10 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"os"
+	"staticgen/aws"
 )
 
 // Set S3 bucket URL
@@ -17,16 +19,17 @@ func WebsiteHandler(w http.ResponseWriter, r *http.Request) {
 	category := query.Get("category")
 	domain := query.Get("domain")
 
-	route := Route{bucket, category, domain}
+	route := aws.Route{Bucket: bucket, Category: category, Dir: domain}
 	if r.Method == "POST" {
-		context := Context{}
+		context := aws.Context{}
 		decoder := json.NewDecoder(r.Body)
 		decoder.Decode(&context)
-		route.generate(&context)
+		route.Generate(&context)
 	} else if r.Method == "GET" {
-		route.download()
+		w.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=\"%s.zip\"", "Website"))
+		route.Download(w)
 	} else if r.Method == "DELETE" {
-		route.delete()
+		route.Delete()
 	} else {
 		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
 	}
@@ -34,17 +37,17 @@ func WebsiteHandler(w http.ResponseWriter, r *http.Request) {
 
 // TemplateHandler manages template files in s3
 func TemplateHandler(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-
 	query := r.URL.Query()
 	category := query.Get("category")
-	route := Route{bucket, category, "template"}
+	route := aws.Route{Bucket: bucket, Category: category, Dir: "template"}
 	if r.Method == "POST" {
-		route.upload()
+		route.Upload()
 	} else if r.Method == "GET" {
-		route.download()
+		w.Header().Set("Content-Type", "application/zip")
+		w.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=\"%s.zip\"", category))
+		route.Download(w)
 	} else if r.Method == "DELETE" {
-		route.delete()
+		route.Delete()
 	} else {
 		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
 	}
