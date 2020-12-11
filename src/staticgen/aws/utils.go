@@ -23,6 +23,7 @@ type (
 		Phone       string `json:"phone"`
 		Address     string `json:"address"`
 		Email       string `json:"email"`
+		Zip         []byte `json:"zip"`
 	}
 )
 

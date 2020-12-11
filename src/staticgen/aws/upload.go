@@ -14,11 +14,11 @@ import (
 )
 
 // Upload files to s3 bucket
-func (r *Route) Upload() {
+func (r *Route) Upload(foldername string) {
 	walker := make(fileWalk)
 	go func() {
 		// Gather the files to upload by walking the path recursively
-		if err := filepath.Walk(r.Dir, walker.Walk); err != nil {
+		if err := filepath.Walk(filepath.Join("tmp/"+foldername), walker.Walk); err != nil {
 			log.Fatalln("Walk failed:", err)
 		}
 		close(walker)
@@ -27,7 +27,7 @@ func (r *Route) Upload() {
 	// For each file found walking, upload it to S3
 	uploader := s3manager.NewUploader(session.New())
 	for path := range walker {
-		rel, err := filepath.Rel(r.Dir, path)
+		rel, err := filepath.Rel("tmp/"+foldername, path)
 		if err != nil {
 			log.Fatalln("Unable to get relative path:", path, err)
 		}
@@ -52,13 +52,19 @@ func (r *Route) Upload() {
 		_, err = uploader.Upload(&s3manager.UploadInput{
 			Bucket:      &r.Bucket,
 			ContentType: &contenttype,
-			Key:         aws.String(filepath.Join(r.Category, "template", rel)),
+			Key:         aws.String(filepath.Join(r.Category, r.Dir, rel)),
 			Body:        file,
 		})
 		if err != nil {
 			log.Fatalln("Failed to upload", path, err)
 		}
 
-		fmt.Printf("successfully uploaded %s/%s/%s/%s\n", r.Bucket, r.Category, "template", rel)
+		fmt.Printf("successfully uploaded %s/%s/%s/%s\n", r.Bucket, r.Category, r.Dir, rel)
+	}
+
+	// Remove local temp files
+	err := os.RemoveAll("tmp/" + foldername)
+	if err != nil {
+		log.Fatal(err)
 	}
 }
