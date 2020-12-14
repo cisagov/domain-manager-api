@@ -12,6 +12,7 @@ import (
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/aws/aws-sdk-go/service/s3/s3manager"
 )
 
@@ -89,4 +90,45 @@ func parse(path, rel string, ctx *Context) *bytes.Reader {
 	t.ExecuteTemplate(buffer, "base", ctx)
 
 	return bytes.NewReader(buffer.Bytes())
+}
+
+// download from s3 bucket
+func (r *Route) download() {
+	manager := s3manager.NewDownloader(session.New())
+	dir := filepath.Join(r.Category, r.Dir)
+	d := Downloader{bucket: r.Bucket, dir: dir, Downloader: manager}
+
+	client := s3.New(session.New())
+	params := &s3.ListObjectsInput{Bucket: &r.Bucket, Prefix: &dir}
+	client.ListObjectsPages(params, d.eachPage)
+}
+
+// eachPage ...
+func (d *Downloader) eachPage(page *s3.ListObjectsOutput, more bool) bool {
+	for _, obj := range page.Contents {
+		d.downloadToFile(*obj.Key)
+	}
+
+	return true
+}
+
+// download to file
+func (d *Downloader) downloadToFile(key string) {
+	// Create the directories in the path
+	file := filepath.Join(d.dir, key)
+	if err := os.MkdirAll(filepath.Dir(file), 0775); err != nil {
+		panic(err)
+	}
+
+	// Set up the local file
+	fd, err := os.Create(file)
+	if err != nil {
+		panic(err)
+	}
+	defer fd.Close()
+
+	// Download the file using the AWS SDK for Go
+	fmt.Printf("Downloading s3://%s/%s to %s...\n", d.bucket, key, file)
+	params := &s3.GetObjectInput{Bucket: &d.bucket, Key: &key}
+	d.Download(fd, params)
 }
