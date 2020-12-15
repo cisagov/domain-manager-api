@@ -1,7 +1,7 @@
 FROM golang:1.15-alpine AS build
 
 WORKDIR /src/
-COPY /src/staticgen/*.go /src/staticgen/go.* /src/
+COPY /src/staticgen/ /src/
 RUN CGO_ENABLED=0 GOOS=linux go build -o /bin/main
 
 FROM python:3.8

@@ -1,7 +1,7 @@
 """Applications controller."""
-# Third-Party Libraries
-from models.application import Application
+# cisagov Libraries
 from api.schemas.application_schema import ApplicationSchema
+from models.application import Application
 
 
 def applications_manager(request, application_id=None):

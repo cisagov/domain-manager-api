@@ -1,13 +1,15 @@
 """API routes."""
 # Third-Party Libraries
-from api.controllers.websites import website_manager
+from flask import Blueprint, jsonify, request
+
+# cisagov Libraries
 from api.controllers.applications import applications_manager
-from api.controllers.categorization import categorization_manager, categories_manager
+from api.controllers.categorization import categories_manager, categorization_manager
 from api.controllers.check import check_categories_manager
 from api.controllers.email_address import email_address_manager
 from api.controllers.hosted_zones import hosted_zones_manager
 from api.controllers.proxies import proxy_manager
-from flask import Blueprint, jsonify, request
+from api.controllers.websites import website_manager
 from utils.decorators.auth import auth_required
 
 api = Blueprint("api", __name__, url_prefix="/api")

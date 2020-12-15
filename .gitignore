@@ -94,3 +94,5 @@ venv.bak/
 .Terraform
 terraform/python
 terraform/output
+
+*.pem

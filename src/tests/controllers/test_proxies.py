@@ -5,11 +5,13 @@ import json
 from unittest import mock
 
 # Third-Party Libraries
-from api.controllers.proxies import proxy_manager
-from models.proxy import Proxy
 from bson.objectid import ObjectId
 from faker import Faker
 import pytest
+
+# cisagov Libraries
+from api.controllers.proxies import proxy_manager
+from models.proxy import Proxy
 
 faker = Faker()
 

@@ -1,17 +1,20 @@
 """Categorization controller."""
-import os
+# Standard Python Libraries
 import logging
-from bson.son import SON
+import os
 
 # Third-Party Libraries
-from models.website import Website
-from models.proxy import Proxy
-from models.categories import Category
-from api.schemas.category_schema import CategorySchema
-from utils.two_captcha import two_captcha_api_key
-from selenium import webdriver
+from bson.son import SON
 from flask import current_app
+from selenium import webdriver
 from selenium.webdriver.common.by import By
+
+# cisagov Libraries
+from api.schemas.category_schema import CategorySchema
+from models.categories import Category
+from models.proxy import Proxy
+from models.website import Website
+from utils.two_captcha import two_captcha_api_key
 
 browserless_endpoint = os.environ.get("BROWSERLESS_ENDPOINT")
 chrome_options = webdriver.ChromeOptions()

@@ -1,16 +1,17 @@
 """Initialize database script."""
 # Standard Python Libraries
-from bson.binary import Binary
 from datetime import datetime
-import logging
 import json
+import logging
 import os
 
 # Third-Party Libraries
 import boto3
+from bson.binary import Binary
 import pymongo
 
-from settings import TEMPLATE_BUCKET, TEMPLATE_BUCKET_URL, DB
+# cisagov Libraries
+from settings import DB, TEMPLATE_BUCKET, TEMPLATE_BUCKET_URL
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger()
