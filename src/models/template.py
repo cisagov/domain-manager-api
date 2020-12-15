@@ -2,9 +2,9 @@
 # Standard Python Libraries
 from datetime import datetime
 
-# Third-Party Libraries
+# cisagov Libraries
 from utils.db.base import Document
-from utils.db.datatypes import StringType, DatetimeType
+from utils.db.datatypes import DatetimeType, StringType
 
 
 class Template(Document):

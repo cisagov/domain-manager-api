@@ -2,7 +2,7 @@
 # Standard Python Libraries
 from datetime import datetime
 
-# Third-Party Libraries
+# cisagov Libraries
 from utils.db.base import Document
 from utils.db.datatypes import BooleanType, DatetimeType, DictType, ListType, StringType
 

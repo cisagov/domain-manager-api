@@ -3,9 +3,11 @@
 from unittest import mock
 
 # Third-Party Libraries
+from faker import Faker
+
+# cisagov Libraries
 from api.controllers.categorization import categorization_manager
 from models.website import Website
-from faker import Faker
 
 faker = Faker()
 

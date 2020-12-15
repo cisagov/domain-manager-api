@@ -1,9 +1,12 @@
 """McAfee Trusted Source categorization check."""
-import requests
+# Standard Python Libraries
 import sys
 import time
 import urllib
+
+# Third-Party Libraries
 from bs4 import BeautifulSoup
+import requests
 
 
 def check_category(domain):

@@ -3,9 +3,11 @@
 import os
 
 # Third-Party Libraries
-from api import api
 from flask import Flask, render_template
 from flask_cors import CORS
+
+# cisagov Libraries
+from api import api
 
 app = Flask(__name__)
 CORS(app)

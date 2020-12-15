@@ -1,12 +1,15 @@
 """Bluecoat categorization check."""
-import urllib
-import requests
-import sys
-import re
-from bs4 import BeautifulSoup
+# Standard Python Libraries
 import json
+import re
+import sys
 import threading
 import time
+import urllib
+
+# Third-Party Libraries
+from bs4 import BeautifulSoup
+import requests
 
 
 def check_category(domain):

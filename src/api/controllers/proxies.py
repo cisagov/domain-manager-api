@@ -1,6 +1,7 @@
 """Proxy controller."""
-from models.proxy import Proxy
+# cisagov Libraries
 from api.schemas.proxy_schema import ProxySchema
+from models.proxy import Proxy
 
 
 def proxy_manager(request, proxy_id=None):
