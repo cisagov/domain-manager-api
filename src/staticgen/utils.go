@@ -26,6 +26,11 @@ func Receive(reader *http.Request, category string) (string, error) {
 	}
 
 	defer file.Close()
+
+	// create tmp folder if it doesn't exist
+	if _, err := os.Stat("tmp"); os.IsNotExist(err) {
+		os.Mkdir("tmp", 0775)
+	}
 	tempFile, err := ioutil.TempFile("tmp", "upload-*.zip")
 	if err != nil {
 		fmt.Println(err)
