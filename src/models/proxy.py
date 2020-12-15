@@ -3,7 +3,7 @@
 from datetime import datetime
 from typing import Union
 
-# Third-Party Libraries
+# cisagov Libraries
 from utils.db.base import Document
 from utils.db.datatypes import BytesType, DatetimeType, ListType, StringType
 

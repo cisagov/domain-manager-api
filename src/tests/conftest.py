@@ -3,8 +3,10 @@
 import os
 
 # Third-Party Libraries
-from main import app as current_app
 import pytest
+
+# cisagov Libraries
+from main import app as current_app
 
 API_KEY = os.environ.get("API_KEY")
 

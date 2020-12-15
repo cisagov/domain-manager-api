@@ -1,5 +1,5 @@
 """Wsgi."""
-# Third-Party Libraries
+# cisagov Libraries
 from main import app
 
 if __name__ == "__main__":

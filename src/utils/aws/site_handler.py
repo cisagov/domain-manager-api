@@ -9,8 +9,8 @@ import time
 # Third-Party Libraries
 import boto3
 
-from settings import TEMPLATE_BUCKET, AWS_REGION
-
+# cisagov Libraries
+from settings import AWS_REGION, TEMPLATE_BUCKET
 
 logger = logging.getLogger(__name__)
 

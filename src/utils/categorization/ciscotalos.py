@@ -1,9 +1,12 @@
 """Cisco Talos categorization check."""
-import urllib
-import sys
-import re
-from bs4 import BeautifulSoup
+# Standard Python Libraries
 import json
+import re
+import sys
+import urllib
+
+# Third-Party Libraries
+from bs4 import BeautifulSoup
 
 
 def check_category(domain):

@@ -1,6 +1,9 @@
 """IBM X-Force categorization check."""
-import sys
+# Standard Python Libraries
 import json
+import sys
+
+# Third-Party Libraries
 import requests
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
 

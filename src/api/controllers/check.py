@@ -1,10 +1,11 @@
 """Check categories controller."""
+# cisagov Libraries
 from utils.categorization import (
-    trustedsource,
     bluecoat,
     ciscotalos,
-    ibmxforce,
     fortiguard,
+    ibmxforce,
+    trustedsource,
     websense,
 )
 

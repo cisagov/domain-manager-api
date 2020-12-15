@@ -1,11 +1,11 @@
 """Contains static vars to be used in application."""
 
+# Standard Python Libraries
 import os
 
 # Third-Party Libraries
 from pymongo import MongoClient
 from sshtunnel import SSHTunnelForwarder
-
 
 # aws
 AWS_REGION = os.environ.get("AWS_REGION", "us-east-1")

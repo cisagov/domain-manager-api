@@ -1,6 +1,6 @@
 """Create DNS email records from SES."""
+# Third-Party Libraries
 import boto3
-
 
 route53 = boto3.client("route53")
 ses = boto3.client("ses")

@@ -1,7 +1,7 @@
 """Database types using typing standard library."""
-from typing import Union, Dict, List, Any
+# Standard Python Libraries
 from datetime import datetime
-
+from typing import Any, Dict, List, Union
 
 BytesType = Union[bytes, None]
 BooleanType = bool

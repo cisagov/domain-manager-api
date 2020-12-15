@@ -1,9 +1,10 @@
 """Static site utilities."""
 # Third-Party Libraries
 import requests
-from settings import STATIC_GEN_URL
 
+# cisagov Libraries
 from models.website import Website
+from settings import STATIC_GEN_URL
 
 
 def upload_template(category):

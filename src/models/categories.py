@@ -3,9 +3,9 @@
 from datetime import datetime
 from typing import Union
 
-# Third-Party Libraries
+# cisagov Libraries
 from utils.db.base import Document
-from utils.db.datatypes import StringType, DictType
+from utils.db.datatypes import DictType, StringType
 
 
 class Category(Document):

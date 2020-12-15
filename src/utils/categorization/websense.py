@@ -1,7 +1,10 @@
 """Websense categorization check."""
-import urllib
-import sys
+# Standard Python Libraries
 import re
+import sys
+import urllib
+
+# Third-Party Libraries
 from bs4 import BeautifulSoup
 
 
