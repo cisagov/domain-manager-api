@@ -18,10 +18,14 @@ import (
 
 // Generate static files and upload static to s3 bucket
 func (r *Route) Generate(ctx *Context) {
+	// Download template files from s3
+	download(r.Bucket, r.Category, r.Dir)
+
+	// Gather the files to upload by walking the path recursively
 	walker := make(fileWalk)
+	// Run concurrently
 	go func() {
-		// Gather the files to upload by walking the path recursively
-		if err := filepath.Walk("template/", walker.Walk); err != nil {
+		if err := filepath.Walk(filepath.Join("tmp/", r.Category), walker.Walk); err != nil {
 			log.Fatalln("Walk failed:", err)
 		}
 		close(walker)
@@ -31,7 +35,7 @@ func (r *Route) Generate(ctx *Context) {
 	uploader := s3manager.NewUploader(session.New())
 	for path := range walker {
 		if !strings.Contains(path, "base.html") {
-			rel, err := filepath.Rel("template/", path)
+			rel, err := filepath.Rel("tmp/"+r.Category, path)
 			if err != nil {
 				log.Fatalln("Unable to get relative path:", path, err)
 			}
@@ -71,6 +75,11 @@ func (r *Route) Generate(ctx *Context) {
 			fmt.Printf("successfully uploaded %s/%s/%s/%s\n", r.Bucket, r.Category, r.Dir, rel)
 		}
 	}
+	// Remove local temp files
+	err := os.RemoveAll("tmp/" + r.Category)
+	if err != nil {
+		log.Fatal(err)
+	}
 }
 
 // Parse html templates
@@ -93,14 +102,19 @@ func parse(path, rel string, ctx *Context) *bytes.Reader {
 }
 
 // download from s3 bucket
-func (r *Route) download() {
+func download(bucket, category, dir string) {
 	manager := s3manager.NewDownloader(session.New())
-	dir := filepath.Join(r.Category, r.Dir)
-	d := Downloader{bucket: r.Bucket, dir: dir, Downloader: manager}
-
+	directory := filepath.Join("tmp/", category)
+	d := Downloader{bucket: bucket, dir: directory, Downloader: manager, category: category}
 	client := s3.New(session.New())
-	params := &s3.ListObjectsInput{Bucket: &r.Bucket, Prefix: &dir}
+	params := &s3.ListObjectsInput{Bucket: &bucket, Prefix: &category}
 	client.ListObjectsPages(params, d.eachPage)
+
+	// Remove local temp files
+	err := os.RemoveAll("tmp/" + dir)
+	if err != nil {
+		log.Fatal(err)
+	}
 }
 
 // eachPage ...
@@ -115,7 +129,9 @@ func (d *Downloader) eachPage(page *s3.ListObjectsOutput, more bool) bool {
 // download to file
 func (d *Downloader) downloadToFile(key string) {
 	// Create the directories in the path
-	file := filepath.Join(d.dir, key)
+	rel, _ := filepath.Rel(d.category+"/template/", key)
+	file := filepath.Join("tmp/" + d.category + "/" + rel)
+
 	if err := os.MkdirAll(filepath.Dir(file), 0775); err != nil {
 		panic(err)
 	}

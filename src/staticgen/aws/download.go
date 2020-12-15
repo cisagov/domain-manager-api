@@ -17,8 +17,8 @@ import (
 // Downloader for s3 bucket
 type Downloader struct {
 	*s3manager.Downloader
-	bucket, dir string
-	writer      http.ResponseWriter
+	bucket, dir, category string
+	writer                http.ResponseWriter
 }
 
 // FakeWriterAt fakes AWS NewWriter Struct
