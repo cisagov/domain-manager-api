@@ -8,9 +8,11 @@ import time
 
 # Third-Party Libraries
 import boto3
+import requests
 
 # cisagov Libraries
-from settings import AWS_REGION, TEMPLATE_BUCKET
+from models.website import Website
+from settings import AWS_REGION, STATIC_GEN_URL, TEMPLATE_BUCKET
 
 logger = logging.getLogger(__name__)
 
@@ -18,6 +20,32 @@ logger = logging.getLogger(__name__)
 acm = boto3.client("acm")
 cloudfront = boto3.client("cloudfront")
 route53 = boto3.client("route53")
+
+
+def upload_template(category):
+    """Upload template files."""
+    resp = requests.post(f"{STATIC_GEN_URL}/template/?category={category}")
+    return {"message": resp.status_code}
+
+
+def delete_template(category):
+    """Delete template files."""
+    resp = requests.delete(f"{STATIC_GEN_URL}/template/?category={category}")
+    return {"message": resp.status_code}
+
+
+def generate_site(category, website_id):
+    """Generate a static site."""
+    website = Website(_id=website_id)
+    website.get()
+
+    post_data = website.profile
+    domain = website.name
+
+    resp = requests.post(
+        f"{STATIC_GEN_URL}/website/?category={category}&domain={domain}", json=post_data
+    )
+    return {"message": resp.status_code}
 
 
 def launch_site(website, domain):
@@ -45,7 +73,7 @@ def launch_site(website, domain):
     }
 
 
-def delete_site(active_site, domain):
+def delete_site(active_site, domain, category):
     """Delete an active site off s3."""
     cloudfront_metadata = active_site["metadata"]["cloudfront"]
 
@@ -72,6 +100,9 @@ def delete_site(active_site, domain):
 
     # delete cloudfront distribution
     cloudfront.delete_distribution(Id=cloudfront_metadata["id"], IfMatch=status["ETag"])
+
+    # delete s3 bucket files
+    requests.delete(f"{STATIC_GEN_URL}/website/?category={category}&domain={domain}")
 
     # delete acm ssl certificates
     acm.delete_certificate(
