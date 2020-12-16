@@ -17,8 +17,6 @@ logger = logging.getLogger(__name__)
 # Initialize aws clients
 acm = boto3.client("acm")
 cloudfront = boto3.client("cloudfront")
-s3 = boto3.client("s3")
-s3_resource = boto3.resource("s3")
 route53 = boto3.client("route53")
 
 
@@ -26,9 +24,6 @@ def launch_site(website, domain):
     """Launch an active site onto s3."""
     # get domain name
     domain_name = domain.get("Name")
-
-    # setup s3 bucket
-    setup_s3_bucket(bucket_name=domain_name, content_name=website.get("name"))
 
     # generate ssl certs and return certificate ARN
     certificate_arn = generate_ssl_certs(domain=domain)
@@ -52,7 +47,6 @@ def launch_site(website, domain):
 
 def delete_site(active_site, domain):
     """Delete an active site off s3."""
-    domain_name = domain.get("Name")
     cloudfront_metadata = active_site["metadata"]["cloudfront"]
 
     # get distribution config
@@ -79,18 +73,6 @@ def delete_site(active_site, domain):
     # delete cloudfront distribution
     cloudfront.delete_distribution(Id=cloudfront_metadata["id"], IfMatch=status["ETag"])
 
-    bucket = s3_resource.Bucket(domain_name)
-
-    # delete all objects in bucket
-    bucket.objects.all().delete()
-
-    # set waiter
-    waiter = s3.get_waiter("object_not_exists")
-    waiter.wait(Bucket=domain_name, Key="index.html")
-
-    # delete bucket
-    s3.delete_bucket(Bucket=domain_name)
-
     # delete acm ssl certificates
     acm.delete_certificate(
         CertificateArn=active_site["metadata"]["acm"]["certificate_arn"]
@@ -100,65 +82,6 @@ def delete_site(active_site, domain):
         domain=domain, endpoint=cloudfront_metadata["distribution_endpoint"]
     )
     return response
-
-
-def setup_s3_bucket(bucket_name, content_name):
-    """Setup a static website S3 Bucket."""
-    available_buckets = [
-        bucket.get("Name") for bucket in s3.list_buckets().get("Buckets")
-    ]
-
-    # create S3 bucket
-    if bucket_name not in available_buckets:
-        s3.create_bucket(Bucket=bucket_name)
-
-    # set waiter
-    waiter = s3.get_waiter("bucket_exists")
-    waiter.wait(Bucket=bucket_name)
-
-    # copy contents from source
-    template_bucket = s3_resource.Bucket(TEMPLATE_BUCKET)
-    source_keys = [
-        obj.key for obj in template_bucket.objects.all() if content_name in obj.key
-    ]
-
-    for key in source_keys:
-        copy_source = {
-            "Bucket": TEMPLATE_BUCKET,
-            "Key": key,
-        }
-        bucket = s3_resource.Bucket(bucket_name)
-        bucket.copy(copy_source, key.replace(f"{content_name}/", ""))
-
-    # attach bucket policy
-    bucket_policy = {
-        "Version": "2012-10-17",
-        "Statement": [
-            {
-                "Sid": "AddPerm",
-                "Effect": "Allow",
-                "Principal": "*",
-                "Action": ["s3:GetObject"],
-                "Resource": "arn:aws:s3:::%s/*" % bucket_name,
-            }
-        ],
-    }
-
-    bucket_policy = json.dumps(bucket_policy)
-    s3.put_bucket_policy(
-        Bucket=bucket_name,
-        Policy=bucket_policy,
-    )
-
-    # set waiter
-    waiter = s3.get_waiter("object_exists")
-    waiter.wait(Bucket=bucket_name, Key="index.html")
-
-    # launch static site
-    s3.put_bucket_website(
-        Bucket=bucket_name,
-        WebsiteConfiguration={"IndexDocument": {"Suffix": "index.html"}},
-    )
 
 
 def setup_cloudfront(domain_name, certificate_arn):
