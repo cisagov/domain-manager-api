@@ -104,10 +104,12 @@ func parse(path, rel string, ctx *Context) *bytes.Reader {
 // download from s3 bucket
 func download(bucket, category, dir string) {
 	manager := s3manager.NewDownloader(session.New())
+
 	directory := filepath.Join("tmp/", category)
+	template := category + "/template/"
 	d := Downloader{bucket: bucket, dir: directory, Downloader: manager, category: category}
 	client := s3.New(session.New())
-	params := &s3.ListObjectsInput{Bucket: &bucket, Prefix: &category}
+	params := &s3.ListObjectsInput{Bucket: &bucket, Prefix: &template}
 	client.ListObjectsPages(params, d.eachPage)
 
 	// Remove local temp files

@@ -9,7 +9,7 @@ from api.controllers.check import check_categories_manager
 from api.controllers.email_address import email_address_manager
 from api.controllers.hosted_zones import hosted_zones_manager
 from api.controllers.proxies import proxy_manager
-from api.controllers.websites import website_manager
+from api.controllers.websites import generate_website_manager, website_manager
 from utils.decorators.auth import auth_required
 
 api = Blueprint("api", __name__, url_prefix="/api")
@@ -31,6 +31,48 @@ def get_application(application_id):
     Update application data. Delete an application by its id.
     """
     return jsonify(applications_manager(request, application_id=application_id)), 200
+
+
+@api.route("/categories/", methods=["GET"])
+@auth_required
+def get_categories():
+    """Check all categories."""
+    response = categories_manager()
+    return jsonify(response)
+
+
+@api.route("/categorize/<website_id>/", methods=["GET"])
+@auth_required
+def categorize_domain(website_id):
+    """Categorize an active site by using available proxies."""
+    response = categorization_manager(
+        website_id=website_id, category=request.args.get("category")
+    )
+    return jsonify(response)
+
+
+@api.route("/check/", methods=["GET"])
+@auth_required
+def check_domain():
+    """Check domain categorization."""
+    response = check_categories_manager(request.args.get("domain"))
+    return jsonify(response)
+
+
+@api.route("/generate-dns/", methods=["POST", "DELETE"])
+@auth_required
+def generate_dns_record_handler():
+    """Generate DNS record handlers in AWS Route53."""
+    response = hosted_zones_manager(request)
+    return jsonify(response)
+
+
+@api.route("/generate-email-address/")
+@auth_required
+def generate_email_address():
+    """Generate an email address using AWS SES."""
+    response = email_address_manager(request.args.get("domain"))
+    return jsonify(response)
 
 
 @api.route("/proxies/", methods=["GET", "POST"])
@@ -65,43 +107,10 @@ def website(website_id):
     return jsonify(website_manager(request, website_id=website_id)), 200
 
 
-@api.route("/categorize/<website_id>/", methods=["GET"])
+@api.route("website/<website_id>/generate/", methods=["POST"])
 @auth_required
-def categorize_domain(website_id):
-    """Categorize an active site by using available proxies."""
-    response = categorization_manager(
-        website_id=website_id, category=request.args.get("category")
-    )
-    return jsonify(response)
-
-
-@api.route("/check/", methods=["GET"])
-@auth_required
-def check_domain():
-    """Check domain categorization."""
-    response = check_categories_manager(request.args.get("domain"))
-    return jsonify(response)
-
-
-@api.route("/categories/", methods=["GET"])
-@auth_required
-def get_categories():
-    """Check all categories."""
-    response = categories_manager()
-    return jsonify(response)
-
-
-@api.route("/generate-dns/", methods=["POST", "DELETE"])
-@auth_required
-def generate_dns_record_handler():
-    """Generate DNS record handlers in AWS Route53."""
-    response = hosted_zones_manager(request)
-    return jsonify(response)
-
-
-@api.route("/generate-email-address/")
-@auth_required
-def generate_email_address():
-    """Generate an email address using AWS SES."""
-    response = email_address_manager(request.args.get("domain"))
+def generate_website(website_id):
+    """Generate website files from a template."""
+    category = request.args.get("category")
+    response = generate_website_manager(request, website_id, category)
     return jsonify(response)
