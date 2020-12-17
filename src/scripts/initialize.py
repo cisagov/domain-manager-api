@@ -49,7 +49,11 @@ def load_websites():
         domain_load.append(hosted_zone)
 
     # list websites within the S3 Repository
-    websites = s3.list_objects(Bucket=TEMPLATE_BUCKET)
+    websites = s3.list_objects_v2(Bucket=TEMPLATE_BUCKET)
+
+    if not websites.get("Contents"):
+        logger.info("No websites to sync. Bucket is empty.")
+        return
 
     # load available websites if available
     data_load = []

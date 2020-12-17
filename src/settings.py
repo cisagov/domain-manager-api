@@ -22,22 +22,26 @@ if os.environ.get("MONGO_TYPE", "MONGO") == "DOCUMENTDB":
 else:
     CONN_STR_FMT = "mongodb://{}:{}@{}:{}/"
 
-if int(os.environ.get("USE_SSH", 0)) == 1:
+if int(os.environ.get("SSH_ENABLED", 0)) == 1:
     server = SSHTunnelForwarder(
         (os.environ.get("SSH_ADDRESS"), int(os.environ.get("SSH_PORT", 22))),
         ssh_username=os.environ.get("SSH_USERNAME"),
         ssh_pkey=os.environ.get("SSH_PRIVATE_KEY"),
         remote_bind_address=(
-            os.environ.get("DB_HOST"),
-            int(os.environ.get("DB_PORT", 27017)),
+            os.environ.get("SSH_DB_HOST"),
+            int(os.environ.get("SSH_DB_PORT", 27017)),
         ),
     )
     server.start()
     CONN_STR = CONN_STR_FMT.format(
-        os.environ.get("DB_USER"),
-        os.environ.get("DB_PW"),
+        os.environ.get("SSH_DB_USER"),
+        os.environ.get("SSH_DB_PW"),
         "127.0.0.1",
         server.local_bind_port,
+    )
+    CLIENT = MongoClient(
+        CONN_STR,
+        tlsAllowInvalidCertificates=True,
     )
 else:
     CONN_STR = CONN_STR_FMT.format(
@@ -46,8 +50,7 @@ else:
         os.environ.get("DB_HOST"),
         os.environ.get("DB_PORT"),
     )
-
-CLIENT = MongoClient(CONN_STR)
+    CLIENT = MongoClient(CONN_STR)
 
 # Set project database
 DB = CLIENT.domain_management
