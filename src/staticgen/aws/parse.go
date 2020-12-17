@@ -19,7 +19,6 @@ import (
 // Generate static files and upload static to s3 bucket
 func (r *Route) Generate(ctx *Context) {
 	// Download template files from s3
-	fmt.Println(r.Category)
 	download(r.Bucket, r.Category, r.Dir)
 
 	// Gather the files to upload by walking the path recursively

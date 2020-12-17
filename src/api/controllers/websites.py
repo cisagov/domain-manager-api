@@ -10,7 +10,7 @@ import requests
 from api.schemas.website_schema import WebsiteSchema
 from models.application import Application
 from models.website import Website
-from settings import STATIC_GEN_URL
+from settings import STATIC_GEN_URL, TEMPLATE_BUCKET
 from utils.aws.site_handler import delete_dns, launch_site, setup_dns
 
 
@@ -43,6 +43,10 @@ def generate_website_manager(request, website_id, category):
         resp.raise_for_status()
     except requests.exceptions.HTTPError as e:
         return {"error": str(e)}
+
+    # Create or update s3 url
+    website.s3_url = f"https://{TEMPLATE_BUCKET}.s3.amazonaws.com/{category}/{domain}/"
+    website.update()
 
     return {
         "message": f"{domain} static site has been created from the {category} template."
