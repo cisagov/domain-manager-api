@@ -2,10 +2,15 @@
 # Standard Python Libraries
 from datetime import datetime
 
+# Third-Party Libraries
+# Third Party Libraries
+import requests
+
 # cisagov Libraries
 from api.schemas.website_schema import WebsiteSchema
 from models.application import Application
 from models.website import Website
+from settings import STATIC_GEN_URL
 from utils.aws.site_handler import delete_dns, launch_site, setup_dns
 
 
@@ -18,6 +23,30 @@ def usage_history(website):
     else:
         response = [update]
     return response
+
+
+def generate_website_manager(request, website_id, category):
+    """Generate a website from templates manager."""
+    website = Website(_id=website_id)
+    website.get()
+    domain = website.name
+
+    post_data = request.json
+
+    # Post request to go templates static gen
+    resp = requests.post(
+        f"{STATIC_GEN_URL}/generate/?category={category}&domain={domain}",
+        json=post_data,
+    )
+
+    try:
+        resp.raise_for_status()
+    except requests.exceptions.HTTPError as e:
+        return {"error": str(e)}
+
+    return {
+        "message": f"{domain} static site has been created from the {category} template."
+    }
 
 
 def website_manager(request, website_id=None):

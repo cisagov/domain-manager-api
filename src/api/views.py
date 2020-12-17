@@ -111,5 +111,6 @@ def website(website_id):
 @auth_required
 def generate_website(website_id):
     """Generate website files from a template."""
-    response = generate_website_manager(request, website_id)
+    category = request.args.get("category")
+    response = generate_website_manager(request, website_id, category)
     return jsonify(response)

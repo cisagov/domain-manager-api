@@ -34,20 +34,6 @@ def delete_template(category):
     return {"message": resp.status_code}
 
 
-def generate_site(category, website_id):
-    """Generate a static site."""
-    website = Website(_id=website_id)
-    website.get()
-
-    post_data = website.profile
-    domain = website.name
-
-    resp = requests.post(
-        f"{STATIC_GEN_URL}/website/?category={category}&domain={domain}", json=post_data
-    )
-    return {"message": resp.status_code}
-
-
 def launch_site(website, domain):
     """Launch an active site onto s3."""
     # get domain name
