@@ -57,11 +57,28 @@ def website_manager(request, website_id=None):
     """Manage websites."""
     if not website_id:
         website_schema = WebsiteSchema(many=True)
-        response = website_schema.dump(Website().all())
-        return response
+        websites = website_schema.dump(Website().all())
+        return websites
 
     website = Website(_id=website_id)
-    if request.method == "PUT":
+    if request.method == "GET":
+        website.get()
+        domain = website.name
+        category = website.category
+
+        # Post request to go templates static gen
+        resp = requests.get(
+            f"{STATIC_GEN_URL}/website/?category={category}&domain={domain}",
+        )
+
+        try:
+            resp.raise_for_status()
+        except requests.exceptions.HTTPError as e:
+            return {"error": str(e)}
+
+        return resp.content, domain
+
+    elif request.method == "PUT":
         put_data = request.json
         app_name = put_data.get("application", None)
         if app_name:
@@ -70,9 +87,9 @@ def website_manager(request, website_id=None):
             website.application = application.get()
             website.history = usage_history(website)
         website.update()
-        response = {"message": "Active site has been updated."}
+        resp = {"message": "Active site has been updated."}
     else:
         active_site_schema = WebsiteSchema()
-        response = active_site_schema.dump(website.get())
+        resp = active_site_schema.dump(website.get())
 
-    return response
+    return resp, None

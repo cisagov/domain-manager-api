@@ -12,6 +12,7 @@ class Website(Document):
 
     name: StringType
     description: StringType
+    category: StringType
     s3_url: StringType
     ip_address: StringType
     application: ListType
