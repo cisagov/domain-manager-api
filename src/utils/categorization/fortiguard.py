@@ -1,11 +1,7 @@
 """Fortiguard categorization check."""
 # Standard Python Libraries
-import json
 import re
 import urllib
-
-# Third-Party Libraries
-from bs4 import BeautifulSoup
 
 
 def check_category(domain):

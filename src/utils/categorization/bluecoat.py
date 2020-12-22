@@ -1,14 +1,8 @@
 """Bluecoat categorization check."""
 # Standard Python Libraries
-import json
 import re
-import sys
-import threading
-import time
-import urllib
 
 # Third-Party Libraries
-from bs4 import BeautifulSoup
 import requests
 
 

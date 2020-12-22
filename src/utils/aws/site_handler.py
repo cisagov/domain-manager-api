@@ -1,9 +1,7 @@
 """AWS site gneeration utilities."""
 # Standard Python Libraries
 from datetime import datetime
-import json
 import logging
-import os
 import time
 
 # Third-Party Libraries
@@ -11,8 +9,7 @@ import boto3
 import requests
 
 # cisagov Libraries
-from models.website import Website
-from settings import AWS_REGION, STATIC_GEN_URL, TEMPLATE_BUCKET
+from settings import AWS_REGION, STATIC_GEN_URL
 
 logger = logging.getLogger(__name__)
 
@@ -102,7 +99,7 @@ def delete_site(active_site, domain, category):
 
 
 def setup_cloudfront(domain_name, certificate_arn):
-    """Setup AWS CloudFront Distribution."""
+    """Create AWS CloudFront Distribution."""
     # Launch CloudFront distribution
     unique_identifier = datetime.now().strftime("%Y-%m-%d %H:%M:%S:%f")
 
@@ -156,7 +153,7 @@ def setup_cloudfront(domain_name, certificate_arn):
 
 
 def setup_dns(domain, endpoint=None, ip_address=None):
-    """Setup a domain's DNS."""
+    """Create a domain's DNS."""
     domain_name = domain.get("Name")
     dns_id = domain.get("Id")
     if ip_address:
@@ -203,7 +200,7 @@ def setup_dns(domain, endpoint=None, ip_address=None):
 
 
 def delete_dns(domain, endpoint=None, ip_address=None):
-    """Setup a domain's DNS."""
+    """Create a domain's DNS."""
     domain_name = domain.get("Name")
     dns_id = domain.get("Id")
     if ip_address:

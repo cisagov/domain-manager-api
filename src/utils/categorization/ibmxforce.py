@@ -1,7 +1,6 @@
 """IBM X-Force categorization check."""
 # Standard Python Libraries
 import json
-import sys
 
 # Third-Party Libraries
 import requests

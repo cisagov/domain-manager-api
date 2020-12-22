@@ -8,10 +8,20 @@ import os
 # Third-Party Libraries
 import boto3
 from bson.binary import Binary
-import pymongo
 
 # cisagov Libraries
-from settings import DB, TEMPLATE_BUCKET, TEMPLATE_BUCKET_URL
+from api.manager import (
+    ApplicationManager,
+    CategoryManager,
+    ProxyManager,
+    WebsiteManager,
+)
+from settings import TEMPLATE_BUCKET, TEMPLATE_BUCKET_URL
+
+application_manager = ApplicationManager()
+website_manager = WebsiteManager()
+proxy_manager = ProxyManager()
+category_manager = CategoryManager()
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger()
@@ -36,7 +46,6 @@ def load_file(data_file, data_type="json"):
 
 def load_websites():
     """Load the latest website data from route53 and s3 into the database."""
-    db_websites = DB.websites
     initial_load = route53.list_hosted_zones().get("HostedZones")
 
     domain_load = []
@@ -54,7 +63,7 @@ def load_websites():
     # load available websites if available
     data_load = []
     for domain in domain_load:
-        if not db_websites.find_one({"name": domain.get("name")}):
+        if not website_manager.get(filter_data={"name": domain.get("name")}):
             domain_name = domain.get("name")
             available_sites = [
                 website.get("Key").split(domain_name)[0]
@@ -69,32 +78,28 @@ def load_websites():
 
     # save latest data to the database
     if data_load != []:
-        db_websites.insert_many(data_load)
+        website_manager.save_many(data_load)
         logger.info("Database has been synchronized with domain data.")
 
 
 def load_applications():
     """Load dummy application data to the database."""
-    db_applications = DB.applications
-
     application_json = load_file("data/applications.json")
 
     application_data = []
     for application in application_json:
-        if not db_applications.find_one({"name": application.get("name")}):
+        if not application_manager.get(filter_data={"name": application.get("name")}):
             application["created"] = datetime.utcnow()
             application_data.append(application)
 
     # Save latest data to the database
     if application_data != []:
-        db_applications.insert_many(application_data)
-        return logger.info("Application data has been loaded into the database.")
+        application_manager.save_many(data=application_data)
+        logger.info("Application data has been loaded into the database.")
 
 
 def load_proxy_scripts():
     """Load categorization proxy scripts."""
-    db_proxies = DB.proxies
-
     proxy_json = load_file("data/proxies.json")
 
     # load scripts
@@ -112,7 +117,7 @@ def load_proxy_scripts():
     proxy_data = []
     for proxy in proxy_json:
         name = proxy.get("name")
-        if not db_proxies.find_one({"name": name}):
+        if not proxy_manager.get(filter_data={"name": name}):
             proxy["created"] = datetime.utcnow()
 
             if name == "Trusted Source":
@@ -130,26 +135,24 @@ def load_proxy_scripts():
 
     # Save latest data to the database
     if proxy_data != []:
-        db_proxies.insert_many(proxy_data)
-        return logger.info("Proxy data has been loaded into the database.")
+        proxy_manager.save_many(data=proxy_data)
+        logger.info("Proxy data has been loaded into the database.")
 
 
 def load_categories():
     """Load general categories."""
-    db_categories = DB.categories
-
     categories_json = load_file("data/categories.json")
 
     categories_data = []
     for category in categories_json:
         name = category.get("name")
-        if not db_categories.find_one({"name": name}):
+        if not category_manager.get(filter_data={"name": name}):
             categories_data.append(category)
 
     # Save latest data to the database
     if categories_data != []:
-        db_categories.insert_many(categories_data)
-        return logger.info("Category data has been loaded into the database.")
+        category_manager.save_many(data=categories_data)
+        logger.info("Category data has been loaded into the database.")
 
 
 if __name__ == "__main__":

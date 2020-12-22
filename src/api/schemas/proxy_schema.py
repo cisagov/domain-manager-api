@@ -1,4 +1,7 @@
 """API Schema."""
+# Standard Python Libraries
+from datetime import datetime
+
 # Third-Party Libraries
 from marshmallow import Schema, fields
 
@@ -18,4 +21,4 @@ class ProxySchema(Schema):
     script = fields.Str(required=True)
     categories = fields.List(fields.Nested(CategorySchema), required=True)
     created_by = fields.Str(required=True)
-    created = fields.DateTime(required=True)
+    created = fields.DateTime(required=True, default=datetime.now())
