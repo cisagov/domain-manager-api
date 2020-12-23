@@ -13,7 +13,6 @@ from api.views.templates import TemplatesView, TemplateView
 from api.views.websites import (
     WebsiteGenerateView,
     WebsiteLaunchView,
-    WebsiteStopView,
     WebsitesView,
     WebsiteView,
 )
@@ -41,7 +40,6 @@ rules = [
     ("/website/<website_id>/", WebsiteView),
     ("/website/<website_id>/generate/", WebsiteGenerateView),
     ("/website/<website_id>/launch/", WebsiteLaunchView),
-    ("/website/<website_id>/stop/", WebsiteStopView),
 ]
 
 for rule in rules:
