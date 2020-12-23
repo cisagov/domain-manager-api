@@ -27,7 +27,7 @@ class Manager:
         schema = self.schema()
 
         if document_id:
-            return schema.dump(self.db.find_one({"_id": ObjectId(document_id)}))
+            return self.db.find_one({"_id": ObjectId(document_id)})
         else:
             return schema.dump(self.db.find_one(filter_data))
 
