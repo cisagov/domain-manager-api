@@ -27,6 +27,32 @@ class WebsitesView(MethodView):
 class WebsiteView(MethodView):
     """WebsiteView."""
 
+    def post(self, website_id):
+        """Upload files and serve s3 site."""
+        website = website_manager.get(document_id=website_id)
+
+        domain = website["name"]
+        category = "uncategorized"
+
+        resp = requests.post(
+            f"{STATIC_GEN_URL}/website/?category={category}&website={domain}",
+            files={"zip": (f"{category}.zip", request.files["zip"])},
+        )
+
+        try:
+            resp.raise_for_status()
+        except requests.exceptions.HTTPError as e:
+            return jsonify({"error": str(e)})
+
+        return jsonify(
+            website_manager.save(
+                {
+                    "category": category,
+                    "s3_url": f"https://{TEMPLATE_BUCKET}.s3.amazonaws.com/{category}/{domain}/",
+                }
+            )
+        )
+
     def get(self, website_id):
         """Download Website."""
         website = website_manager.get(document_id=website_id)
