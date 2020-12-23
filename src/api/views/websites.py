@@ -11,6 +11,7 @@ import requests
 # cisagov Libraries
 from api.manager import ApplicationManager, WebsiteManager
 from settings import STATIC_GEN_URL, TEMPLATE_BUCKET
+from utils.aws.site_handler import delete_site, launch_site
 
 website_manager = WebsiteManager()
 application_manager = ApplicationManager()
@@ -139,6 +140,20 @@ class WebsiteGenerateView(MethodView):
                 "message": f"{domain} static site has been created from the {category} template."
             }
         )
+
+
+class WebsiteLaunchView(MethodView):
+    """Launch or stop an existing static site by adding dns records to its domain."""
+
+    def get(self, website_id):
+        """Launch a static site."""
+        website = website_manager.get(document_id=website_id)
+        launch_site(website)
+
+    def delete(self, website_id):
+        """Stop a static site."""
+        website = website_manager.get(document_id=website_id)
+        delete_site(website)
 
 
 def usage_history(website):
