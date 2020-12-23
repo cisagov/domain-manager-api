@@ -13,7 +13,7 @@ API_KEY = os.environ.get("API_KEY")
 
 @pytest.fixture
 def auth_header():
-    """Api key for authorized access."""
+    """Get api key for authorized access."""
     return {"api_key": API_KEY}
 
 

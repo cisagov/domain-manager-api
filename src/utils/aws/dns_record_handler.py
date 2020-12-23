@@ -1,7 +1,6 @@
 """Hosted Zone generator."""
 # Standard Python Libraries
 from datetime import datetime
-import time
 
 # Third-Party Libraries
 import boto3

@@ -13,7 +13,7 @@ class RequestAuth:
     """Authorization class for requests."""
 
     def __init__(self, request):
-        """Initializes class with cognito settings and associated request."""
+        """Initialize class with cognito settings and associated request."""
         self.request = request
         self.aws_default_region = os.environ.get("AWS_DEFAULT_REGION")
         self.aws_cognito_user_pool_id = os.environ.get("AWS_COGNITO_USER_POOL_ID")
@@ -72,11 +72,11 @@ class RequestAuth:
 
 
 def auth_required(view):
-    """Authorization required decorator."""
+    """Authorize requests."""
 
     @wraps(view)
     def decorated(*args, **kwargs):
-        """Returns a decorated function."""
+        """Decorate."""
         auth = RequestAuth(request)
         if auth.validate():
             return view(*args, **kwargs)

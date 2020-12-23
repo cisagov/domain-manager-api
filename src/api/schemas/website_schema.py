@@ -3,7 +3,7 @@
 from marshmallow import Schema, fields
 
 # cisagov Libraries
-from api.schemas import application_schema, website_schema
+from api.schemas import application_schema
 
 
 class History(Schema):
@@ -37,6 +37,8 @@ class WebsiteSchema(Schema):
     _id = fields.Str(required=True)
     name = fields.Str(required=True)
     description = fields.Str(required=False)
+    category = fields.Str()
+    s3_url = fields.Str()
     ip_address = fields.Str(required=False)
     application = fields.Nested(application_schema.ApplicationSchema)
     is_active = fields.Boolean(required=True)
@@ -45,4 +47,8 @@ class WebsiteSchema(Schema):
     )
     is_email_active = fields.Boolean(required=True)
     launch_date = fields.DateTime(required=False)
+    profile = fields.Dict()
     history = fields.List(fields.Nested(History, required=False))
+    cloudfront = fields.Dict()
+    acm = fields.Dict()
+    route53 = fields.Dict()

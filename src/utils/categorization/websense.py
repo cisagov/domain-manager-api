@@ -1,11 +1,7 @@
 """Websense categorization check."""
 # Standard Python Libraries
 import re
-import sys
 import urllib
-
-# Third-Party Libraries
-from bs4 import BeautifulSoup
 
 
 def req_check():
