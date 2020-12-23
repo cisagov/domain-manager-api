@@ -11,5 +11,5 @@ class TemplateSchema(Schema):
 
     _id = fields.Str(required=True)
     name = fields.Str(required=True)
-    url = fields.Str(required=True)
-    created = fields.DateTime(default=datetime.now())
+    s3_url = fields.Str(required=True)
+    created = fields.DateTime(required=True, default=datetime.now())
