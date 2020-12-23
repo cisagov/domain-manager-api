@@ -10,7 +10,13 @@ from api.views.email_address import EmailAddressView
 from api.views.hosted_zones import HostedZonesView
 from api.views.proxies import ProxiesView, ProxyView
 from api.views.templates import TemplatesView, TemplateView
-from api.views.websites import WebsiteGenerateView, WebsitesView, WebsiteView
+from api.views.websites import (
+    WebsiteGenerateView,
+    WebsiteLaunchView,
+    WebsiteStopView,
+    WebsitesView,
+    WebsiteView,
+)
 from utils.decorators.auth import auth_required
 
 app = Flask(__name__)
@@ -34,6 +40,8 @@ rules = [
     ("/websites/", WebsitesView),
     ("/website/<website_id>/", WebsiteView),
     ("/website/<website_id>/generate/", WebsiteGenerateView),
+    ("/website/<website_id>/launch/", WebsiteLaunchView),
+    ("/website/<website_id>/stop/", WebsiteStopView),
 ]
 
 for rule in rules:
