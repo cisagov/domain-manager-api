@@ -148,12 +148,14 @@ class WebsiteLaunchView(MethodView):
     def get(self, website_id):
         """Launch a static site."""
         website = website_manager.get(document_id=website_id)
-        launch_site(website)
+        resp = launch_site(website)
+        return resp
 
     def delete(self, website_id):
         """Stop a static site."""
         website = website_manager.get(document_id=website_id)
-        delete_site(website)
+        resp = delete_site(website)
+        return resp
 
 
 def usage_history(website):
