@@ -27,7 +27,7 @@ class Manager:
         schema = self.schema()
 
         if document_id:
-            return schema.dump(self.db.find_one({"_id": ObjectId(document_id)}))
+            return self.db.find_one({"_id": ObjectId(document_id)})
         else:
             return schema.dump(self.db.find_one(filter_data))
 
@@ -46,6 +46,14 @@ class Manager:
         return self.db.update_one(
             {"_id": ObjectId(document_id)},
             {"$set": schema.dump(data)},
+        ).raw_result
+
+    def remove(self, document_id, data):
+        """Remove document fields by id."""
+        schema = self.schema()
+        return self.db.update_one(
+            {"_id": ObjectId(document_id)},
+            {"$unset": schema.dump(data)},
         ).raw_result
 
     def save(self, data):

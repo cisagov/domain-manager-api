@@ -3,13 +3,13 @@
 import io
 
 # Third-Party Libraries
-from flask import jsonify, send_file
+from flask import jsonify, request, send_file
 from flask.views import MethodView
 import requests
 
 # cisagov Libraries
 from api.manager import TemplateManager
-from settings import STATIC_GEN_URL
+from settings import STATIC_GEN_URL, TEMPLATE_BUCKET
 
 template_manager = TemplateManager()
 
@@ -23,7 +23,26 @@ class TemplatesView(MethodView):
 
     def post(self):
         """Create new template."""
-        return "Not yet implemented"
+        category = request.args.get("category")
+
+        resp = requests.post(
+            f"{STATIC_GEN_URL}/template/?category={category}",
+            files={"zip": (f"{category}.zip", request.files["zip"])},
+        )
+
+        try:
+            resp.raise_for_status()
+        except requests.exceptions.HTTPError as e:
+            return jsonify({"error": str(e)})
+
+        return jsonify(
+            template_manager.save(
+                {
+                    "name": category,
+                    "s3_url": f"https://{TEMPLATE_BUCKET}.s3.amazonaws.com/{category}/template/",
+                }
+            )
+        )
 
 
 class TemplateView(MethodView):
@@ -50,3 +69,17 @@ class TemplateView(MethodView):
             attachment_filename=f"{template['name']}.zip",
             mimetype="application/zip",
         )
+
+    def delete(self, template_id):
+        """Delete template."""
+        template = template_manager.get(document_id=template_id)
+        resp = requests.delete(
+            f"{STATIC_GEN_URL}/template/?category={template['name']}"
+        )
+
+        try:
+            resp.raise_for_status()
+        except requests.exceptions.HTTPError as e:
+            return jsonify({"error": str(e)})
+
+        return jsonify(template_manager.delete(document_id=template_id))

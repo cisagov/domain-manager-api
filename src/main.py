@@ -33,7 +33,7 @@ rules = [
     ("/template/<template_id>/", TemplateView),
     ("/websites/", WebsitesView),
     ("/website/<website_id>/", WebsiteView),
-    ("website/<website_id>/generate/", WebsiteGenerateView),
+    ("/website/<website_id>/generate/", WebsiteGenerateView),
 ]
 
 for rule in rules:
