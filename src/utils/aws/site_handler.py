@@ -6,10 +6,9 @@ import time
 
 # Third-Party Libraries
 import boto3
-import requests
 
 # cisagov Libraries
-from settings import AWS_REGION, STATIC_GEN_URL
+from settings import AWS_REGION
 
 logger = logging.getLogger(__name__)
 
@@ -17,18 +16,6 @@ logger = logging.getLogger(__name__)
 acm = boto3.client("acm")
 cloudfront = boto3.client("cloudfront")
 route53 = boto3.client("route53")
-
-
-def upload_template(category):
-    """Upload template files."""
-    resp = requests.post(f"{STATIC_GEN_URL}/template/?category={category}")
-    return {"message": resp.status_code}
-
-
-def delete_template(category):
-    """Delete template files."""
-    resp = requests.delete(f"{STATIC_GEN_URL}/template/?category={category}")
-    return {"message": resp.status_code}
 
 
 def launch_site(website):
