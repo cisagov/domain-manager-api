@@ -50,3 +50,7 @@ class TemplateView(MethodView):
             attachment_filename=f"{template['name']}.zip",
             mimetype="application/zip",
         )
+
+    def delete(self, template_id):
+        """Delete template."""
+        return jsonify(template_manager.delete(document_id=template_id))
