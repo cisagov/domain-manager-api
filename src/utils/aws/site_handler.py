@@ -31,21 +31,20 @@ def delete_template(category):
     return {"message": resp.status_code}
 
 
-def launch_site(website, domain):
+def launch_site(website):
     """Launch an active site onto s3."""
-    # get domain name
-    domain_name = domain.get("Name")
-
+    # init domain name
+    domain_name = website["name"]
     # generate ssl certs and return certificate ARN
-    certificate_arn = generate_ssl_certs(domain=domain)
+    certificate_arn = generate_ssl_certs(domain=domain_name)
 
     # setup cloudfront
     distribution_id, distribution_endpoint = setup_cloudfront(
         domain_name=domain_name, certificate_arn=certificate_arn
     )
 
-    # Setup DNS
-    setup_dns(domain=domain, endpoint=distribution_endpoint)
+    # setup DNS
+    setup_dns(domain=website, endpoint=distribution_endpoint)
 
     return {
         "cloudfront": {
@@ -56,9 +55,9 @@ def launch_site(website, domain):
     }
 
 
-def delete_site(active_site, domain, category):
+def delete_site(website):
     """Delete an active site off s3."""
-    cloudfront_metadata = active_site["metadata"]["cloudfront"]
+    cloudfront_metadata = website["cloudfront"]
 
     # get distribution config
     distribution = cloudfront.get_distribution(Id=cloudfront_metadata["id"])
@@ -84,16 +83,11 @@ def delete_site(active_site, domain, category):
     # delete cloudfront distribution
     cloudfront.delete_distribution(Id=cloudfront_metadata["id"], IfMatch=status["ETag"])
 
-    # delete s3 bucket files
-    requests.delete(f"{STATIC_GEN_URL}/website/?category={category}&domain={domain}")
-
     # delete acm ssl certificates
-    acm.delete_certificate(
-        CertificateArn=active_site["metadata"]["acm"]["certificate_arn"]
-    )
+    acm.delete_certificate(CertificateArn=website["acm"]["certificate_arn"])
 
     response = delete_dns(
-        domain=domain, endpoint=cloudfront_metadata["distribution_endpoint"]
+        domain=website, endpoint=cloudfront_metadata["distribution_endpoint"]
     )
     return response
 
