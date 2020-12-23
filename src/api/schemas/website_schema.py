@@ -31,6 +31,13 @@ class Profile(Schema):
     phone = fields.Str(required=True)
 
 
+class Redirect(Schema):
+    """Schema for Redirects."""
+
+    subdomain = fields.Str()
+    redirect_url = fields.Str()
+
+
 class WebsiteSchema(Schema):
     """Website Schema."""
 
@@ -52,3 +59,4 @@ class WebsiteSchema(Schema):
     cloudfront = fields.Dict()
     acm = fields.Dict()
     route53 = fields.Dict()
+    redirects = fields.List(fields.Nested(Redirect))

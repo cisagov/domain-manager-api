@@ -141,6 +141,53 @@ class WebsiteGenerateView(MethodView):
         )
 
 
+class WebsiteRedirectView(MethodView):
+    """WebsiteRedirectView."""
+
+    def get(self, website_id):
+        """Get all redirects for a website."""
+        return website_manager.get(document_id=website_id, fields=["redirects"])
+
+    def post(self, website_id):
+        """Create a website redirect."""
+        data = {
+            "subdomain": request.json["subdomain"],
+            "redirect_url": request.json["redirect_url"],
+        }
+        redirects = website_manager.get(document_id=website_id, fields=["redirects"])
+        if data["subdomain"] in [
+            r["subdomain"] for r in redirects.get("redirects", [])
+        ]:
+            return "Subdomain already utilized."
+
+        # TODO: Create S3 Bucket for Redirects
+        # TODO: Create Route53 Record to bucket
+
+        return website_manager.add_to_list(
+            document_id=website_id, field="redirects", data=data
+        )
+
+    def put(self, website_id):
+        """Update a subdomain redirect value."""
+        # TODO: Update Redirect S3 Bucket URL
+        return website_manager.update_in_list(
+            document_id=website_id,
+            field="redirects.$.redirect_url",
+            data=request.json["redirect_url"],
+            params={"redirects.subdomain": request.json["subdomain"]},
+        )
+
+    def delete(self, website_id):
+        """Delete a subdomain redirect."""
+        # TODO: Delete S3 Bucket
+        # TODO: Delete Route53 Record
+        return website_manager.delete_from_list(
+            document_id=website_id,
+            field="redirects",
+            data={"subdomain": request.json["subdomain"]},
+        )
+
+
 def usage_history(website):
     """Update website usage history on application change."""
     update = {"application": website["application"], "launch_date": datetime.utcnow()}
