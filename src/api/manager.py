@@ -48,6 +48,14 @@ class Manager:
             {"$set": schema.dump(data)},
         ).raw_result
 
+    def remove(self, document_id, data):
+        """Remove document fields by id."""
+        schema = self.schema()
+        return self.db.update_one(
+            {"_id": ObjectId(document_id)},
+            {"$unset": schema.dump(data)},
+        ).raw_result
+
     def save(self, data):
         """Save new item to collection."""
         for index in self.indexes:
