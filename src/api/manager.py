@@ -25,7 +25,7 @@ class Manager:
     def convert_fields(self, fields):
         """Convert list of fields into mongo syntax."""
         if not fields:
-            return {}
+            return None
         result = {}
         for field in fields:
             result[field] = 1

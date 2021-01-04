@@ -11,6 +11,7 @@ import requests
 # cisagov Libraries
 from api.manager import ApplicationManager, WebsiteManager
 from settings import STATIC_GEN_URL, TEMPLATE_BUCKET
+from utils.aws.redirect_handler import delete_redirect, modify_redirect, setup_redirect
 from utils.aws.site_handler import delete_site, launch_site
 
 website_manager = WebsiteManager()
@@ -161,8 +162,11 @@ class WebsiteRedirectView(MethodView):
         ]:
             return "Subdomain already utilized."
 
-        # TODO: Create S3 Bucket for Redirects
-        # TODO: Create Route53 Record to bucket
+        setup_redirect(
+            website_id=website_id,
+            subdomain=data["subdomain"],
+            redirect_url=data["redirect_url"],
+        )
 
         return website_manager.add_to_list(
             document_id=website_id, field="redirects", data=data
@@ -170,22 +174,30 @@ class WebsiteRedirectView(MethodView):
 
     def put(self, website_id):
         """Update a subdomain redirect value."""
-        # TODO: Update Redirect S3 Bucket URL
+        data = {
+            "subdomain": request.json["subdomain"],
+            "redirect_url": request.json["redirect_url"],
+        }
+        modify_redirect(
+            website_id=website_id,
+            subdomain=data["subdomain"],
+            redirect_url=data["redirect_url"],
+        )
         return website_manager.update_in_list(
             document_id=website_id,
             field="redirects.$.redirect_url",
-            data=request.json["redirect_url"],
-            params={"redirects.subdomain": request.json["subdomain"]},
+            data=data["redirect_url"],
+            params={"redirects.subdomain": data["subdomain"]},
         )
 
     def delete(self, website_id):
         """Delete a subdomain redirect."""
-        # TODO: Delete S3 Bucket
-        # TODO: Delete Route53 Record
+        subdomain = request.json["subdomain"]
+        delete_redirect(website_id=website_id, subdomain=subdomain)
         return website_manager.delete_from_list(
             document_id=website_id,
             field="redirects",
-            data={"subdomain": request.json["subdomain"]},
+            data={"subdomain": subdomain},
         )
 
 
