@@ -12,6 +12,7 @@ from api.views.proxies import ProxiesView, ProxyView
 from api.views.templates import TemplatesView, TemplateView
 from api.views.websites import (
     WebsiteGenerateView,
+    WebsiteLaunchView,
     WebsiteRedirectView,
     WebsitesView,
     WebsiteView,
@@ -41,6 +42,7 @@ rules = [
     ("/website/<website_id>/", WebsiteView),
     ("/website/<website_id>/generate/", WebsiteGenerateView),
     ("/website/<website_id>/redirect/", WebsiteRedirectView),
+    ("/website/<website_id>/launch/", WebsiteLaunchView),
 ]
 
 for rule in rules:
