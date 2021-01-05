@@ -1,6 +1,7 @@
 """Template Views."""
 # Standard Python Libraries
 import io
+import shutil
 
 # Third-Party Libraries
 from flask import jsonify, request, send_file
@@ -34,6 +35,9 @@ class TemplatesView(MethodView):
             resp.raise_for_status()
         except requests.exceptions.HTTPError as e:
             return jsonify({"error": str(e)})
+
+        # remove temp files
+        shutil.rmtree("tmp/", ignore_errors=True)
 
         return jsonify(
             template_manager.save(

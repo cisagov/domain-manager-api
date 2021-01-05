@@ -10,25 +10,25 @@ class History(Schema):
     """Application History Schema."""
 
     application = fields.Nested(application_schema.ApplicationSchema)
-    launch_date = fields.DateTime(required=False)
+    launch_date = fields.DateTime()
 
 
 class IsCategorySubmitted(Schema):
     """Submitted Categories Schema."""
 
-    _id = fields.Str(required=True)
-    name = fields.Str(required=True)
-    is_categorized = fields.Boolean(required=True)
+    _id = fields.Str()
+    name = fields.Str()
+    is_categorized = fields.Boolean()
 
 
 class Profile(Schema):
     """Template context data."""
 
-    name = fields.Str(required=True)
-    domain = fields.Str(required=True)
-    description = fields.Str(required=False)
-    email = fields.Str(required=True)
-    phone = fields.Str(required=True)
+    name = fields.Str()
+    domain = fields.Str()
+    description = fields.Str()
+    email = fields.Str()
+    phone = fields.Str()
 
 
 class Redirect(Schema):
@@ -41,21 +41,19 @@ class Redirect(Schema):
 class WebsiteSchema(Schema):
     """Website Schema."""
 
-    _id = fields.Str(required=True)
-    name = fields.Str(required=True)
-    description = fields.Str(required=False)
+    _id = fields.Str()
+    name = fields.Str()
+    description = fields.Str()
     category = fields.Str()
     s3_url = fields.Str()
-    ip_address = fields.Str(required=False)
+    ip_address = fields.Str()
     application = fields.Nested(application_schema.ApplicationSchema)
-    is_active = fields.Boolean(required=True)
-    is_category_submitted = fields.List(
-        fields.Nested(IsCategorySubmitted, required=False)
-    )
-    is_email_active = fields.Boolean(required=True)
-    launch_date = fields.DateTime(required=False)
+    is_active = fields.Boolean()
+    is_category_submitted = fields.List(fields.Nested(IsCategorySubmitted))
+    is_email_active = fields.Boolean()
+    launch_date = fields.DateTime()
     profile = fields.Dict()
-    history = fields.List(fields.Nested(History, required=False))
+    history = fields.List(fields.Nested(History))
     cloudfront = fields.Dict()
     acm = fields.Dict()
     route53 = fields.Dict()

@@ -1,6 +1,10 @@
 """Domain manager."""
+# Standard Python Libraries
+from datetime import date
+
 # Third-Party Libraries
 from flask import Flask, render_template
+from flask.json import JSONEncoder
 from flask_cors import CORS
 
 # cisagov Libraries
@@ -49,6 +53,25 @@ for rule in rules:
     url = f"{url_prefix}{rule[0]}"
     rule[1].decorators = [auth_required]
     app.add_url_rule(url, view_func=rule[1].as_view(url))
+
+
+class CustomJSONEncoder(JSONEncoder):
+    """CustomJSONEncoder."""
+
+    def default(self, obj):
+        """Encode datetime properly."""
+        try:
+            if isinstance(obj, date):
+                return obj.isoformat()
+            iterable = iter(obj)
+        except TypeError:
+            pass
+        else:
+            return list(iterable)
+        return JSONEncoder.default(self, obj)
+
+
+app.json_encoder = CustomJSONEncoder
 
 
 @app.route("/")

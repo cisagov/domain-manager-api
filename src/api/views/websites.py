@@ -2,6 +2,7 @@
 # Standard Python Libraries
 from datetime import datetime
 import io
+import shutil
 
 # Third-Party Libraries
 from flask import jsonify, request, send_file
@@ -45,6 +46,9 @@ class WebsiteView(MethodView):
             resp.raise_for_status()
         except requests.exceptions.HTTPError as e:
             return jsonify({"error": str(e)})
+
+        # remove temp files
+        shutil.rmtree("tmp/", ignore_errors=True)
 
         return jsonify(
             website_manager.save(
@@ -127,6 +131,9 @@ class WebsiteGenerateView(MethodView):
             resp.raise_for_status()
         except requests.exceptions.HTTPError as e:
             return jsonify({"error": str(e)})
+
+        # remove temp files
+        shutil.rmtree("tmp/", ignore_errors=True)
 
         website_manager.update(
             document_id=website_id,
