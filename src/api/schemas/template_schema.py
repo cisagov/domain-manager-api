@@ -9,7 +9,7 @@ from marshmallow import Schema, fields
 class TemplateSchema(Schema):
     """Template Schema."""
 
-    _id = fields.Str(required=True)
-    name = fields.Str(required=True)
-    s3_url = fields.Str(required=True)
-    created = fields.DateTime(required=True, default=datetime.now())
+    _id = fields.Str()
+    name = fields.Str()
+    s3_url = fields.Str()
+    created = fields.DateTime(default=datetime.now())

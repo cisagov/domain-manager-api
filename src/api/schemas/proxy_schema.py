@@ -9,16 +9,16 @@ from marshmallow import Schema, fields
 class CategorySchema(Schema):
     """Category Schema."""
 
-    category = fields.Str(required=True)
+    category = fields.Str()
 
 
 class ProxySchema(Schema):
     """Proxy Schema."""
 
-    _id = fields.Str(required=True)
-    name = fields.Str(required=True)
-    url = fields.Str(required=True)
-    script = fields.Str(required=True)
-    categories = fields.List(fields.Nested(CategorySchema), required=True)
-    created_by = fields.Str(required=True)
-    created = fields.DateTime(required=True, default=datetime.now())
+    _id = fields.Str()
+    name = fields.Str()
+    url = fields.Str()
+    script = fields.Str()
+    categories = fields.List(fields.Nested(CategorySchema))
+    created_by = fields.Str()
+    created = fields.DateTime(default=datetime.now())

@@ -22,19 +22,26 @@ class Manager:
         self.db = getattr(DB, collection)
         return
 
+    def convert_data(self, data, many=False):
+        """Serialize and deserialize data."""
+        schema = self.schema(many=many)
+        return schema.load(schema.dump(data))
+
+    def create_indexes(self):
+        """Create indexes for collection."""
+        for index in self.indexes:
+            self.db.create_index(index, unique=True)
+
     def get(self, document_id=None, filter_data=None):
         """Get item from collection by id or filter."""
-        schema = self.schema()
-
         if document_id:
-            return self.db.find_one({"_id": ObjectId(document_id)})
+            return self.convert_data(self.db.find_one({"_id": ObjectId(document_id)}))
         else:
-            return schema.dump(self.db.find_one(filter_data))
+            return self.convert_data(self.db.find_one(filter_data))
 
     def all(self):
         """Get all items in a collection."""
-        schema = self.schema(many=True)
-        return schema.dump(self.db.find())
+        return self.convert_data(self.db.find(), many=True)
 
     def delete(self, document_id):
         """Delete item by object id."""
@@ -44,33 +51,26 @@ class Manager:
         """Update item by id."""
         return self.db.update_one(
             {"_id": ObjectId(document_id)},
-            {"$set": data},
+            {"$set": self.convert_data(data)},
         ).raw_result
 
     def remove(self, document_id, data):
         """Remove document fields by id."""
-        schema = self.schema()
         return self.db.update_one(
             {"_id": ObjectId(document_id)},
-            {"$unset": schema.dump(data)},
+            {"$unset": data},
         ).raw_result
 
     def save(self, data):
         """Save new item to collection."""
-        for index in self.indexes:
-            self.db.create_index(index, unique=True)
-
-        schema = self.schema()
-        result = self.db.insert_one(schema.dump(data))
+        self.create_indexes()
+        result = self.db.insert_one(self.convert_data(data))
         return {"_id": str(result.inserted_id)}
 
     def save_many(self, data):
         """Save many items in collection."""
-        for index in self.indexes:
-            self.db.create_index(index, unique=True)
-
-        schema = self.schema(many=True)
-        result = self.db.insert_many(schema.dump(data))
+        self.create_indexes()
+        result = self.db.insert_many(self.convert_data(data, many=True))
         return result.inserted_ids
 
 
