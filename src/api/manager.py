@@ -42,10 +42,9 @@ class Manager:
 
     def update(self, document_id, data):
         """Update item by id."""
-        schema = self.schema()
         return self.db.update_one(
             {"_id": ObjectId(document_id)},
-            {"$set": schema.dump(data)},
+            {"$set": data},
         ).raw_result
 
     def remove(self, document_id, data):
