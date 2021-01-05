@@ -1,4 +1,7 @@
 """Database Managers."""
+# Standard Python Libraries
+from datetime import datetime
+
 # Third-Party Libraries
 from bson.objectid import ObjectId
 
@@ -32,6 +35,35 @@ class Manager:
         for index in self.indexes:
             self.db.create_index(index, unique=True)
 
+    def add_created(self, data):
+        """Add created attribute to data on save."""
+        if type(data) is dict:
+            data["created"] = datetime.now()
+        elif type(data) is list:
+            for item in data:
+                item["created"] = datetime.now()
+        return data
+
+    def add_updated(self, data):
+        """Update updated data on update."""
+        if type(data) is dict:
+            data["updated"] = datetime.now()
+        elif type(data) is list:
+            for item in data:
+                item["updated"] = datetime.now()
+        return data
+
+    def clean_data(self, data):
+        """Clean data for saves to the database."""
+        if type(data) is dict:
+            if data.get("_id"):
+                data.pop("_id")
+        elif type(data) is list:
+            for item in data:
+                if data.get("_id"):
+                    data.pop("_id")
+        return data
+
     def get(self, document_id=None, filter_data=None):
         """Get item from collection by id or filter."""
         if document_id:
@@ -49,6 +81,8 @@ class Manager:
 
     def update(self, document_id, data):
         """Update item by id."""
+        data = self.clean_data(data)
+        data = self.add_updated(data)
         return self.db.update_one(
             {"_id": ObjectId(document_id)},
             {"$set": self.convert_data(data)},
@@ -64,12 +98,16 @@ class Manager:
     def save(self, data):
         """Save new item to collection."""
         self.create_indexes()
+        data = self.clean_data(data)
+        data = self.add_created(data)
         result = self.db.insert_one(self.convert_data(data))
         return {"_id": str(result.inserted_id)}
 
     def save_many(self, data):
         """Save many items in collection."""
         self.create_indexes()
+        data = self.clean_data(data)
+        data = self.add_created(data)
         result = self.db.insert_many(self.convert_data(data, many=True))
         return result.inserted_ids
 
