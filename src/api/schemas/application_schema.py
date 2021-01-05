@@ -6,7 +6,8 @@ from marshmallow import Schema, fields
 class ApplicationSchema(Schema):
     """Application Schema."""
 
-    _id = fields.Str(required=True)
-    name = fields.Str(required=True)
-    requester_name = fields.Str(required=True)
-    created = fields.DateTime(required=True)
+    _id = fields.Str()
+    name = fields.Str()
+    requester_name = fields.Str()
+    created = fields.DateTime()
+    updated = fields.DateTime()
