@@ -17,12 +17,14 @@ from api.views.templates import TemplatesView, TemplateView
 from api.views.websites import (
     WebsiteGenerateView,
     WebsiteLaunchView,
+    WebsiteRedirectView,
     WebsitesView,
     WebsiteView,
 )
 from utils.decorators.auth import auth_required
 
 app = Flask(__name__)
+app.url_map.strict_slashes = False
 CORS(app)
 
 # register apps
@@ -43,6 +45,7 @@ rules = [
     ("/websites/", WebsitesView),
     ("/website/<website_id>/", WebsiteView),
     ("/website/<website_id>/generate/", WebsiteGenerateView),
+    ("/website/<website_id>/redirect/", WebsiteRedirectView),
     ("/website/<website_id>/launch/", WebsiteLaunchView),
 ]
 

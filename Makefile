@@ -18,8 +18,11 @@ init:
 	docker exec -it dm-api python scripts/initialize.py
 
 # target: app logs - Runs flask logs in the terminal
-logs:
+attach:
 	 docker attach --sig-proxy=false dm-api
+
+logs:
+	 docker logs dm-api
 
 # target: loc - Count lines of code.
 loc:
@@ -55,3 +58,6 @@ test:
 lint:
 	pre-commit autoupdate
 	pre-commit run --all-files
+
+refresh:
+	docker restart dm-api

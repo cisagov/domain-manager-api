@@ -25,6 +25,21 @@ class Manager:
         self.db = getattr(DB, collection)
         return
 
+    def convert_fields(self, fields):
+        """Convert list of fields into mongo syntax."""
+        if not fields:
+            return None
+        result = {}
+        for field in fields:
+            result[field] = 1
+        return result
+
+    def format_params(self, params):
+        """Format params."""
+        if not params:
+            return {}
+        return params
+
     def convert_data(self, data, many=False):
         """Serialize and deserialize data."""
         schema = self.schema(many=many)
@@ -64,16 +79,29 @@ class Manager:
                     data.pop("_id")
         return data
 
-    def get(self, document_id=None, filter_data=None):
+    def get(self, document_id=None, filter_data=None, fields=None):
         """Get item from collection by id or filter."""
         if document_id:
-            return self.convert_data(self.db.find_one({"_id": ObjectId(document_id)}))
+            return self.convert_data(
+                self.db.find_one(
+                    {"_id": ObjectId(document_id)},
+                    self.convert_fields(fields),
+                )
+            )
         else:
-            return self.convert_data(self.db.find_one(filter_data))
+            return self.convert_data(
+                self.db.find_one(
+                    filter_data,
+                    fields=self.convert_fields(fields),
+                )
+            )
 
-    def all(self):
+    def all(self, params=None, fields=None):
         """Get all items in a collection."""
-        return self.convert_data(self.db.find(), many=True)
+        return self.convert_data(
+            self.db.find(self.format_params(params), self.convert_fields(fields)),
+            many=True,
+        )
 
     def delete(self, document_id):
         """Delete item by object id."""
@@ -110,6 +138,24 @@ class Manager:
         data = self.add_created(data)
         result = self.db.insert_many(self.convert_data(data, many=True))
         return result.inserted_ids
+
+    def add_to_list(self, document_id, field, data):
+        """Add item to list in document."""
+        return self.db.update_one(
+            {"_id": ObjectId(document_id)}, {"$push": {field: data}}
+        ).raw_result
+
+    def delete_from_list(self, document_id, field, data):
+        """Delete item from list in document."""
+        return self.db.update_one(
+            {"_id": ObjectId(document_id)}, {"$pull": {field: data}}
+        ).raw_result
+
+    def update_in_list(self, document_id, field, data, params):
+        """Update item in list from document."""
+        return self.db.update_one(
+            {"_id": ObjectId(document_id), **params}, {"$set": {field: data}}
+        ).raw_result
 
 
 class ApplicationManager(Manager):
