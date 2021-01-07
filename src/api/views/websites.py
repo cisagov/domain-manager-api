@@ -50,9 +50,6 @@ class WebsiteView(MethodView):
         # remove temp files
         shutil.rmtree("tmp/", ignore_errors=True)
 
-        # Save template type to history
-        website["history"] = usage_history(website, template=category)
-
         return jsonify(
             website_manager.save(
                 {
@@ -90,11 +87,18 @@ class WebsiteView(MethodView):
         """Update website."""
         website = website_manager.get(document_id=website_id)
         if request.json.get("application"):
-            website["application"] = application_manager.get(
+            application = application_manager.get(
                 filter_data={"name": request.json["application"]}
             )
+            website["application_id"] = application["_id"]
             # Save application to history
-            website["history"] = usage_history(website)
+            website["history"] = website.get("history", [])
+            website["history"].append(
+                {
+                    "application": application,
+                    "launch_date": datetime.utcnow(),
+                }
+            )
 
         return jsonify(website_manager.update(document_id=website_id, data=website))
 
@@ -138,9 +142,6 @@ class WebsiteGenerateView(MethodView):
 
         # remove temp files
         shutil.rmtree("tmp/", ignore_errors=True)
-
-        # Save template type to history
-        website["history"] = usage_history(website, template=category)
 
         website_manager.update(
             document_id=website_id,
@@ -244,23 +245,3 @@ class WebsiteLaunchView(MethodView):
             },
         )
         return resp
-
-
-def usage_history(website, template=None):
-    """Update website usage history on application change."""
-    if template:
-        update = {
-            "template": template,
-            "launch_date": datetime.utcnow(),
-        }
-    else:
-        update = {
-            "application": website["application"],
-            "launch_date": datetime.utcnow(),
-        }
-    response = website.get("history")
-    if response:
-        response.append(update)
-    else:
-        response = [update]
-    return response
