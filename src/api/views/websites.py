@@ -221,14 +221,17 @@ class WebsiteLaunchView(MethodView):
     def get(self, website_id):
         """Launch a static site."""
         website = website_manager.get(document_id=website_id)
-        resp = launch_site(website)
+        metadata = launch_site(website)
+        data = {
+            "is_active": True,
+        }
+        data.update(metadata)
         website_manager.update(
             document_id=website_id,
-            data={
-                "is_active": True,
-            },
+            data=data,
         )
-        return resp
+        name = website["name"]
+        return {"success": f"{name} has been launched"}
 
     def delete(self, website_id):
         """Stop a static site."""
