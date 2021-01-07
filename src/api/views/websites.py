@@ -92,7 +92,13 @@ class WebsiteView(MethodView):
             )
             website["application_id"] = application["_id"]
             # Save application to history
-            website["history"] = usage_history(website, application=application)
+            website["history"] = website.get("history", [])
+            website["history"].append(
+                {
+                    "application": application,
+                    "launch_date": datetime.utcnow(),
+                }
+            )
 
         return jsonify(website_manager.update(document_id=website_id, data=website))
 
@@ -239,17 +245,3 @@ class WebsiteLaunchView(MethodView):
             },
         )
         return resp
-
-
-def usage_history(website, application=None, template=None):
-    """Update website usage history on application change."""
-    update = {
-        "application": application,
-        "launch_date": datetime.utcnow(),
-    }
-    response = website.get("history")
-    if response:
-        response.append(update)
-    else:
-        response = [update]
-    return response
