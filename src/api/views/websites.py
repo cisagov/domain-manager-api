@@ -60,28 +60,9 @@ class WebsiteView(MethodView):
         )
 
     def get(self, website_id):
-        """Download Website."""
+        """Get Website details."""
         website = website_manager.get(document_id=website_id)
-
-        resp = requests.get(
-            f"{STATIC_GEN_URL}/website/?category={website['category']}&domain={website['name']}",
-        )
-
-        try:
-            resp.raise_for_status()
-        except requests.exceptions.HTTPError as e:
-            return {"error": str(e)}
-
-        buffer = io.BytesIO()
-        buffer.write(resp.content)
-        buffer.seek(0)
-
-        return send_file(
-            buffer,
-            as_attachment=True,
-            attachment_filename=f"{website['name']}.zip",
-            mimetype="application/zip",
-        )
+        return website
 
     def put(self, website_id):
         """Update website."""
@@ -119,6 +100,34 @@ class WebsiteView(MethodView):
             website_manager.remove(
                 document_id=website_id, data={"category": "", "s3_url": ""}
             )
+        )
+
+
+class WebsiteDownloadView(MethodView):
+    """WebsiteDownloadView."""
+
+    def get(self, website_id):
+        """Download Website."""
+        website = website_manager.get(document_id=website_id)
+
+        resp = requests.get(
+            f"{STATIC_GEN_URL}/website/?category={website['category']}&domain={website['name']}",
+        )
+
+        try:
+            resp.raise_for_status()
+        except requests.exceptions.HTTPError as e:
+            return {"error": str(e)}
+
+        buffer = io.BytesIO()
+        buffer.write(resp.content)
+        buffer.seek(0)
+
+        return send_file(
+            buffer,
+            as_attachment=True,
+            attachment_filename=f"{website['name']}.zip",
+            mimetype="application/zip",
         )
 
 
