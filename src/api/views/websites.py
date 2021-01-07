@@ -50,6 +50,9 @@ class WebsiteView(MethodView):
         # remove temp files
         shutil.rmtree("tmp/", ignore_errors=True)
 
+        # Save template type to history
+        website["history"] = usage_history(website, template=category)
+
         return jsonify(
             website_manager.save(
                 {
@@ -90,6 +93,7 @@ class WebsiteView(MethodView):
             website["application"] = application_manager.get(
                 filter_data={"name": request.json["application"]}
             )
+            # Save application to history
             website["history"] = usage_history(website)
 
         return jsonify(website_manager.update(document_id=website_id, data=website))
@@ -134,6 +138,9 @@ class WebsiteGenerateView(MethodView):
 
         # remove temp files
         shutil.rmtree("tmp/", ignore_errors=True)
+
+        # Save template type to history
+        website["history"] = usage_history(website, template=category)
 
         website_manager.update(
             document_id=website_id,
@@ -224,9 +231,18 @@ class WebsiteLaunchView(MethodView):
         return resp
 
 
-def usage_history(website):
+def usage_history(website, template=None):
     """Update website usage history on application change."""
-    update = {"application": website["application"], "launch_date": datetime.utcnow()}
+    if template:
+        update = {
+            "template": template,
+            "launch_date": datetime.utcnow(),
+        }
+    else:
+        update = {
+            "application": website["application"],
+            "launch_date": datetime.utcnow(),
+        }
     response = website.get("history")
     if response:
         response.append(update)
