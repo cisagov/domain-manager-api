@@ -23,7 +23,7 @@ def launch_site(website):
     # init domain name
     domain_name = website["name"]
     # generate ssl certs and return certificate ARN
-    certificate_arn = generate_ssl_certs(domain=domain_name)
+    certificate_arn = generate_ssl_certs(website=website)
 
     # setup cloudfront
     distribution_id, distribution_endpoint = setup_cloudfront(
@@ -31,7 +31,7 @@ def launch_site(website):
     )
 
     # setup DNS
-    setup_dns(domain=website, endpoint=distribution_endpoint)
+    setup_dns(website=website, endpoint=distribution_endpoint)
 
     return {
         "cloudfront": {
@@ -74,7 +74,7 @@ def delete_site(website):
     acm.delete_certificate(CertificateArn=website["acm"]["certificate_arn"])
 
     response = delete_dns(
-        domain=website, endpoint=cloudfront_metadata["distribution_endpoint"]
+        website=website, endpoint=cloudfront_metadata["distribution_endpoint"]
     )
     return response
 
@@ -133,10 +133,10 @@ def setup_cloudfront(domain_name, certificate_arn):
     )
 
 
-def setup_dns(domain, endpoint=None, ip_address=None):
+def setup_dns(website, endpoint=None, ip_address=None):
     """Create a domain's DNS."""
-    domain_name = domain.get("Name")
-    dns_id = domain.get("Id")
+    domain_name = website["name"]
+    dns_id = website["route53"]["id"]
     if ip_address:
         response = route53.change_resource_record_sets(
             HostedZoneId=dns_id,
@@ -180,10 +180,10 @@ def setup_dns(domain, endpoint=None, ip_address=None):
     return response
 
 
-def delete_dns(domain, endpoint=None, ip_address=None):
+def delete_dns(website, endpoint=None, ip_address=None):
     """Create a domain's DNS."""
-    domain_name = domain.get("Name")
-    dns_id = domain.get("Id")
+    domain_name = website["name"]
+    dns_id = website["route53"]["id"]
     if ip_address:
         response = route53.change_resource_record_sets(
             HostedZoneId=dns_id,
@@ -227,10 +227,10 @@ def delete_dns(domain, endpoint=None, ip_address=None):
     return response
 
 
-def generate_ssl_certs(domain):
+def generate_ssl_certs(website):
     """Request and Validate an SSL certificate using AWS Certificate Manager."""
-    domain_name = domain.get("Name")
-    dns_id = domain.get("Id")
+    domain_name = website["name"]
+    dns_id = website["route53"]["id"]
     requested_certificate = acm.request_certificate(
         DomainName=domain_name,
         ValidationMethod="DNS",
