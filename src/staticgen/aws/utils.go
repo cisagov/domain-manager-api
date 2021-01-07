@@ -10,9 +10,10 @@ type (
 
 	// Route for s3 bucket
 	Route struct {
-		Bucket   string
-		Category string
-		Dir      string
+		TemplateBucket string
+		WebsiteBucket  string
+		Category       string
+		Dir            string
 	}
 
 	// Context for templates

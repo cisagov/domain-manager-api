@@ -10,7 +10,8 @@ import (
 )
 
 // Set S3 bucket URL
-var bucket = os.Getenv("TEMPLATE_BUCKET")
+var templateBucket = os.Getenv("TEMPLATE_BUCKET")
+var websiteBucket = os.Getenv("WEBSITE_BUCKET")
 
 // GenerateHandler generates website files from template files in s3
 func GenerateHandler(w http.ResponseWriter, r *http.Request) {
@@ -20,7 +21,7 @@ func GenerateHandler(w http.ResponseWriter, r *http.Request) {
 	category := query.Get("category")
 	domain := query.Get("domain")
 
-	route := aws.Route{Bucket: bucket, Category: category, Dir: domain}
+	route := aws.Route{WebsiteBucket: websiteBucket, TemplateBucket: templateBucket, Category: category, Dir: domain}
 	if r.Method == "POST" {
 		context := aws.Context{}
 		decoder := json.NewDecoder(r.Body)
@@ -33,21 +34,21 @@ func GenerateHandler(w http.ResponseWriter, r *http.Request) {
 func TemplateHandler(w http.ResponseWriter, r *http.Request) {
 	query := r.URL.Query()
 	category := query.Get("category")
-	route := aws.Route{Bucket: bucket, Category: category, Dir: "template"}
+	route := aws.Route{WebsiteBucket: websiteBucket, TemplateBucket: templateBucket, Category: category, Dir: category}
 	if r.Method == "POST" {
 		// Recieve and unzip file
-		foldername, err := Receive(r, category)
+		foldername, err := Receive(r)
 		if err != nil {
 			log.Fatalln(err)
 		}
 		// Upload to S3
-		route.Upload(foldername)
+		route.Upload(foldername, route.TemplateBucket)
 	} else if r.Method == "GET" {
 		w.Header().Set("Content-Type", "application/zip")
 		w.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=\"%s.zip\"", category))
-		route.Download(w)
+		route.Download(w, route.TemplateBucket)
 	} else if r.Method == "DELETE" {
-		route.Delete()
+		route.Delete(route.TemplateBucket)
 	} else {
 		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
 	}
@@ -58,23 +59,22 @@ func WebsiteHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	query := r.URL.Query()
-	category := query.Get("category")
 	domain := query.Get("domain")
 
-	route := aws.Route{Bucket: bucket, Category: category, Dir: domain}
+	route := aws.Route{WebsiteBucket: websiteBucket, TemplateBucket: templateBucket, Category: "", Dir: domain}
 	if r.Method == "POST" {
 		// Recieve and unzip file
-		foldername, err := Receive(r, category)
+		foldername, err := Receive(r)
 		if err != nil {
 			log.Fatalln(err)
 		}
 		// Upload to S3
-		route.Upload(foldername)
+		route.Upload(foldername, route.WebsiteBucket)
 	} else if r.Method == "GET" {
 		w.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=\"%s.zip\"", "Website"))
-		route.Download(w)
+		route.Download(w, route.WebsiteBucket)
 	} else if r.Method == "DELETE" {
-		route.Delete()
+		route.Delete(route.WebsiteBucket)
 	} else {
 		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
 	}

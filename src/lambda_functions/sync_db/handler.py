@@ -7,7 +7,8 @@ import boto3
 
 # cisagov Libraries
 from api.manager import WebsiteManager
-from settings import TEMPLATE_BUCKET, TEMPLATE_BUCKET_URL
+from settings import WEBSITE_BUCKET, WEBSITE_BUCKET_URL
+from utils.aws.s3 import list_top_level_prefixes
 
 logger = logging.getLogger()
 
@@ -32,22 +33,15 @@ def load_websites():
         domain_load.append(hosted_zone)
 
     # list websites within the S3 Repository
-    websites = s3.list_objects(Bucket=TEMPLATE_BUCKET)
+    websites = list_top_level_prefixes(WEBSITE_BUCKET)
 
     # load available websites if available
     data_load = []
     for domain in domain_load:
         if not website_manager.get(filter_data={"name": domain.get("name")}):
             domain_name = domain.get("name")
-            available_sites = [
-                website.get("Key").split(domain_name)[0]
-                for website in websites.get("Contents")
-                if domain_name in website.get("Key")
-            ]
-            if available_sites:
-                domain["s3_url"] = (
-                    TEMPLATE_BUCKET_URL + available_sites[0] + domain_name
-                )
+            if domain_name in websites:
+                domain["s3_url"] = f"{WEBSITE_BUCKET_URL}{domain_name}"
             data_load.append(domain)
 
     # save latest data to the database

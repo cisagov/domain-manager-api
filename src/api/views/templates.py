@@ -43,7 +43,7 @@ class TemplatesView(MethodView):
             template_manager.save(
                 {
                     "name": category,
-                    "s3_url": f"https://{TEMPLATE_BUCKET}.s3.amazonaws.com/{category}/template/",
+                    "s3_url": f"https://{TEMPLATE_BUCKET}.s3.amazonaws.com/{category}/",
                 }
             )
         )

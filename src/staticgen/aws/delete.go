@@ -12,19 +12,19 @@ import (
 )
 
 // Delete files from s3 bucket
-func (r *Route) Delete() {
+func (r *Route) Delete(bucket string) {
 	sess, _ := session.NewSession()
 	svc := s3.New(sess)
 
 	iter := s3manager.NewDeleteListIterator(svc, &s3.ListObjectsInput{
-		Bucket: aws.String(r.Bucket),
-		Prefix: aws.String(filepath.Join(r.Category, r.Dir)),
+		Bucket: aws.String(bucket),
+		Prefix: aws.String(filepath.Join(r.Dir)),
 	})
 
 	if err := s3manager.NewBatchDeleteWithClient(svc).Delete(aws.BackgroundContext(), iter); err != nil {
-		fmt.Printf("Unable to delete objects from bucket %q, %v", r.Bucket, err)
+		fmt.Printf("Unable to delete objects from bucket %q, %v", bucket, err)
 		os.Exit(1)
 	}
 
-	fmt.Printf("successfully deleted staticfiles from %s/%s/%s\n", r.Bucket, r.Category, r.Dir)
+	fmt.Printf("successfully deleted staticfiles from %s/%s\n", bucket, r.Dir)
 }
