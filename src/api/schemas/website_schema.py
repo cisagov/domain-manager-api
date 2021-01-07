@@ -47,7 +47,7 @@ class WebsiteSchema(Schema):
     category = fields.Str()
     s3_url = fields.Str()
     ip_address = fields.Str()
-    application = fields.Nested(application_schema.ApplicationSchema)
+    application_id = fields.Str()
     is_active = fields.Boolean()
     is_category_submitted = fields.List(fields.Nested(IsCategorySubmitted))
     is_email_active = fields.Boolean()
