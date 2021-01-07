@@ -17,8 +17,8 @@ import (
 // Downloader for s3 bucket
 type Downloader struct {
 	*s3manager.Downloader
-	bucket, dir, category string
-	writer                http.ResponseWriter
+	bucket, dir string
+	writer      http.ResponseWriter
 }
 
 // FakeWriterAt fakes AWS NewWriter Struct
@@ -33,13 +33,13 @@ func (fw FakeWriterAt) WriteAt(p []byte, offset int64) (n int, err error) {
 }
 
 // Download from s3 bucket
-func (r *Route) Download(w http.ResponseWriter) {
+func (r *Route) Download(w http.ResponseWriter, bucket string) {
 	manager := s3manager.NewDownloader(session.New())
-	dir := filepath.Join(r.Category, r.Dir)
-	d := Downloader{bucket: r.Bucket, dir: dir, Downloader: manager, writer: w}
+	dir := filepath.Join(r.Dir)
+	d := Downloader{bucket: bucket, dir: dir, Downloader: manager, writer: w}
 
 	client := s3.New(session.New())
-	params := &s3.ListObjectsInput{Bucket: &r.Bucket, Prefix: &dir}
+	params := &s3.ListObjectsInput{Bucket: &bucket, Prefix: &dir}
 	client.ListObjectsPages(params, d.toZip)
 }
 

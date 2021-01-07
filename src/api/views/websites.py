@@ -11,7 +11,7 @@ import requests
 
 # cisagov Libraries
 from api.manager import ApplicationManager, WebsiteManager
-from settings import STATIC_GEN_URL, TEMPLATE_BUCKET
+from settings import STATIC_GEN_URL, WEBSITE_BUCKET
 from utils.aws.redirect_handler import delete_redirect, modify_redirect, setup_redirect
 from utils.aws.site_handler import delete_site, launch_site
 
@@ -54,7 +54,7 @@ class WebsiteView(MethodView):
             website_manager.save(
                 {
                     "category": category,
-                    "s3_url": f"https://{TEMPLATE_BUCKET}.s3.amazonaws.com/{category}/{domain}/",
+                    "s3_url": f"https://{WEBSITE_BUCKET}.s3.amazonaws.com/{domain}/",
                 }
             )
         )
@@ -146,7 +146,7 @@ class WebsiteGenerateView(MethodView):
         website_manager.update(
             document_id=website_id,
             data={
-                "s3_url": f"https://{TEMPLATE_BUCKET}.s3.amazonaws.com/{category}/{domain}/",
+                "s3_url": f"https://{WEBSITE_BUCKET}.s3.amazonaws.com/{domain}/",
                 "category": category,
             },
         )

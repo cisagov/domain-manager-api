@@ -13,7 +13,7 @@ import (
 )
 
 // Receive a zip file from a post request
-func Receive(reader *http.Request, category string) (string, error) {
+func Receive(reader *http.Request) (string, error) {
 	err := reader.ParseMultipartForm(10 << 20)
 	if err != nil {
 		panic(err)
