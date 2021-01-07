@@ -17,10 +17,11 @@ build:
 init:
 	docker exec -it dm-api python scripts/initialize.py
 
-# target: app logs - Runs flask logs in the terminal
+# target: attach logs - Runs flask logs in the terminal
 attach:
 	 docker attach --sig-proxy=false dm-api
 
+# target: print logs - Print api logs in the terminal
 logs:
 	 docker logs dm-api
 
