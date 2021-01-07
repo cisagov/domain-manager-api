@@ -12,7 +12,7 @@ services:
       - ./src:/var/www
     ports:
       - "5000:5000"
-      - "8000:8000"
+      - "8001:8000"
     depends_on:
       - db
     env_file:
@@ -35,12 +35,11 @@ services:
     image: browserless/chrome:latest
     container_name: dm-browserless
     ports:
-      - "3000:3000"
+      - "3001:3000"
     env_file:
       - .env
     networks:
       - backend
-
 volumes:
   mongodb_data:
 
