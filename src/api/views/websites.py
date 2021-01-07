@@ -24,7 +24,7 @@ class WebsitesView(MethodView):
 
     def get(self):
         """Get all websites."""
-        return jsonify(website_manager.all())
+        return jsonify(website_manager.all(params=request.args))
 
 
 class WebsiteView(MethodView):
