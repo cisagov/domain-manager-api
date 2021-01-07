@@ -15,6 +15,7 @@ from api.views.hosted_zones import HostedZonesView
 from api.views.proxies import ProxiesView, ProxyView
 from api.views.templates import TemplatesView, TemplateView
 from api.views.websites import (
+    WebsiteDownloadView,
     WebsiteGenerateView,
     WebsiteLaunchView,
     WebsiteRedirectView,
@@ -44,6 +45,7 @@ rules = [
     ("/template/<template_id>/", TemplateView),
     ("/websites/", WebsitesView),
     ("/website/<website_id>/", WebsiteView),
+    ("/website/<website_id>/download/", WebsiteDownloadView),
     ("/website/<website_id>/generate/", WebsiteGenerateView),
     ("/website/<website_id>/redirect/", WebsiteRedirectView),
     ("/website/<website_id>/launch/", WebsiteLaunchView),
