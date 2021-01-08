@@ -11,9 +11,9 @@ from sshtunnel import SSHTunnelForwarder
 AWS_REGION = os.environ.get("AWS_REGION", "us-east-1")
 os.environ["AWS_DEFAULT_REGION"] = AWS_REGION
 TEMPLATE_BUCKET = os.environ["TEMPLATE_BUCKET"]
-TEMPLATE_BUCKET_URL = f"http://{TEMPLATE_BUCKET}.s3-website-{AWS_REGION}.amazonaws.com/"
+TEMPLATE_BUCKET_URL = f"{TEMPLATE_BUCKET}.s3-website-{AWS_REGION}.amazonaws.com"
 WEBSITE_BUCKET = os.environ["WEBSITE_BUCKET"]
-WEBSITE_BUCKET_URL = f"http://{WEBSITE_BUCKET}.s3-website-{AWS_REGION}.amazonaws.com/"
+WEBSITE_BUCKET_URL = f"{WEBSITE_BUCKET}.s3-website-{AWS_REGION}.amazonaws.com"
 
 # static gen
 STATIC_GEN_URL = os.environ.get("STATIC_GEN_URL")
