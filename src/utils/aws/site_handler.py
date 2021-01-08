@@ -8,7 +8,7 @@ import time
 import boto3
 
 # cisagov Libraries
-from settings import AWS_REGION
+from settings import WEBSITE_BUCKET_URL
 
 logger = logging.getLogger(__name__)
 
@@ -20,14 +20,12 @@ route53 = boto3.client("route53")
 
 def launch_site(website):
     """Launch an active site onto s3."""
-    # init domain name
-    domain_name = website["name"]
     # generate ssl certs and return certificate ARN
     certificate_arn = generate_ssl_certs(website=website)
 
     # setup cloudfront
     distribution_id, distribution_endpoint = setup_cloudfront(
-        domain_name=domain_name, certificate_arn=certificate_arn
+        website=website, certificate_arn=certificate_arn
     )
 
     # setup DNS
@@ -79,15 +77,16 @@ def delete_site(website):
     return response
 
 
-def setup_cloudfront(domain_name, certificate_arn):
+def setup_cloudfront(website, certificate_arn):
     """Create AWS CloudFront Distribution."""
     # Launch CloudFront distribution
     unique_identifier = datetime.now().strftime("%Y-%m-%d %H:%M:%S:%f")
+    domain_name = website["name"]
 
     distribution_config = {
         "CallerReference": unique_identifier,
         "Aliases": {"Quantity": 1, "Items": [domain_name]},
-        "DefaultRootObject": "index.html",
+        "DefaultRootObject": "home.html",
         "Comment": "Managed by Domain Manager",
         "Enabled": True,
         "Origins": {
@@ -95,7 +94,8 @@ def setup_cloudfront(domain_name, certificate_arn):
             "Items": [
                 {
                     "Id": "1",
-                    "DomainName": f"{domain_name}.s3-website-{AWS_REGION}.amazonaws.com",
+                    "DomainName": WEBSITE_BUCKET_URL,
+                    "OriginPath": f"/{domain_name}",
                     "CustomOriginConfig": {
                         "HTTPPort": 80,
                         "HTTPSPort": 443,

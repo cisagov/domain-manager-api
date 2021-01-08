@@ -67,7 +67,7 @@ def load_websites():
         if not website_manager.get(filter_data={"name": domain.get("name")}):
             domain_name = domain.get("name")
             if domain_name in websites:
-                domain["s3_url"] = f"{WEBSITE_BUCKET_URL}{domain_name}"
+                domain["s3_url"] = f"{WEBSITE_BUCKET_URL}/{domain_name}"
             data_load.append(domain)
 
     # save latest data to the database
