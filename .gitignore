@@ -96,6 +96,7 @@ terraform/python
 terraform/output
 
 *.pem
+!rds-combined-ca-bundle.pem
 
 # Golang executable
 src/staticgen/staticgen

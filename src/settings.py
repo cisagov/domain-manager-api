@@ -20,7 +20,7 @@ STATIC_GEN_URL = os.environ.get("STATIC_GEN_URL")
 
 # database
 if os.environ.get("MONGO_TYPE", "MONGO") == "DOCUMENTDB":
-    CONN_STR_FMT = "mongodb://{}:{}@{}:{}/?ssl=true&ssl_ca_certs=/var/www/rds-combined-ca-bundle.pem&retryWrites=false"
+    CONN_STR_FMT = "mongodb://{}:{}@{}:{}/?ssl=true&ssl_ca_certs=rds-combined-ca-bundle.pem&retryWrites=false"
 else:
     CONN_STR_FMT = "mongodb://{}:{}@{}:{}/"
 

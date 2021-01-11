@@ -20,9 +20,6 @@ RUN pip install --upgrade pip \
 
 ADD ./src/ /var/www/
 
-# Get certs for document db
-RUN  wget https://s3.amazonaws.com/rds-downloads/rds-combined-ca-bundle.pem
-
 ENV PYTHONPATH "${PYTHONPATH}:/var/www"
 
 # Get static gen build
