@@ -87,3 +87,19 @@ class TemplateView(MethodView):
             return jsonify({"error": str(e)})
 
         return jsonify(template_manager.delete(document_id=template_id))
+
+
+class TemplateKeysView(MethodView):
+    """TemplateKeysView."""
+
+    def get(self):
+        """Get list of keys for template context."""
+        return jsonify(
+            [
+                "description",
+                "domain",
+                "email",
+                "name",
+                "phone",
+            ]
+        )
