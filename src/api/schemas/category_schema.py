@@ -8,4 +8,4 @@ class CategorySchema(Schema):
 
     _id = fields.Str()
     name = fields.Str()
-    proxies = fields.Dict()
+    proxies = fields.List(fields.Dict())

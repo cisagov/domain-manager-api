@@ -75,8 +75,8 @@ class Manager:
                 data.pop("_id")
         elif type(data) is list:
             for item in data:
-                if data.get("_id"):
-                    data.pop("_id")
+                if item.get("_id"):
+                    item.pop("_id")
         return data
 
     def get(self, document_id=None, filter_data=None, fields=None):
@@ -92,7 +92,7 @@ class Manager:
             return self.convert_data(
                 self.db.find_one(
                     filter_data,
-                    fields=self.convert_fields(fields),
+                    self.convert_fields(fields),
                 )
             )
 
