@@ -70,13 +70,16 @@ class Manager:
 
     def clean_data(self, data):
         """Clean data for saves to the database."""
+        invalid_fields = ["_id", "created", "updated"]
         if type(data) is dict:
-            if data.get("_id"):
-                data.pop("_id")
+            for field in invalid_fields:
+                if data.get(field):
+                    data.pop(field)
         elif type(data) is list:
             for item in data:
-                if item.get("_id"):
-                    item.pop("_id")
+                for field in invalid_fields:
+                    if item.get(field):
+                        data.pop(field)
         return data
 
     def get(self, document_id=None, filter_data=None, fields=None):
