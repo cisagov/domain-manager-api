@@ -13,7 +13,7 @@ from api.views.categories import CategoriesView, CategorizeView, CheckCategories
 from api.views.email_address import EmailAddressView
 from api.views.hosted_zones import HostedZonesView
 from api.views.proxies import ProxiesView, ProxyView
-from api.views.templates import TemplatesView, TemplateView
+from api.views.templates import TemplateKeysView, TemplatesView, TemplateView
 from api.views.websites import (
     WebsiteContentView,
     WebsiteGenerateView,
@@ -44,6 +44,7 @@ rules = [
     ("/proxy/<proxy_id>/", ProxyView),
     ("/templates/", TemplatesView),
     ("/template/<template_id>/", TemplateView),
+    ("/templates/keys/", TemplateKeysView),
     ("/websites/", WebsitesView),
     ("/website/<website_id>/", WebsiteView),
     ("/website/<website_id>/content/", WebsiteContentView),
