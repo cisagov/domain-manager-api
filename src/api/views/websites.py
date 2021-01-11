@@ -5,6 +5,7 @@ import io
 import shutil
 
 # Third-Party Libraries
+import boto3
 from flask import jsonify, request, send_file
 from flask.views import MethodView
 import requests
@@ -17,6 +18,7 @@ from utils.aws.site_handler import delete_site, launch_site
 
 website_manager = WebsiteManager()
 application_manager = ApplicationManager()
+route53 = boto3.client("route53")
 
 
 class WebsitesView(MethodView):
@@ -29,6 +31,11 @@ class WebsitesView(MethodView):
 
 class WebsiteView(MethodView):
     """WebsiteView."""
+
+    def get(self, website_id):
+        """Get Website details."""
+        website = website_manager.get(document_id=website_id)
+        return jsonify(website)
 
     def post(self, website_id):
         """Upload files and serve s3 site."""
@@ -58,11 +65,6 @@ class WebsiteView(MethodView):
                 }
             )
         )
-
-    def get(self, website_id):
-        """Get Website details."""
-        website = website_manager.get(document_id=website_id)
-        return website
 
     def put(self, website_id):
         """Update website."""
@@ -172,7 +174,9 @@ class WebsiteRedirectView(MethodView):
 
     def get(self, website_id):
         """Get all redirects for a website."""
-        return website_manager.get(document_id=website_id, fields=["redirects"])
+        return jsonify(
+            website_manager.get(document_id=website_id, fields=["redirects"])
+        )
 
     def post(self, website_id):
         """Create a website redirect."""
@@ -192,8 +196,10 @@ class WebsiteRedirectView(MethodView):
             redirect_url=data["redirect_url"],
         )
 
-        return website_manager.add_to_list(
-            document_id=website_id, field="redirects", data=data
+        return jsonify(
+            website_manager.add_to_list(
+                document_id=website_id, field="redirects", data=data
+            )
         )
 
     def put(self, website_id):
@@ -207,21 +213,25 @@ class WebsiteRedirectView(MethodView):
             subdomain=data["subdomain"],
             redirect_url=data["redirect_url"],
         )
-        return website_manager.update_in_list(
-            document_id=website_id,
-            field="redirects.$.redirect_url",
-            data=data["redirect_url"],
-            params={"redirects.subdomain": data["subdomain"]},
+        return jsonify(
+            website_manager.update_in_list(
+                document_id=website_id,
+                field="redirects.$.redirect_url",
+                data=data["redirect_url"],
+                params={"redirects.subdomain": data["subdomain"]},
+            )
         )
 
     def delete(self, website_id):
         """Delete a subdomain redirect."""
         subdomain = request.json["subdomain"]
         delete_redirect(website_id=website_id, subdomain=subdomain)
-        return website_manager.delete_from_list(
-            document_id=website_id,
-            field="redirects",
-            data={"subdomain": subdomain},
+        return jsonify(
+            website_manager.delete_from_list(
+                document_id=website_id,
+                field="redirects",
+                data={"subdomain": subdomain},
+            )
         )
 
 
@@ -241,7 +251,7 @@ class WebsiteLaunchView(MethodView):
             data=data,
         )
         name = website["name"]
-        return {"success": f"{name} has been launched"}
+        return jsonify({"success": f"{name} has been launched"})
 
     def delete(self, website_id):
         """Stop a static site."""
@@ -253,4 +263,16 @@ class WebsiteLaunchView(MethodView):
                 "is_active": False,
             },
         )
-        return resp
+        return jsonify(resp)
+
+
+class WebsiteRecordView(MethodView):
+    """View for interacting with website hosted zone records."""
+
+    def get(self, website_id):
+        """Get the hosted zone records for a website."""
+        hosted_zone_id = website_manager.get(
+            document_id=website_id, fields=["route53"]
+        )["route53"]["id"]
+        resp = route53.list_resource_record_sets(HostedZoneId=hosted_zone_id)
+        return jsonify(resp["ResourceRecordSets"])
