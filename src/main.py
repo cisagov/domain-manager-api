@@ -18,6 +18,7 @@ from api.views.websites import (
     WebsiteDownloadView,
     WebsiteGenerateView,
     WebsiteLaunchView,
+    WebsiteRecordView,
     WebsiteRedirectView,
     WebsitesView,
     WebsiteView,
@@ -49,6 +50,7 @@ rules = [
     ("/website/<website_id>/generate/", WebsiteGenerateView),
     ("/website/<website_id>/redirect/", WebsiteRedirectView),
     ("/website/<website_id>/launch/", WebsiteLaunchView),
+    ("/website/<website_id>/records/", WebsiteRecordView),
 ]
 
 for rule in rules:
