@@ -3,6 +3,7 @@
 from datetime import datetime
 import io
 import shutil
+from uuid import uuid4
 
 # Third-Party Libraries
 import boto3
@@ -28,6 +29,21 @@ class WebsitesView(MethodView):
         """Get all websites."""
         return jsonify(website_manager.all(params=request.args))
 
+    def post(self):
+        """Create a new website."""
+        caller_ref = str(uuid4)
+        resp = route53.create_hosted_zone(
+            Name=request.json["name"], CallerReference=caller_ref
+        )
+        website_manager.save(
+            {
+                "name": request.json["name"],
+                "is_active": False,
+                "route53": {"id": resp["HostedZone"]["Id"]},
+            }
+        )
+        return jsonify(resp["DelegationSet"]["NameServers"])
+
 
 class WebsiteView(MethodView):
     """WebsiteView."""
@@ -36,6 +52,63 @@ class WebsiteView(MethodView):
         """Get Website details."""
         website = website_manager.get(document_id=website_id)
         return jsonify(website)
+
+    def delete(self, website_id):
+        """Delete website and hosted zone."""
+        website = website_manager.get(document_id=website_id)
+        if not website.get("is_active", False) and not website.get("redirects", []):
+            route53.delete_hosted_zone(Id=website["route53"]["id"])
+            return jsonify(website_manager.delete(website["_id"]))
+        return jsonify(
+            {"message": "Website cannot be active and redirects must be removed."}
+        )
+
+
+class WebsiteContentView(MethodView):
+    """WebsiteContentView."""
+
+    def get(self, website_id):
+        """Download Website."""
+        website = website_manager.get(document_id=website_id)
+
+        resp = requests.get(
+            f"{STATIC_GEN_URL}/website/?category={website['category']}&domain={website['name']}",
+        )
+
+        try:
+            resp.raise_for_status()
+        except requests.exceptions.HTTPError as e:
+            return {"error": str(e)}
+
+        buffer = io.BytesIO()
+        buffer.write(resp.content)
+        buffer.seek(0)
+
+        return send_file(
+            buffer,
+            as_attachment=True,
+            attachment_filename=f"{website['name']}.zip",
+            mimetype="application/zip",
+        )
+
+    def put(self, website_id):
+        """Update website."""
+        website = website_manager.get(document_id=website_id)
+        if request.json.get("application"):
+            application = application_manager.get(
+                filter_data={"name": request.json["application"]}
+            )
+            website["application_id"] = application["_id"]
+            # Save application to history
+            website["history"] = website.get("history", [])
+            website["history"].append(
+                {
+                    "application": application,
+                    "launch_date": datetime.utcnow(),
+                }
+            )
+
+        return jsonify(website_manager.update(document_id=website_id, data=website))
 
     def post(self, website_id):
         """Upload files and serve s3 site."""
@@ -66,25 +139,6 @@ class WebsiteView(MethodView):
             )
         )
 
-    def put(self, website_id):
-        """Update website."""
-        website = website_manager.get(document_id=website_id)
-        if request.json.get("application"):
-            application = application_manager.get(
-                filter_data={"name": request.json["application"]}
-            )
-            website["application_id"] = application["_id"]
-            # Save application to history
-            website["history"] = website.get("history", [])
-            website["history"].append(
-                {
-                    "application": application,
-                    "launch_date": datetime.utcnow(),
-                }
-            )
-
-        return jsonify(website_manager.update(document_id=website_id, data=website))
-
     def delete(self, website_id):
         """Delete website content."""
         website = website_manager.get(document_id=website_id)
@@ -102,34 +156,6 @@ class WebsiteView(MethodView):
             website_manager.remove(
                 document_id=website_id, data={"category": "", "s3_url": ""}
             )
-        )
-
-
-class WebsiteDownloadView(MethodView):
-    """WebsiteDownloadView."""
-
-    def get(self, website_id):
-        """Download Website."""
-        website = website_manager.get(document_id=website_id)
-
-        resp = requests.get(
-            f"{STATIC_GEN_URL}/website/?category={website['category']}&domain={website['name']}",
-        )
-
-        try:
-            resp.raise_for_status()
-        except requests.exceptions.HTTPError as e:
-            return {"error": str(e)}
-
-        buffer = io.BytesIO()
-        buffer.write(resp.content)
-        buffer.seek(0)
-
-        return send_file(
-            buffer,
-            as_attachment=True,
-            attachment_filename=f"{website['name']}.zip",
-            mimetype="application/zip",
         )
 
 
