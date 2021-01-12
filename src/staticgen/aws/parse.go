@@ -20,14 +20,14 @@ import (
 func (r *Route) Generate(ctx *Context) {
 	// Download template files from s3
 	download(r.TemplateBucket, r.Category)
-	fmt.Println("Downloaded files")
+	log.Println("Downloaded files")
 
 	// Gather the files to upload by walking the path recursively
 	walker := make(fileWalk)
 	// Run concurrently
 	go func() {
 		if err := filepath.Walk("tmp/", walker.Walk); err != nil {
-			log.Fatalln("Walk failed:", err)
+			log.Println("Walk failed:", err)
 		}
 		close(walker)
 	}()
@@ -38,7 +38,7 @@ func (r *Route) Generate(ctx *Context) {
 		if !strings.Contains(path, "base.html") {
 			rel, err := filepath.Rel("tmp/"+r.Category+"/", path)
 			if err != nil {
-				log.Fatalln("Unable to get relative path:", path, err)
+				log.Println("Unable to get relative path:", path, err)
 			}
 			var contenttype string
 			var file io.Reader
@@ -71,7 +71,7 @@ func (r *Route) Generate(ctx *Context) {
 				Body:        file,
 			})
 			if err != nil {
-				log.Fatalln("Failed to upload", path, err)
+				log.Println("Failed to upload", path, err)
 			}
 
 			fmt.Printf("successfully uploaded %s/%s\n", r.WebsiteBucket, uploadKey)
@@ -80,7 +80,7 @@ func (r *Route) Generate(ctx *Context) {
 	// Remove local temp files
 	err := os.RemoveAll("tmp/" + r.Category)
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 	}
 }
 
