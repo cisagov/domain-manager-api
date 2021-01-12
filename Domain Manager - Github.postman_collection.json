@@ -444,13 +444,13 @@
           ]
         },
         "url": {
-          "raw": "{{base_url}}/api/templates/?category=pesttest",
+          "raw": "{{base_url}}/api/templates/?category=demo",
           "host": ["{{base_url}}"],
           "path": ["api", "templates", ""],
           "query": [
             {
               "key": "category",
-              "value": "pesttest"
+              "value": "demo"
             }
           ]
         }
