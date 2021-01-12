@@ -126,7 +126,7 @@ class WebsiteContentView(MethodView):
         website = website_manager.get(document_id=website_id)
 
         domain = website["name"]
-        category = "uncategorized"
+        category = request.args.get("category")
 
         resp = requests.post(
             f"{STATIC_GEN_URL}/website/?category={category}&website={domain}",
@@ -142,11 +142,12 @@ class WebsiteContentView(MethodView):
         shutil.rmtree("tmp/", ignore_errors=True)
 
         return jsonify(
-            website_manager.save(
-                {
+            website_manager.update(
+                document_id=website_id,
+                data={
                     "category": category,
                     "s3_url": f"https://{WEBSITE_BUCKET}.s3.amazonaws.com/{domain}/",
-                }
+                },
             )
         )
 
@@ -324,20 +325,19 @@ class WebsiteCategorizeView(MethodView):
         chrome_options = webdriver.ChromeOptions()
         chrome_options.add_argument("--no-sandbox")
         chrome_options.add_argument("--headless")
-        active_site = website_manager.get(document_id=website_id)
-        domain = active_site.get("domain").get("Name")
-        domain_url = domain[:-1]
-        if active_site.get("is_categorized"):
+        website = website_manager.get(document_id=website_id)
+        domain = website["name"]
+        if website.get("is_categorized", None):
             return {"error": f"{domain} has already been categorized."}
 
         category = category_manager.get(
-            filter_data={"name": request.args.get("category")}
+            filter_data={"name": request.args.get("category", "").capitalize()}
         )
 
         if not category:
             return {"error": "Category does not exist"}
 
-        is_submitted = []
+        is_category_submitted = []
         # Submit domain to proxy
         if not current_app.config["TESTING"]:
             proxies = proxy_manager.all()
@@ -358,17 +358,17 @@ class WebsiteCategorizeView(MethodView):
                     )
                     driver.set_page_load_timeout(60)
                     exec(
-                        proxy.get("script").decode(),
+                        proxy.get("script"),
                         {
                             "driver": driver,
                             "url": proxy.get("url"),
-                            "domain": domain_url,
+                            "domain": domain,
                             "api_key": two_captcha_api_key,
                             "category": proxy_category,
                         },
                     )
                     driver.quit()
-                    is_submitted.append(
+                    is_category_submitted.append(
                         {
                             "_id": proxy["_id"],
                             "name": proxy_name,
@@ -386,6 +386,9 @@ class WebsiteCategorizeView(MethodView):
 
         # Update database
         website_manager.update(
-            document_id=website_id, data={"is_submitted": is_submitted}
+            document_id=website_id,
+            data={"is_category_submitted": is_category_submitted},
         )
-        return jsonify({"message": f"{domain} has been successfully categorized"})
+        return jsonify(
+            {"message": f"{domain} has been successfully submitted for categorization"}
+        )
