@@ -135,20 +135,23 @@ class WebsiteContentView(MethodView):
 
         try:
             resp.raise_for_status()
-        except requests.exceptions.HTTPError as e:
-            return jsonify({"error": str(e)})
+        except requests.exceptions.HTTPError:
+            return jsonify({"error": resp.text}), 400
 
         # remove temp files
         shutil.rmtree("tmp/", ignore_errors=True)
 
-        return jsonify(
-            website_manager.update(
-                document_id=website_id,
-                data={
-                    "category": category,
-                    "s3_url": f"https://{WEBSITE_BUCKET}.s3.amazonaws.com/{domain}/",
-                },
-            )
+        return (
+            jsonify(
+                website_manager.update(
+                    document_id=website_id,
+                    data={
+                        "category": category,
+                        "s3_url": f"https://{WEBSITE_BUCKET}.s3.amazonaws.com/{domain}/",
+                    },
+                )
+            ),
+            200,
         )
 
     def delete(self, website_id):

@@ -33,19 +33,22 @@ class TemplatesView(MethodView):
 
         try:
             resp.raise_for_status()
-        except requests.exceptions.HTTPError as e:
-            return jsonify({"error": str(e)})
+        except requests.exceptions.HTTPError:
+            return jsonify({"error": resp.text}), 400
 
         # remove temp files
         shutil.rmtree("tmp/", ignore_errors=True)
 
-        return jsonify(
-            template_manager.save(
-                {
-                    "name": category,
-                    "s3_url": f"https://{TEMPLATE_BUCKET}.s3.amazonaws.com/{category}/",
-                }
-            )
+        return (
+            jsonify(
+                template_manager.save(
+                    {
+                        "name": category,
+                        "s3_url": f"https://{TEMPLATE_BUCKET}.s3.amazonaws.com/{category}/",
+                    }
+                )
+            ),
+            200,
         )
 
 

@@ -40,7 +40,7 @@ func TemplateHandler(w http.ResponseWriter, r *http.Request) {
 		foldername, err := Receive(r)
 		if err != nil {
 			log.Println(err)
-			http.Error(w, "uploaded zipfile failed", 400)
+			http.Error(w, "staticgen: uploaded zipfile failed", 400)
 		}
 		// Upload to S3
 		route.Upload(foldername, route.TemplateBucket)
@@ -69,7 +69,7 @@ func WebsiteHandler(w http.ResponseWriter, r *http.Request) {
 		foldername, err := Receive(r)
 		if err != nil {
 			log.Println(err)
-			http.Error(w, "uploaded zipfile failed", 400)
+			http.Error(w, "staticgen: uploaded zipfile failed", 400)
 		}
 		// Upload to S3
 		route.Upload(foldername, route.WebsiteBucket)
