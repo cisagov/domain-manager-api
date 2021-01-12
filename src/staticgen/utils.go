@@ -34,11 +34,13 @@ func Receive(reader *http.Request) (string, error) {
 	tempFile, err := ioutil.TempFile("tmp", "upload-*.zip")
 	if err != nil {
 		log.Println(err)
+		return "", err
 	}
 	defer tempFile.Close()
 	fileBytes, err := ioutil.ReadAll(file)
 	if err != nil {
 		log.Println(err)
+		return "", err
 	}
 	tempFile.Write(fileBytes)
 
@@ -46,6 +48,7 @@ func Receive(reader *http.Request) (string, error) {
 	foldername, err := Unzip(tempFile.Name(), "tmp/")
 	if err != nil {
 		log.Println(err)
+		return "", err
 	}
 
 	// Remove Tempfile
