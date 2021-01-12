@@ -636,11 +636,11 @@
     {
       "name": "WebsiteGenerateView - Post",
       "request": {
-        "method": "DELETE",
+        "method": "POST",
         "header": [],
         "body": {
           "mode": "raw",
-          "raw": "{\"category\": \"pesticide\"}",
+          "raw": "{\r\n  \"description\": \"I just got uploaded\",\r\n  \"domain\": \"www.spokanepestservices.com\",\r\n  \"email\": \"spokane@mypestcompany.com\",\r\n  \"name\": \"My Spokane Pest Services\",\r\n  \"phone\": \"661-456-7890\"\r\n}\r\n",
           "options": {
             "raw": {
               "language": "json"
@@ -648,9 +648,15 @@
           }
         },
         "url": {
-          "raw": "{{base_url}}/api/website/{{website_id}}/generate",
+          "raw": "{{base_url}}/api/website/{{website_id}}/generate?category=pesticide",
           "host": ["{{base_url}}"],
-          "path": ["api", "website", "{{website_id}}", "generate"]
+          "path": ["api", "website", "{{website_id}}", "generate"],
+          "query": [
+            {
+              "key": "category",
+              "value": "pesticide"
+            }
+          ]
         }
       },
       "response": []
