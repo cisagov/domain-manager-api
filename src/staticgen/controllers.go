@@ -59,9 +59,10 @@ func WebsiteHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	query := r.URL.Query()
-	domain := query.Get("domain")
+	domain := query.Get("website")
+	category := query.Get("category")
 
-	route := aws.Route{WebsiteBucket: websiteBucket, TemplateBucket: templateBucket, Category: "", Dir: domain}
+	route := aws.Route{WebsiteBucket: websiteBucket, TemplateBucket: templateBucket, Category: category, Dir: domain}
 	if r.Method == "POST" {
 		// Recieve and unzip file
 		foldername, err := Receive(r)
