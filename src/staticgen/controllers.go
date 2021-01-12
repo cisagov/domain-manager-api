@@ -39,7 +39,7 @@ func TemplateHandler(w http.ResponseWriter, r *http.Request) {
 		// Recieve and unzip file
 		foldername, err := Receive(r)
 		if err != nil {
-			log.Fatalln(err)
+			log.Println(err)
 		}
 		// Upload to S3
 		route.Upload(foldername, route.TemplateBucket)
@@ -67,7 +67,7 @@ func WebsiteHandler(w http.ResponseWriter, r *http.Request) {
 		// Recieve and unzip file
 		foldername, err := Receive(r)
 		if err != nil {
-			log.Fatalln(err)
+			log.Println(err)
 		}
 		// Upload to S3
 		route.Upload(foldername, route.WebsiteBucket)

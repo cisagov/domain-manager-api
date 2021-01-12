@@ -12,5 +12,5 @@ func main() {
 	mux.HandleFunc("/website/", WebsiteHandler)
 
 	log.Println("listening on port 8000")
-	log.Fatal(http.ListenAndServe(":8000", mux))
+	log.Println(http.ListenAndServe(":8000", mux))
 }

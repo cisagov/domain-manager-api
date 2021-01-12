@@ -21,7 +21,7 @@ func Receive(reader *http.Request) (string, error) {
 
 	file, _, err := reader.FormFile("zip")
 	if err != nil {
-		fmt.Println(err)
+		log.Println(err)
 		return "", err
 	}
 
@@ -33,19 +33,19 @@ func Receive(reader *http.Request) (string, error) {
 	}
 	tempFile, err := ioutil.TempFile("tmp", "upload-*.zip")
 	if err != nil {
-		fmt.Println(err)
+		log.Println(err)
 	}
 	defer tempFile.Close()
 	fileBytes, err := ioutil.ReadAll(file)
 	if err != nil {
-		fmt.Println(err)
+		log.Println(err)
 	}
 	tempFile.Write(fileBytes)
 
 	// Unzip Tempfile
 	foldername, err := Unzip(tempFile.Name(), "tmp/")
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 	}
 
 	// Remove Tempfile
