@@ -126,7 +126,7 @@ class WebsiteContentView(MethodView):
         website = website_manager.get(document_id=website_id)
 
         domain = website["name"]
-        category = "uncategorized"
+        category = request.args.get("category")
 
         resp = requests.post(
             f"{STATIC_GEN_URL}/website/?category={category}&website={domain}",
@@ -142,11 +142,12 @@ class WebsiteContentView(MethodView):
         shutil.rmtree("tmp/", ignore_errors=True)
 
         return jsonify(
-            website_manager.save(
-                {
+            website_manager.update(
+                document_id=website_id,
+                data={
                     "category": category,
                     "s3_url": f"https://{WEBSITE_BUCKET}.s3.amazonaws.com/{domain}/",
-                }
+                },
             )
         )
 
