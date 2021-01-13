@@ -38,6 +38,4 @@ jobs:
       - name: Install Requirements
         run: pip install -r requirements.txt --no-deps
       - name: Pytest/Coverage
-        run: |
-          coverage run --omit *.venv*,*test* -m pytest ./src/tests/ --disable-warnings
-          coverage report
+        run: pytest ./src/tests/ --disable-warnings
