@@ -265,7 +265,9 @@ class WebsiteRedirectView(MethodView):
 
     def delete(self, website_id):
         """Delete a subdomain redirect."""
-        subdomain = request.json["subdomain"]
+        subdomain = request.args.get("subdomain")
+        if not subdomain:
+            return {"error": "must pass subdomain as a request arg to delete."}
         delete_redirect(website_id=website_id, subdomain=subdomain)
         return jsonify(
             website_manager.delete_from_list(
