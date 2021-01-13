@@ -28,9 +28,11 @@ jobs:
       - uses: actions/checkout@v2
       - name: create env file
         run: cp ./etc/env.dist .env
-      - name: make up
-        run: docker-compose up -d
+      - name: Install Test Requirements
+        run: pip install -r requirements-test.txt
+      - name: Install Requirements
+        run: pip install -r requirements.txt --no-deps
       - name: Pytest/Coverage
         run: |
-          docker exec dm-api coverage run -m pytest --disable-warnings
-          docker exec dm-api coverage report -i
+          coverage run --omit *.venv*,*test* -m pytest ./src/tests/ --disable-warnings
+          coverage report

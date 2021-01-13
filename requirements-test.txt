@@ -1,2 +1,11 @@
---requirement requirements.txt
--e .[test]
+black
+coverage
+Faker
+flake8
+pre-commit
+pytest
+pytest-cov
+pytest-dotenv
+pytest-env
+pytest-mock
+pytest-pythonpath
