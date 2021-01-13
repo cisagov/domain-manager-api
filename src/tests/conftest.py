@@ -7,7 +7,7 @@ from main import app
 
 
 @pytest.fixture(scope="session")
-def test_client():
+def client():
     """Get fixture for client."""
     app.config["TESTING"] = True
     app.config["BCRYPT_LOG_ROUNDS"] = 4
