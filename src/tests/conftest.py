@@ -1,31 +1,20 @@
-"""Unit testing config."""
-# Standard Python Libraries
-import os
-
+"""Main fixture for testing flask app."""
 # Third-Party Libraries
 import pytest
 
 # cisagov Libraries
-from main import app as current_app
-
-API_KEY = os.environ.get("API_KEY")
+from main import app
 
 
-@pytest.fixture
-def auth_header():
-    """Get api key for authorized access."""
-    return {"api_key": API_KEY}
-
-
-@pytest.fixture
-def app():
-    """App fixture."""
-    yield current_app
-
-
-@pytest.fixture
-def client(app):
-    """Initialize test client."""
+@pytest.fixture(scope="session")
+def client():
+    """Get fixture for client."""
     app.config["TESTING"] = True
+    app.config["BCRYPT_LOG_ROUNDS"] = 4
+    app.config["WTF_CSRF_ENABLED"] = False
+    testing_client = app.test_client()
+    ctx = app.app_context()
+    ctx.push()
 
-    return app.test_client()
+    yield testing_client
+    ctx.pop()
