@@ -42,7 +42,7 @@ class WebsitesView(MethodView):
 
     def post(self):
         """Create a new website."""
-        caller_ref = str(uuid4)
+        caller_ref = str(uuid4())
         resp = route53.create_hosted_zone(
             Name=request.json["name"], CallerReference=caller_ref
         )
