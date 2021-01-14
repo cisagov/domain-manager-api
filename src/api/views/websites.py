@@ -408,8 +408,7 @@ class WebsiteCategorizeView(MethodView):
                     logging.info(f"Categorized with {proxy_name}")
                 except Exception as err:
                     driver.quit()
-                    logging.error(f"{proxy_name} has failed")
-                    return {"error": str(err)}
+                    logging.error(f"{proxy_name} has failed: {str(err)}")
 
         # Quit WebDriver
         driver.quit()
