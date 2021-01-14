@@ -182,7 +182,18 @@ class WebsiteGenerateView(MethodView):
         """Create website."""
         category = request.args.get("category")
         website = website_manager.get(document_id=website_id)
+
+        # Switch instance to unavailable to prevent user actions
+        website_manager.update(
+            document_id=website_id,
+            data={
+                "is_available": False,
+            },
+        )
+
         domain = website["name"]
+
+        # Generate website content from a template
         resp = requests.post(
             f"{STATIC_GEN_URL}/generate/?category={category}&domain={domain}",
             json=request.json,
@@ -201,6 +212,7 @@ class WebsiteGenerateView(MethodView):
             data={
                 "s3_url": f"https://{WEBSITE_BUCKET}.s3.amazonaws.com/{domain}/",
                 "category": category,
+                "is_available": True,
             },
         )
 
