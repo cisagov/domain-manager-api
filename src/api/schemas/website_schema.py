@@ -49,6 +49,7 @@ class WebsiteSchema(Schema):
     ip_address = fields.Str()
     application_id = fields.Str()
     is_active = fields.Boolean()
+    is_available = fields.Boolean()
     is_category_submitted = fields.List(fields.Nested(IsCategorySubmitted))
     is_email_active = fields.Boolean()
     launch_date = fields.DateTime()

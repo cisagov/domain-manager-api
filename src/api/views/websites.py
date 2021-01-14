@@ -50,6 +50,7 @@ class WebsitesView(MethodView):
             {
                 "name": request.json["name"],
                 "is_active": False,
+                "is_available": True,
                 "route53": {"id": resp["HostedZone"]["Id"]},
             }
         )
@@ -284,9 +285,21 @@ class WebsiteLaunchView(MethodView):
     def get(self, website_id):
         """Launch a static site."""
         website = website_manager.get(document_id=website_id)
+
+        # Switch instance to unavailable to prevent user actions
+        website_manager.update(
+            document_id=website_id,
+            data={
+                "is_available": False,
+            },
+        )
+
+        # Create distribution, certificates, and dns records
         metadata = launch_site(website)
+
         data = {
             "is_active": True,
+            "is_available": True,
         }
         data.update(metadata)
         website_manager.update(
@@ -299,11 +312,23 @@ class WebsiteLaunchView(MethodView):
     def delete(self, website_id):
         """Stop a static site."""
         website = website_manager.get(document_id=website_id)
+
+        # Switch instance to unavailable to prevent user actions
+        website_manager.update(
+            document_id=website_id,
+            data={
+                "is_available": False,
+            },
+        )
+
+        # Delete distribution, certificates, and dns records
         resp = delete_site(website)
+
         website_manager.update(
             document_id=website_id,
             data={
                 "is_active": False,
+                "is_available": True,
             },
         )
         return jsonify(resp)
@@ -383,8 +408,7 @@ class WebsiteCategorizeView(MethodView):
                     logging.info(f"Categorized with {proxy_name}")
                 except Exception as err:
                     driver.quit()
-                    logging.error(f"{proxy_name} has failed")
-                    return {"error": str(err)}
+                    logging.error(f"{proxy_name} has failed: {str(err)}")
 
         # Quit WebDriver
         driver.quit()
