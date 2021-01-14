@@ -1,16 +1,11 @@
 """Synchronize database script."""
-# Standard Python Libraries
-import logging
-
 # Third-Party Libraries
 import boto3
 
 # cisagov Libraries
 from api.manager import WebsiteManager
-from settings import WEBSITE_BUCKET, WEBSITE_BUCKET_URL
+from settings import WEBSITE_BUCKET, WEBSITE_BUCKET_URL, logger
 from utils.aws.s3 import list_top_level_prefixes
-
-logger = logging.getLogger()
 
 website_manager = WebsiteManager()
 

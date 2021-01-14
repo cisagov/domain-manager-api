@@ -1,12 +1,17 @@
 """Contains static vars to be used in application."""
 
 # Standard Python Libraries
+import logging
 import os
 
 # Third-Party Libraries
 import mongomock
 
 from .db_settings import get_db
+
+# logger
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger("dm-api")
 
 # aws
 AWS_REGION = os.environ.get("AWS_REGION", "us-east-1")
