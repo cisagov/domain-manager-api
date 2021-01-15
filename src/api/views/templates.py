@@ -2,6 +2,7 @@
 # Standard Python Libraries
 import io
 import shutil
+import urllib
 
 # Third-Party Libraries
 from flask import jsonify, request, send_file
@@ -23,30 +24,49 @@ class TemplatesView(MethodView):
         return jsonify(template_manager.all())
 
     def post(self):
-        """Create new template."""
-        category = request.args.get("category")
+        """Create new template."""        
+        
+        
+        overwrite = request.args.get("overwrite")
 
-        resp = requests.post(
-            f"{STATIC_GEN_URL}/template/?category={category}",
-            files={"zip": (f"{category}.zip", request.files["zip"])},
-        )
+        def checkName(name):
+            import ipdb; ipdb.set_trace()
+            if(overwrite.lower().strip()=="true"):
+                return True
+            templates = template_manager.all()        
+            existing_names = [template["name"] for template in templates if name == template["name"]]
+            return len(existing_names) == 0
 
-        try:
-            resp.raise_for_status()
-        except requests.exceptions.HTTPError as e:
-            return jsonify({"error": str(e)})
+        rvalues = []       
+        
+        for file in request.files.getlist('zip'):
+            if file.filename.endswith(".zip"):
+                name = file.filename[:-4]
+            
+            if(checkName(name)):
+                urlEscapedName = urllib.parse.quote_plus(name)
+                resp = requests.post(
+                    f"{STATIC_GEN_URL}/template/?category={urlEscapedName}",
+                    files={"zip": (f"{file.filename}", file)},
+                )
+                try:
+                    resp.raise_for_status()
+                except requests.exceptions.HTTPError as e:
+                    return jsonify({"error": str(e)})
 
-        # remove temp files
-        shutil.rmtree("tmp/", ignore_errors=True)
+                # remove temp files
+                shutil.rmtree("tmp/", ignore_errors=True)
 
-        return jsonify(
-            template_manager.save(
-                {
-                    "name": category,
-                    "s3_url": f"https://{TEMPLATE_BUCKET}.s3.amazonaws.com/{category}/",
-                }
-            )
-        )
+                rvalues.append(template_manager.save(
+                    {
+                        "name": name,
+                        "s3_url": f"https://{TEMPLATE_BUCKET}.s3.amazonaws.com/{name}/",
+                    }
+                ))            
+            else:
+                rvalues.append({"_id":"0", "name":name, "error":"template already exits"})
+
+        return jsonify(rvalues)
 
 
 class TemplateView(MethodView):
