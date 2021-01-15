@@ -2,7 +2,6 @@
 # Standard Python Libraries
 from datetime import datetime
 import json
-import logging
 import os
 
 # Third-Party Libraries
@@ -16,16 +15,13 @@ from api.manager import (
     ProxyManager,
     WebsiteManager,
 )
-from settings import WEBSITE_BUCKET, WEBSITE_BUCKET_URL
+from settings import WEBSITE_BUCKET, WEBSITE_BUCKET_URL, logger
 from utils.aws.s3 import list_top_level_prefixes
 
 application_manager = ApplicationManager()
 website_manager = WebsiteManager()
 proxy_manager = ProxyManager()
 category_manager = CategoryManager()
-
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger()
 
 
 # Initialize AWS Clients

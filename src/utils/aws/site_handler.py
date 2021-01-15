@@ -1,16 +1,13 @@
 """AWS site gneeration utilities."""
 # Standard Python Libraries
 from datetime import datetime
-import logging
 import time
 
 # Third-Party Libraries
 import boto3
 
 # cisagov Libraries
-from settings import WEBSITE_BUCKET_URL
-
-logger = logging.getLogger(__name__)
+from settings import WEBSITE_BUCKET_URL, logger
 
 # Initialize aws clients
 acm = boto3.client("acm")

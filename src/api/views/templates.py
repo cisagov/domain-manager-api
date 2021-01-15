@@ -54,8 +54,8 @@ class TemplatesView(MethodView):
                 except requests.exceptions.HTTPError as e:
                     return jsonify({"error": str(e)})
 
-                # remove temp files
-                shutil.rmtree("tmp/", ignore_errors=True)
+        # remove temp files
+        shutil.rmtree("tmp/", ignore_errors=True)
 
                 rvalues.append(template_manager.save(
                     {
@@ -66,7 +66,7 @@ class TemplatesView(MethodView):
             else:
                 rvalues.append({"_id":"0", "name":name, "error":"template already exits"})
 
-        return jsonify(rvalues)
+        return jsonify(rvalues, 200)
 
 
 class TemplateView(MethodView):

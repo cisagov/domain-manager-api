@@ -42,7 +42,7 @@ class WebsitesView(MethodView):
 
     def post(self):
         """Create a new website."""
-        caller_ref = str(uuid4)
+        caller_ref = str(uuid4())
         resp = route53.create_hosted_zone(
             Name=request.json["name"], CallerReference=caller_ref
         )
@@ -50,6 +50,7 @@ class WebsitesView(MethodView):
             {
                 "name": request.json["name"],
                 "is_active": False,
+                "is_available": True,
                 "route53": {"id": resp["HostedZone"]["Id"]},
             }
         )
@@ -135,20 +136,23 @@ class WebsiteContentView(MethodView):
 
         try:
             resp.raise_for_status()
-        except requests.exceptions.HTTPError as e:
-            return jsonify({"error": str(e)})
+        except requests.exceptions.HTTPError:
+            return jsonify({"error": resp.text}), 400
 
         # remove temp files
         shutil.rmtree("tmp/", ignore_errors=True)
 
-        return jsonify(
-            website_manager.update(
-                document_id=website_id,
-                data={
-                    "category": category,
-                    "s3_url": f"https://{WEBSITE_BUCKET}.s3.amazonaws.com/{domain}/",
-                },
-            )
+        return (
+            jsonify(
+                website_manager.update(
+                    document_id=website_id,
+                    data={
+                        "category": category,
+                        "s3_url": f"https://{WEBSITE_BUCKET}.s3.amazonaws.com/{domain}/",
+                    },
+                )
+            ),
+            200,
         )
 
     def delete(self, website_id):
@@ -178,7 +182,18 @@ class WebsiteGenerateView(MethodView):
         """Create website."""
         category = request.args.get("category")
         website = website_manager.get(document_id=website_id)
+
+        # Switch instance to unavailable to prevent user actions
+        website_manager.update(
+            document_id=website_id,
+            data={
+                "is_available": False,
+            },
+        )
+
         domain = website["name"]
+
+        # Generate website content from a template
         resp = requests.post(
             f"{STATIC_GEN_URL}/generate/?category={category}&domain={domain}",
             json=request.json,
@@ -197,6 +212,7 @@ class WebsiteGenerateView(MethodView):
             data={
                 "s3_url": f"https://{WEBSITE_BUCKET}.s3.amazonaws.com/{domain}/",
                 "category": category,
+                "is_available": True,
             },
         )
 
@@ -262,7 +278,9 @@ class WebsiteRedirectView(MethodView):
 
     def delete(self, website_id):
         """Delete a subdomain redirect."""
-        subdomain = request.json["subdomain"]
+        subdomain = request.args.get("subdomain")
+        if not subdomain:
+            return {"error": "must pass subdomain as a request arg to delete."}
         delete_redirect(website_id=website_id, subdomain=subdomain)
         return jsonify(
             website_manager.delete_from_list(
@@ -279,9 +297,21 @@ class WebsiteLaunchView(MethodView):
     def get(self, website_id):
         """Launch a static site."""
         website = website_manager.get(document_id=website_id)
+
+        # Switch instance to unavailable to prevent user actions
+        website_manager.update(
+            document_id=website_id,
+            data={
+                "is_available": False,
+            },
+        )
+
+        # Create distribution, certificates, and dns records
         metadata = launch_site(website)
+
         data = {
             "is_active": True,
+            "is_available": True,
         }
         data.update(metadata)
         website_manager.update(
@@ -294,11 +324,23 @@ class WebsiteLaunchView(MethodView):
     def delete(self, website_id):
         """Stop a static site."""
         website = website_manager.get(document_id=website_id)
+
+        # Switch instance to unavailable to prevent user actions
+        website_manager.update(
+            document_id=website_id,
+            data={
+                "is_available": False,
+            },
+        )
+
+        # Delete distribution, certificates, and dns records
         resp = delete_site(website)
+
         website_manager.update(
             document_id=website_id,
             data={
                 "is_active": False,
+                "is_available": True,
             },
         )
         return jsonify(resp)
@@ -378,8 +420,7 @@ class WebsiteCategorizeView(MethodView):
                     logging.info(f"Categorized with {proxy_name}")
                 except Exception as err:
                     driver.quit()
-                    logging.error(f"{proxy_name} has failed")
-                    return {"error": str(err)}
+                    logging.error(f"{proxy_name} has failed: {str(err)}")
 
         # Quit WebDriver
         driver.quit()

@@ -19,7 +19,7 @@ func (r *Route) Upload(foldername string, bucket string) {
 	go func() {
 		// Gather the files to upload by walking the path recursively
 		if err := filepath.Walk(filepath.Join("tmp/"+foldername), walker.Walk); err != nil {
-			log.Fatalln("Walk failed:", err)
+			log.Println("Walk failed:", err)
 		}
 		close(walker)
 	}()
@@ -29,7 +29,7 @@ func (r *Route) Upload(foldername string, bucket string) {
 	for path := range walker {
 		rel, err := filepath.Rel("tmp/"+foldername, path)
 		if err != nil {
-			log.Fatalln("Unable to get relative path:", path, err)
+			log.Println("Unable to get relative path:", path, err)
 		}
 		rel = strings.Replace(rel, "\\", "/", -1)
 		var contenttype string
@@ -58,7 +58,7 @@ func (r *Route) Upload(foldername string, bucket string) {
 			Body:        file,
 		})
 		if err != nil {
-			log.Fatalln("Failed to upload", path, err)
+			log.Println("Failed to upload", path, err)
 		}
 
 		fmt.Printf("successfully uploaded %s/%s/%s\n", bucket, r.Dir, rel)
@@ -67,6 +67,6 @@ func (r *Route) Upload(foldername string, bucket string) {
 	// Remove local temp files
 	err := os.RemoveAll("tmp/" + foldername)
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 	}
 }

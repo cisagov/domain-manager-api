@@ -9,5 +9,8 @@ class ApplicationSchema(Schema):
     _id = fields.Str()
     name = fields.Str()
     requester_name = fields.Str()
+    contact_name = fields.Str()
+    contact_email = fields.Email()
+    contact_phone = fields.Str()
     created = fields.DateTime()
     updated = fields.DateTime()

@@ -53,7 +53,7 @@ func (d *Downloader) toZip(page *s3.ListObjectsOutput, more bool) bool {
 
 	err := writer.Close()
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 	}
 	io.Copy(d.writer, buff)
 
@@ -65,7 +65,7 @@ func (d *Downloader) downloadToBuffer(key string, writer *zip.Writer, buff *byte
 	// Create file in memory
 	f, err := writer.Create(key)
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 	}
 
 	// Download object using the AWS SDK

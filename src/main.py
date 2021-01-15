@@ -24,6 +24,7 @@ from api.views.websites import (
     WebsitesView,
     WebsiteView,
 )
+from settings import logger
 from utils.decorators.auth import auth_required
 
 app = Flask(__name__)
@@ -83,6 +84,7 @@ app.json_encoder = CustomJSONEncoder
 @app.route("/")
 def api_map():
     """List endpoints for api."""
+    logger.info("API is up and running.")
     endpoints = {
         endpoint.rule: endpoint.methods
         for endpoint in app.url_map.__dict__["_rules"]
