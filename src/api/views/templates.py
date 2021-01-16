@@ -24,26 +24,35 @@ class TemplatesView(MethodView):
         return jsonify(template_manager.all())
 
     def post(self):
-        """Create new template."""        
-        
-        
+        """Create new template."""                
         overwrite = request.args.get("overwrite")
-
-        def checkName(name):
-            import ipdb; ipdb.set_trace()
-            if(overwrite.lower().strip()=="true"):
-                return True
-            templates = template_manager.all()        
-            existing_names = [template["name"] for template in templates if name == template["name"]]
-            return len(existing_names) == 0
-
-        rvalues = []       
+        bOverwrite = overwrite.lower().strip()=="true"
+        def checkName(name):                    
+            templates = template_manager.all()                    
+            existing_names = [(template["name"],template["_id"]) for template in templates if name == template["name"]]        
+            return len(existing_names) > 0, existing_names
+            
+        def cleanup(name, document_id):            
+            resp = requests.delete(f"{STATIC_GEN_URL}/template/?category={name}")            
+            try:
+                resp.raise_for_status()
+            except requests.exceptions.HTTPError as e:
+                return {"name":name, "status": str(e)}             
+            template_manager.delete(document_id)
+            return {"name":name, "status":"deleted"}
         
+
+        rvalues = []               
         for file in request.files.getlist('zip'):
             if file.filename.endswith(".zip"):
                 name = file.filename[:-4]
+            (exists,ids) = checkName(name)
+
+            if(bOverwrite and exists):
+                cleanup(name,ids[0][1])
+                exists = False
             
-            if(checkName(name)):
+            if(not exists):
                 urlEscapedName = urllib.parse.quote_plus(name)
                 resp = requests.post(
                     f"{STATIC_GEN_URL}/template/?category={urlEscapedName}",
@@ -54,8 +63,8 @@ class TemplatesView(MethodView):
                 except requests.exceptions.HTTPError as e:
                     return jsonify({"error": str(e)})
 
-        # remove temp files
-        shutil.rmtree("tmp/", ignore_errors=True)
+                # remove temp files
+                shutil.rmtree("tmp/", ignore_errors=True)
 
                 rvalues.append(template_manager.save(
                     {

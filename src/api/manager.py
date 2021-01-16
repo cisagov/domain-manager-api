@@ -108,7 +108,7 @@ class Manager:
 
     def delete(self, document_id):
         """Delete item by object id."""
-        return self.db.delete_one({"_id": ObjectId(document_id)}).raw_result
+        return self.db.delete_one({"_id": ObjectId(document_id)}).raw_result    
 
     def update(self, document_id, data):
         """Update item by id."""

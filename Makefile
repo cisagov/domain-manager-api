@@ -62,3 +62,5 @@ lint:
 
 refresh:
 	docker restart dm-api
+
+ra:	refresh	attach

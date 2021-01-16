@@ -124,10 +124,22 @@ class WebsiteContentView(MethodView):
 
     def post(self, website_id):
         """Upload files and serve s3 site."""
+        """clean the content and reupload
+           update website record if necessary
+        """ 
+        import ipdb; ipdb.set_trace()        
         website = website_manager.get(document_id=website_id)
 
         domain = website["name"]
         category = request.args.get("category")
+        
+        # resp = requests.delete(
+        #     f"{STATIC_GEN_URL}/website/?category={website['category']}&domain={website['name']}",
+        # )            
+        # try:
+        #     resp.raise_for_status()
+        # except requests.exceptions.HTTPError as e:
+        #     return jsonify({"error": resp.text}), 400
 
         resp = requests.post(
             f"{STATIC_GEN_URL}/website/?category={category}&website={domain}",
