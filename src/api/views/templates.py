@@ -98,7 +98,7 @@ class TemplateView(MethodView):
         return jsonify(template_manager.delete(document_id=template_id))
 
 
-class TemplateKeysView(MethodView):
+class TemplateAttributesView(MethodView):
     """TemplateKeysView."""
 
     def get(self):
