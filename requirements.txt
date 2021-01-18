@@ -15,7 +15,6 @@ Flask==1.1.2
 Flask-Cors==3.0.9
 gunicorn==20.0.4
 idna==2.10
-ipdb==0.13.4
 itsdangerous==1.1.0
 Jinja2==2.11.2
 jmespath==0.10.0
