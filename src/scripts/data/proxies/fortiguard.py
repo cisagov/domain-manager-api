@@ -10,34 +10,32 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.wait import WebDriverWait
 from twocaptcha import TwoCaptcha
 
-print("Running Fortiguard proxy")
-driver.get(url)
-driver.set_window_size(1680, 979)
+self.driver.get("https://www.fortiguard.com/faq/wfratingsubmit")
+self.driver.set_window_size(1108, 1039)
 driver.find_element(By.ID, "__agreementButton").click()
-time.sleep(3)
-driver.find_element(By.ID, "web_filter_rating_info_form_url").click()
-driver.find_element(By.ID, "web_filter_rating_info_form_url").click()
-driver.find_element(By.ID, "web_filter_rating_info_form_url").send_keys(
+self.driver.find_element(By.ID, "web_filter_rating_info_form_url").click()
+self.driver.find_element(By.ID, "web_filter_rating_info_form_url").send_keys(
     f"http://{domain}"
 )
-wait = WebDriverWait(driver, 10)
-wait.until(
-    EC.presence_of_element_located(
-        (By.ID, "web_filter_rating_info_form_categorysuggestion")
-    )
+self.driver.find_element(
+    By.ID, "web_filter_rating_info_form_categorysuggestion"
+).click()
+dropdown = self.driver.find_element(
+    By.ID, "web_filter_rating_info_form_categorysuggestion"
 )
-driver.find_element(By.ID, "web_filter_rating_info_form_categorysuggestion").click()
-dropdown = driver.find_element(By.ID, "web_filter_rating_info_form_categorysuggestion")
 dropdown.find_element(By.XPATH, f"//option[. = '{category}']").click()
-driver.find_element(By.CSS_SELECTOR, ".page-section > .row:nth-child(2)").click()
-wait.until(EC.presence_of_element_located((By.ID, "web_filter_rating_info_form_name")))
-driver.find_element(By.ID, "web_filter_rating_info_form_name").click()
-driver.find_element(By.ID, "web_filter_rating_info_form_name").send_keys("Idaho Tester")
-driver.find_element(By.ID, "web_filter_rating_info_form_email").send_keys(
+self.driver.find_element(By.ID, "web_filter_rating_info_form_name").click()
+self.driver.find_element(By.ID, "web_filter_rating_info_form_name").send_keys(
+    "Idaho Labs"
+)
+self.driver.find_element(By.ID, "web_filter_rating_info_form_email").click()
+self.driver.find_element(By.ID, "web_filter_rating_info_form_email").send_keys(
     "idahotester33@gmail.com"
 )
-driver.find_element(By.ID, "web_filter_rating_info_form_companyname").send_keys("INL")
-recaptcha_element = driver.find_element(By.CLASS_NAME, "g-recaptcha")
+self.driver.find_element(By.ID, "web_filter_rating_info_form_companyname").click()
+self.driver.find_element(By.ID, "web_filter_rating_info_form_companyname").send_keys(
+    "IDAHO LABS"
+)
 sitekey = recaptcha_element.get_attribute("data-sitekey")
 
 solver = TwoCaptcha(api_key)
@@ -56,3 +54,4 @@ else:
     )
     driver.find_element(By.ID, "web_filter_rating_info_form_submit").click()
     time.sleep(3)
+self.driver.find_element(By.ID, "web_filter_rating_info_form_submit").click()
