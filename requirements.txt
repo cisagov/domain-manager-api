@@ -9,6 +9,7 @@ chardet==3.0.4
 click==7.1.2
 cognitojwt==1.2.2
 cryptography==3.3.1
+decorator==4.4.2
 docutils==0.15.2
 ecdsa==0.14.1
 Flask==1.1.2
@@ -39,4 +40,5 @@ six==1.15.0
 soupsieve==2.1
 sshtunnel==0.3.1
 urllib3==1.25.11
+validators==0.18.2
 Werkzeug==1.0.1
