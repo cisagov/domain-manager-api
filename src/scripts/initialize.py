@@ -25,7 +25,6 @@ category_manager = CategoryManager()
 
 
 # Initialize AWS Clients
-s3 = boto3.client("s3")
 route53 = boto3.client("route53")
 
 
