@@ -67,7 +67,7 @@ class TemplatesView(MethodView):
                     return jsonify({"error": str(e)})
 
                 # remove temp files
-                shutil.rmtree("tmp/", ignore_errors=True)
+                shutil.rmtree(f"tmp/{url_escaped_name}/", ignore_errors=True)
 
                 s3_url = f"{TEMPLATE_BUCKET}.s3.amazonaws.com/{name}/"
                 result = template_manager.save(
@@ -113,9 +113,9 @@ class TemplateView(MethodView):
     def delete(self, template_id):
         """Delete template."""
         template = template_manager.get(document_id=template_id)
-        resp = requests.delete(
-            f"{STATIC_GEN_URL}/template/?category={template['name']}"
-        )
+
+        template_name = template["name"]
+        resp = requests.delete(f"{STATIC_GEN_URL}/template/?category={template_name}")
 
         try:
             resp.raise_for_status()
