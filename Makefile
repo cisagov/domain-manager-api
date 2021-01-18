@@ -56,9 +56,14 @@ test:
 	docker exec -it dm-api coverage run -m pytest --disable-warnings
 	docker exec dm-api coverage report -i
 
+# target: lint - run pre-commit linting
 lint:
 	pre-commit autoupdate
 	pre-commit run --all-files
 
+# target: refresh - restart the api container
 refresh:
 	docker restart dm-api
+
+# target: ra - refresh api and attach logs
+ra: refresh	attach

@@ -91,3 +91,5 @@ terraform/output
 src/staticgen/staticgen
 src/staticgen/staticgen.exe
 src/staticgen/tmp
+deleteme
+/old.env

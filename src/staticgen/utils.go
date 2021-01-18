@@ -13,7 +13,7 @@ import (
 )
 
 // Receive a zip file from a post request
-func Receive(reader *http.Request) (string, error) {
+func Receive(reader *http.Request, category string) (string, error) {
 	err := reader.ParseMultipartForm(10 << 20)
 	if err != nil {
 		panic(err)
@@ -45,7 +45,7 @@ func Receive(reader *http.Request) (string, error) {
 	tempFile.Write(fileBytes)
 
 	// Unzip Tempfile
-	foldername, err := Unzip(tempFile.Name(), "tmp/")
+	foldername, err := Unzip(tempFile.Name(), "tmp/"+category)
 	if err != nil {
 		log.Println(err)
 		return "", err

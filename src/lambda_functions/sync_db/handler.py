@@ -10,7 +10,6 @@ from utils.aws.s3 import list_top_level_prefixes
 website_manager = WebsiteManager()
 
 # Initialize AWS Clients
-s3 = boto3.client("s3")
 route53 = boto3.client("route53")
 
 
