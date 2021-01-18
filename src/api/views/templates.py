@@ -70,14 +70,14 @@ class TemplatesView(MethodView):
                 # remove temp files
                 shutil.rmtree("tmp/", ignore_errors=True)
 
-                rvalues.append(
-                    template_manager.save(
-                        {
-                            "name": name,
-                            "s3_url": f"https://{TEMPLATE_BUCKET}.s3.amazonaws.com/{name}/",
-                        }
-                    )
+                s3_url = f"{TEMPLATE_BUCKET}.s3.amazonaws.com/{name}/"
+                result = template_manager.save(
+                    {
+                        "name": name,
+                        "s3_url": s3_url,
+                    }
                 )
+                rvalues.append({"_id": result["_id"], "name": name, "s3_url": s3_url})
             else:
                 rvalues.append(
                     {"_id": "0", "name": name, "error": "template already exits"}

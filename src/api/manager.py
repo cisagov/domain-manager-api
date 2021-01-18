@@ -132,7 +132,7 @@ class Manager:
         data = self.clean_data(data)
         data = self.add_created(data)
         result = self.db.insert_one(self.convert_data(data))
-        return {"_id": str(result.inserted_id), "name": data["name"]}
+        return {"_id": str(result.inserted_id)}
 
     def save_many(self, data):
         """Save many items in collection."""
