@@ -25,10 +25,9 @@ class TemplatesView(MethodView):
 
     def post(self):
         """Create new template."""
-        overwrite = request.args.get("overwrite")
-        bOverwrite = overwrite.lower().strip() == "true"
+        overwrite = request.args.get("overwrite", "false").lower().strip() == "true"
 
-        def checkName(name):
+        def check_name(name):
             templates = template_manager.all()
             existing_names = [
                 (template["name"], template["_id"])
@@ -50,16 +49,16 @@ class TemplatesView(MethodView):
         for file in request.files.getlist("zip"):
             if file.filename.endswith(".zip"):
                 name = file.filename[:-4]
-            (exists, ids) = checkName(name)
+            (exists, ids) = check_name(name)
 
-            if bOverwrite and exists:
+            if overwrite and exists:
                 cleanup(name, ids[0][1])
                 exists = False
 
             if not exists:
-                urlEscapedName = urllib.parse.quote_plus(name)
+                url_escaped_name = urllib.parse.quote_plus(name)
                 resp = requests.post(
-                    f"{STATIC_GEN_URL}/template/?category={urlEscapedName}",
+                    f"{STATIC_GEN_URL}/template/?category={url_escaped_name}",
                     files={"zip": (f"{file.filename}", file)},
                 )
                 try:
