@@ -51,9 +51,9 @@ class WebsitesView(MethodView):
                 "name": request.json["name"],
                 "is_active": False,
                 "is_available": True,
-                "is_launching" : False,
-                "is_delaunching" : False,
-                "is_generating_template" : False,
+                "is_launching": False,
+                "is_delaunching": False,
+                "is_generating_template": False,
                 "route53": {"id": resp["HostedZone"]["Id"]},
             }
         )
@@ -205,7 +205,7 @@ class WebsiteGenerateView(MethodView):
             document_id=website_id,
             data={
                 "is_available": False,
-                "is_generating_template" : True,
+                "is_generating_template": True,
             },
         )
 
@@ -231,7 +231,7 @@ class WebsiteGenerateView(MethodView):
                 "s3_url": f"https://{WEBSITE_BUCKET}.s3.amazonaws.com/{domain}/",
                 "category": category,
                 "is_available": True,
-                "is_generating_template" : False,
+                "is_generating_template": False,
             },
         )
 
@@ -322,7 +322,7 @@ class WebsiteLaunchView(MethodView):
             document_id=website_id,
             data={
                 "is_available": False,
-                "is_launching" : True,
+                "is_launching": True,
             },
         )
 
@@ -332,7 +332,7 @@ class WebsiteLaunchView(MethodView):
         data = {
             "is_active": True,
             "is_available": True,
-            "is_launching" : False,
+            "is_launching": False,
         }
         data.update(metadata)
         website_manager.update(
@@ -351,7 +351,7 @@ class WebsiteLaunchView(MethodView):
             document_id=website_id,
             data={
                 "is_available": False,
-                "is_delaunching" : True,
+                "is_delaunching": True,
             },
         )
 
@@ -363,7 +363,7 @@ class WebsiteLaunchView(MethodView):
             data={
                 "is_active": False,
                 "is_available": True,
-                "is_delaunching" : False,
+                "is_delaunching": False,
             },
         )
         return jsonify(resp)
