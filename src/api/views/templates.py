@@ -25,62 +25,32 @@ class TemplatesView(MethodView):
 
     def post(self):
         """Create new template."""
-        overwrite = request.args.get("overwrite", "false").lower().strip() == "true"
-
-        def check_name(name):
-            templates = template_manager.all()
-            existing_names = [
-                (template["name"], template["_id"])
-                for template in templates
-                if name == template["name"]
-            ]
-            return len(existing_names) > 0, existing_names
-
-        def cleanup(name, document_id):
-            resp = requests.delete(f"{STATIC_GEN_URL}/template/?category={name}")
+        rvalues = []
+        for f in request.files.getlist("zip"):
+            if not f.filename.endswith(".zip"):
+                continue
+            name = f.filename[:-4]
+            url_escaped_name = urllib.parse.quote_plus(name)
+            resp = requests.post(
+                f"{STATIC_GEN_URL}/template/?category={url_escaped_name}",
+                files={"zip": (f"{f.filename}", f)},
+            )
             try:
                 resp.raise_for_status()
             except requests.exceptions.HTTPError as e:
-                return {"name": name, "status": str(e)}
-            template_manager.delete(document_id)
-            return {"name": name, "status": "deleted"}
+                return jsonify({"error": str(e)})
 
-        rvalues = []
-        for file in request.files.getlist("zip"):
-            if file.filename.endswith(".zip"):
-                name = file.filename[:-4]
-            (exists, ids) = check_name(name)
+            # remove temp files
+            shutil.rmtree(f"tmp/{url_escaped_name}/", ignore_errors=True)
 
-            if overwrite and exists:
-                cleanup(name, ids[0][1])
-                exists = False
-
-            if not exists:
-                url_escaped_name = urllib.parse.quote_plus(name)
-                resp = requests.post(
-                    f"{STATIC_GEN_URL}/template/?category={url_escaped_name}",
-                    files={"zip": (f"{file.filename}", file)},
-                )
-                try:
-                    resp.raise_for_status()
-                except requests.exceptions.HTTPError as e:
-                    return jsonify({"error": str(e)})
-
-                # remove temp files
-                shutil.rmtree(f"tmp/{url_escaped_name}/", ignore_errors=True)
-
-                s3_url = f"{TEMPLATE_BUCKET}.s3.amazonaws.com/{name}/"
-                result = template_manager.save(
-                    {
-                        "name": name,
-                        "s3_url": s3_url,
-                    }
-                )
-                rvalues.append({"_id": result["_id"], "name": name, "s3_url": s3_url})
-            else:
-                rvalues.append(
-                    {"_id": "0", "name": name, "error": "template already exits"}
-                )
+            s3_url = f"{TEMPLATE_BUCKET}.s3.amazonaws.com/{name}/"
+            result = template_manager.save(
+                {
+                    "name": name,
+                    "s3_url": s3_url,
+                }
+            )
+            rvalues.append({"_id": result["_id"], "name": name, "s3_url": s3_url})
 
         return jsonify(rvalues, 200)
 
