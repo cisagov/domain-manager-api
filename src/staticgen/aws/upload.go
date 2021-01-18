@@ -14,11 +14,11 @@ import (
 )
 
 // Upload files to s3 bucket
-func (r *Route) Upload(foldername string, bucket string) {
+func (r *Route) Upload(foldername, bucket string) {
 	walker := make(fileWalk)
 	go func() {
 		// Gather the files to upload by walking the path recursively
-		if err := filepath.Walk(filepath.Join("tmp/"+foldername), walker.Walk); err != nil {
+		if err := filepath.Walk(filepath.Join("tmp/"+r.Category+"/"+foldername), walker.Walk); err != nil {
 			log.Println("Walk failed:", err)
 		}
 		close(walker)
@@ -27,7 +27,7 @@ func (r *Route) Upload(foldername string, bucket string) {
 	// For each file found walking, upload it to S3
 	uploader := s3manager.NewUploader(session.New())
 	for path := range walker {
-		rel, err := filepath.Rel("tmp/"+foldername, path)
+		rel, err := filepath.Rel("tmp/"+r.Category+"/"+foldername, path)
 		if err != nil {
 			log.Println("Unable to get relative path:", path, err)
 		}

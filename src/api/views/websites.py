@@ -124,11 +124,23 @@ class WebsiteContentView(MethodView):
 
     def post(self, website_id):
         """Upload files and serve s3 site."""
+        # Get website data
         website = website_manager.get(document_id=website_id)
 
         domain = website["name"]
         category = request.args.get("category")
 
+        # Delete existing website files
+        resp = requests.delete(
+            f"{STATIC_GEN_URL}/website/?category={category}&domain={domain}",
+        )
+
+        try:
+            resp.raise_for_status()
+        except requests.exceptions.HTTPError:
+            return jsonify({"error": resp.text}), 400
+
+        # Post new website files
         resp = requests.post(
             f"{STATIC_GEN_URL}/website/?category={category}&website={domain}",
             files={"zip": (f"{category}.zip", request.files["zip"])},
@@ -139,8 +151,8 @@ class WebsiteContentView(MethodView):
         except requests.exceptions.HTTPError:
             return jsonify({"error": resp.text}), 400
 
-        # remove temp files
-        shutil.rmtree("tmp/", ignore_errors=True)
+        # Remove temp files
+        shutil.rmtree(f"tmp/{category}/", ignore_errors=True)
 
         return (
             jsonify(
@@ -159,8 +171,10 @@ class WebsiteContentView(MethodView):
         """Delete website content."""
         website = website_manager.get(document_id=website_id)
 
+        name = website["name"]
+        category = website["category"]
         resp = requests.delete(
-            f"{STATIC_GEN_URL}/website/?category={website['category']}&domain={website['name']}",
+            f"{STATIC_GEN_URL}/website/?category={category}&domain={name}",
         )
 
         try:
