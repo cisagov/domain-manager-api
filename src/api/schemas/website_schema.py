@@ -4,6 +4,7 @@ from marshmallow import Schema, fields
 
 # cisagov Libraries
 from api.schemas import application_schema
+from utils.validator import is_valid_category, is_valid_domain, validate
 
 
 class History(Schema):
@@ -34,17 +35,17 @@ class Profile(Schema):
 class Redirect(Schema):
     """Schema for Redirects."""
 
-    subdomain = fields.Str()
-    redirect_url = fields.Str()
+    subdomain = fields.Str(validate=validate.ContainsNoneOf([" "]))
+    redirect_url = fields.Str(validate=is_valid_domain)
 
 
 class WebsiteSchema(Schema):
     """Website Schema."""
 
     _id = fields.Str()
-    name = fields.Str()
+    name = fields.Str(validate=is_valid_domain)
     description = fields.Str()
-    category = fields.Str()
+    category = fields.Str(validate=is_valid_category)
     s3_url = fields.Str()
     ip_address = fields.Str()
     application_id = fields.Str()
