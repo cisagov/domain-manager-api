@@ -37,7 +37,7 @@ func TemplateHandler(w http.ResponseWriter, r *http.Request) {
 	route := aws.Route{WebsiteBucket: websiteBucket, TemplateBucket: templateBucket, Category: category, Dir: category}
 	if r.Method == "POST" {
 		// Recieve and unzip file
-		foldername, err := Receive(r)
+		foldername, err := Receive(r, category)
 		if err != nil {
 			log.Println(err)
 			http.Error(w, "staticgen: uploaded zipfile failed", 400)
@@ -66,7 +66,7 @@ func WebsiteHandler(w http.ResponseWriter, r *http.Request) {
 	route := aws.Route{WebsiteBucket: websiteBucket, TemplateBucket: templateBucket, Category: category, Dir: domain}
 	if r.Method == "POST" {
 		// Recieve and unzip file
-		foldername, err := Receive(r)
+		foldername, err := Receive(r, category)
 		if err != nil {
 			log.Println(err)
 			http.Error(w, "staticgen: uploaded zipfile failed", 400)
