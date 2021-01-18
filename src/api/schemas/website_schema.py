@@ -1,10 +1,10 @@
 """API Schema."""
 # Third-Party Libraries
-from marshmallow import Schema, fields
+from marshmallow import Schema, fields, validate
 
 # cisagov Libraries
 from api.schemas import application_schema
-from utils.validator import is_valid_category, is_valid_domain, validate
+from utils.validator import is_valid_category, is_valid_domain
 
 
 class History(Schema):
