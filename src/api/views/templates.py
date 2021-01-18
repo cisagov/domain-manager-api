@@ -11,7 +11,7 @@ import requests
 
 # cisagov Libraries
 from api.manager import TemplateManager
-from settings import STATIC_GEN_URL, TEMPLATE_BUCKET
+from settings import STATIC_GEN_URL, TEMPLATE_BUCKET, logger
 
 template_manager = TemplateManager()
 
@@ -44,13 +44,16 @@ class TemplatesView(MethodView):
             shutil.rmtree(f"tmp/{url_escaped_name}/", ignore_errors=True)
 
             s3_url = f"{TEMPLATE_BUCKET}.s3.amazonaws.com/{name}/"
-            result = template_manager.save(
-                {
-                    "name": name,
-                    "s3_url": s3_url,
-                }
-            )
-            rvalues.append({"_id": result["_id"], "name": name, "s3_url": s3_url})
+            try:
+                template_manager.save(
+                    {
+                        "name": name,
+                        "s3_url": s3_url,
+                    }
+                )
+            except Exception as e:
+                logger.exception(e)
+            rvalues.append({"name": name, "s3_url": s3_url})
 
         return jsonify(rvalues, 200)
 
