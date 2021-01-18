@@ -108,7 +108,7 @@ class Manager:
 
     def delete(self, document_id):
         """Delete item by object id."""
-        return self.db.delete_one({"_id": ObjectId(document_id)}).raw_result    
+        return self.db.delete_one({"_id": ObjectId(document_id)}).raw_result
 
     def update(self, document_id, data):
         """Update item by id."""
@@ -132,7 +132,7 @@ class Manager:
         data = self.clean_data(data)
         data = self.add_created(data)
         result = self.db.insert_one(self.convert_data(data))
-        return {"_id": str(result.inserted_id), "name":data["name"]}
+        return {"_id": str(result.inserted_id), "name": data["name"]}
 
     def save_many(self, data):
         """Save many items in collection."""

@@ -24,35 +24,39 @@ class TemplatesView(MethodView):
         return jsonify(template_manager.all())
 
     def post(self):
-        """Create new template."""                
+        """Create new template."""
         overwrite = request.args.get("overwrite")
-        bOverwrite = overwrite.lower().strip()=="true"
-        def checkName(name):                    
-            templates = template_manager.all()                    
-            existing_names = [(template["name"],template["_id"]) for template in templates if name == template["name"]]        
+        bOverwrite = overwrite.lower().strip() == "true"
+
+        def checkName(name):
+            templates = template_manager.all()
+            existing_names = [
+                (template["name"], template["_id"])
+                for template in templates
+                if name == template["name"]
+            ]
             return len(existing_names) > 0, existing_names
-            
-        def cleanup(name, document_id):            
-            resp = requests.delete(f"{STATIC_GEN_URL}/template/?category={name}")            
+
+        def cleanup(name, document_id):
+            resp = requests.delete(f"{STATIC_GEN_URL}/template/?category={name}")
             try:
                 resp.raise_for_status()
             except requests.exceptions.HTTPError as e:
-                return {"name":name, "status": str(e)}             
+                return {"name": name, "status": str(e)}
             template_manager.delete(document_id)
-            return {"name":name, "status":"deleted"}
-        
+            return {"name": name, "status": "deleted"}
 
-        rvalues = []               
-        for file in request.files.getlist('zip'):
+        rvalues = []
+        for file in request.files.getlist("zip"):
             if file.filename.endswith(".zip"):
                 name = file.filename[:-4]
-            (exists,ids) = checkName(name)
+            (exists, ids) = checkName(name)
 
-            if(bOverwrite and exists):
-                cleanup(name,ids[0][1])
+            if bOverwrite and exists:
+                cleanup(name, ids[0][1])
                 exists = False
-            
-            if(not exists):
+
+            if not exists:
                 urlEscapedName = urllib.parse.quote_plus(name)
                 resp = requests.post(
                     f"{STATIC_GEN_URL}/template/?category={urlEscapedName}",
@@ -66,14 +70,18 @@ class TemplatesView(MethodView):
                 # remove temp files
                 shutil.rmtree("tmp/", ignore_errors=True)
 
-                rvalues.append(template_manager.save(
-                    {
-                        "name": name,
-                        "s3_url": f"https://{TEMPLATE_BUCKET}.s3.amazonaws.com/{name}/",
-                    }
-                ))            
+                rvalues.append(
+                    template_manager.save(
+                        {
+                            "name": name,
+                            "s3_url": f"https://{TEMPLATE_BUCKET}.s3.amazonaws.com/{name}/",
+                        }
+                    )
+                )
             else:
-                rvalues.append({"_id":"0", "name":name, "error":"template already exits"})
+                rvalues.append(
+                    {"_id": "0", "name": name, "error": "template already exits"}
+                )
 
         return jsonify(rvalues, 200)
 
