@@ -73,23 +73,25 @@ class WebsiteView(MethodView):
 
     def put(self, website_id):
         """Update website."""
+        data = request.json
         validate_data(request.json, WebsiteSchema)
-        website = website_manager.get(document_id=website_id)
+
         if request.json.get("application"):
+            website = website_manager.get(document_id=website_id)
             application = application_manager.get(
                 filter_data={"name": request.json["application"]}
             )
-            website["application_id"] = application["_id"]
+            data["application_id"] = application["_id"]
             # Save application to history
-            website["history"] = website.get("history", [])
-            website["history"].append(
+            data["history"] = website.get("history", [])
+            data["history"].append(
                 {
                     "application": application,
                     "launch_date": datetime.utcnow(),
                 }
             )
 
-        return jsonify(website_manager.update(document_id=website_id, data=website))
+        return jsonify(website_manager.update(document_id=website_id, data=data))
 
     def delete(self, website_id):
         """Delete website and hosted zone."""
