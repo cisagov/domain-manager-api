@@ -88,6 +88,8 @@ class WebsiteView(MethodView):
                     "launch_date": datetime.utcnow(),
                 }
             )
+        elif request.json.get("application_id"):
+            website["application_id"] = request.json["application_id"]
 
         return jsonify(website_manager.update(document_id=website_id, data=website))
 
