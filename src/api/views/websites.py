@@ -91,6 +91,7 @@ class WebsiteView(MethodView):
         elif request.json.get("application_id"):
             website["application_id"] = request.json["application_id"]
 
+
         return jsonify(website_manager.update(document_id=website_id, data=website))
 
     def delete(self, website_id):
@@ -215,36 +216,45 @@ class WebsiteGenerateView(MethodView):
             },
         )
 
-        domain = website["name"]
-
-        # Generate website content from a template
-        resp = requests.post(
-            f"{STATIC_GEN_URL}/generate/?category={category}&domain={domain}",
-            json=request.json,
-        )
-
         try:
-            resp.raise_for_status()
-        except requests.exceptions.HTTPError as e:
-            return jsonify({"error": str(e)})
+            domain = website["name"]
 
-        # remove temp files
-        shutil.rmtree("tmp/", ignore_errors=True)
+            # Generate website content from a template
+            resp = requests.post(
+                f"{STATIC_GEN_URL}/generate/?category={category}&domain={domain}",
+                json=request.json,
+            )
 
-        website_manager.update(
+            try:
+                resp.raise_for_status()
+            except requests.exceptions.HTTPError as e:
+                return jsonify({"error": str(e)})
+
+            # remove temp files
+            shutil.rmtree("tmp/", ignore_errors=True)
+
+            website_manager.update(
+                document_id=website_id,
+                data={
+                    "s3_url": f"https://{WEBSITE_BUCKET}.s3.amazonaws.com/{domain}/",
+                    "category": category,
+                    "is_available": True,
+                    "is_generating_template": False,
+                },
+            )
+
+            return jsonify(
+                {
+                    "message": f"{domain} static site has been created from the {category} template."
+                }
+            )
+        except:
+            website_manager.update(
             document_id=website_id,
             data={
-                "s3_url": f"https://{WEBSITE_BUCKET}.s3.amazonaws.com/{domain}/",
-                "category": category,
                 "is_available": True,
                 "is_generating_template": False,
             },
-        )
-
-        return jsonify(
-            {
-                "message": f"{domain} static site has been created from the {category} template."
-            }
         )
 
 
@@ -337,22 +347,32 @@ class WebsiteLaunchView(MethodView):
                 "is_launching": True,
             },
         )
+        try:
+            # Create distribution, certificates, and dns records
+            metadata = launch_site(website)
 
-        # Create distribution, certificates, and dns records
-        metadata = launch_site(website)
+            data = {
+                "is_active": True,
+                "is_available": True,
+                "is_launching": False,
+            }
+            data.update(metadata)
+            website_manager.update(
+                document_id=website_id,
+                data=data,
+            )
+            name = website["name"]
+            return jsonify({"success": f"{name} has been launched"})
+        except:
+            # Switch instance to unavailable to prevent user actions
+            website_manager.update(
+                document_id=website_id,
+                data={
+                    "is_available": True,
+                    "is_launching": False,
+                },
+            )
 
-        data = {
-            "is_active": True,
-            "is_available": True,
-            "is_launching": False,
-        }
-        data.update(metadata)
-        website_manager.update(
-            document_id=website_id,
-            data=data,
-        )
-        name = website["name"]
-        return jsonify({"success": f"{name} has been launched"})
 
     def delete(self, website_id):
         """Stop a static site."""
@@ -366,20 +386,28 @@ class WebsiteLaunchView(MethodView):
                 "is_delaunching": True,
             },
         )
+        try:
+            # Delete distribution, certificates, and dns records
+            resp = delete_site(website)
 
-        # Delete distribution, certificates, and dns records
-        resp = delete_site(website)
+            website_manager.update(
+                document_id=website_id,
+                data={
+                    "is_active": False,
+                    "is_available": True,
+                    "is_delaunching": False,
+                },
+            )
+            return jsonify(resp)
+        except:
 
+        # Switch instance to unavailable to prevent user actions
         website_manager.update(
             document_id=website_id,
             data={
-                "is_active": False,
                 "is_available": True,
                 "is_delaunching": False,
-            },
-        )
-        return jsonify(resp)
-
+            }
 
 class WebsiteRecordView(MethodView):
     """View for interacting with website hosted zone records."""
