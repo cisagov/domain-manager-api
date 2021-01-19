@@ -18,10 +18,6 @@ import (
 
 // Generate static files and upload static to s3 bucket
 func (r *Route) Generate(ctx *Context) {
-	// Download template files from s3
-	download(r.TemplateBucket, r.Category)
-	log.Println("Downloaded files")
-
 	// Gather the files to upload by walking the path recursively
 	walker := make(fileWalk)
 	// Run concurrently
@@ -103,14 +99,14 @@ func parse(path, rel string, ctx *Context) *bytes.Reader {
 	return bytes.NewReader(buffer.Bytes())
 }
 
-// download from s3 bucket
-func download(bucket, dir string) {
+// FileDownload downloads from s3 bucket to temp folder
+func (r *Route) FileDownload() {
 	manager := s3manager.NewDownloader(session.New())
 
-	directory := filepath.Join("tmp/", dir)
-	d := Downloader{bucket: bucket, dir: directory, Downloader: manager}
+	directory := filepath.Join("tmp/", r.Category)
+	d := Downloader{bucket: r.TemplateBucket, dir: directory, Downloader: manager}
 	client := s3.New(session.New())
-	params := &s3.ListObjectsInput{Bucket: &bucket, Prefix: &dir}
+	params := &s3.ListObjectsInput{Bucket: &r.TemplateBucket, Prefix: &r.Category}
 	client.ListObjectsPages(params, d.eachPage)
 }
 

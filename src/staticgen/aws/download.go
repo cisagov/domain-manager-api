@@ -32,8 +32,8 @@ func (fw FakeWriterAt) WriteAt(p []byte, offset int64) (n int, err error) {
 	return fw.w.Write(p)
 }
 
-// Download from s3 bucket
-func (r *Route) Download(w http.ResponseWriter, bucket string) {
+// BufferDownload downloads from s3 bucket to buffer
+func (r *Route) BufferDownload(w http.ResponseWriter, bucket string) {
 	manager := s3manager.NewDownloader(session.New())
 	dir := filepath.Join(r.Dir)
 	d := Downloader{bucket: bucket, dir: dir, Downloader: manager, writer: w}
