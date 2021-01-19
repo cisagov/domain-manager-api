@@ -27,7 +27,7 @@ class TemplatesView(MethodView):
         """Create new template."""
         rvalues = []
         for f in request.files.getlist("zip"):
-            if not f.filename.endswith(".zip"):
+            if not f.filename.endswith(".zip") or " " in f.filename:
                 continue
             name = f.filename[:-4]
             url_escaped_name = urllib.parse.quote_plus(name)
