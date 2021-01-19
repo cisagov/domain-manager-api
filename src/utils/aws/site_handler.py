@@ -240,29 +240,29 @@ def generate_ssl_certs(website):
     )
 
     cert_arn = requested_certificate["CertificateArn"]
-    options = {}
-    while not options:
+    acm_record = None
+    while not acm_record:
         time.sleep(2)
-        options = (
-            acm.describe_certificate(CertificateArn=cert_arn)
-            .get("Certificate", {})
-            .get("DomainValidationOptions")
-        )
+        acm_record = get_acm_record(cert_arn)
 
-    # add validation records to the hosted zone
-    for option in options:
-        if option["ValidationMethod"] == "DNS":
-            route53.change_resource_record_sets(
-                HostedZoneId=dns_id,
-                ChangeBatch={
-                    "Changes": [
-                        {
-                            "Action": "UPSERT",
-                            "ResourceRecordSet": option["ResourceRecord"],
-                        }
-                    ]
-                },
-            )
+    # add validation record to the dns
+    route53.change_resource_record_sets(
+        HostedZoneId=dns_id,
+        ChangeBatch={
+            "Comment": domain_name,
+            "Changes": [
+                {
+                    "Action": "UPSERT",
+                    "ResourceRecordSet": {
+                        "Name": acm_record["Name"],
+                        "Type": "CNAME",
+                        "TTL": 30,
+                        "ResourceRecords": [{"Value": acm_record["Value"]}],
+                    },
+                }
+            ],
+        },
+    )
 
     # wait until the certificate has been validated
     waiter = acm.get_waiter("certificate_validated")
@@ -274,20 +274,33 @@ def generate_ssl_certs(website):
 def delete_ssl_certs(website):
     """Delete acm ssl certs."""
     cert_arn = website["acm"]["certificate_arn"]
-    cert = acm.describe_certificate(CertificateArn=cert_arn)["Certificate"]
-
-    # Delete Records
-    for option in cert["DomainValidationOptions"]:
-        if option["ValidationMethod"] == "DNS":
-            route53.change_resource_record_sets(
-                HostedZoneId=website["route53"]["id"],
-                ChangeBatch={
-                    "Changes": [
-                        {
-                            "Action": "DELETE",
-                            "ResourceRecordSet": option["ResourceRecord"],
-                        }
-                    ]
-                },
-            )
+    acm_record = get_acm_record(cert_arn)
+    route53.change_resource_record_sets(
+        HostedZoneId=website["route53"]["id"],
+        ChangeBatch={
+            "Changes": [
+                {
+                    "Action": "DELETE",
+                    "ResourceRecordSet": {
+                        "Name": acm_record["Name"],
+                        "Type": "CNAME",
+                        "TTL": 30,
+                        "ResourceRecords": [{"Value": acm_record["Value"]}],
+                    },
+                }
+            ]
+        },
+    )
     acm.delete_certificate(CertificateArn=cert_arn)
+
+
+def get_acm_record(cert_arn):
+    """Get acm route 53 record for validation."""
+    certificate_description = acm.describe_certificate(CertificateArn=cert_arn)
+    resource_records = [
+        description.get("ResourceRecord", None)
+        for description in certificate_description.get("Certificate", {}).get(
+            "DomainValidationOptions"
+        )
+    ][0]
+    return resource_records
