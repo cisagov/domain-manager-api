@@ -6,7 +6,7 @@ import validators
 
 def is_valid_domain(domain):
     """Check if domain is valid."""
-    if validators.domain(domain):
+    if validators.domain(domain) or domain == "localhost":
         return True
     raise ValidationError("Must be a valid domain.")
 
