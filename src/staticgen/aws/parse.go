@@ -26,7 +26,7 @@ func (r *Route) Generate(ctx *Context) {
 	walker := make(fileWalk)
 	// Run concurrently
 	go func() {
-		if err := filepath.Walk("tmp/", walker.Walk); err != nil {
+		if err := filepath.Walk("tmp/"+r.Category+"/", walker.Walk); err != nil {
 			log.Println("Walk failed:", err)
 		}
 		close(walker)
