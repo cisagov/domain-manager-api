@@ -7,11 +7,14 @@ import urllib
 # Third-Party Libraries
 from flask import jsonify, request, send_file
 from flask.views import MethodView
+from marshmallow import ValidationError
 import requests
 
 # cisagov Libraries
 from api.manager import TemplateManager
+from api.schemas.template_schema import TemplateSchema
 from settings import STATIC_GEN_URL, TEMPLATE_BUCKET, logger
+from utils.validator import validate_data
 
 template_manager = TemplateManager()
 
@@ -30,6 +33,10 @@ class TemplatesView(MethodView):
             if not f.filename.endswith(".zip") or " " in f.filename:
                 continue
             name = f.filename[:-4]
+            try:
+                validate_data({"name": name}, TemplateSchema)
+            except ValidationError:
+                continue
             url_escaped_name = urllib.parse.quote_plus(name)
             resp = requests.post(
                 f"{STATIC_GEN_URL}/template/?category={url_escaped_name}",

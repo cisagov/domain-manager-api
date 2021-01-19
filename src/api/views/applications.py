@@ -5,6 +5,8 @@ from flask.views import MethodView
 
 # cisagov Libraries
 from api.manager import ApplicationManager
+from api.schemas.application_schema import ApplicationSchema
+from utils.validator import validate_data
 
 application_manager = ApplicationManager()
 
@@ -18,6 +20,7 @@ class ApplicationsView(MethodView):
 
     def post(self):
         """Create an application."""
+        validate_data(request.json, ApplicationSchema)
         return jsonify(application_manager.save(request.json))
 
 
@@ -30,6 +33,7 @@ class ApplicationView(MethodView):
 
     def put(self, application_id):
         """Update application by id."""
+        validate_data(request.json, ApplicationSchema)
         return jsonify(
             application_manager.update(document_id=application_id, data=request.json)
         )

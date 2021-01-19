@@ -21,10 +21,12 @@ from api.manager import (
     ProxyManager,
     WebsiteManager,
 )
+from api.schemas.website_schema import Redirect, WebsiteSchema
 from settings import STATIC_GEN_URL, WEBSITE_BUCKET
 from utils.aws.redirect_handler import delete_redirect, modify_redirect, setup_redirect
 from utils.aws.site_handler import delete_site, launch_site
 from utils.two_captcha import two_captcha_api_key
+from utils.validator import validate_data
 
 category_manager = CategoryManager()
 proxy_manager = ProxyManager()
@@ -42,6 +44,7 @@ class WebsitesView(MethodView):
 
     def post(self):
         """Create a new website."""
+        validate_data(request.json, WebsiteSchema)
         caller_ref = str(uuid4())
         resp = route53.create_hosted_zone(
             Name=request.json["name"], CallerReference=caller_ref
@@ -70,6 +73,7 @@ class WebsiteView(MethodView):
 
     def put(self, website_id):
         """Update website."""
+        validate_data(request.json, WebsiteSchema)
         website = website_manager.get(document_id=website_id)
         if request.json.get("application"):
             application = application_manager.get(
@@ -257,6 +261,9 @@ class WebsiteRedirectView(MethodView):
             "subdomain": request.json["subdomain"],
             "redirect_url": request.json["redirect_url"],
         }
+
+        validate_data(data, Redirect)
+
         redirects = website_manager.get(document_id=website_id, fields=["redirects"])
         if data["subdomain"] in [
             r["subdomain"] for r in redirects.get("redirects", [])
@@ -281,6 +288,9 @@ class WebsiteRedirectView(MethodView):
             "subdomain": request.json["subdomain"],
             "redirect_url": request.json["redirect_url"],
         }
+
+        validate_data(data, Redirect)
+
         modify_redirect(
             website_id=website_id,
             subdomain=data["subdomain"],
