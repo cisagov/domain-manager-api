@@ -5,6 +5,7 @@ import time
 
 # Third-Party Libraries
 import boto3
+import dns.resolver
 
 # cisagov Libraries
 from settings import WEBSITE_BUCKET_URL, logger
@@ -17,6 +18,10 @@ route53 = boto3.client("route53")
 
 def launch_site(website):
     """Launch an active site onto s3."""
+    # Verify that site is owned.
+    ns_records = get_hosted_zone_ns_records(website["route53"]["id"])
+    verify_hosted_zone(website["name"], ns_records)
+
     # generate ssl certs and return certificate ARN
     certificate_arn = generate_ssl_certs(website=website)
 
@@ -304,3 +309,30 @@ def get_acm_record(cert_arn):
         )
     ][0]
     return resource_records
+
+
+def get_hosted_zone_ns_records(hosted_zone_id):
+    """Get hosted zone NS records."""
+    resp = route53.get_hosted_zone(Id=hosted_zone_id)
+    return resp["DelegationSet"]["NameServers"]
+
+
+def verify_hosted_zone(domain_name, r53_nameservers):
+    """Verify that we have control of hosted zone."""
+    new_nameservers = []
+    for server in r53_nameservers:
+        if not server.endswith("."):
+            server = f"{server}."
+        new_nameservers.append(server)
+
+    dns_resolver = dns.resolver.Resolver()
+    try:
+        response = dns_resolver.resolve(domain_name, "NS").response
+    except Exception as e:
+        logger.exception(e)
+        raise e
+    ns_servers = []
+    for answer in response.answer[0]:
+        ns_servers.append(answer.to_text())
+    if len(set(ns_servers) - set(new_nameservers)) > 0:
+        raise Exception("Route53 nameservers don't match.")
