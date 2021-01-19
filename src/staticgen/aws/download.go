@@ -48,7 +48,7 @@ func (d *Downloader) toZip(page *s3.ListObjectsOutput, more bool) bool {
 	buff := new(bytes.Buffer)
 	writer := zip.NewWriter(buff)
 	for _, obj := range page.Contents {
-		d.downloadToBuffer(*obj.Key, writer, buff)
+		d.downloadToBuffer(*obj.Key, writer)
 	}
 
 	err := writer.Close()
@@ -61,7 +61,7 @@ func (d *Downloader) toZip(page *s3.ListObjectsOutput, more bool) bool {
 }
 
 // download to buffer
-func (d *Downloader) downloadToBuffer(key string, writer *zip.Writer, buff *bytes.Buffer) {
+func (d *Downloader) downloadToBuffer(key string, writer *zip.Writer) {
 	// Create file in memory
 	f, err := writer.Create(key)
 	if err != nil {
@@ -73,5 +73,4 @@ func (d *Downloader) downloadToBuffer(key string, writer *zip.Writer, buff *byte
 	params := &s3.GetObjectInput{Bucket: &d.bucket, Key: &key}
 	d.Download(FakeWriterAt{f}, params)
 	d.Concurrency = 1
-	f.Write(buff.Bytes())
 }
