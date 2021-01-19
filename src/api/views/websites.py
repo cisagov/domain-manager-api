@@ -2,7 +2,6 @@
 # Standard Python Libraries
 from datetime import datetime
 import io
-import logging
 import os
 import shutil
 from uuid import uuid4
@@ -22,7 +21,7 @@ from api.manager import (
     WebsiteManager,
 )
 from api.schemas.website_schema import Redirect, WebsiteSchema
-from settings import STATIC_GEN_URL, WEBSITE_BUCKET
+from settings import STATIC_GEN_URL, WEBSITE_BUCKET, logger
 from utils.aws.redirect_handler import delete_redirect, modify_redirect, setup_redirect
 from utils.aws.site_handler import delete_site, launch_site
 from utils.two_captcha import two_captcha_api_key
@@ -91,12 +90,7 @@ class WebsiteView(MethodView):
                 }
             )
 
-<<<<<<< HEAD
-
-        return jsonify(website_manager.update(document_id=website_id, data=website))
-=======
         return jsonify(website_manager.update(document_id=website_id, data=data))
->>>>>>> develop
 
     def delete(self, website_id):
         """Delete website and hosted zone."""
@@ -252,14 +246,15 @@ class WebsiteGenerateView(MethodView):
                     "message": f"{domain} static site has been created from the {category} template."
                 }
             )
-        except:
+        except Exception as e:
+            logger.exception(e)
             website_manager.update(
-            document_id=website_id,
-            data={
-                "is_available": True,
-                "is_generating_template": False,
-            },
-        )
+                document_id=website_id,
+                data={
+                    "is_available": True,
+                    "is_generating_template": False,
+                },
+            )
 
 
 class WebsiteRedirectView(MethodView):
@@ -367,7 +362,8 @@ class WebsiteLaunchView(MethodView):
             )
             name = website["name"]
             return jsonify({"success": f"{name} has been launched"})
-        except:
+        except Exception as e:
+            logger.exception(e)
             # Switch instance to unavailable to prevent user actions
             website_manager.update(
                 document_id=website_id,
@@ -376,7 +372,6 @@ class WebsiteLaunchView(MethodView):
                     "is_launching": False,
                 },
             )
-
 
     def delete(self, website_id):
         """Stop a static site."""
@@ -403,15 +398,17 @@ class WebsiteLaunchView(MethodView):
                 },
             )
             return jsonify(resp)
-        except:
+        except Exception as e:
+            logger.exception(e)
+            # Switch instance to unavailable to prevent user actions
+            website_manager.update(
+                document_id=website_id,
+                data={
+                    "is_available": True,
+                    "is_delaunching": False,
+                },
+            )
 
-        # Switch instance to unavailable to prevent user actions
-        website_manager.update(
-            document_id=website_id,
-            data={
-                "is_available": True,
-                "is_delaunching": False,
-            }
 
 class WebsiteRecordView(MethodView):
     """View for interacting with website hosted zone records."""
@@ -484,10 +481,10 @@ class WebsiteCategorizeView(MethodView):
                             "is_categorized": False,
                         }
                     )
-                    logging.info(f"Categorized with {proxy_name}")
-                except Exception as err:
+                    logger.info(f"Categorized with {proxy_name}")
+                except Exception as e:
                     driver.quit()
-                    logging.error(f"{proxy_name} has failed: {str(err)}")
+                    logger.exception(e)
 
         # Quit WebDriver
         driver.quit()
