@@ -8,6 +8,7 @@ class TemplateSchema(Schema):
 
     _id = fields.Str()
     name = fields.Str()
+    preview_url = fields.Str()
     s3_url = fields.Str()
     created = fields.DateTime()
     updated = fields.DateTime()
