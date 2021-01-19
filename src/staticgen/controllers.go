@@ -23,6 +23,11 @@ func GenerateHandler(w http.ResponseWriter, r *http.Request) {
 
 	route := aws.Route{WebsiteBucket: websiteBucket, TemplateBucket: templateBucket, Category: category, Dir: domain}
 	if r.Method == "POST" {
+		// Download template files from s3
+		route.FileDownload()
+		log.Println("Downloaded files")
+
+		// Generate content from template and context data
 		context := aws.Context{}
 		decoder := json.NewDecoder(r.Body)
 		decoder.Decode(&context)
@@ -47,7 +52,7 @@ func TemplateHandler(w http.ResponseWriter, r *http.Request) {
 	} else if r.Method == "GET" {
 		w.Header().Set("Content-Type", "application/zip")
 		w.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=\"%s.zip\"", category))
-		route.Download(w, route.TemplateBucket)
+		route.BufferDownload(w, route.TemplateBucket)
 	} else if r.Method == "DELETE" {
 		route.Delete(route.TemplateBucket)
 	} else {
@@ -75,7 +80,7 @@ func WebsiteHandler(w http.ResponseWriter, r *http.Request) {
 		route.Upload(foldername, route.WebsiteBucket)
 	} else if r.Method == "GET" {
 		w.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=\"%s.zip\"", "Website"))
-		route.Download(w, route.WebsiteBucket)
+		route.BufferDownload(w, route.WebsiteBucket)
 	} else if r.Method == "DELETE" {
 		route.Delete(route.WebsiteBucket)
 	} else {

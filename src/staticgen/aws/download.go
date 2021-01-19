@@ -32,8 +32,8 @@ func (fw FakeWriterAt) WriteAt(p []byte, offset int64) (n int, err error) {
 	return fw.w.Write(p)
 }
 
-// Download from s3 bucket
-func (r *Route) Download(w http.ResponseWriter, bucket string) {
+// BufferDownload downloads from s3 bucket to buffer
+func (r *Route) BufferDownload(w http.ResponseWriter, bucket string) {
 	manager := s3manager.NewDownloader(session.New())
 	dir := filepath.Join(r.Dir)
 	d := Downloader{bucket: bucket, dir: dir, Downloader: manager, writer: w}
@@ -48,7 +48,7 @@ func (d *Downloader) toZip(page *s3.ListObjectsOutput, more bool) bool {
 	buff := new(bytes.Buffer)
 	writer := zip.NewWriter(buff)
 	for _, obj := range page.Contents {
-		d.downloadToBuffer(*obj.Key, writer, buff)
+		d.downloadToBuffer(*obj.Key, writer)
 	}
 
 	err := writer.Close()
@@ -61,7 +61,7 @@ func (d *Downloader) toZip(page *s3.ListObjectsOutput, more bool) bool {
 }
 
 // download to buffer
-func (d *Downloader) downloadToBuffer(key string, writer *zip.Writer, buff *bytes.Buffer) {
+func (d *Downloader) downloadToBuffer(key string, writer *zip.Writer) {
 	// Create file in memory
 	f, err := writer.Create(key)
 	if err != nil {
@@ -73,5 +73,4 @@ func (d *Downloader) downloadToBuffer(key string, writer *zip.Writer, buff *byte
 	params := &s3.GetObjectInput{Bucket: &d.bucket, Key: &key}
 	d.Download(FakeWriterAt{f}, params)
 	d.Concurrency = 1
-	f.Write(buff.Bytes())
 }
