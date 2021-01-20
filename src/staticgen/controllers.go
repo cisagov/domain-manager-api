@@ -53,6 +53,19 @@ func TemplateHandler(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "staticgen: uploaded zipfile failed", 400)
 		}
 
+		// Check if required files exist
+		path := filepath.Join("tmp", category, foldername)
+		if _, err := os.Stat(path + "/base.html"); os.IsNotExist(err) {
+			http.Error(w, "Template incompatible, the required base.html file does not exist", 400)
+			return
+		} else if _, err = os.Stat(path + "/home.html"); os.IsNotExist(err) {
+			http.Error(w, "Template incompatible, the required home.html file does not exist", 400)
+			return
+		} else if _, err = os.Stat(path + "/data.json"); os.IsNotExist(err) {
+			http.Error(w, "Template incompatible, the required data.json file does not exist", 400)
+			return
+		}
+
 		// Upload to S3
 		route.Upload(foldername, aws.TemplateBucket)
 
@@ -102,6 +115,13 @@ func WebsiteHandler(w http.ResponseWriter, r *http.Request) {
 			log.Println(err)
 			http.Error(w, "staticgen: uploaded zipfile failed", 400)
 		}
+
+		// Check if required files exist
+		if _, err := os.Stat(filepath.Join("tmp", category, foldername, "home.html")); os.IsNotExist(err) {
+			http.Error(w, "Website content incompatible, the required home.html file does not exist", 400)
+			return
+		}
+
 		// Upload to S3
 		route.Upload(foldername, aws.WebsiteBucket)
 
