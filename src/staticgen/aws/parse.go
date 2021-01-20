@@ -17,12 +17,12 @@ import (
 )
 
 // Generate static files and upload static to s3 bucket
-func (r *Route) Generate(ctx *Context) {
+func (r *Route) Generate(ctx *Context, bucket, foldername string) {
 	// Gather the files to upload by walking the path recursively
 	walker := make(fileWalk)
 	// Run concurrently
 	go func() {
-		if err := filepath.Walk("tmp/"+r.Category+"/", walker.Walk); err != nil {
+		if err := filepath.Walk(strings.Join([]string{"tmp", r.Category, foldername}, "/"), walker.Walk); err != nil {
 			log.Println("Walk failed:", err)
 		}
 		close(walker)
@@ -32,7 +32,9 @@ func (r *Route) Generate(ctx *Context) {
 	uploader := s3manager.NewUploader(session.New())
 	for path := range walker {
 		if !strings.Contains(path, "base.html") {
-			rel, err := filepath.Rel("tmp/"+r.Category+"/", path)
+
+			// set tmp folder prefix
+			rel, err := filepath.Rel(strings.Join([]string{"tmp", r.Category, foldername}, "/"), path)
 			if err != nil {
 				log.Println("Unable to get relative path:", path, err)
 			}
@@ -59,9 +61,16 @@ func (r *Route) Generate(ctx *Context) {
 				}
 			}
 
-			uploadKey := strings.Replace(strings.Join([]string{r.Dir, rel}, "/"), "\\", "/", -1)
+			var key []string
+			if bucket == TemplateBucket {
+				key = []string{r.Dir, "preview", rel}
+			} else {
+				key = []string{r.Dir, rel}
+			}
+
+			uploadKey := strings.Replace(strings.Join(key, "/"), "\\", "/", -1)
 			_, err = uploader.Upload(&s3manager.UploadInput{
-				Bucket:      &r.WebsiteBucket,
+				Bucket:      &bucket,
 				ContentType: &contenttype,
 				Key:         aws.String(uploadKey),
 				Body:        file,
@@ -70,13 +79,8 @@ func (r *Route) Generate(ctx *Context) {
 				log.Println("Failed to upload", path, err)
 			}
 
-			fmt.Printf("successfully uploaded %s/%s\n", r.WebsiteBucket, uploadKey)
+			fmt.Printf("successfully uploaded %s/%s\n", bucket, uploadKey)
 		}
-	}
-	// Remove local temp files
-	err := os.RemoveAll("tmp/" + r.Category)
-	if err != nil {
-		log.Println(err)
 	}
 }
 
@@ -104,9 +108,11 @@ func (r *Route) FileDownload() {
 	manager := s3manager.NewDownloader(session.New())
 
 	directory := filepath.Join("tmp/", r.Category)
-	d := Downloader{bucket: r.TemplateBucket, dir: directory, Downloader: manager}
+	d := Downloader{bucket: TemplateBucket, dir: directory, Downloader: manager}
 	client := s3.New(session.New())
-	params := &s3.ListObjectsInput{Bucket: &r.TemplateBucket, Prefix: &r.Category}
+
+	bucketPrefix := strings.Join([]string{r.Category, "template"}, "/")
+	params := &s3.ListObjectsInput{Bucket: &TemplateBucket, Prefix: &bucketPrefix}
 	client.ListObjectsPages(params, d.eachPage)
 }
 

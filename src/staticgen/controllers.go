@@ -3,15 +3,14 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
+	"path/filepath"
 	"staticgen/aws"
+	"strings"
 )
-
-// Set S3 bucket URL
-var templateBucket = os.Getenv("TEMPLATE_BUCKET")
-var websiteBucket = os.Getenv("WEBSITE_BUCKET")
 
 // GenerateHandler generates website files from template files in s3
 func GenerateHandler(w http.ResponseWriter, r *http.Request) {
@@ -21,7 +20,7 @@ func GenerateHandler(w http.ResponseWriter, r *http.Request) {
 	category := query.Get("category")
 	domain := query.Get("domain")
 
-	route := aws.Route{WebsiteBucket: websiteBucket, TemplateBucket: templateBucket, Category: category, Dir: domain}
+	route := aws.Route{Category: category, Dir: domain}
 	if r.Method == "POST" {
 		// Download template files from s3
 		route.FileDownload()
@@ -31,7 +30,13 @@ func GenerateHandler(w http.ResponseWriter, r *http.Request) {
 		context := aws.Context{}
 		decoder := json.NewDecoder(r.Body)
 		decoder.Decode(&context)
-		route.Generate(&context)
+		route.Generate(&context, aws.WebsiteBucket, "template")
+
+		// Remove local temp files
+		err := os.RemoveAll("tmp/" + category)
+		if err != nil {
+			log.Println(err)
+		}
 	}
 }
 
@@ -39,7 +44,7 @@ func GenerateHandler(w http.ResponseWriter, r *http.Request) {
 func TemplateHandler(w http.ResponseWriter, r *http.Request) {
 	query := r.URL.Query()
 	category := query.Get("category")
-	route := aws.Route{WebsiteBucket: websiteBucket, TemplateBucket: templateBucket, Category: category, Dir: category}
+	route := aws.Route{Category: category, Dir: category}
 	if r.Method == "POST" {
 		// Recieve and unzip file
 		foldername, err := Receive(r, category)
@@ -47,14 +52,35 @@ func TemplateHandler(w http.ResponseWriter, r *http.Request) {
 			log.Println(err)
 			http.Error(w, "staticgen: uploaded zipfile failed", 400)
 		}
+
 		// Upload to S3
-		route.Upload(foldername, route.TemplateBucket)
+		route.Upload(foldername, aws.TemplateBucket)
+
+		// Generate preview from context data and template
+		data, _ := ioutil.ReadFile(filepath.Join(strings.Join([]string{"tmp", category, foldername}, "/"), "data.json"))
+		context := aws.Context{}
+
+		// Validate context data
+		err = json.Unmarshal([]byte(data), &context)
+		if err != nil {
+			log.Println(err)
+			http.Error(w, "staticgen: json file failed", 400)
+		}
+
+		route.Generate(&context, aws.TemplateBucket, foldername)
+
+		// Remove local temp files
+		err = os.RemoveAll("tmp/" + category)
+		if err != nil {
+			log.Println(err)
+		}
+
 	} else if r.Method == "GET" {
 		w.Header().Set("Content-Type", "application/zip")
 		w.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=\"%s.zip\"", category))
-		route.BufferDownload(w, route.TemplateBucket)
+		route.BufferDownload(w, aws.TemplateBucket)
 	} else if r.Method == "DELETE" {
-		route.Delete(route.TemplateBucket)
+		route.Delete(aws.TemplateBucket)
 	} else {
 		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
 	}
@@ -68,7 +94,7 @@ func WebsiteHandler(w http.ResponseWriter, r *http.Request) {
 	domain := query.Get("domain")
 	category := query.Get("category")
 
-	route := aws.Route{WebsiteBucket: websiteBucket, TemplateBucket: templateBucket, Category: category, Dir: domain}
+	route := aws.Route{Category: category, Dir: domain}
 	if r.Method == "POST" {
 		// Recieve and unzip file
 		foldername, err := Receive(r, category)
@@ -77,12 +103,18 @@ func WebsiteHandler(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "staticgen: uploaded zipfile failed", 400)
 		}
 		// Upload to S3
-		route.Upload(foldername, route.WebsiteBucket)
+		route.Upload(foldername, aws.WebsiteBucket)
+
+		// Remove local temp files
+		err = os.RemoveAll("tmp/" + category)
+		if err != nil {
+			log.Println(err)
+		}
 	} else if r.Method == "GET" {
 		w.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=\"%s.zip\"", "Website"))
-		route.BufferDownload(w, route.WebsiteBucket)
+		route.BufferDownload(w, aws.WebsiteBucket)
 	} else if r.Method == "DELETE" {
-		route.Delete(route.WebsiteBucket)
+		route.Delete(aws.WebsiteBucket)
 	} else {
 		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
 	}
