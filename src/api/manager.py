@@ -40,7 +40,12 @@ class Manager:
             return {}
         return params
 
-    def convert_data(self, data, many=False):
+    def load_data(self, data, many=False):
+        """Serialize and deserialize data."""
+        schema = self.schema(many=many)
+        return schema.load(schema.dump(data))
+
+    def read_data(self, data, many=False):
         """Serialize and deserialize data."""
         schema = self.schema(many=many)
         return schema.load(data)
@@ -85,14 +90,14 @@ class Manager:
     def get(self, document_id=None, filter_data=None, fields=None):
         """Get item from collection by id or filter."""
         if document_id:
-            return self.convert_data(
+            return self.read_data(
                 self.db.find_one(
                     {"_id": ObjectId(document_id)},
                     self.convert_fields(fields),
                 )
             )
         else:
-            return self.convert_data(
+            return self.read_data(
                 self.db.find_one(
                     filter_data,
                     self.convert_fields(fields),
@@ -101,7 +106,7 @@ class Manager:
 
     def all(self, params=None, fields=None):
         """Get all items in a collection."""
-        return self.convert_data(
+        return self.read_data(
             self.db.find(self.format_params(params), self.convert_fields(fields)),
             many=True,
         )
@@ -116,7 +121,7 @@ class Manager:
         data = self.add_updated(data)
         return self.db.update_one(
             {"_id": ObjectId(document_id)},
-            {"$set": self.convert_data(data)},
+            {"$set": self.load_data(data)},
         ).raw_result
 
     def remove(self, document_id, data):
@@ -131,7 +136,7 @@ class Manager:
         self.create_indexes()
         data = self.clean_data(data)
         data = self.add_created(data)
-        result = self.db.insert_one(self.convert_data(data))
+        result = self.db.insert_one(self.load_data(data))
         return {"_id": str(result.inserted_id)}
 
     def save_many(self, data):
@@ -139,7 +144,7 @@ class Manager:
         self.create_indexes()
         data = self.clean_data(data)
         data = self.add_created(data)
-        result = self.db.insert_many(self.convert_data(data, many=True))
+        result = self.db.insert_many(self.load_data(data, many=True))
         return result.inserted_ids
 
     def add_to_list(self, document_id, field, data):
