@@ -61,7 +61,7 @@ func (r *Route) Generate(ctx *Context) {
 
 			uploadKey := strings.Replace(strings.Join([]string{r.Dir, rel}, "/"), "\\", "/", -1)
 			_, err = uploader.Upload(&s3manager.UploadInput{
-				Bucket:      &r.WebsiteBucket,
+				Bucket:      &WebsiteBucket,
 				ContentType: &contenttype,
 				Key:         aws.String(uploadKey),
 				Body:        file,
@@ -70,7 +70,7 @@ func (r *Route) Generate(ctx *Context) {
 				log.Println("Failed to upload", path, err)
 			}
 
-			fmt.Printf("successfully uploaded %s/%s\n", r.WebsiteBucket, uploadKey)
+			fmt.Printf("successfully uploaded %s/%s\n", WebsiteBucket, uploadKey)
 		}
 	}
 	// Remove local temp files
@@ -104,9 +104,9 @@ func (r *Route) FileDownload() {
 	manager := s3manager.NewDownloader(session.New())
 
 	directory := filepath.Join("tmp/", r.Category)
-	d := Downloader{bucket: r.TemplateBucket, dir: directory, Downloader: manager}
+	d := Downloader{bucket: TemplateBucket, dir: directory, Downloader: manager}
 	client := s3.New(session.New())
-	params := &s3.ListObjectsInput{Bucket: &r.TemplateBucket, Prefix: &r.Category}
+	params := &s3.ListObjectsInput{Bucket: &TemplateBucket, Prefix: &r.Category}
 	client.ListObjectsPages(params, d.eachPage)
 }
 
