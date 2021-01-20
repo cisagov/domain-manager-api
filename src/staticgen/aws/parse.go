@@ -32,7 +32,16 @@ func (r *Route) Generate(ctx *Context, bucket string) {
 	uploader := s3manager.NewUploader(session.New())
 	for path := range walker {
 		if !strings.Contains(path, "base.html") {
-			rel, err := filepath.Rel("tmp/"+r.Category+"/", path)
+
+			// set tmp folder prefix
+			var tmpPrefix string
+			if bucket == WebsiteBucket {
+				tmpPrefix = strings.Join([]string{r.Category, "template"}, "/")
+			} else {
+				tmpPrefix = r.Category
+			}
+			rel, err := filepath.Rel("tmp/"+tmpPrefix+"/", path)
+
 			if err != nil {
 				log.Println("Unable to get relative path:", path, err)
 			}

@@ -67,6 +67,6 @@ func (r *Route) Upload(foldername, bucket string) {
 			log.Println("Failed to upload", path, err)
 		}
 
-		fmt.Printf("successfully uploaded %s/%s/%s\n", bucket, r.Dir, rel)
+		fmt.Printf("successfully uploaded %s/%s\n", bucket, uploadKey)
 	}
 }
