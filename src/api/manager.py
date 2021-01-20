@@ -43,7 +43,7 @@ class Manager:
     def convert_data(self, data, many=False):
         """Serialize and deserialize data."""
         schema = self.schema(many=many)
-        return schema.load(schema.dump(data))
+        return schema.load(data)
 
     def create_indexes(self):
         """Create indexes for collection."""
