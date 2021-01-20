@@ -56,10 +56,10 @@ func TemplateHandler(w http.ResponseWriter, r *http.Request) {
 		// Check if required files exist
 		path := filepath.Join("tmp", category, foldername)
 		if _, err := os.Stat(path + "/base.html"); os.IsNotExist(err) {
-			http.Error(w, "the required base.html file does not exist", 400)
+			http.Error(w, "Template incompatible, the required base.html file does not exist", 400)
 			return
 		} else if _, err = os.Stat(path + "/data.json"); os.IsNotExist(err) {
-			http.Error(w, "the required data.json file does not exist", 400)
+			http.Error(w, "Template incompatible, the required data.json file does not exist", 400)
 			return
 		}
 
