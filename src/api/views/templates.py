@@ -69,6 +69,29 @@ class TemplateView(MethodView):
     """TemplateView."""
 
     def get(self, template_id):
+        """Get template details."""
+        template = template_manager.get(document_id=template_id)
+        return jsonify(template)
+
+    def delete(self, template_id):
+        """Delete template."""
+        template = template_manager.get(document_id=template_id)
+
+        template_name = template["name"]
+        resp = requests.delete(f"{STATIC_GEN_URL}/template/?category={template_name}")
+
+        try:
+            resp.raise_for_status()
+        except requests.exceptions.HTTPError as e:
+            return jsonify({"error": str(e)})
+
+        return jsonify(template_manager.delete(document_id=template_id))
+
+
+class TemplateContentView(MethodView):
+    """TemplateContentView."""
+
+    def get(self, template_id):
         """Download template."""
         template = template_manager.get(document_id=template_id)
         resp = requests.get(f"{STATIC_GEN_URL}/template/?category={template['name']}")
@@ -89,20 +112,6 @@ class TemplateView(MethodView):
             attachment_filename=f"{template['name']}.zip",
             mimetype="application/zip",
         )
-
-    def delete(self, template_id):
-        """Delete template."""
-        template = template_manager.get(document_id=template_id)
-
-        template_name = template["name"]
-        resp = requests.delete(f"{STATIC_GEN_URL}/template/?category={template_name}")
-
-        try:
-            resp.raise_for_status()
-        except requests.exceptions.HTTPError as e:
-            return jsonify({"error": str(e)})
-
-        return jsonify(template_manager.delete(document_id=template_id))
 
 
 class TemplateAttributesView(MethodView):
