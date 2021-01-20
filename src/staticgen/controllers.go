@@ -3,10 +3,13 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
+	"path/filepath"
 	"staticgen/aws"
+	"strings"
 )
 
 // GenerateHandler generates website files from template files in s3
@@ -54,9 +57,16 @@ func TemplateHandler(w http.ResponseWriter, r *http.Request) {
 		route.Upload(foldername, aws.TemplateBucket)
 
 		// Generate preview from context data and template
+		data, _ := ioutil.ReadFile(filepath.Join(strings.Join([]string{"tmp", category, foldername}, "/"), "data.json"))
 		context := aws.Context{}
-		decoder := json.NewDecoder(r.Body)
-		decoder.Decode(&context)
+
+		// Validate context data
+		err = json.Unmarshal([]byte(data), &context)
+		if err != nil {
+			log.Println(err)
+			http.Error(w, "staticgen: json file failed", 400)
+		}
+
 		route.Generate(&context, aws.TemplateBucket, foldername)
 
 		// Remove local temp files
