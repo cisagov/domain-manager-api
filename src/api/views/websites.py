@@ -44,6 +44,8 @@ class WebsitesView(MethodView):
     def post(self):
         """Create a new website."""
         data = validate_data(request.json, WebsiteSchema)
+        if website_manager.get(filter_data={"name": data["name"]}):
+            return jsonify({"error": "Website already exists."}), 400
         caller_ref = str(uuid4())
         resp = route53.create_hosted_zone(Name=data["name"], CallerReference=caller_ref)
         website_manager.save(
