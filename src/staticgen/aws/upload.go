@@ -50,7 +50,13 @@ func (r *Route) Upload(foldername, bucket string) {
 			continue
 		}
 
-		uploadKey := []string{r.Dir, rel}
+		var uploadKey []string
+		if bucket == TemplateBucket {
+			uploadKey = []string{r.Dir, "template", rel}
+		} else {
+			uploadKey = []string{r.Dir, rel}
+		}
+
 		_, err = uploader.Upload(&s3manager.UploadInput{
 			Bucket:      &bucket,
 			ContentType: &contenttype,
@@ -62,11 +68,5 @@ func (r *Route) Upload(foldername, bucket string) {
 		}
 
 		fmt.Printf("successfully uploaded %s/%s/%s\n", bucket, r.Dir, rel)
-	}
-
-	// Remove local temp files
-	err := os.RemoveAll("tmp/" + foldername)
-	if err != nil {
-		log.Println(err)
 	}
 }
