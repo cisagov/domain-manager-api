@@ -27,7 +27,13 @@ func GenerateHandler(w http.ResponseWriter, r *http.Request) {
 		context := aws.Context{}
 		decoder := json.NewDecoder(r.Body)
 		decoder.Decode(&context)
-		route.Generate(&context)
+		route.Generate(&context, aws.WebsiteBucket)
+
+		// Remove local temp files
+		err := os.RemoveAll("tmp/" + category)
+		if err != nil {
+			log.Println(err)
+		}
 	}
 }
 
@@ -45,6 +51,18 @@ func TemplateHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		// Upload to S3
 		route.Upload(foldername, aws.TemplateBucket)
+
+		// Generate preview from context data and template
+		context := aws.Context{}
+		decoder := json.NewDecoder(r.Body)
+		decoder.Decode(&context)
+		route.Generate(&context, aws.TemplateBucket)
+
+		// Remove local temp files
+		err = os.RemoveAll("tmp/" + category)
+		if err != nil {
+			log.Println(err)
+		}
 
 	} else if r.Method == "GET" {
 		w.Header().Set("Content-Type", "application/zip")
