@@ -1,6 +1,6 @@
 """API Schema."""
 # Third-Party Libraries
-from marshmallow import Schema, fields
+from marshmallow import EXCLUDE, Schema, fields
 
 # cisagov Libraries
 from utils.validator import is_valid_category
@@ -8,6 +8,11 @@ from utils.validator import is_valid_category
 
 class TemplateSchema(Schema):
     """Template Schema."""
+
+    class Meta:
+        """Meta atrributes for class."""
+
+        unknown = EXCLUDE
 
     _id = fields.Str()
     name = fields.Str(validate=is_valid_category)

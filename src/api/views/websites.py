@@ -43,14 +43,12 @@ class WebsitesView(MethodView):
 
     def post(self):
         """Create a new website."""
-        validate_data(request.json, WebsiteSchema)
+        data = validate_data(request.json, WebsiteSchema)
         caller_ref = str(uuid4())
-        resp = route53.create_hosted_zone(
-            Name=request.json["name"], CallerReference=caller_ref
-        )
+        resp = route53.create_hosted_zone(Name=data["name"], CallerReference=caller_ref)
         website_manager.save(
             {
-                "name": request.json["name"],
+                "name": data["name"],
                 "is_active": False,
                 "is_available": True,
                 "is_launching": False,
@@ -72,13 +70,12 @@ class WebsiteView(MethodView):
 
     def put(self, website_id):
         """Update website."""
-        data = request.json
-        validate_data(request.json, WebsiteSchema)
+        data = validate_data(request.json, WebsiteSchema)
 
-        if request.json.get("application"):
+        if data.get("application"):
             website = website_manager.get(document_id=website_id)
             application = application_manager.get(
-                filter_data={"name": request.json["application"]}
+                filter_data={"name": data["application"]}
             )
             data["application_id"] = application["_id"]
             # Save application to history
@@ -273,7 +270,7 @@ class WebsiteRedirectView(MethodView):
             "redirect_url": request.json["redirect_url"],
         }
 
-        validate_data(data, Redirect)
+        data = validate_data(data, Redirect)
 
         redirects = website_manager.get(document_id=website_id, fields=["redirects"])
         if data["subdomain"] in [
@@ -300,7 +297,7 @@ class WebsiteRedirectView(MethodView):
             "redirect_url": request.json["redirect_url"],
         }
 
-        validate_data(data, Redirect)
+        data = validate_data(data, Redirect)
 
         modify_redirect(
             website_id=website_id,

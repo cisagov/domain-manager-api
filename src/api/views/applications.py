@@ -20,8 +20,8 @@ class ApplicationsView(MethodView):
 
     def post(self):
         """Create an application."""
-        validate_data(request.json, ApplicationSchema)
-        return jsonify(application_manager.save(request.json))
+        data = validate_data(request.json, ApplicationSchema)
+        return jsonify(application_manager.save(data))
 
 
 class ApplicationView(MethodView):
@@ -33,9 +33,9 @@ class ApplicationView(MethodView):
 
     def put(self, application_id):
         """Update application by id."""
-        validate_data(request.json, ApplicationSchema)
+        data = validate_data(request.json, ApplicationSchema)
         return jsonify(
-            application_manager.update(document_id=application_id, data=request.json)
+            application_manager.update(document_id=application_id, data=data)
         )
 
     def delete(self, application_id):

@@ -1,6 +1,6 @@
 """API Schema."""
 # Third-Party Libraries
-from marshmallow import Schema, fields, validate
+from marshmallow import EXCLUDE, Schema, fields, validate
 
 # cisagov Libraries
 from api.schemas import application_schema
@@ -41,6 +41,11 @@ class Redirect(Schema):
 
 class WebsiteSchema(Schema):
     """Website Schema."""
+
+    class Meta:
+        """Meta atrributes for class."""
+
+        unknown = EXCLUDE
 
     _id = fields.Str()
     name = fields.Str(validate=is_valid_domain)
