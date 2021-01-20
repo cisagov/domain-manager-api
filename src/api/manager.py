@@ -40,13 +40,13 @@ class Manager:
             return {}
         return params
 
-    def load_data(self, data, many=False):
-        """Serialize and deserialize data."""
+    def read_data(self, data, many=False):
+        """Read data from database."""
         schema = self.schema(many=many)
         return schema.load(schema.dump(data))
 
-    def read_data(self, data, many=False):
-        """Serialize and deserialize data."""
+    def load_data(self, data, many=False):
+        """Load data into database."""
         schema = self.schema(many=many)
         return schema.load(data)
 
