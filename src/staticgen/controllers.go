@@ -115,6 +115,13 @@ func WebsiteHandler(w http.ResponseWriter, r *http.Request) {
 			log.Println(err)
 			http.Error(w, "staticgen: uploaded zipfile failed", 400)
 		}
+
+		// Check if required files exist
+		if _, err := os.Stat(filepath.Join("tmp", category, foldername, "home.html")); os.IsNotExist(err) {
+			http.Error(w, "Website content incompatible, the required home.html file does not exist", 400)
+			return
+		}
+
 		// Upload to S3
 		route.Upload(foldername, aws.WebsiteBucket)
 
