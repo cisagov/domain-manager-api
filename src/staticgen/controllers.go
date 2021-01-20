@@ -27,7 +27,7 @@ func GenerateHandler(w http.ResponseWriter, r *http.Request) {
 		context := aws.Context{}
 		decoder := json.NewDecoder(r.Body)
 		decoder.Decode(&context)
-		route.Generate(&context, aws.WebsiteBucket)
+		route.Generate(&context, aws.WebsiteBucket, "template")
 
 		// Remove local temp files
 		err := os.RemoveAll("tmp/" + category)
@@ -49,6 +49,7 @@ func TemplateHandler(w http.ResponseWriter, r *http.Request) {
 			log.Println(err)
 			http.Error(w, "staticgen: uploaded zipfile failed", 400)
 		}
+
 		// Upload to S3
 		route.Upload(foldername, aws.TemplateBucket)
 
@@ -56,7 +57,7 @@ func TemplateHandler(w http.ResponseWriter, r *http.Request) {
 		context := aws.Context{}
 		decoder := json.NewDecoder(r.Body)
 		decoder.Decode(&context)
-		route.Generate(&context, aws.TemplateBucket)
+		route.Generate(&context, aws.TemplateBucket, foldername)
 
 		// Remove local temp files
 		err = os.RemoveAll("tmp/" + category)

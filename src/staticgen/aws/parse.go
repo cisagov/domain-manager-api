@@ -17,12 +17,12 @@ import (
 )
 
 // Generate static files and upload static to s3 bucket
-func (r *Route) Generate(ctx *Context, bucket string) {
+func (r *Route) Generate(ctx *Context, bucket, foldername string) {
 	// Gather the files to upload by walking the path recursively
 	walker := make(fileWalk)
 	// Run concurrently
 	go func() {
-		if err := filepath.Walk("tmp/"+r.Category+"/", walker.Walk); err != nil {
+		if err := filepath.Walk(strings.Join([]string{"tmp", r.Category, foldername}, "/"), walker.Walk); err != nil {
 			log.Println("Walk failed:", err)
 		}
 		close(walker)
@@ -34,14 +34,7 @@ func (r *Route) Generate(ctx *Context, bucket string) {
 		if !strings.Contains(path, "base.html") {
 
 			// set tmp folder prefix
-			var tmpPrefix string
-			if bucket == WebsiteBucket {
-				tmpPrefix = strings.Join([]string{r.Category, "template"}, "/")
-			} else {
-				tmpPrefix = r.Category
-			}
-			rel, err := filepath.Rel("tmp/"+tmpPrefix+"/", path)
-
+			rel, err := filepath.Rel(strings.Join([]string{"tmp", r.Category, foldername}, "/"), path)
 			if err != nil {
 				log.Println("Unable to get relative path:", path, err)
 			}

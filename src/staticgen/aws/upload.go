@@ -50,17 +50,18 @@ func (r *Route) Upload(foldername, bucket string) {
 			continue
 		}
 
-		var uploadKey []string
+		var key []string
 		if bucket == TemplateBucket {
-			uploadKey = []string{r.Dir, "template", rel}
+			key = []string{r.Dir, "template", rel}
 		} else {
-			uploadKey = []string{r.Dir, rel}
+			key = []string{r.Dir, rel}
 		}
 
+		uploadKey := strings.Join(key, "/")
 		_, err = uploader.Upload(&s3manager.UploadInput{
 			Bucket:      &bucket,
 			ContentType: &contenttype,
-			Key:         aws.String(strings.Join(uploadKey, "/")),
+			Key:         aws.String(uploadKey),
 			Body:        file,
 		})
 		if err != nil {
