@@ -58,19 +58,19 @@ class Manager:
     def add_created(self, data):
         """Add created attribute to data on save."""
         if type(data) is dict:
-            data["created"] = datetime.now()
+            data["created"] = datetime.utcnow().isoformat()
         elif type(data) is list:
             for item in data:
-                item["created"] = datetime.now()
+                item["created"] = datetime.utcnow().isoformat()
         return data
 
     def add_updated(self, data):
         """Update updated data on update."""
         if type(data) is dict:
-            data["updated"] = datetime.now()
+            data["updated"] = datetime.utcnow().isoformat()
         elif type(data) is list:
             for item in data:
-                item["updated"] = datetime.now()
+                item["updated"] = datetime.utcnow().isoformat()
         return data
 
     def clean_data(self, data):
@@ -84,7 +84,7 @@ class Manager:
             for item in data:
                 for field in invalid_fields:
                     if item.get(field):
-                        data.pop(field)
+                        item.pop(field)
         return data
 
     def get(self, document_id=None, filter_data=None, fields=None):

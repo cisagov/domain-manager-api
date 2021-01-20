@@ -1,12 +1,18 @@
 """API Schema."""
 # Third-Party Libraries
-from marshmallow import EXCLUDE, Schema, fields
+from marshmallow import EXCLUDE, Schema, ValidationError, fields
 
 
-class CategorySchema(Schema):
-    """Category Schema."""
+class BytesField(fields.Field):
+    """BytesField."""
 
-    category = fields.Str()
+    def _validate(self, value):
+        """Validate data is bytes."""
+        if not isinstance(value, bytes):
+            raise ValidationError("Invalid input type.")
+
+        if value is None or value == b"":
+            raise ValidationError("Invalid value")
 
 
 class ProxySchema(Schema):
@@ -20,8 +26,8 @@ class ProxySchema(Schema):
     _id = fields.Str()
     name = fields.Str()
     url = fields.Str()
-    script = fields.Str()
-    categories = fields.List(fields.Nested(CategorySchema))
+    script = BytesField()
+    categories = fields.List(fields.Str())
     created_by = fields.Str()
     created = fields.DateTime()
     updated = fields.DateTime()

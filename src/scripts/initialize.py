@@ -1,6 +1,5 @@
 """Initialize database script."""
 # Standard Python Libraries
-from datetime import datetime
 import json
 import os
 
@@ -78,7 +77,6 @@ def load_applications():
     application_data = []
     for application in application_json:
         if not application_manager.get(filter_data={"name": application.get("name")}):
-            application["created"] = datetime.utcnow()
             application_data.append(application)
 
     # Save latest data to the database
@@ -107,8 +105,6 @@ def load_proxy_scripts():
     for proxy in proxy_json:
         name = proxy.get("name")
         if not proxy_manager.get(filter_data={"name": name}):
-            proxy["created"] = datetime.utcnow()
-
             if name == "Trusted Source":
                 proxy["script"] = Binary(trustedsource_script)
             elif name == "Blue Coat":
