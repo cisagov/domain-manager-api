@@ -38,7 +38,9 @@ def setup_redirect(website_id, subdomain, redirect_url):
     # Modify S3 bucket to redirect requests.
     s3.put_bucket_website(
         Bucket=subdomain,
-        WebsiteConfiguration={"RedirectAllRequestsTo": {"HostName": redirect_url}},
+        WebsiteConfiguration={
+            "RedirectAllRequestsTo": {"HostName": redirect_url, "Protocol": "https"}
+        },
     )
 
     # Create Route53 Record to point at s3 website bucket.
