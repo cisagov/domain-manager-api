@@ -149,7 +149,7 @@ class WebsiteContentView(MethodView):
 
         # Post new website files
         resp = requests.post(
-            f"{STATIC_GEN_URL}/website/?category={category}&website={domain}",
+            f"{STATIC_GEN_URL}/website/?category={category}&domain={domain}",
             files={"zip": (f"{category}.zip", request.files["zip"])},
         )
 
