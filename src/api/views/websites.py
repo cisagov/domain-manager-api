@@ -24,6 +24,13 @@ from api.schemas.website_schema import Redirect, WebsiteSchema
 from settings import STATIC_GEN_URL, WEBSITE_BUCKET, logger
 from utils.aws.redirect_handler import delete_redirect, modify_redirect, setup_redirect
 from utils.aws.site_handler import delete_site, launch_site
+from utils.categorization import (
+    bluecoat,
+    fortiguard,
+    ibmxforce,
+    trustedsource,
+    websense,
+)
 from utils.two_captcha import two_captcha_api_key
 from utils.validator import validate_data
 
@@ -495,4 +502,24 @@ class WebsiteCategorizeView(MethodView):
         )
         return jsonify(
             {"message": f"{domain} has been successfully submitted for categorization"}
+        )
+
+
+class WebsiteCheckView(MethodView):
+    """WebsiteCategoryCheckView."""
+
+    def get(self, website_id):
+        """Check category for a website."""
+        website = website_manager.get(document_id=website_id)
+
+        domain = website["name"]
+        return jsonify(
+            {
+                "Trusted Source": trustedsource.check_category(domain),
+                "Bluecoat": bluecoat.check_category(domain),
+                # "Cisco Talos": ciscotalos.check_category(domain),
+                "IBM X-Force": ibmxforce.check_category(domain),
+                "Fortiguard": fortiguard.check_category(domain),
+                "Websense": websense.check_category(domain),
+            }
         )

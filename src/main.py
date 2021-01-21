@@ -21,6 +21,7 @@ from api.views.templates import (
 )
 from api.views.websites import (
     WebsiteCategorizeView,
+    WebsiteCheckView,
     WebsiteContentView,
     WebsiteGenerateView,
     WebsiteLaunchView,
@@ -55,6 +56,7 @@ rules = [
     ("/websites/", WebsitesView),
     ("/website/<website_id>/", WebsiteView),
     ("/website/<website_id>/categorize/", WebsiteCategorizeView),
+    ("/website/<website_id>/check/", WebsiteCheckView),
     ("/website/<website_id>/content/", WebsiteContentView),
     ("/website/<website_id>/generate/", WebsiteGenerateView),
     ("/website/<website_id>/redirect/", WebsiteRedirectView),
