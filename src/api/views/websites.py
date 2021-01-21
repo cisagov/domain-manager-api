@@ -20,7 +20,7 @@ from api.manager import (
     ProxyManager,
     WebsiteManager,
 )
-from api.schemas.website_schema import Redirect, WebsiteSchema
+from api.schemas.website_schema import Record, Redirect, WebsiteSchema
 from settings import STATIC_GEN_URL, WEBSITE_BUCKET, logger
 from utils.aws.redirect_handler import delete_redirect, modify_redirect, setup_redirect
 from utils.aws.site_handler import delete_site, launch_site
@@ -419,6 +419,10 @@ class WebsiteRecordView(MethodView):
         )["route53"]["id"]
         resp = route53.list_resource_record_sets(HostedZoneId=hosted_zone_id)
         return jsonify(resp["ResourceRecordSets"])
+
+    def post(self, website_id):
+        """Create a DNS record."""
+        validate_data(request.json, Record)
 
 
 class WebsiteCategorizeView(MethodView):

@@ -1,6 +1,14 @@
 """API Schema."""
 # Third-Party Libraries
-from marshmallow import EXCLUDE, Schema, fields, validate
+from marshmallow import (
+    EXCLUDE,
+    Schema,
+    ValidationError,
+    fields,
+    validate,
+    validates_schema,
+)
+import validators
 
 # cisagov Libraries
 from api.schemas import application_schema
@@ -39,6 +47,26 @@ class Redirect(Schema):
     redirect_url = fields.Str(validate=is_valid_domain)
 
 
+class Record(Schema):
+    """Schema for Redirects."""
+
+    record_type = fields.Str(
+        required=True, validate=validate.OneOf(["A", "CNAME", "MAILGUN", "REDIRECT"])
+    )
+    record_name = fields.Str(required=True, validate=is_valid_domain)
+    record_value = fields.Str(required=True)
+
+    @validates_schema
+    def validate_value(self, data, **kwargs):
+        """Validate Schema."""
+        if data["record_type"] == "A":
+            if not validators.ipv4(data["record_value"]):
+                raise ValidationError("record_value must be an ipv4 address.")
+        if data["record_type"] == "CNAME":
+            if not validators.domain(data["record_value"]):
+                raise ValidationError("record_value must be a domain.")
+
+
 class WebsiteSchema(Schema):
     """Website Schema."""
 
@@ -68,3 +96,4 @@ class WebsiteSchema(Schema):
     acm = fields.Dict()
     route53 = fields.Dict()
     redirects = fields.List(fields.Nested(Redirect))
+    records = fields.List(fields.Nested(Record))

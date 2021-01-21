@@ -11,7 +11,6 @@ from flask_cors import CORS
 from api.views.applications import ApplicationsView, ApplicationView
 from api.views.categories import CategoriesView, CategoryCheckView
 from api.views.email_address import EmailAddressView
-from api.views.hosted_zones import HostedZonesView
 from api.views.proxies import ProxiesView, ProxyView
 from api.views.templates import (
     TemplateAttributesView,
@@ -42,7 +41,6 @@ url_prefix = "/api"
 rules = [
     ("/applications/", ApplicationsView),
     ("/application/<application_id>/", ApplicationView),
-    ("/generate-dns/", HostedZonesView),
     ("/generate-email-address/", EmailAddressView),
     ("/categories/", CategoriesView),
     ("/check/", CategoryCheckView),
