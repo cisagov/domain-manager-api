@@ -513,6 +513,11 @@ class WebsiteCheckView(MethodView):
         """Check category for a website."""
         website = website_manager.get(document_id=website_id)
 
+        if not website["is_category_submitted"]:
+            return jsonify(
+                {"error": "website has not yet been submitted for categorization"}
+            )
+
         domain = website["name"]
         return jsonify(
             {
