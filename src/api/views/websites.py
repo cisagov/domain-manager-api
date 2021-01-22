@@ -26,6 +26,7 @@ from utils.aws.redirect_handler import delete_redirect, modify_redirect, setup_r
 from utils.aws.site_handler import delete_site, launch_site
 from utils.categorization import (
     bluecoat,
+    ciscotalos,
     fortiguard,
     ibmxforce,
     trustedsource,
@@ -517,7 +518,7 @@ class WebsiteCheckView(MethodView):
             {
                 "Trusted Source": trustedsource.check_category(domain),
                 "Bluecoat": bluecoat.check_category(domain),
-                # "Cisco Talos": ciscotalos.check_category(domain),
+                "Cisco Talos": ciscotalos.check_category(domain),
                 "IBM X-Force": ibmxforce.check_category(domain),
                 "Fortiguard": fortiguard.check_category(domain),
                 "Websense": websense.check_category(domain),
