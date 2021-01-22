@@ -94,12 +94,21 @@ class WebsiteView(MethodView):
     def delete(self, website_id):
         """Delete website and hosted zone."""
         website = website_manager.get(document_id=website_id)
-        if not website.get("is_active", False) and not website.get("redirects", []):
-            route53.delete_hosted_zone(Id=website["route53"]["id"])
-            return jsonify(website_manager.delete(website["_id"]))
-        return jsonify(
-            {"message": "Website cannot be active and redirects must be removed."}
-        )
+
+        if website.get("is_active") and website.get("redirects"):
+            return jsonify(
+                {"message": "Website cannot be active and redirects must be removed."}
+            )
+
+        if website.get("category"):
+            category = website["category"]
+            name = website["name"]
+            requests.delete(
+                f"{STATIC_GEN_URL}/website/?category={category}&domain={name}",
+            )
+
+        route53.delete_hosted_zone(Id=website["route53"]["id"])
+        return jsonify(website_manager.delete(website["_id"]))
 
 
 class WebsiteContentView(MethodView):
@@ -395,6 +404,11 @@ class WebsiteLaunchView(MethodView):
                     "is_available": True,
                     "is_delaunching": False,
                 },
+            )
+
+            website_manager.remove(
+                document_id=website_id,
+                data={"acm": "", "cloudfront": ""},
             )
             return jsonify(resp)
         except Exception as e:
