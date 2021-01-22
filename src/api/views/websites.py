@@ -125,7 +125,7 @@ class WebsiteContentView(MethodView):
         try:
             resp.raise_for_status()
         except requests.exceptions.HTTPError as e:
-            return {"error": str(e)}
+            return {"error": str(e)}, 400
 
         buffer = io.BytesIO()
         buffer.write(resp.content)
@@ -196,7 +196,7 @@ class WebsiteContentView(MethodView):
         try:
             resp.raise_for_status()
         except requests.exceptions.HTTPError as e:
-            return {"error": str(e)}
+            return {"error": str(e)}, 400
 
         return jsonify(
             website_manager.remove(
@@ -231,13 +231,13 @@ class WebsiteGenerateView(MethodView):
                 json=request.json,
             )
 
+            # remove temp files
+            shutil.rmtree("tmp/", ignore_errors=True)
+
             try:
                 resp.raise_for_status()
             except requests.exceptions.HTTPError as e:
-                return jsonify({"error": str(e)})
-
-            # remove temp files
-            shutil.rmtree("tmp/", ignore_errors=True)
+                return jsonify({"error": str(e)}), 400
 
             website_manager.update(
                 document_id=website_id,
