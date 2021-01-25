@@ -102,12 +102,21 @@ class WebsiteView(MethodView):
     def delete(self, website_id):
         """Delete website and hosted zone."""
         website = website_manager.get(document_id=website_id)
-        if not website.get("is_active", False) and not website.get("redirects", []):
-            route53.delete_hosted_zone(Id=website["route53"]["id"])
-            return jsonify(website_manager.delete(website["_id"]))
-        return jsonify(
-            {"message": "Website cannot be active and redirects must be removed."}
-        )
+
+        if website.get("is_active") and website.get("redirects"):
+            return jsonify(
+                {"message": "Website cannot be active and redirects must be removed."}
+            )
+
+        if website.get("category"):
+            category = website["category"]
+            name = website["name"]
+            requests.delete(
+                f"{STATIC_GEN_URL}/website/?category={category}&domain={name}",
+            )
+
+        route53.delete_hosted_zone(Id=website["route53"]["id"])
+        return jsonify(website_manager.delete(website["_id"]))
 
 
 class WebsiteContentView(MethodView):
@@ -124,7 +133,7 @@ class WebsiteContentView(MethodView):
         try:
             resp.raise_for_status()
         except requests.exceptions.HTTPError as e:
-            return {"error": str(e)}
+            return {"error": str(e)}, 400
 
         buffer = io.BytesIO()
         buffer.write(resp.content)
@@ -195,7 +204,7 @@ class WebsiteContentView(MethodView):
         try:
             resp.raise_for_status()
         except requests.exceptions.HTTPError as e:
-            return {"error": str(e)}
+            return {"error": str(e)}, 400
 
         return jsonify(
             website_manager.remove(
@@ -230,13 +239,13 @@ class WebsiteGenerateView(MethodView):
                 json=request.json,
             )
 
+            # remove temp files
+            shutil.rmtree("tmp/", ignore_errors=True)
+
             try:
                 resp.raise_for_status()
             except requests.exceptions.HTTPError as e:
-                return jsonify({"error": str(e)})
-
-            # remove temp files
-            shutil.rmtree("tmp/", ignore_errors=True)
+                return jsonify({"error": str(e)}), 400
 
             website_manager.update(
                 document_id=website_id,
@@ -403,6 +412,11 @@ class WebsiteLaunchView(MethodView):
                     "is_available": True,
                     "is_delaunching": False,
                 },
+            )
+
+            website_manager.remove(
+                document_id=website_id,
+                data={"acm": "", "cloudfront": ""},
             )
             return jsonify(resp)
         except Exception as e:

@@ -51,6 +51,7 @@ def delete_site(website):
 
     # disable cloudfront distribution
     distribution["Distribution"]["DistributionConfig"]["Enabled"] = False
+    logger.info("Disabling cloudfront distribution.")
     cloudfront.update_distribution(
         Id=cloudfront_metadata["id"],
         IfMatch=distribution["ETag"],
@@ -65,15 +66,16 @@ def delete_site(website):
             status["Distribution"]["DistributionConfig"]["Enabled"] is False
             and status["Distribution"]["Status"] == "Deployed"
         ):
+            logger.info("Cloudfront distribution disabled.")
             break
 
-    # delete cloudfront distribution
+    logger.info("Deleting cloudfront distribution.")
     cloudfront.delete_distribution(Id=cloudfront_metadata["id"], IfMatch=status["ETag"])
 
-    # delete acm ssl certificates
-    acm.delete_certificate(CertificateArn=website["acm"]["certificate_arn"])
+    logger.info("Deleting ssl certificates from acm.")
     delete_ssl_certs(website)
 
+    logger.info("Deleting dns records from route53.")
     response = delete_dns(
         website=website, endpoint=cloudfront_metadata["distribution_endpoint"]
     )
