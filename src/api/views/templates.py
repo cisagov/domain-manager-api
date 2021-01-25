@@ -42,13 +42,14 @@ class TemplatesView(MethodView):
                 f"{STATIC_GEN_URL}/template/?category={url_escaped_name}",
                 files={"zip": (f"{f.filename}", f)},
             )
-            try:
-                resp.raise_for_status()
-            except requests.exceptions.HTTPError as e:
-                return jsonify({"error": str(e)})
 
             # remove temp files
             shutil.rmtree(f"tmp/{url_escaped_name}/", ignore_errors=True)
+
+            try:
+                resp.raise_for_status()
+            except requests.exceptions.HTTPError as e:
+                return jsonify({"error": str(e)}), 400
 
             s3_url = f"{TEMPLATE_BUCKET}.s3.amazonaws.com/{name}/"
             try:
