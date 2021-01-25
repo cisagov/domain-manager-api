@@ -19,6 +19,10 @@ from api.views.templates import (
     TemplatesView,
     TemplateView,
 )
+from api.views.users import (
+    UsersView,
+    UserView,
+)
 from api.views.websites import (
     WebsiteCategorizeView,
     WebsiteContentView,
@@ -52,6 +56,8 @@ rules = [
     ("/template/<template_id>/", TemplateView),
     ("/template/<template_id>/content/", TemplateContentView),
     ("/templates/attributes/", TemplateAttributesView),
+    ("/user/<user_id>/", UserView),
+    ("/users/", UsersView),
     ("/websites/", WebsitesView),
     ("/website/<website_id>/", WebsiteView),
     ("/website/<website_id>/categorize/", WebsiteCategorizeView),

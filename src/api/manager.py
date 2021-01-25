@@ -10,6 +10,7 @@ from api.schemas.application_schema import ApplicationSchema
 from api.schemas.category_schema import CategorySchema
 from api.schemas.proxy_schema import ProxySchema
 from api.schemas.template_schema import TemplateSchema
+from api.schemas.user_shema import UserSchema
 from api.schemas.website_schema import WebsiteSchema
 from settings import DB
 
@@ -213,6 +214,16 @@ class TemplateManager(Manager):
             indexes=["name"],
         )
 
+class UserManager(Manager):
+    """UserManager."""
+
+    def __init__(self):
+        """Initialize super for website."""
+        return super().__init__(
+            collection="users",
+            schema=UserSchema,
+            indexes=["name"],
+        )
 
 class WebsiteManager(Manager):
     """WebsiteManager."""
