@@ -3,31 +3,31 @@
 import boto3
 
 # cisagov Libraries
-from api.manager import WebsiteManager
+from api.manager import DomainManager
 from utils.aws.regional_s3_endpoints import (
     REGIONAL_HOSTED_ZONE_ID,
     REGIONAL_WEBSITE_ENDPOINT,
 )
 
-website_manager = WebsiteManager()
+domain_manager = DomainManager()
 
 s3 = boto3.client("s3")
 route53 = boto3.client("route53")
 
 
-def get_website_redirect_info(website_id, subdomain):
+def get_domain_redirect_info(domain_id, subdomain):
     """Get s3 website info."""
-    website = website_manager.get(document_id=website_id)
-    domain = website["name"]
-    subdomain = f"{subdomain}.{domain}"
-    hosted_zone_id = website["route53"]["id"]
+    domain = domain_manager.get(document_id=domain_id)
+    domain_name = domain["name"]
+    subdomain = f"{subdomain}.{domain_name}"
+    hosted_zone_id = domain["route53"]["id"]
     return domain, subdomain, hosted_zone_id
 
 
-def setup_redirect(website_id, subdomain, redirect_url):
+def setup_redirect(domain_id, subdomain, redirect_url):
     """Create s3 bucket and route53 records for redirecting traffic."""
-    # Get website
-    domain, subdomain, hosted_zone_id = get_website_redirect_info(website_id, subdomain)
+    # Get domain
+    domain, subdomain, hosted_zone_id = get_domain_redirect_info(domain_id, subdomain)
 
     # Create S3 bucket with subdomain name.
     s3.create_bucket(
@@ -65,9 +65,9 @@ def setup_redirect(website_id, subdomain, redirect_url):
     )
 
 
-def delete_redirect(website_id, subdomain):
+def delete_redirect(domain_id, subdomain):
     """Delete s3 bucket and route53 records for redirects."""
-    domain, subdomain, hosted_zone_id = get_website_redirect_info(website_id, subdomain)
+    domain, subdomain, hosted_zone_id = get_domain_redirect_info(domain_id, subdomain)
     route53.change_resource_record_sets(
         HostedZoneId=hosted_zone_id,
         ChangeBatch={
@@ -90,10 +90,10 @@ def delete_redirect(website_id, subdomain):
     s3.delete_bucket(Bucket=subdomain)
 
 
-def modify_redirect(website_id, subdomain, redirect_url):
+def modify_redirect(domain_id, subdomain, redirect_url):
     """Change redirect."""
     # Modify S3 bucket to redirect requests.
-    domain, subdomain, hosted_zone_id = get_website_redirect_info(website_id, subdomain)
+    domain, subdomain, hosted_zone_id = get_domain_redirect_info(domain_id, subdomain)
     s3.put_bucket_website(
         Bucket=subdomain,
         WebsiteConfiguration={"RedirectAllRequestsTo": {"HostName": redirect_url}},

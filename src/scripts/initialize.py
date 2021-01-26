@@ -8,17 +8,12 @@ import boto3
 from bson.binary import Binary
 
 # cisagov Libraries
-from api.manager import (
-    ApplicationManager,
-    CategoryManager,
-    ProxyManager,
-    WebsiteManager,
-)
+from api.manager import ApplicationManager, CategoryManager, DomainManager, ProxyManager
 from settings import WEBSITE_BUCKET, WEBSITE_BUCKET_URL, logger
 from utils.aws.s3 import list_top_level_prefixes
 
 application_manager = ApplicationManager()
-website_manager = WebsiteManager()
+domain_manager = DomainManager()
 proxy_manager = ProxyManager()
 category_manager = CategoryManager()
 
@@ -39,8 +34,8 @@ def load_file(data_file, data_type="json"):
     return data
 
 
-def load_websites():
-    """Load the latest website data from route53 and s3 into the database."""
+def load_domains():
+    """Load the latest domain data from route53 and s3 into the database."""
     initial_load = route53.list_hosted_zones().get("HostedZones")
 
     domain_load = []
@@ -52,21 +47,21 @@ def load_websites():
         hosted_zone["is_active"] = False
         domain_load.append(hosted_zone)
 
-    # list websites within the S3 Repository
-    websites = list_top_level_prefixes(WEBSITE_BUCKET)
+    # list domains within the S3 Repository
+    domains = list_top_level_prefixes(WEBSITE_BUCKET)
 
-    # load available websites if available
+    # load available domains if available
     data_load = []
     for domain in domain_load:
-        if not website_manager.get(filter_data={"name": domain.get("name")}):
+        if not domain_manager.get(filter_data={"name": domain.get("name")}):
             domain_name = domain.get("name")
-            if domain_name in websites:
+            if domain_name in domains:
                 domain["s3_url"] = f"{WEBSITE_BUCKET_URL}/{domain_name}"
             data_load.append(domain)
 
     # save latest data to the database
     if data_load != []:
-        website_manager.save_many(data_load)
+        domain_manager.save_many(data_load)
         logger.info("Database has been synchronized with domain data.")
 
 
@@ -141,7 +136,7 @@ def load_categories():
 
 
 if __name__ == "__main__":
-    load_websites()
+    load_domains()
     load_applications()
     load_proxy_scripts()
     load_categories()

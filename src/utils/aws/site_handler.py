@@ -16,22 +16,22 @@ cloudfront = boto3.client("cloudfront")
 route53 = boto3.client("route53")
 
 
-def launch_site(website):
+def launch_site(domain):
     """Launch an active site onto s3."""
     # Verify that site is owned.
-    ns_records = get_hosted_zone_ns_records(website["route53"]["id"])
-    verify_hosted_zone(website["name"], ns_records)
+    ns_records = get_hosted_zone_ns_records(domain["route53"]["id"])
+    verify_hosted_zone(domain["name"], ns_records)
 
     # generate ssl certs and return certificate ARN
-    certificate_arn = generate_ssl_certs(website=website)
+    certificate_arn = generate_ssl_certs(domain=domain)
 
     # setup cloudfront
     distribution_id, distribution_endpoint = setup_cloudfront(
-        website=website, certificate_arn=certificate_arn
+        domain=domain, certificate_arn=certificate_arn
     )
 
     # setup DNS
-    setup_dns(website=website, endpoint=distribution_endpoint)
+    setup_dns(domain=domain, endpoint=distribution_endpoint)
 
     return {
         "cloudfront": {
@@ -42,9 +42,9 @@ def launch_site(website):
     }
 
 
-def delete_site(website):
+def delete_site(domain):
     """Delete an active site off s3."""
-    cloudfront_metadata = website["cloudfront"]
+    cloudfront_metadata = domain["cloudfront"]
 
     # get distribution config
     distribution = cloudfront.get_distribution(Id=cloudfront_metadata["id"])
@@ -73,20 +73,20 @@ def delete_site(website):
     cloudfront.delete_distribution(Id=cloudfront_metadata["id"], IfMatch=status["ETag"])
 
     logger.info("Deleting ssl certificates from acm.")
-    delete_ssl_certs(website)
+    delete_ssl_certs(domain)
 
     logger.info("Deleting dns records from route53.")
     response = delete_dns(
-        website=website, endpoint=cloudfront_metadata["distribution_endpoint"]
+        domain=domain, endpoint=cloudfront_metadata["distribution_endpoint"]
     )
     return response
 
 
-def setup_cloudfront(website, certificate_arn):
+def setup_cloudfront(domain, certificate_arn):
     """Create AWS CloudFront Distribution."""
     # Launch CloudFront distribution
     unique_identifier = datetime.now().strftime("%Y-%m-%d %H:%M:%S:%f")
-    domain_name = website["name"]
+    domain_name = domain["name"]
 
     distribution_config = {
         "CallerReference": unique_identifier,
@@ -138,10 +138,10 @@ def setup_cloudfront(website, certificate_arn):
     )
 
 
-def setup_dns(website, endpoint=None, ip_address=None):
+def setup_dns(domain, endpoint=None, ip_address=None):
     """Create a domain's DNS."""
-    domain_name = website["name"]
-    dns_id = website["route53"]["id"]
+    domain_name = domain["name"]
+    dns_id = domain["route53"]["id"]
     if ip_address:
         response = route53.change_resource_record_sets(
             HostedZoneId=dns_id,
@@ -185,10 +185,10 @@ def setup_dns(website, endpoint=None, ip_address=None):
     return response
 
 
-def delete_dns(website, endpoint=None, ip_address=None):
+def delete_dns(domain, endpoint=None, ip_address=None):
     """Create a domain's DNS."""
-    domain_name = website["name"]
-    dns_id = website["route53"]["id"]
+    domain_name = domain["name"]
+    dns_id = domain["route53"]["id"]
     if ip_address:
         response = route53.change_resource_record_sets(
             HostedZoneId=dns_id,
@@ -232,10 +232,10 @@ def delete_dns(website, endpoint=None, ip_address=None):
     return response
 
 
-def generate_ssl_certs(website):
+def generate_ssl_certs(domain):
     """Request and Validate an SSL certificate using AWS Certificate Manager."""
-    domain_name = website["name"]
-    dns_id = website["route53"]["id"]
+    domain_name = domain["name"]
+    dns_id = domain["route53"]["id"]
     requested_certificate = acm.request_certificate(
         DomainName=domain_name,
         ValidationMethod="DNS",
@@ -278,12 +278,12 @@ def generate_ssl_certs(website):
     return cert_arn
 
 
-def delete_ssl_certs(website):
+def delete_ssl_certs(domain):
     """Delete acm ssl certs."""
-    cert_arn = website["acm"]["certificate_arn"]
+    cert_arn = domain["acm"]["certificate_arn"]
     acm_record = get_acm_record(cert_arn)
     route53.change_resource_record_sets(
-        HostedZoneId=website["route53"]["id"],
+        HostedZoneId=domain["route53"]["id"],
         ChangeBatch={
             "Changes": [
                 {
