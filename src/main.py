@@ -33,6 +33,7 @@ from api.views.templates import (
 from api.views.users import (
     UsersView,
     UserView,
+    UserConfirmView,
 )
 from settings import logger
 from utils.decorators.auth import (
@@ -74,6 +75,7 @@ rules = [
 admin_rules = [
     ("/users/", UsersView),
     ("/user/<username>/", UserView),
+    ("/user/<username>/confirm", UserConfirmView),
 ]
 
 for rule in rules:

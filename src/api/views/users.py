@@ -80,17 +80,26 @@ class UserView(MethodView):
         print(groups)
         return jsonify(user)
 
-class UserConfirm(MethodView):
-    """USer Confirm View"""
+class UserConfirmView(MethodView):
+    """User Confirm View"""
 
     def get(self, username):
         """Confirm the selected user"""
         try:
             response = cognito.admin_confirm_sign_up(
-                ClientId='client_id',
-                Username=username,
-
+                UserPoolId=user_pool_id,
+                Username=username
             )
+            user = user_manager.get(
+                filter_data={"Username": username}
+            )
+            print(user)
+            user["UserStatus"] = "CONFIRMED"
+            user_manager.update(
+                document_id = user["_id"], 
+                data = user
+            )
+            return jsonify(response)
         except:
             return jsonify({"error": "Failed to confirm user"}), 400
 
