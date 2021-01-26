@@ -214,6 +214,7 @@ class TemplateManager(Manager):
             indexes=["name"],
         )
 
+
 class UserManager(Manager):
     """UserManager."""
 
@@ -224,6 +225,7 @@ class UserManager(Manager):
             schema=UserSchema,
             indexes=["Username"],
         )
+
 
 class DomainManager(Manager):
     """DomainManager."""

@@ -30,15 +30,9 @@ from api.views.templates import (
     TemplatesView,
     TemplateView,
 )
-from api.views.users import (
-    UsersView,
-    UserView,
-)
+from api.views.users import UsersView, UserView
 from settings import logger
-from utils.decorators.auth import (
-    auth_required,
-    auth_admin_required,
-)
+from utils.decorators.auth import auth_admin_required, auth_required
 
 app = Flask(__name__)
 app.url_map.strict_slashes = False

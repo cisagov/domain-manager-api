@@ -1,66 +1,52 @@
 """Website Views."""
-# Standard Python Libraries
-from datetime import datetime
-import io
-import os
-import shutil
-
 # Third-Party Libraries
 import boto3
-from flask import current_app, jsonify, request, send_file
+from flask import jsonify, request
 from flask.views import MethodView
-import requests
 
 # cisagov Libraries
-from api.manager import (
-    UserManager,
-)
+from api.manager import UserManager
 from api.schemas.user_shema import UserSchema
-from settings import logger
+from settings import COGNITO_CLIENT_ID, COGNTIO_USER_POOL_ID
 from utils.validator import validate_data
 
-
 route53 = boto3.client("route53")
-client_id = os.environ.get("AWS_COGNITO_USER_POOL_CLIENT_ID", 0)
-user_pool_id = os.environ.get("AWS_COGNITO_USER_POOL_ID", 0)
-cognito = boto3.client(
-    'cognito-idp'
-    )
+cognito = boto3.client("cognito-idp")
 user_manager = UserManager()
+
 
 class UsersView(MethodView):
     """UsersView."""
 
     def get(self):
         """Get all users."""
-        response = cognito.list_users(
-            UserPoolId=user_pool_id
-        )
+        response = cognito.list_users(UserPoolId=COGNTIO_USER_POOL_ID)
         aws_users = response["Users"]
         dm_users = user_manager.all(params=request.args)
-        self.mergeUserLists(aws_users,dm_users)
+        self.merge_user_list(aws_users, dm_users)
 
         return jsonify(aws_users)
-    
-    def mergeUserLists(self, awsUsers, dmUsers):
-        for awsUser in awsUsers:
-            if len(dmUsers) <= 0:
-                data = validate_data(awsUser, UserSchema)
+
+    def merge_user_list(self, aws_users, db_users):
+        """Merge current database list of users with list in cognito."""
+        for aws_user in aws_users:
+            if len(db_users) <= 0:
+                data = validate_data(aws_user, UserSchema)
                 user_manager.save(data)
-            for dmUser in dmUsers:
-                if awsUser["Username"] == dmUser["Username"]:
-                    self.mergeUser(awsUser,dmUser)
+            for db_user in db_users:
+                if aws_user["Username"] == db_user["Username"]:
+                    self.merge_user(aws_user, db_user)
                     break
-                if dmUser == dmUsers[-1] or len(dmUsers) <= 0:
+                if db_user == db_users[-1] or len(db_users) <= 0:
                     # Last dm user reached and aws user not found, add to db
-                    data = validate_data(awsUser, UserSchema)
+                    data = validate_data(aws_user, UserSchema)
                     user_manager.save(data)
-    
-    def mergeUser(self, awsUser, dmUser):
-        print(dmUser)
-        for key in dmUser:
-            if key not in awsUser:
-                awsUser[key] = dmUser[key]
+
+    def merge_user(self, aws_user, db_user):
+        """Merge database user with cognito user."""
+        for key in db_user:
+            if key not in aws_user:
+                aws_user[key] = db_user[key]
 
 
 class UserView(MethodView):
@@ -68,29 +54,22 @@ class UserView(MethodView):
 
     def get(self, username):
         """Get User details."""
-        user = user_manager.get(
-                filter_data={"Username": username}
-            )
-        print(user)
-        groups = cognito.admin_list_groups_for_user(
-            Username=user["Username"],
-            UserPoolId=user_pool_id,
-            Limit=1
+        user = user_manager.get(filter_data={"Username": username})
+        cognito.admin_list_groups_for_user(
+            Username=user["Username"], UserPoolId=COGNTIO_USER_POOL_ID, Limit=1
         )
-        print(groups)
         return jsonify(user)
 
-class UserConfirm(MethodView):
-    """USer Confirm View"""
+
+class UserConfirmView(MethodView):
+    """UserConfirmView."""
 
     def get(self, username):
-        """Confirm the selected user"""
+        """Confirm the selected user."""
         try:
-            response = cognito.admin_confirm_sign_up(
-                ClientId='client_id',
+            cognito.admin_confirm_sign_up(
+                ClientId=COGNITO_CLIENT_ID,
                 Username=username,
-
             )
-        except:
+        except Exception:
             return jsonify({"error": "Failed to confirm user"}), 400
-
