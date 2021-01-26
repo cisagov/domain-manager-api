@@ -17,6 +17,13 @@ def is_valid_domain(domain):
     raise ValidationError("Must be a valid domain.")
 
 
+def is_valid_ipv4(address):
+    """Check if ipv4 address is valid."""
+    if not validators.ipv4(address):
+        raise ValidationError("Must be a valid ipv4 address.")
+    return True
+
+
 def is_valid_category(category):
     """Check if category is valid."""
     if " " in category:

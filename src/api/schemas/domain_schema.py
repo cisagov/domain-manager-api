@@ -1,10 +1,15 @@
 """API Schema."""
 # Third-Party Libraries
-from marshmallow import EXCLUDE, Schema, fields, validate
+from marshmallow import EXCLUDE, Schema, fields, validate, validates_schema
 
 # cisagov Libraries
 from api.schemas import application_schema
-from utils.validator import is_valid_category, is_valid_domain
+from utils.validator import (
+    is_valid_category,
+    is_valid_domain,
+    is_valid_ipv4,
+    validate_data,
+)
 
 
 class History(Schema):
@@ -39,6 +44,48 @@ class Redirect(Schema):
     redirect_url = fields.Str(validate=is_valid_domain)
 
 
+class Record(Schema):
+    """Schema for Redirects."""
+
+    class A(Schema):
+        """Schema for an A Record."""
+
+        value = fields.Str(required=True, validate=is_valid_ipv4)
+
+    class CNAME(Schema):
+        """Schema for CNAME record."""
+
+        value = fields.Str(required=True, validate=is_valid_domain)
+
+    class REDIRECT(Schema):
+        """Schema for Redirect record."""
+
+        value = fields.Str(required=True, validate=is_valid_domain)
+
+    class MAILGUN(Schema):
+        """Schema for Mailgun."""
+
+        value = fields.Str(required=True)
+
+    record_id = fields.Str()
+    record_type = fields.Str(
+        required=True, validate=validate.OneOf(["A", "CNAME", "MAILGUN", "REDIRECT"])
+    )
+    name = fields.Str(required=True, validate=is_valid_domain)
+    config = fields.Dict(required=True)
+
+    @validates_schema
+    def validate_value(self, data, **kwargs):
+        """Validate Schema."""
+        types = {
+            "A": self.A,
+            "CNAME": self.CNAME,
+            "REDIRECT": self.REDIRECT,
+            "MAILGUN": self.MAILGUN,
+        }
+        validate_data(data["config"], types.get(data["record_type"].upper()))
+
+
 class DomainSchema(Schema):
     """DomainSchema."""
 
@@ -68,3 +115,4 @@ class DomainSchema(Schema):
     acm = fields.Dict()
     route53 = fields.Dict()
     redirects = fields.List(fields.Nested(Redirect))
+    records = fields.List(fields.Nested(Record))
