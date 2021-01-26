@@ -11,6 +11,7 @@ from api.schemas.category_schema import CategorySchema
 from api.schemas.domain_schema import DomainSchema
 from api.schemas.proxy_schema import ProxySchema
 from api.schemas.template_schema import TemplateSchema
+from api.schemas.user_shema import UserSchema
 from settings import DB
 
 
@@ -211,6 +212,18 @@ class TemplateManager(Manager):
             collection="templates",
             schema=TemplateSchema,
             indexes=["name"],
+        )
+
+
+class UserManager(Manager):
+    """UserManager."""
+
+    def __init__(self):
+        """Initialize super for website."""
+        return super().__init__(
+            collection="users",
+            schema=UserSchema,
+            indexes=["Username"],
         )
 
 

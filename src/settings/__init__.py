@@ -21,6 +21,13 @@ TEMPLATE_BUCKET_URL = f"{TEMPLATE_BUCKET}.s3-website-{AWS_REGION}.amazonaws.com"
 WEBSITE_BUCKET = os.environ["WEBSITE_BUCKET"]
 WEBSITE_BUCKET_URL = f"{WEBSITE_BUCKET}.s3-website-{AWS_REGION}.amazonaws.com"
 
+# cognito
+COGNTIO_ENABLED = bool(int(os.environ.get("AWS_COGNITO_ENABLED", 0)))
+COGNITO_DEFAULT_ADMIN = bool(int(os.environ.get("AWS_DEFAULT_USER_TO_ADMIN", 0)))
+COGNITO_ADMIN_GROUP = os.environ.get("AWS_COGNITO_ADMIN_GROUP_NAME")
+COGNITO_CLIENT_ID = os.environ.get("AWS_COGNITO_USER_POOL_CLIENT_ID")
+COGNTIO_USER_POOL_ID = os.environ.get("AWS_COGNITO_USER_POOL_ID")
+
 # static gen
 STATIC_GEN_URL = os.environ.get("STATIC_GEN_URL")
 

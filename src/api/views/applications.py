@@ -20,6 +20,7 @@ class ApplicationsView(MethodView):
 
     def post(self):
         """Create an application."""
+        print(request.json)
         data = validate_data(request.json, ApplicationSchema)
         return jsonify(application_manager.save(data))
 

@@ -5,8 +5,19 @@ import logging
 import os
 
 # Third-Party Libraries
+import boto3
 import cognitojwt
 from flask import abort, request
+
+# cisagov Libraries
+from settings import (
+    AWS_REGION,
+    COGNITO_ADMIN_GROUP,
+    COGNITO_CLIENT_ID,
+    COGNITO_DEFAULT_ADMIN,
+    COGNTIO_ENABLED,
+    COGNTIO_USER_POOL_ID,
+)
 
 
 class RequestAuth:
@@ -15,18 +26,14 @@ class RequestAuth:
     def __init__(self, request):
         """Initialize class with cognito settings and associated request."""
         self.request = request
-        self.aws_default_region = os.environ.get("AWS_DEFAULT_REGION")
-        self.aws_cognito_user_pool_id = os.environ.get("AWS_COGNITO_USER_POOL_ID")
-        self.aws_cognito_user_pool_client_id = os.environ.get(
-            "AWS_COGNITO_USER_POOL_CLIENT_ID"
-        )
-        self.aws_cognito_enabled = bool(int(os.environ.get("AWS_COGNITO_ENABLED", 0)))
+        self.cognito = boto3.client("cognito-idp")
+        self.username = ""
 
     def validate(self):
         """Validate request."""
         if self.check_api_key(request):
             return True
-        if not self.aws_cognito_enabled:
+        if not COGNTIO_ENABLED:
             return True
         if self.check_cognito_jwt(request):
             return True
@@ -61,14 +68,30 @@ class RequestAuth:
         try:
             resp = cognitojwt.decode(
                 jwt,
-                self.aws_default_region,
-                self.aws_cognito_user_pool_id,
-                app_client_id=self.aws_cognito_user_pool_client_id,
+                AWS_REGION,
+                COGNTIO_USER_POOL_ID,
+                app_client_id=COGNITO_CLIENT_ID,
             )
-            return resp["username"]
+            self.username = resp["username"]
+            return self.username
         except Exception as e:
             logging.exception(e)
             return False
+
+    def check_admin_status(self):
+        """Check if user is in the admin cognito group."""
+        if not COGNTIO_ENABLED:
+            return True
+        if COGNITO_DEFAULT_ADMIN:
+            return True
+
+        resp = self.cognito.admin_list_groups_for_user(
+            Username=self.username, UserPoolId=COGNTIO_USER_POOL_ID, Limit=60
+        )
+        for group in resp["Groups"]:
+            if group["GroupName"] == COGNITO_ADMIN_GROUP:
+                return True
+        return False
 
 
 def auth_required(view):
@@ -80,6 +103,24 @@ def auth_required(view):
         auth = RequestAuth(request)
         if auth.validate():
             return view(*args, **kwargs)
+        else:
+            abort(401)
+
+    return decorated
+
+
+def auth_admin_required(view):
+    """Authorize requests."""
+
+    @wraps(view)
+    def decorated(*args, **kwargs):
+        """Decorate."""
+        auth = RequestAuth(request)
+        if auth.validate():
+            if auth.check_admin_status():
+                return view(*args, **kwargs)
+            else:
+                abort(401)
         else:
             abort(401)
 
