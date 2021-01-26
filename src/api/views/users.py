@@ -21,9 +21,6 @@ from utils.validator import validate_data
 
 
 route53 = boto3.client("route53")
-region =  os.environ.get("AWS_REGION", 0)
-access_key = os.environ.get("AWS_ACCESS_KEY_ID", 0)
-secret_access_key = os.environ.get("AWS_SECRET_ACCESS_KEY", 0)
 client_id = os.environ.get("AWS_COGNITO_USER_POOL_CLIENT_ID", 0)
 user_pool_id = os.environ.get("AWS_COGNITO_USER_POOL_ID", 0)
 cognito = boto3.client(
@@ -69,9 +66,11 @@ class UsersView(MethodView):
 class UserView(MethodView):
     """UserView."""
 
-    def get(self, user_id):
+    def get(self, username):
         """Get User details."""
-        user = user_manager.get(document_id = user_id)
+        user = user_manager.get(
+                filter_data={"Username": username}
+            )
         print(user)
         groups = cognito.admin_list_groups_for_user(
             Username=user["Username"],
@@ -80,3 +79,18 @@ class UserView(MethodView):
         )
         print(groups)
         return jsonify(user)
+
+class UserConfirm(MethodView):
+    """USer Confirm View"""
+
+    def get(self, username):
+        """Confirm the selected user"""
+        try:
+            response = cognito.admin_confirm_sign_up(
+                ClientId='client_id',
+                Username=username,
+
+            )
+        except:
+            return jsonify({"error": "Failed to confirm user"}), 400
+

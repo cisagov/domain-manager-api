@@ -35,7 +35,10 @@ from api.views.users import (
     UserView,
 )
 from settings import logger
-from utils.decorators.auth import auth_required
+from utils.decorators.auth import (
+    auth_required,
+    auth_admin_required,
+)
 
 app = Flask(__name__)
 app.url_map.strict_slashes = False
@@ -57,8 +60,6 @@ rules = [
     ("/template/<template_id>/", TemplateView),
     ("/template/<template_id>/content/", TemplateContentView),
     ("/templates/attributes/", TemplateAttributesView),
-    ("/user/<user_id>/", UserView),
-    ("/users/", UsersView),
     ("/domains/", DomainsView),
     ("/domain/<domain_id>/", DomainView),
     ("/domain/<domain_id>/categorize/", DomainCategorizeView),
@@ -70,9 +71,19 @@ rules = [
     ("/domain/<domain_id>/records/", DomainRecordView),
 ]
 
+admin_rules = [
+    ("/users/", UsersView),
+    ("/user/<username>/", UserView),
+]
+
 for rule in rules:
     url = f"{url_prefix}{rule[0]}"
     rule[1].decorators = [auth_required]
+    app.add_url_rule(url, view_func=rule[1].as_view(url))
+
+for rule in admin_rules:
+    url = f"{url_prefix}{rule[0]}"
+    rule[1].decorators = [auth_admin_required]
     app.add_url_rule(url, view_func=rule[1].as_view(url))
 
 

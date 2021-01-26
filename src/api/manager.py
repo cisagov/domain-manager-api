@@ -11,11 +11,7 @@ from api.schemas.category_schema import CategorySchema
 from api.schemas.domain_schema import DomainSchema
 from api.schemas.proxy_schema import ProxySchema
 from api.schemas.template_schema import TemplateSchema
-<<<<<<< HEAD
 from api.schemas.user_shema import UserSchema
-from api.schemas.website_schema import WebsiteSchema
-=======
->>>>>>> develop
 from settings import DB
 
 
