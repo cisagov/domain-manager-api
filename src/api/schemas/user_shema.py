@@ -15,7 +15,13 @@ class UserSchema(Schema):
         unknown = EXCLUDE
 
     _id = fields.Str()
-    name = fields.Str(validate=is_valid_category)
-    is_activated = fields.Boolean()
-    created = fields.DateTime()
-    updated = fields.DateTime()
+    Attributes = fields.List(fields.Dict())
+    Enabled = fields.Boolean()
+    # Someone better with Python Datetimes should help here, 
+    # Im going crazy getting it to accept this
+    # UserCreateDate = fields.DateTime()
+    # UserLastModifiedDate = fields.DateTime()
+    UserStatus = fields.Str()
+    Username = fields.Str(validate=is_valid_category)
+    Groups = fields.List(fields.Str())
+    History = fields.List(fields.Dict())

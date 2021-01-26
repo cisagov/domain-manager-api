@@ -222,7 +222,7 @@ class UserManager(Manager):
         return super().__init__(
             collection="users",
             schema=UserSchema,
-            indexes=["name"],
+            indexes=["Username"],
         )
 
 class WebsiteManager(Manager):
