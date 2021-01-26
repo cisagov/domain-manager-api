@@ -8,9 +8,9 @@ from bson.objectid import ObjectId
 # cisagov Libraries
 from api.schemas.application_schema import ApplicationSchema
 from api.schemas.category_schema import CategorySchema
+from api.schemas.domain_schema import DomainSchema
 from api.schemas.proxy_schema import ProxySchema
 from api.schemas.template_schema import TemplateSchema
-from api.schemas.website_schema import WebsiteSchema
 from settings import DB
 
 
@@ -214,13 +214,13 @@ class TemplateManager(Manager):
         )
 
 
-class WebsiteManager(Manager):
-    """WebsiteManager."""
+class DomainManager(Manager):
+    """DomainManager."""
 
     def __init__(self):
-        """Initialize super for website."""
+        """Initialize super for domain."""
         return super().__init__(
-            collection="websites",
-            schema=WebsiteSchema,
+            collection="domains",
+            schema=DomainSchema,
             indexes=["name"],
         )

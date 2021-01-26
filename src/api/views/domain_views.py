@@ -1,4 +1,4 @@
-"""Website Views."""
+"""Domain Views."""
 # Standard Python Libraries
 from datetime import datetime
 import io
@@ -14,13 +14,8 @@ import requests
 from selenium import webdriver
 
 # cisagov Libraries
-from api.manager import (
-    ApplicationManager,
-    CategoryManager,
-    ProxyManager,
-    WebsiteManager,
-)
-from api.schemas.website_schema import Redirect, WebsiteSchema
+from api.manager import ApplicationManager, CategoryManager, DomainManager, ProxyManager
+from api.schemas.domain_schema import DomainSchema, Redirect
 from settings import STATIC_GEN_URL, WEBSITE_BUCKET, logger
 from utils.aws.redirect_handler import delete_redirect, modify_redirect, setup_redirect
 from utils.aws.site_handler import delete_site, launch_site
@@ -37,26 +32,26 @@ from utils.validator import validate_data
 
 category_manager = CategoryManager()
 proxy_manager = ProxyManager()
-website_manager = WebsiteManager()
+domain_manager = DomainManager()
 application_manager = ApplicationManager()
 route53 = boto3.client("route53")
 
 
-class WebsitesView(MethodView):
-    """WebsitesView."""
+class DomainsView(MethodView):
+    """DomainsView."""
 
     def get(self):
-        """Get all websites."""
-        return jsonify(website_manager.all(params=request.args))
+        """Get all domains."""
+        return jsonify(domain_manager.all(params=request.args))
 
     def post(self):
-        """Create a new website."""
-        data = validate_data(request.json, WebsiteSchema)
-        if website_manager.get(filter_data={"name": data["name"]}):
-            return jsonify({"error": "Website already exists."}), 400
+        """Create a new domain."""
+        data = validate_data(request.json, DomainSchema)
+        if domain_manager.get(filter_data={"name": data["name"]}):
+            return jsonify({"error": "Domain already exists."}), 400
         caller_ref = str(uuid4())
         resp = route53.create_hosted_zone(Name=data["name"], CallerReference=caller_ref)
-        website_manager.save(
+        domain_manager.save(
             {
                 "name": data["name"],
                 "is_active": False,
@@ -70,26 +65,26 @@ class WebsitesView(MethodView):
         return jsonify(resp["DelegationSet"]["NameServers"])
 
 
-class WebsiteView(MethodView):
-    """WebsiteView."""
+class DomainView(MethodView):
+    """DomainView."""
 
-    def get(self, website_id):
-        """Get Website details."""
-        website = website_manager.get(document_id=website_id)
-        return jsonify(website)
+    def get(self, domain_id):
+        """Get Domain details."""
+        domain = domain_manager.get(document_id=domain_id)
+        return jsonify(domain)
 
-    def put(self, website_id):
-        """Update website."""
-        data = validate_data(request.json, WebsiteSchema)
+    def put(self, domain_id):
+        """Update domain."""
+        data = validate_data(request.json, DomainSchema)
 
         if data.get("application"):
-            website = website_manager.get(document_id=website_id)
+            domain = domain_manager.get(document_id=domain_id)
             application = application_manager.get(
                 filter_data={"name": data["application"]}
             )
             data["application_id"] = application["_id"]
             # Save application to history
-            data["history"] = website.get("history", [])
+            data["history"] = domain.get("history", [])
             data["history"].append(
                 {
                     "application": application,
@@ -97,37 +92,37 @@ class WebsiteView(MethodView):
                 }
             )
 
-        return jsonify(website_manager.update(document_id=website_id, data=data))
+        return jsonify(domain_manager.update(document_id=domain_id, data=data))
 
-    def delete(self, website_id):
-        """Delete website and hosted zone."""
-        website = website_manager.get(document_id=website_id)
+    def delete(self, domain_id):
+        """Delete domain and hosted zone."""
+        domain = domain_manager.get(document_id=domain_id)
 
-        if website.get("is_active") and website.get("redirects"):
+        if domain.get("is_active") and domain.get("redirects"):
             return jsonify(
-                {"message": "Website cannot be active and redirects must be removed."}
+                {"message": "Domain cannot be active and redirects must be removed."}
             )
 
-        if website.get("category"):
-            category = website["category"]
-            name = website["name"]
+        if domain.get("category"):
+            category = domain["category"]
+            name = domain["name"]
             requests.delete(
                 f"{STATIC_GEN_URL}/website/?category={category}&domain={name}",
             )
 
-        route53.delete_hosted_zone(Id=website["route53"]["id"])
-        return jsonify(website_manager.delete(website["_id"]))
+        route53.delete_hosted_zone(Id=domain["route53"]["id"])
+        return jsonify(domain_manager.delete(domain["_id"]))
 
 
-class WebsiteContentView(MethodView):
-    """WebsiteContentView."""
+class DomainContentView(MethodView):
+    """DomainContentView."""
 
-    def get(self, website_id):
-        """Download Website."""
-        website = website_manager.get(document_id=website_id)
+    def get(self, domain_id):
+        """Download Domain."""
+        domain = domain_manager.get(document_id=domain_id)
 
         resp = requests.get(
-            f"{STATIC_GEN_URL}/website/?category={website['category']}&domain={website['name']}",
+            f"{STATIC_GEN_URL}/website/?category={domain['category']}&domain={domain['name']}",
         )
 
         try:
@@ -142,21 +137,21 @@ class WebsiteContentView(MethodView):
         return send_file(
             buffer,
             as_attachment=True,
-            attachment_filename=f"{website['name']}.zip",
+            attachment_filename=f"{domain['name']}.zip",
             mimetype="application/zip",
         )
 
-    def post(self, website_id):
+    def post(self, domain_id):
         """Upload files and serve s3 site."""
-        # Get website data
-        website = website_manager.get(document_id=website_id)
+        # Get domain data
+        domain = domain_manager.get(document_id=domain_id)
 
-        domain = website["name"]
+        domain_name = domain["name"]
         category = request.args.get("category")
 
         # Delete existing website files
         resp = requests.delete(
-            f"{STATIC_GEN_URL}/website/?category={category}&domain={domain}",
+            f"{STATIC_GEN_URL}/website/?category={category}&domain={domain_name}",
         )
 
         try:
@@ -166,7 +161,7 @@ class WebsiteContentView(MethodView):
 
         # Post new website files
         resp = requests.post(
-            f"{STATIC_GEN_URL}/website/?category={category}&domain={domain}",
+            f"{STATIC_GEN_URL}/website/?category={category}&domain={domain_name}",
             files={"zip": (f"{category}.zip", request.files["zip"])},
         )
 
@@ -180,23 +175,23 @@ class WebsiteContentView(MethodView):
 
         return (
             jsonify(
-                website_manager.update(
-                    document_id=website_id,
+                domain_manager.update(
+                    document_id=domain_id,
                     data={
                         "category": category,
-                        "s3_url": f"https://{WEBSITE_BUCKET}.s3.amazonaws.com/{domain}/",
+                        "s3_url": f"https://{WEBSITE_BUCKET}.s3.amazonaws.com/{domain_name}/",
                     },
                 )
             ),
             200,
         )
 
-    def delete(self, website_id):
-        """Delete website content."""
-        website = website_manager.get(document_id=website_id)
+    def delete(self, domain_id):
+        """Delete domain content."""
+        domain = domain_manager.get(document_id=domain_id)
 
-        name = website["name"]
-        category = website["category"]
+        name = domain["name"]
+        category = domain["category"]
         resp = requests.delete(
             f"{STATIC_GEN_URL}/website/?category={category}&domain={name}",
         )
@@ -207,23 +202,23 @@ class WebsiteContentView(MethodView):
             return {"error": str(e)}, 400
 
         return jsonify(
-            website_manager.remove(
-                document_id=website_id, data={"category": "", "s3_url": ""}
+            domain_manager.remove(
+                document_id=domain_id, data={"category": "", "s3_url": ""}
             )
         )
 
 
-class WebsiteGenerateView(MethodView):
-    """WebsiteGenerateView."""
+class DomainGenerateView(MethodView):
+    """DomainGenerateView."""
 
-    def post(self, website_id):
+    def post(self, domain_id):
         """Create website."""
         category = request.args.get("category")
-        website = website_manager.get(document_id=website_id)
+        domain = domain_manager.get(document_id=domain_id)
 
         # Switch instance to unavailable to prevent user actions
-        website_manager.update(
-            document_id=website_id,
+        domain_manager.update(
+            document_id=domain_id,
             data={
                 "is_available": False,
                 "is_generating_template": True,
@@ -231,11 +226,11 @@ class WebsiteGenerateView(MethodView):
         )
 
         try:
-            domain = website["name"]
+            domain_name = domain["name"]
 
             # Generate website content from a template
             resp = requests.post(
-                f"{STATIC_GEN_URL}/generate/?category={category}&domain={domain}",
+                f"{STATIC_GEN_URL}/generate/?category={category}&domain={domain_name}",
                 json=request.json,
             )
 
@@ -247,10 +242,10 @@ class WebsiteGenerateView(MethodView):
             except requests.exceptions.HTTPError as e:
                 return jsonify({"error": str(e)}), 400
 
-            website_manager.update(
-                document_id=website_id,
+            domain_manager.update(
+                document_id=domain_id,
                 data={
-                    "s3_url": f"https://{WEBSITE_BUCKET}.s3.amazonaws.com/{domain}/",
+                    "s3_url": f"https://{WEBSITE_BUCKET}.s3.amazonaws.com/{domain_name}/",
                     "category": category,
                     "is_available": True,
                     "is_generating_template": False,
@@ -259,13 +254,13 @@ class WebsiteGenerateView(MethodView):
 
             return jsonify(
                 {
-                    "message": f"{domain} static site has been created from the {category} template."
+                    "message": f"{domain_name} static site has been created from the {category} template."
                 }
             )
         except Exception as e:
             logger.exception(e)
-            website_manager.update(
-                document_id=website_id,
+            domain_manager.update(
+                document_id=domain_id,
                 data={
                     "is_available": True,
                     "is_generating_template": False,
@@ -273,17 +268,15 @@ class WebsiteGenerateView(MethodView):
             )
 
 
-class WebsiteRedirectView(MethodView):
-    """WebsiteRedirectView."""
+class DomainRedirectView(MethodView):
+    """DomainRedirectView."""
 
-    def get(self, website_id):
-        """Get all redirects for a website."""
-        return jsonify(
-            website_manager.get(document_id=website_id, fields=["redirects"])
-        )
+    def get(self, domain_id):
+        """Get all redirects for a domain."""
+        return jsonify(domain_manager.get(document_id=domain_id, fields=["redirects"]))
 
-    def post(self, website_id):
-        """Create a website redirect."""
+    def post(self, domain_id):
+        """Create a domain redirect."""
         data = {
             "subdomain": request.json["subdomain"],
             "redirect_url": request.json["redirect_url"],
@@ -291,25 +284,25 @@ class WebsiteRedirectView(MethodView):
 
         data = validate_data(data, Redirect)
 
-        redirects = website_manager.get(document_id=website_id, fields=["redirects"])
+        redirects = domain_manager.get(document_id=domain_id, fields=["redirects"])
         if data["subdomain"] in [
             r["subdomain"] for r in redirects.get("redirects", [])
         ]:
             return "Subdomain already utilized."
 
         setup_redirect(
-            website_id=website_id,
+            domain_id=domain_id,
             subdomain=data["subdomain"],
             redirect_url=data["redirect_url"],
         )
 
         return jsonify(
-            website_manager.add_to_list(
-                document_id=website_id, field="redirects", data=data
+            domain_manager.add_to_list(
+                document_id=domain_id, field="redirects", data=data
             )
         )
 
-    def put(self, website_id):
+    def put(self, domain_id):
         """Update a subdomain redirect value."""
         data = {
             "subdomain": request.json["subdomain"],
@@ -319,44 +312,44 @@ class WebsiteRedirectView(MethodView):
         data = validate_data(data, Redirect)
 
         modify_redirect(
-            website_id=website_id,
+            domain_id=domain_id,
             subdomain=data["subdomain"],
             redirect_url=data["redirect_url"],
         )
         return jsonify(
-            website_manager.update_in_list(
-                document_id=website_id,
+            domain_manager.update_in_list(
+                document_id=domain_id,
                 field="redirects.$.redirect_url",
                 data=data["redirect_url"],
                 params={"redirects.subdomain": data["subdomain"]},
             )
         )
 
-    def delete(self, website_id):
+    def delete(self, domain_id):
         """Delete a subdomain redirect."""
         subdomain = request.args.get("subdomain")
         if not subdomain:
             return {"error": "must pass subdomain as a request arg to delete."}
-        delete_redirect(website_id=website_id, subdomain=subdomain)
+        delete_redirect(domain_id=domain_id, subdomain=subdomain)
         return jsonify(
-            website_manager.delete_from_list(
-                document_id=website_id,
+            domain_manager.delete_from_list(
+                document_id=domain_id,
                 field="redirects",
                 data={"subdomain": subdomain},
             )
         )
 
 
-class WebsiteLaunchView(MethodView):
+class DomainLaunchView(MethodView):
     """Launch or stop an existing static site by adding dns records to its domain."""
 
-    def get(self, website_id):
+    def get(self, domain_id):
         """Launch a static site."""
-        website = website_manager.get(document_id=website_id)
+        domain = domain_manager.get(document_id=domain_id)
 
         # Switch instance to unavailable to prevent user actions
-        website_manager.update(
-            document_id=website_id,
+        domain_manager.update(
+            document_id=domain_id,
             data={
                 "is_available": False,
                 "is_launching": True,
@@ -364,7 +357,7 @@ class WebsiteLaunchView(MethodView):
         )
         try:
             # Create distribution, certificates, and dns records
-            metadata = launch_site(website)
+            metadata = launch_site(domain)
 
             data = {
                 "is_active": True,
@@ -372,30 +365,30 @@ class WebsiteLaunchView(MethodView):
                 "is_launching": False,
             }
             data.update(metadata)
-            website_manager.update(
-                document_id=website_id,
+            domain_manager.update(
+                document_id=domain_id,
                 data=data,
             )
-            name = website["name"]
+            name = domain["name"]
             return jsonify({"success": f"{name} has been launched"})
         except Exception as e:
             logger.exception(e)
             # Switch instance to unavailable to prevent user actions
-            website_manager.update(
-                document_id=website_id,
+            domain_manager.update(
+                document_id=domain_id,
                 data={
                     "is_available": True,
                     "is_launching": False,
                 },
             )
 
-    def delete(self, website_id):
+    def delete(self, domain_id):
         """Stop a static site."""
-        website = website_manager.get(document_id=website_id)
+        domain = domain_manager.get(document_id=domain_id)
 
         # Switch instance to unavailable to prevent user actions
-        website_manager.update(
-            document_id=website_id,
+        domain_manager.update(
+            document_id=domain_id,
             data={
                 "is_available": False,
                 "is_delaunching": True,
@@ -403,10 +396,10 @@ class WebsiteLaunchView(MethodView):
         )
         try:
             # Delete distribution, certificates, and dns records
-            resp = delete_site(website)
+            resp = delete_site(domain)
 
-            website_manager.update(
-                document_id=website_id,
+            domain_manager.update(
+                document_id=domain_id,
                 data={
                     "is_active": False,
                     "is_available": True,
@@ -414,16 +407,16 @@ class WebsiteLaunchView(MethodView):
                 },
             )
 
-            website_manager.remove(
-                document_id=website_id,
+            domain_manager.remove(
+                document_id=domain_id,
                 data={"acm": "", "cloudfront": ""},
             )
             return jsonify(resp)
         except Exception as e:
             logger.exception(e)
             # Switch instance to unavailable to prevent user actions
-            website_manager.update(
-                document_id=website_id,
+            domain_manager.update(
+                document_id=domain_id,
                 data={
                     "is_available": True,
                     "is_delaunching": False,
@@ -431,31 +424,31 @@ class WebsiteLaunchView(MethodView):
             )
 
 
-class WebsiteRecordView(MethodView):
+class DomainRecordView(MethodView):
     """View for interacting with website hosted zone records."""
 
-    def get(self, website_id):
-        """Get the hosted zone records for a website."""
-        hosted_zone_id = website_manager.get(
-            document_id=website_id, fields=["route53"]
-        )["route53"]["id"]
+    def get(self, domain_id):
+        """Get the hosted zone records for a domain."""
+        hosted_zone_id = domain_manager.get(document_id=domain_id, fields=["route53"])[
+            "route53"
+        ]["id"]
         resp = route53.list_resource_record_sets(HostedZoneId=hosted_zone_id)
         return jsonify(resp["ResourceRecordSets"])
 
 
-class WebsiteCategorizeView(MethodView):
-    """WebsiteCategorizeView."""
+class DomainCategorizeView(MethodView):
+    """DomainCategorizeView."""
 
-    def get(self, website_id):
+    def get(self, domain_id):
         """Manage categorization of active sites."""
         browserless_endpoint = os.environ.get("BROWSERLESS_ENDPOINT")
         chrome_options = webdriver.ChromeOptions()
         chrome_options.add_argument("--no-sandbox")
         chrome_options.add_argument("--headless")
-        website = website_manager.get(document_id=website_id)
-        domain = website["name"]
-        if website.get("is_categorized", None):
-            return {"error": f"{domain} has already been categorized."}
+        domain = domain_manager.get(document_id=domain_id)
+        domain_name = domain["name"]
+        if domain.get("is_categorized", None):
+            return {"error": f"{domain_name} has already been categorized."}
 
         category = category_manager.get(
             filter_data={"name": request.args.get("category", "").capitalize()}
@@ -489,7 +482,7 @@ class WebsiteCategorizeView(MethodView):
                         {
                             "driver": driver,
                             "url": proxy.get("url"),
-                            "domain": domain,
+                            "domain": domain_name,
                             "api_key": two_captcha_api_key,
                             "category": proxy_category,
                         },
@@ -511,17 +504,19 @@ class WebsiteCategorizeView(MethodView):
         driver.quit()
 
         # Update database
-        website_manager.update(
-            document_id=website_id,
+        domain_manager.update(
+            document_id=domain_id,
             data={"is_category_submitted": is_category_submitted},
         )
         return jsonify(
-            {"message": f"{domain} has been successfully submitted for categorization"}
+            {
+                "message": f"{domain_name} has been successfully submitted for categorization"
+            }
         )
 
 
-class WebsiteCheckView(MethodView):
-    """WebsiteCategoryCheckView."""
+class DomainCheckView(MethodView):
+    """DomainCategoryCheckView."""
 
     def update_submission(self, query, dicts):
         """Search through existing submissions and check as categorized."""
@@ -533,51 +528,51 @@ class WebsiteCheckView(MethodView):
         if not any(item["name"] == query for item in dicts):
             dicts.append({"name": query, "is_categorized": True})
 
-    def get(self, website_id):
-        """Check category for a website."""
-        website = website_manager.get(document_id=website_id)
+    def get(self, domain_id):
+        """Check category for a domain."""
+        domain = domain_manager.get(document_id=domain_id)
 
-        if not website.get("is_category_submitted", None):
+        if not domain.get("is_category_submitted", None):
             return jsonify(
                 {"error": "website has not yet been submitted for categorization"}
             )
 
-        domain = website["name"]
+        domain_name = domain["name"]
 
         # Trusted source
-        ts = trustedsource.check_category(domain)
+        ts = trustedsource.check_category(domain_name)
         if ts is not None:
-            self.update_submission("Trusted Source", website["is_category_submitted"])
+            self.update_submission("Trusted Source", domain["is_category_submitted"])
 
         # Bluecoat
-        bc = bluecoat.check_category(domain)
+        bc = bluecoat.check_category(domain_name)
         if bc is not None:
-            self.update_submission("Blue Coat", website["is_category_submitted"])
+            self.update_submission("Blue Coat", domain["is_category_submitted"])
 
         # Cisco Talos
-        ct = ciscotalos.check_category(domain)
+        ct = ciscotalos.check_category(domain_name)
         if ct is not None:
-            self.update_submission("Cisco Talos", website["is_category_submitted"])
+            self.update_submission("Cisco Talos", domain["is_category_submitted"])
 
         # IBM X Force
-        ixf = ibmxforce.check_category(domain)
+        ixf = ibmxforce.check_category(domain_name)
         if ixf is not None:
-            self.update_submission("IBM X Force", website["is_category_submitted"])
+            self.update_submission("IBM X Force", domain["is_category_submitted"])
 
         # Fortiguard
-        fg = fortiguard.check_category(domain)
+        fg = fortiguard.check_category(domain_name)
         if fg is not None:
-            self.update_submission("Fortiguard", website["is_category_submitted"])
+            self.update_submission("Fortiguard", domain["is_category_submitted"])
 
         # Websense
-        ws = websense.check_category(domain)
+        ws = websense.check_category(domain_name)
         if ws is not None:
-            self.update_submission("Websense", website["is_category_submitted"])
+            self.update_submission("Websense", domain["is_category_submitted"])
 
         # Update database
-        website_manager.update(
-            document_id=website_id,
-            data={"is_category_submitted": website["is_category_submitted"]},
+        domain_manager.update(
+            document_id=domain_id,
+            data={"is_category_submitted": domain["is_category_submitted"]},
         )
         return jsonify(
             {

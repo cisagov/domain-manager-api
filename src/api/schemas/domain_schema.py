@@ -39,8 +39,8 @@ class Redirect(Schema):
     redirect_url = fields.Str(validate=is_valid_domain)
 
 
-class WebsiteSchema(Schema):
-    """Website Schema."""
+class DomainSchema(Schema):
+    """DomainSchema."""
 
     class Meta:
         """Meta atrributes for class."""

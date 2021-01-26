@@ -440,6 +440,11 @@
               "key": "zip",
               "type": "file",
               "src": "/C:/Users/WILSZS/Repos/go_templates/template.zip"
+            },
+            {
+              "key": "",
+              "type": "file",
+              "src": []
             }
           ]
         },
@@ -497,20 +502,20 @@
       "response": []
     },
     {
-      "name": "WebsitesView - Get",
+      "name": "DomainsView - Get",
       "request": {
         "method": "GET",
         "header": [],
         "url": {
-          "raw": "{{base_url}}/api/websites/",
+          "raw": "{{base_url}}/api/domains/",
           "host": ["{{base_url}}"],
-          "path": ["api", "websites", ""]
+          "path": ["api", "domains", ""]
         }
       },
       "response": []
     },
     {
-      "name": "WebsitesView - Post",
+      "name": "DomainsView - Post",
       "request": {
         "method": "POST",
         "header": [],
@@ -524,13 +529,15 @@
           }
         },
         "url": {
-          "raw": ""
+          "raw": "{{base_url}}/api/domains/",
+          "host": ["{{base_url}}"],
+          "path": ["api", "domains", ""]
         }
       },
       "response": []
     },
     {
-      "name": "WebsiteView - Get",
+      "name": "DomainView - Get",
       "protocolProfileBehavior": {
         "disableBodyPruning": true
       },
@@ -542,15 +549,15 @@
           "raw": ""
         },
         "url": {
-          "raw": "{{base_url}}/api/website/{{website_id}}/",
+          "raw": "{{base_url}}/api/domain/{{domain_id}}/",
           "host": ["{{base_url}}"],
-          "path": ["api", "website", "{{website_id}}", ""]
+          "path": ["api", "domain", "{{domain_id}}", ""]
         }
       },
       "response": []
     },
     {
-      "name": "WebsiteView - Put",
+      "name": "DomainView - Put",
       "request": {
         "method": "PUT",
         "header": [],
@@ -564,41 +571,41 @@
           }
         },
         "url": {
-          "raw": "{{base_url}}/api/website/{{website_id}}",
+          "raw": "{{base_url}}/api/domain/{{domain_id}}",
           "host": ["{{base_url}}"],
-          "path": ["api", "website", "{{website_id}}"]
+          "path": ["api", "domain", "{{domain_id}}"]
         }
       },
       "response": []
     },
     {
-      "name": "WebsiteView - Delete",
+      "name": "DomainView - Delete",
       "request": {
         "method": "DELETE",
         "header": [],
         "url": {
-          "raw": "{{base_url}}/api/website/{{website_id}}/",
+          "raw": "{{base_url}}/api/domain/{{domain_id}}/",
           "host": ["{{base_url}}"],
-          "path": ["api", "website", "{{website_id}}", ""]
+          "path": ["api", "domain", "{{domain_id}}", ""]
         }
       },
       "response": []
     },
     {
-      "name": "WebsiteContentView - Get",
+      "name": "DomainContentView - Get",
       "request": {
         "method": "GET",
         "header": [],
         "url": {
-          "raw": "{{base_url}}/api/website/{{website_id}}/content",
+          "raw": "{{base_url}}/api/domain/{{domain_id}}/content",
           "host": ["{{base_url}}"],
-          "path": ["api", "website", "{{website_id}}", "content"]
+          "path": ["api", "domain", "{{domain_id}}", "content"]
         }
       },
       "response": []
     },
     {
-      "name": "WebsiteContentView - Post",
+      "name": "DomainContentView - Post",
       "request": {
         "method": "POST",
         "header": [],
@@ -613,28 +620,28 @@
           ]
         },
         "url": {
-          "raw": "{{base_url}}/api/website/{{website_id}}/content",
+          "raw": "{{base_url}}/api/domain/{{domain_id}}/content",
           "host": ["{{base_url}}"],
-          "path": ["api", "website", "{{website_id}}", "content"]
+          "path": ["api", "domain", "{{domain_id}}", "content"]
         }
       },
       "response": []
     },
     {
-      "name": "WebsiteContentView - Delete",
+      "name": "DomainContentView - Delete",
       "request": {
         "method": "DELETE",
         "header": [],
         "url": {
-          "raw": "{{base_url}}/api/website/{{website_id}}/content",
+          "raw": "{{base_url}}/api/domain/{{domain_id}}/content",
           "host": ["{{base_url}}"],
-          "path": ["api", "website", "{{website_id}}", "content"]
+          "path": ["api", "domain", "{{domain_id}}", "content"]
         }
       },
       "response": []
     },
     {
-      "name": "WebsiteGenerateView - Post",
+      "name": "DomainGenerateView - Post",
       "request": {
         "method": "POST",
         "header": [],
@@ -648,9 +655,9 @@
           }
         },
         "url": {
-          "raw": "{{base_url}}/api/website/{{website_id}}/generate?category=pesticide",
+          "raw": "{{base_url}}/api/domain/{{domain_id}}/generate?category=pesticide",
           "host": ["{{base_url}}"],
-          "path": ["api", "website", "{{website_id}}", "generate"],
+          "path": ["api", "domain", "{{domain_id}}", "generate"],
           "query": [
             {
               "key": "category",
@@ -662,20 +669,20 @@
       "response": []
     },
     {
-      "name": "WebsiteRedirectView - Get",
+      "name": "DomainRedirectView - Get",
       "request": {
         "method": "GET",
         "header": [],
         "url": {
-          "raw": "{{base_url}}/api/website/{{website_id}}/redirect",
+          "raw": "{{base_url}}/api/domain/{{domain_id}}/redirect",
           "host": ["{{base_url}}"],
-          "path": ["api", "website", "{{website_id}}", "redirect"]
+          "path": ["api", "domain", "{{domain_id}}", "redirect"]
         }
       },
       "response": []
     },
     {
-      "name": "WebsiteRedirectView - Post",
+      "name": "DomainRedirectView - Post",
       "request": {
         "method": "POST",
         "header": [],
@@ -689,15 +696,15 @@
           }
         },
         "url": {
-          "raw": "{{base_url}}/api/website/{{website_id}}/redirect",
+          "raw": "{{base_url}}/api/domain/{{domain_id}}/redirect",
           "host": ["{{base_url}}"],
-          "path": ["api", "website", "{{website_id}}", "redirect"]
+          "path": ["api", "domain", "{{domain_id}}", "redirect"]
         }
       },
       "response": []
     },
     {
-      "name": "WebsiteRedirectView - Put",
+      "name": "DomainRedirectView - Put",
       "request": {
         "method": "PUT",
         "header": [],
@@ -711,83 +718,80 @@
           }
         },
         "url": {
-          "raw": "{{base_url}}/api/website/{{website_id}}/redirect",
+          "raw": "{{base_url}}/api/domain/{{domain_id}}/redirect",
           "host": ["{{base_url}}"],
-          "path": ["api", "website", "{{website_id}}", "redirect"]
+          "path": ["api", "domain", "{{domain_id}}", "redirect"]
         }
       },
       "response": []
     },
     {
-      "name": "WebsiteRedirectView - Delete",
+      "name": "DomainRedirectView - Delete",
       "request": {
         "method": "DELETE",
         "header": [],
-        "body": {
-          "mode": "raw",
-          "raw": "{\"subdomain\": \"demo\"}",
-          "options": {
-            "raw": {
-              "language": "json"
+        "url": {
+          "raw": "{{base_url}}/api/domain/{{domain_id}}/redirect?subdomain=demo",
+          "host": ["{{base_url}}"],
+          "path": ["api", "domain", "{{domain_id}}", "redirect"],
+          "query": [
+            {
+              "key": "subdomain",
+              "value": "demo"
             }
-          }
-        },
-        "url": {
-          "raw": "{{base_url}}/api/website/{{website_id}}/redirect",
-          "host": ["{{base_url}}"],
-          "path": ["api", "website", "{{website_id}}", "redirect"]
+          ]
         }
       },
       "response": []
     },
     {
-      "name": "WebsiteLaunchView - Get",
+      "name": "DomainLaunchView - Get",
       "request": {
         "method": "GET",
         "header": [],
         "url": {
-          "raw": "{{base_url}}/api/website/{{website_id}}/launch",
+          "raw": "{{base_url}}/api/domain/{{domain_id}}/launch",
           "host": ["{{base_url}}"],
-          "path": ["api", "website", "{{website_id}}", "launch"]
+          "path": ["api", "domain", "{{domain_id}}", "launch"]
         }
       },
       "response": []
     },
     {
-      "name": "WebsiteLaunchView - Delete",
+      "name": "DomainLaunchView - Delete",
       "request": {
         "method": "DELETE",
         "header": [],
         "url": {
-          "raw": "{{base_url}}/api/website/{{website_id}}/launch",
+          "raw": "{{base_url}}/api/domain/{{domain_id}}/launch",
           "host": ["{{base_url}}"],
-          "path": ["api", "website", "{{website_id}}", "launch"]
+          "path": ["api", "domain", "{{domain_id}}", "launch"]
         }
       },
       "response": []
     },
     {
-      "name": "WebsiteRecordView - Get",
+      "name": "DomainRecordView - Get",
       "request": {
         "method": "GET",
         "header": [],
         "url": {
-          "raw": "{{base_url}}/api/website/{{website_id}}/records",
+          "raw": "{{base_url}}/api/domain/{{domain_id}}/records",
           "host": ["{{base_url}}"],
-          "path": ["api", "website", "{{website_id}}", "records"]
+          "path": ["api", "domain", "{{domain_id}}", "records"]
         }
       },
       "response": []
     },
     {
-      "name": "WebsiteCategorizeView - Get",
+      "name": "DomainCategorizeView - Get",
       "request": {
         "method": "GET",
         "header": [],
         "url": {
-          "raw": "{{base_url}}/api/website/{{website_id}}/categorize",
+          "raw": "{{base_url}}/api/domain/{{domain_id}}/categorize",
           "host": ["{{base_url}}"],
-          "path": ["api", "website", "{{website_id}}", "categorize"]
+          "path": ["api", "domain", "{{domain_id}}", "categorize"]
         }
       },
       "response": []
@@ -827,7 +831,7 @@
       "value": "changeme"
     },
     {
-      "key": "website_id",
+      "key": "domain_id",
       "value": "changeme"
     },
     {

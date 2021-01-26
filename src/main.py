@@ -10,6 +10,17 @@ from flask_cors import CORS
 # cisagov Libraries
 from api.views.applications import ApplicationsView, ApplicationView
 from api.views.categories import CategoriesView, CategoryCheckView
+from api.views.domain_views import (
+    DomainCategorizeView,
+    DomainCheckView,
+    DomainContentView,
+    DomainGenerateView,
+    DomainLaunchView,
+    DomainRecordView,
+    DomainRedirectView,
+    DomainsView,
+    DomainView,
+)
 from api.views.email_address import EmailAddressView
 from api.views.hosted_zones import HostedZonesView
 from api.views.proxies import ProxiesView, ProxyView
@@ -18,17 +29,6 @@ from api.views.templates import (
     TemplateContentView,
     TemplatesView,
     TemplateView,
-)
-from api.views.websites import (
-    WebsiteCategorizeView,
-    WebsiteCheckView,
-    WebsiteContentView,
-    WebsiteGenerateView,
-    WebsiteLaunchView,
-    WebsiteRecordView,
-    WebsiteRedirectView,
-    WebsitesView,
-    WebsiteView,
 )
 from settings import logger
 from utils.decorators.auth import auth_required
@@ -53,15 +53,15 @@ rules = [
     ("/template/<template_id>/", TemplateView),
     ("/template/<template_id>/content/", TemplateContentView),
     ("/templates/attributes/", TemplateAttributesView),
-    ("/websites/", WebsitesView),
-    ("/website/<website_id>/", WebsiteView),
-    ("/website/<website_id>/categorize/", WebsiteCategorizeView),
-    ("/website/<website_id>/check/", WebsiteCheckView),
-    ("/website/<website_id>/content/", WebsiteContentView),
-    ("/website/<website_id>/generate/", WebsiteGenerateView),
-    ("/website/<website_id>/redirect/", WebsiteRedirectView),
-    ("/website/<website_id>/launch/", WebsiteLaunchView),
-    ("/website/<website_id>/records/", WebsiteRecordView),
+    ("/domains/", DomainsView),
+    ("/domain/<domain_id>/", DomainView),
+    ("/domain/<domain_id>/categorize/", DomainCategorizeView),
+    ("/domain/<domain_id>/check/", DomainCheckView),
+    ("/domain/<domain_id>/content/", DomainContentView),
+    ("/domain/<domain_id>/generate/", DomainGenerateView),
+    ("/domain/<domain_id>/redirect/", DomainRedirectView),
+    ("/domain/<domain_id>/launch/", DomainLaunchView),
+    ("/domain/<domain_id>/records/", DomainRecordView),
 ]
 
 for rule in rules:
