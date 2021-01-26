@@ -23,6 +23,7 @@ from utils.validator import validate_data
 route53 = boto3.client("route53")
 client_id = os.environ.get("AWS_COGNITO_USER_POOL_CLIENT_ID", 0)
 user_pool_id = os.environ.get("AWS_COGNITO_USER_POOL_ID", 0)
+adminGroup = os.environ.get("AWS_COGNITO_ADMIN_GROUP_NAME", 0)
 cognito = boto3.client(
     'cognito-idp'
     )
@@ -57,7 +58,6 @@ class UsersView(MethodView):
                     user_manager.save(data)
     
     def mergeUser(self, awsUser, dmUser):
-        print(dmUser)
         for key in dmUser:
             if key not in awsUser:
                 awsUser[key] = dmUser[key]
@@ -68,17 +68,21 @@ class UserView(MethodView):
 
     def get(self, username):
         """Get User details."""
-        user = user_manager.get(
+        dm_user = user_manager.get(
                 filter_data={"Username": username}
             )
-        print(user)
         groups = cognito.admin_list_groups_for_user(
-            Username=user["Username"],
+            Username=dm_user["Username"],
             UserPoolId=user_pool_id,
-            Limit=1
+            Limit=50
         )
-        print(groups)
-        return jsonify(user)
+        aws_user = cognito.admin_get_user(
+            UserPoolId=user_pool_id,
+            Username=dm_user["Username"]
+        )
+        response = UserHelpers.mergeAdditionalKeys(aws_user,dm_user)
+        response["Groups"] = groups["Groups"]
+        return jsonify(response)
 
 class UserConfirmView(MethodView):
     """User Confirm View"""
@@ -93,7 +97,6 @@ class UserConfirmView(MethodView):
             user = user_manager.get(
                 filter_data={"Username": username}
             )
-            print(user)
             user["UserStatus"] = "CONFIRMED"
             user_manager.update(
                 document_id = user["_id"], 
@@ -103,3 +106,40 @@ class UserConfirmView(MethodView):
         except:
             return jsonify({"error": "Failed to confirm user"}), 400
 
+class UserAdminStatus(MethodView):
+    """Set Users admin status"""
+    
+    def get(self,username):
+        """Set the user as an admin"""
+        try:
+            response = cognito.admin_add_user_to_group(
+                UserPoolId=user_pool_id,
+                Username=username,
+                GroupName=adminGroup
+            )
+            return jsonify(response)
+        except:
+            return jsonify({"error": "Failed to add user to admin group"}), 400
+
+    def delete(self,username):
+        """Remove user admin privlieges"""
+        try:
+            response = cognito.admin_remove_user_from_group(
+                UserPoolId=user_pool_id,
+                Username=username,
+                GroupName=adminGroup
+            )
+            return jsonify(response)
+        except:
+            return jsonify({"error": "Failed to remove user from admin group"}), 400
+
+class UserHelpers():
+    """Helper Class for user management"""
+
+    def mergeAdditionalKeys(baseDict, dictToAdd):
+        """Merge a """
+        for key in dictToAdd:
+            if key not in baseDict:
+                baseDict[key] = dictToAdd[key]
+        return baseDict
+            

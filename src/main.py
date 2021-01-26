@@ -34,6 +34,7 @@ from api.views.users import (
     UsersView,
     UserView,
     UserConfirmView,
+    UserAdminStatus
 )
 from settings import logger
 from utils.decorators.auth import (
@@ -76,6 +77,7 @@ admin_rules = [
     ("/users/", UsersView),
     ("/user/<username>/", UserView),
     ("/user/<username>/confirm", UserConfirmView),
+    ("/user/<username>/admin", UserAdminStatus),
 ]
 
 for rule in rules:
