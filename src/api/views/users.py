@@ -27,10 +27,7 @@ secret_access_key = os.environ.get("AWS_SECRET_ACCESS_KEY", 0)
 client_id = os.environ.get("AWS_COGNITO_USER_POOL_CLIENT_ID", 0)
 user_pool_id = os.environ.get("AWS_COGNITO_USER_POOL_ID", 0)
 cognito = boto3.client(
-    'cognito-idp',
-    region_name=region,
-    aws_access_key_id=access_key,
-    aws_secret_access_key=secret_access_key,   
+    'cognito-idp'
     )
 user_manager = UserManager()
 
@@ -43,18 +40,6 @@ class UsersView(MethodView):
             UserPoolId=user_pool_id
         )
         aws_users = response["Users"]
-        # user_manager.save({
-        #     "_id" : "test",
-        #     "Attributes" : [{
-        #         "Name": "test",
-        #         "OtherName": "test"
-        #     }],
-        #     "Enabled" : True,
-        #     "UserStatus" : "Status Test",
-        #     "Username" : "william.martin",
-        #     "Groups" : ["admin","appOne"]
-
-        # })
         dm_users = user_manager.all(params=request.args)
         self.mergeUserLists(aws_users,dm_users)
 
@@ -86,4 +71,12 @@ class UserView(MethodView):
 
     def get(self, user_id):
         """Get User details."""
-        return f"Test Val {user_id}"
+        user = user_manager.get(document_id = user_id)
+        print(user)
+        groups = cognito.admin_list_groups_for_user(
+            Username=user["Username"],
+            UserPoolId=user_pool_id,
+            Limit=1
+        )
+        print(groups)
+        return jsonify(user)

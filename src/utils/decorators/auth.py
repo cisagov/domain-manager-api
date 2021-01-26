@@ -25,10 +25,13 @@ class RequestAuth:
     def validate(self):
         """Validate request."""
         if self.check_api_key(request):
+            print("-------------------------1-------------------------")
             return True
         if not self.aws_cognito_enabled:
+            print("-------------------------2-------------------------")
             return True
         if self.check_cognito_jwt(request):
+            print("-------------------------3-------------------------")
             return True
 
         return False
@@ -65,6 +68,7 @@ class RequestAuth:
                 self.aws_cognito_user_pool_id,
                 app_client_id=self.aws_cognito_user_pool_client_id,
             )
+            print(resp)
             return resp["username"]
         except Exception as e:
             logging.exception(e)
@@ -77,6 +81,7 @@ def auth_required(view):
     @wraps(view)
     def decorated(*args, **kwargs):
         """Decorate."""
+        print("-------------------------auth test-------------------------")
         auth = RequestAuth(request)
         if auth.validate():
             return view(*args, **kwargs)
