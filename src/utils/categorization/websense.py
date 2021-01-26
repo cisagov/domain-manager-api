@@ -36,7 +36,8 @@ def check_category(domain):
             print("\033[1;32m[!] Site categorized as: " + cat + "\033[0;0m")
             return cat
         except Exception as e:
-            print("[-] An error occurred")
+            print("An error occurred")
             print(e)
+            return None
     else:
-        print("[-] No requests remaining for this IP.")
+        print("No requests remaining for this IP.")
