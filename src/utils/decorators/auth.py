@@ -112,7 +112,7 @@ def auth_required(view):
     return decorated
 
 def auth_admin_required(view):
-    """Authorize requests."""
+    """Authorize requests. """
 
     @wraps(view)
     def decorated(*args, **kwargs):
