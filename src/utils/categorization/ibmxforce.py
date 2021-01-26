@@ -30,7 +30,7 @@ def check_category(domain):
 
         if response.status_code == 404:
             print("[-] IBM x-Force does not have entries for the domain!")
-            return "-"
+            return None
 
         responseJson = json.loads(response.text)
 
@@ -43,4 +43,4 @@ def check_category(domain):
 
     except Exception:
         print("[-] Error retrieving IBM x-Force reputation!")
-        return "-"
+        return None

@@ -24,6 +24,14 @@ from api.schemas.website_schema import Redirect, WebsiteSchema
 from settings import STATIC_GEN_URL, WEBSITE_BUCKET, logger
 from utils.aws.redirect_handler import delete_redirect, modify_redirect, setup_redirect
 from utils.aws.site_handler import delete_site, launch_site
+from utils.categorization import (
+    bluecoat,
+    ciscotalos,
+    fortiguard,
+    ibmxforce,
+    trustedsource,
+    websense,
+)
 from utils.two_captcha import two_captcha_api_key
 from utils.validator import validate_data
 
@@ -509,4 +517,75 @@ class WebsiteCategorizeView(MethodView):
         )
         return jsonify(
             {"message": f"{domain} has been successfully submitted for categorization"}
+        )
+
+
+class WebsiteCheckView(MethodView):
+    """WebsiteCategoryCheckView."""
+
+    def update_submission(self, query, dicts):
+        """Search through existing submissions and check as categorized."""
+        next(
+            item.update({"is_categorized": True})
+            for item in dicts
+            if item["name"] == query
+        )
+        if not any(item["name"] == query for item in dicts):
+            dicts.append({"name": query, "is_categorized": True})
+
+    def get(self, website_id):
+        """Check category for a website."""
+        website = website_manager.get(document_id=website_id)
+
+        if not website.get("is_category_submitted", None):
+            return jsonify(
+                {"error": "website has not yet been submitted for categorization"}
+            )
+
+        domain = website["name"]
+
+        # Trusted source
+        ts = trustedsource.check_category(domain)
+        if ts is not None:
+            self.update_submission("Trusted Source", website["is_category_submitted"])
+
+        # Bluecoat
+        bc = bluecoat.check_category(domain)
+        if bc is not None:
+            self.update_submission("Blue Coat", website["is_category_submitted"])
+
+        # Cisco Talos
+        ct = ciscotalos.check_category(domain)
+        if ct is not None:
+            self.update_submission("Cisco Talos", website["is_category_submitted"])
+
+        # IBM X Force
+        ixf = ibmxforce.check_category(domain)
+        if ixf is not None:
+            self.update_submission("IBM X Force", website["is_category_submitted"])
+
+        # Fortiguard
+        fg = fortiguard.check_category(domain)
+        if fg is not None:
+            self.update_submission("Fortiguard", website["is_category_submitted"])
+
+        # Websense
+        ws = websense.check_category(domain)
+        if ws is not None:
+            self.update_submission("Websense", website["is_category_submitted"])
+
+        # Update database
+        website_manager.update(
+            document_id=website_id,
+            data={"is_category_submitted": website["is_category_submitted"]},
+        )
+        return jsonify(
+            {
+                "Trusted Source": ts,
+                "Bluecoat": bc,
+                "Cisco Talos": ct,
+                "IBM X-Force": ixf,
+                "Fortiguard": fg,
+                "Websense": ws,
+            }
         )
