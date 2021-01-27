@@ -1,7 +1,6 @@
 package aws
 
 import (
-	"fmt"
 	"io"
 	"log"
 	"os"
@@ -68,6 +67,6 @@ func (r *Route) Upload(foldername, bucket string) {
 			log.Println("Failed to upload", path, err)
 		}
 
-		fmt.Printf("successfully uploaded %s/%s\n", bucket, uploadKey)
+		log.Printf("successfully uploaded %s/%s\n", bucket, uploadKey)
 	}
 }
