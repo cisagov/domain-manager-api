@@ -9,10 +9,9 @@ from flask_cors import CORS
 
 # cisagov Libraries
 from api.views.applications import ApplicationsView, ApplicationView
-from api.views.categories import CategoriesView, CategoryCheckView
+from api.views.categories import CategoriesView
 from api.views.domain_views import (
     DomainCategorizeView,
-    DomainCheckView,
     DomainContentView,
     DomainGenerateView,
     DomainLaunchView,
@@ -45,7 +44,6 @@ rules = [
     ("/application/<application_id>/", ApplicationView),
     ("/generate-email-address/", EmailAddressView),
     ("/categories/", CategoriesView),
-    ("/check/", CategoryCheckView),
     ("/proxies/", ProxiesView),
     ("/proxy/<proxy_id>/", ProxyView),
     ("/templates/", TemplatesView),
@@ -55,7 +53,6 @@ rules = [
     ("/domains/", DomainsView),
     ("/domain/<domain_id>/", DomainView),
     ("/domain/<domain_id>/categorize/", DomainCategorizeView),
-    ("/domain/<domain_id>/check/", DomainCheckView),
     ("/domain/<domain_id>/content/", DomainContentView),
     ("/domain/<domain_id>/generate/", DomainGenerateView),
     ("/domain/<domain_id>/redirect/", DomainRedirectView),

@@ -19,14 +19,6 @@ from settings import SQS_CATEGORIZE_URL, STATIC_GEN_URL, WEBSITE_BUCKET, logger
 from utils.aws import record_handler
 from utils.aws.redirect_handler import delete_redirect, modify_redirect, setup_redirect
 from utils.aws.site_handler import delete_site, launch_site
-from utils.categorization import (
-    bluecoat,
-    ciscotalos,
-    fortiguard,
-    ibmxforce,
-    trustedsource,
-    websense,
-)
 from utils.proxies.proxies import get_categorize_proxies
 from utils.validator import validate_data
 
@@ -489,74 +481,3 @@ class DomainCategorizeView(MethodView):
 
         domain_manager.update(document_id=domain_id, data={"is_category_queued": True})
         return f"{domain['name']} has been queued for categorization"
-
-
-class DomainCheckView(MethodView):
-    """DomainCategoryCheckView."""
-
-    def update_submission(self, query, dicts):
-        """Search through existing submissions and check as categorized."""
-        next(
-            item.update({"is_categorized": True})
-            for item in dicts
-            if item["name"] == query
-        )
-        if not any(item["name"] == query for item in dicts):
-            dicts.append({"name": query, "is_categorized": True})
-
-    def get(self, domain_id):
-        """Check category for a domain."""
-        domain = domain_manager.get(document_id=domain_id)
-
-        if not domain.get("is_category_submitted", None):
-            return jsonify(
-                {"error": "website has not yet been submitted for categorization"}
-            )
-
-        domain_name = domain["name"]
-
-        # Trusted source
-        ts = trustedsource.check_category(domain_name)
-        if ts is not None:
-            self.update_submission("Trusted Source", domain["is_category_submitted"])
-
-        # Bluecoat
-        bc = bluecoat.check_category(domain_name)
-        if bc is not None:
-            self.update_submission("Blue Coat", domain["is_category_submitted"])
-
-        # Cisco Talos
-        ct = ciscotalos.check_category(domain_name)
-        if ct is not None:
-            self.update_submission("Cisco Talos", domain["is_category_submitted"])
-
-        # IBM X Force
-        ixf = ibmxforce.check_category(domain_name)
-        if ixf is not None:
-            self.update_submission("IBM X Force", domain["is_category_submitted"])
-
-        # Fortiguard
-        fg = fortiguard.check_category(domain_name)
-        if fg is not None:
-            self.update_submission("Fortiguard", domain["is_category_submitted"])
-
-        # Websense
-        ws = websense.check_category(domain_name)
-        if ws is not None:
-            self.update_submission("Websense", domain["is_category_submitted"])
-
-        # Update database
-        domain_manager.update(
-            document_id=domain_id,
-            data={"is_category_submitted": domain["is_category_submitted"]},
-        )
-        return jsonify(
-            {
-                "Trusted Source": ts,
-                "Bluecoat": bc,
-                "Cisco Talos": ct,
-                "IBM X-Force": ixf,
-                "Fortiguard": fg,
-                "Websense": ws,
-            }
-        )
