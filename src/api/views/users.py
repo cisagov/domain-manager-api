@@ -54,6 +54,7 @@ class UsersView(MethodView):
                     break
                 if dmUser == dmUsers[-1] or len(dmUsers) <= 0:
                     # Last dm user reached and aws user not found, add to db
+                    data["Groups"] = []
                     data = validate_data(awsUser, UserSchema)
                     user_manager.save(data)
     
@@ -81,7 +82,11 @@ class UserView(MethodView):
             Username=dm_user["Username"]
         )
         response = UserHelpers.mergeAdditionalKeys(aws_user,dm_user)
-        response["Groups"] = groups["Groups"]
+        if "Groups" not in response:
+            response["Groups"] = []
+        if groups["Groups"]:
+            for item in groups["Groups"]:
+                response["Groups"].append(item)
         return jsonify(response)
 
 class UserConfirmView(MethodView):

@@ -23,5 +23,5 @@ class UserSchema(Schema):
     # UserLastModifiedDate = fields.DateTime()
     UserStatus = fields.Str()
     Username = fields.Str(validate=is_valid_category)
-    Groups = fields.List(fields.Str())
+    Groups = fields.List(fields.Dict())
     History = fields.List(fields.Dict())
