@@ -1,7 +1,27 @@
-"""McAfee Trusted Source categorization check."""
+"""Trusted Source Categorization."""
 # Third-Party Libraries
 from bs4 import BeautifulSoup
 import requests
+from selenium.webdriver.common.by import By
+
+
+def categorize(driver, url, domain, category, two_captcha_api_key):
+    """Categorize with Trusted Source."""
+    print("Running McAfee Trusted Source proxy")
+    driver.get(url)
+    driver.set_window_size(2061, 1265)
+    driver.find_element(By.NAME, "product").click()
+    dropdown = driver.find_element(By.NAME, "product")
+    dropdown.find_element(By.XPATH, "//option[. = 'McAfee Real-Time Database']").click()
+    driver.find_element(By.NAME, "url").click()
+    driver.find_element(By.NAME, "url").send_keys(f"http://{domain}")
+    driver.find_element(By.CSS_SELECTOR, "td > .button > input").click()
+    driver.find_element(By.CSS_SELECTOR, "td > .button > input").click()
+    driver.find_element(By.NAME, "cat_1").click()
+    dropdown = driver.find_element(By.NAME, "cat_1")
+    dropdown.find_element(By.XPATH, f"//option[. = '{category}']").click()
+    driver.find_element(By.CSS_SELECTOR, ".button:nth-child(10) > input").click()
+    driver.find_element(By.CSS_SELECTOR, "h2").text
 
 
 def check_category(domain):

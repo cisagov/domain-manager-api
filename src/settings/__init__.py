@@ -16,10 +16,20 @@ logger = logging.getLogger("dm-api")
 # aws
 AWS_REGION = os.environ.get("AWS_REGION", "us-east-1")
 os.environ["AWS_DEFAULT_REGION"] = AWS_REGION
+
+# s3
 TEMPLATE_BUCKET = os.environ["TEMPLATE_BUCKET"]
 TEMPLATE_BUCKET_URL = f"{TEMPLATE_BUCKET}.s3-website-{AWS_REGION}.amazonaws.com"
 WEBSITE_BUCKET = os.environ["WEBSITE_BUCKET"]
 WEBSITE_BUCKET_URL = f"{WEBSITE_BUCKET}.s3-website-{AWS_REGION}.amazonaws.com"
+
+# sqs
+SQS_CATEGORIZE_URL = os.environ.get("SQS_CATEGORIZE_URL")
+SQS_CHECK_CATEGORY_URL = os.environ.get("SQS_CHECK_CATEGORY_URL")
+
+# categorization
+BROWSERLESS_ENDPOINT = os.environ.get("BROWSERLESS_ENDPOINT")
+TWO_CAPTCHA_API_KEY = os.environ.get("TWO_CAPTCHA")
 
 # cognito
 COGNTIO_ENABLED = bool(int(os.environ.get("AWS_COGNITO_ENABLED", 0)))

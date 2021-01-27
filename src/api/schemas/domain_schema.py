@@ -25,6 +25,7 @@ class IsCategorySubmitted(Schema):
     _id = fields.Str()
     name = fields.Str()
     is_categorized = fields.Boolean()
+    category = fields.Str()
 
 
 class Profile(Schema):
@@ -106,6 +107,7 @@ class DomainSchema(Schema):
     is_launching = fields.Boolean()
     is_delaunching = fields.Boolean()
     is_generating_template = fields.Boolean()
+    is_category_queued = fields.Boolean()
     is_category_submitted = fields.List(fields.Nested(IsCategorySubmitted))
     is_email_active = fields.Boolean()
     launch_date = fields.DateTime()
