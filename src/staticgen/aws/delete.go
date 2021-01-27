@@ -1,8 +1,7 @@
 package aws
 
 import (
-	"fmt"
-	"os"
+	"log"
 	"path/filepath"
 
 	"github.com/aws/aws-sdk-go/aws"
@@ -22,9 +21,8 @@ func (r *Route) Delete(bucket string) {
 	})
 
 	if err := s3manager.NewBatchDeleteWithClient(svc).Delete(aws.BackgroundContext(), iter); err != nil {
-		fmt.Printf("Unable to delete objects from bucket %q, %v", bucket, err)
-		os.Exit(1)
+		log.Printf("Unable to delete objects from bucket %q, %v", bucket, err)
 	}
 
-	fmt.Printf("successfully deleted staticfiles from %s/%s\n", bucket, r.Dir)
+	log.Printf("successfully deleted staticfiles from %s/%s\n", bucket, r.Dir)
 }
