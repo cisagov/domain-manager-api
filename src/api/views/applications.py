@@ -6,8 +6,8 @@ from flask.views import MethodView
 # cisagov Libraries
 from api.manager import ApplicationManager, DomainManager
 from api.schemas.application_schema import ApplicationSchema
-from utils.validator import validate_data
 from utils.user_profile import add_user_action
+from utils.validator import validate_data
 
 application_manager = ApplicationManager()
 domain_manager = DomainManager()
@@ -48,11 +48,20 @@ class ApplicationView(MethodView):
     def delete(self, application_id):
         """Delete application by id."""
         application = application_manager.get(document_id=application_id)
-        application_domains = domain_manager.all(params= {
-            "application_id" : {'$eq': application_id }
-        })
+        application_domains = domain_manager.all(
+            params={"application_id": {"$eq": application_id}}
+        )
         if application_domains:
-            add_user_action(f"Delete Application (FAILED - Domains attached) - {application['name']}")
-            return jsonify({"error": "Can not delete an application that has domains attached to it"}), 400
+            add_user_action(
+                f"Delete Application (FAILED - Domains attached) - {application['name']}"
+            )
+            return (
+                jsonify(
+                    {
+                        "error": "Can not delete an application that has domains attached to it"
+                    }
+                ),
+                400,
+            )
         add_user_action(f"Delete Application - {application['name']}")
         return jsonify(application_manager.delete(document_id=application_id))

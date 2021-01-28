@@ -14,8 +14,8 @@ import requests
 from api.manager import TemplateManager
 from api.schemas.template_schema import TemplateSchema
 from settings import STATIC_GEN_URL, TEMPLATE_BUCKET, logger
-from utils.validator import validate_data
 from utils.user_profile import add_user_action
+from utils.validator import validate_data
 
 template_manager = TemplateManager()
 
@@ -25,7 +25,7 @@ class TemplatesView(MethodView):
 
     def get(self):
         """Get all templates."""
-        add_user_action(f"View Templates")
+        add_user_action("View Templates")
         return jsonify(template_manager.all())
 
     def post(self):

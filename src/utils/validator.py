@@ -29,6 +29,3 @@ def is_valid_category(category):
     if " " in category:
         raise ValidationError("Category must not contain spaces.")
     return True
-
-def add_history(action):
-    print(action)

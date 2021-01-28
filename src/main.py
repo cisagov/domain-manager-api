@@ -30,11 +30,11 @@ from api.views.templates import (
     TemplateView,
 )
 from api.views.users import (
+    UserAdminStatusView,
+    UserConfirmView,
+    UserGroupsView,
     UsersView,
     UserView,
-    UserConfirmView,
-    UserAdminStatusView,
-    UserGroupsView,
 )
 from settings import logger
 from utils.decorators.auth import auth_admin_required, auth_required
@@ -47,7 +47,6 @@ CORS(app)
 url_prefix = "/api"
 
 rules = [
-    ("/generate-dns/", HostedZonesView),
     ("/generate-email-address/", EmailAddressView),
     ("/categories/", CategoriesView),
     ("/check/", CategoryCheckView),
@@ -76,7 +75,6 @@ admin_rules = [
     ("/user/<username>/confirm", UserConfirmView),
     ("/user/<username>/admin", UserAdminStatusView),
     ("/user/<username>/groups", UserGroupsView),
-    
 ]
 
 for rule in rules:

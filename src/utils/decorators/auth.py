@@ -7,7 +7,7 @@ import os
 # Third-Party Libraries
 import boto3
 import cognitojwt
-from flask import abort, request, g
+from flask import abort, g, request
 
 # cisagov Libraries
 from settings import (
@@ -117,7 +117,7 @@ def auth_required(view):
 
 
 def auth_admin_required(view):
-    """Authorize requests. """
+    """Authorize requests."""
 
     @wraps(view)
     def decorated(*args, **kwargs):
