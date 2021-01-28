@@ -7,7 +7,7 @@ import os
 # Third-Party Libraries
 import boto3
 import cognitojwt
-from flask import abort, request
+from flask import abort, request, g
 
 
 adminGroup = os.environ.get("AWS_COGNITO_ADMIN_GROUP_NAME", 0)
@@ -34,8 +34,10 @@ class RequestAuth:
     def validate(self):
         """Validate request."""
         if self.check_api_key(request):
+            g.is_admin = True
             return True
         if not self.aws_cognito_enabled:
+            g.is_admin = True
             return True
         if self.check_cognito_jwt(request):
             return True
@@ -105,6 +107,11 @@ def auth_required(view):
         """Decorate."""
         auth = RequestAuth(request)
         if auth.validate():
+            g.username = auth.username
+            if auth.check_admin_status():
+                g.is_admin = True
+            else:
+                g.is_admin = False
             return view(*args, **kwargs)
         else:
             abort(401)
@@ -120,6 +127,8 @@ def auth_admin_required(view):
         auth = RequestAuth(request)
         if auth.validate():
             if auth.check_admin_status():
+                g.username = auth.username
+                g.is_admin = True
                 return view(*args, **kwargs)
             else:
                 abort(401)

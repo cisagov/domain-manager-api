@@ -7,7 +7,7 @@ import shutil
 
 # Third-Party Libraries
 import boto3
-from flask import current_app, jsonify, request, send_file
+from flask import current_app, jsonify, request, send_file, g
 from flask.views import MethodView
 import requests
 
@@ -111,7 +111,7 @@ class UserConfirmView(MethodView):
         except:
             return jsonify({"error": "Failed to confirm user"}), 400
 
-class UserAdminStatus(MethodView):
+class UserAdminStatusView(MethodView):
     """Set Users admin status"""
     
     def get(self,username):
@@ -137,6 +137,32 @@ class UserAdminStatus(MethodView):
             return jsonify(response)
         except:
             return jsonify({"error": "Failed to remove user from admin group"}), 400
+
+class UserGroupsView(MethodView):
+    """Manage users groups"""
+
+    def put(self, username):
+        """Set users groups"""
+        try:
+            user = user_manager.get(
+                filter_data={"Username": username}
+            )
+            if "Groups" not in user:
+                user["Groups"] = []
+            if user["Groups"] == request.json:
+                return jsonify({"error": "No changes made"}), 200
+            user["Groups"] = request.json
+
+            response = user_manager.update(
+                document_id = user["_id"], 
+                data = user
+            )
+            return jsonify(response)
+        except:
+            return jsonify({"error": "Failed to update user groups"}), 400
+
+
+
 
 class UserHelpers():
     """Helper Class for user management"""

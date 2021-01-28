@@ -34,7 +34,8 @@ from api.views.users import (
     UsersView,
     UserView,
     UserConfirmView,
-    UserAdminStatus
+    UserAdminStatusView,
+    UserGroupsView,
 )
 from settings import logger
 from utils.decorators.auth import (
@@ -50,8 +51,6 @@ CORS(app)
 url_prefix = "/api"
 
 rules = [
-    ("/applications/", ApplicationsView),
-    ("/application/<application_id>/", ApplicationView),
     ("/generate-dns/", HostedZonesView),
     ("/generate-email-address/", EmailAddressView),
     ("/categories/", CategoriesView),
@@ -74,10 +73,14 @@ rules = [
 ]
 
 admin_rules = [
+    ("/applications/", ApplicationsView),
+    ("/application/<application_id>/", ApplicationView),
     ("/users/", UsersView),
     ("/user/<username>/", UserView),
     ("/user/<username>/confirm", UserConfirmView),
-    ("/user/<username>/admin", UserAdminStatus),
+    ("/user/<username>/admin", UserAdminStatusView),
+    ("/user/<username>/groups", UserGroupsView),
+    
 ]
 
 for rule in rules:
