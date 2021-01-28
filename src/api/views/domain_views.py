@@ -467,7 +467,7 @@ class DomainCategorizeView(MethodView):
         if domain.get("is_category_queued"):
             return "Categorization is already in process."
 
-        for proxy in get_categorize_proxies.keys():
+        for proxy in get_categorize_proxies().keys():
             payload = {
                 "proxy": proxy,
                 "domain": domain["name"],
