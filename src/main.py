@@ -16,7 +16,6 @@ from api.views.domain_views import (
     DomainGenerateView,
     DomainLaunchView,
     DomainRecordView,
-    DomainRedirectView,
     DomainsView,
     DomainView,
 )
@@ -55,7 +54,6 @@ rules = [
     ("/domain/<domain_id>/categorize/", DomainCategorizeView),
     ("/domain/<domain_id>/content/", DomainContentView),
     ("/domain/<domain_id>/generate/", DomainGenerateView),
-    ("/domain/<domain_id>/redirect/", DomainRedirectView),
     ("/domain/<domain_id>/launch/", DomainLaunchView),
     ("/domain/<domain_id>/records/", DomainRecordView),
 ]
