@@ -67,3 +67,7 @@ refresh:
 
 # target: ra - refresh api and attach logs
 ra: refresh	attach
+
+# target: tasks - run lambda function website category check locally
+tasks:
+	docker exec dm-api python lambda_functions
