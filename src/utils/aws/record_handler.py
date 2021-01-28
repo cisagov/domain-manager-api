@@ -85,7 +85,7 @@ def modify_mailgun_record(action, hosted_zone_id, record):
                         "Type": "TXT",
                         "TTL": 30,
                         "ResourceRecords": [
-                            {"Value": "v=spf1 include:mailgun.org ~all"}
+                            {"Value": '"v=spf1 include:mailgun.org ~all"'}
                         ],
                     },
                 },
@@ -95,7 +95,9 @@ def modify_mailgun_record(action, hosted_zone_id, record):
                         "Name": f"mx._domainkey.{record['name']}",
                         "Type": "TXT",
                         "TTL": 30,
-                        "ResourceRecords": [{"Value": record["config"]["value"]}],
+                        "ResourceRecords": [
+                            {"Value": f"\"{record['config']['value']}\""}
+                        ],
                     },
                 },
                 {
