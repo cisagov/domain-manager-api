@@ -1,7 +1,4 @@
 """Website Views."""
-# Standard Python Libraries
-import os
-
 # Third-Party Libraries
 import boto3
 from flask import jsonify, request
@@ -10,13 +7,9 @@ from flask.views import MethodView
 # cisagov Libraries
 from api.manager import UserManager
 from api.schemas.user_shema import UserSchema
-from settings import logger
+from settings import COGNITO_ADMIN_GROUP, COGNTIO_USER_POOL_ID, logger
 from utils.validator import validate_data
 
-route53 = boto3.client("route53")
-client_id = os.environ.get("AWS_COGNITO_USER_POOL_CLIENT_ID", 0)
-user_pool_id = os.environ.get("AWS_COGNITO_USER_POOL_ID", 0)
-adminGroup = os.environ.get("AWS_COGNITO_ADMIN_GROUP_NAME", 0)
 cognito = boto3.client("cognito-idp")
 user_manager = UserManager()
 
@@ -26,7 +19,7 @@ class UsersView(MethodView):
 
     def get(self):
         """Get all users."""
-        response = cognito.list_users(UserPoolId=user_pool_id)
+        response = cognito.list_users(UserPoolId=COGNTIO_USER_POOL_ID)
         aws_users = response["Users"]
         dm_users = user_manager.all(params=request.args)
         self.merge_user_lists(aws_users, dm_users)
@@ -63,10 +56,10 @@ class UserView(MethodView):
         """Get User details."""
         dm_user = user_manager.get(filter_data={"Username": username})
         groups = cognito.admin_list_groups_for_user(
-            Username=dm_user["Username"], UserPoolId=user_pool_id, Limit=50
+            Username=dm_user["Username"], UserPoolId=COGNTIO_USER_POOL_ID, Limit=50
         )
         aws_user = cognito.admin_get_user(
-            UserPoolId=user_pool_id, Username=dm_user["Username"]
+            UserPoolId=COGNTIO_USER_POOL_ID, Username=dm_user["Username"]
         )
         response = UserHelpers.merge_additional_keys(aws_user, dm_user)
         if "Groups" not in response:
@@ -84,7 +77,7 @@ class UserConfirmView(MethodView):
         """Confirm the selected user."""
         try:
             response = cognito.admin_confirm_sign_up(
-                UserPoolId=user_pool_id, Username=username
+                UserPoolId=COGNTIO_USER_POOL_ID, Username=username
             )
             user = user_manager.get(filter_data={"Username": username})
             user["UserStatus"] = "CONFIRMED"
@@ -102,7 +95,9 @@ class UserAdminStatusView(MethodView):
         """Set the user as an admin."""
         try:
             response = cognito.admin_add_user_to_group(
-                UserPoolId=user_pool_id, Username=username, GroupName=adminGroup
+                UserPoolId=COGNTIO_USER_POOL_ID,
+                Username=username,
+                GroupName=COGNITO_ADMIN_GROUP,
             )
             return jsonify(response)
         except Exception as e:
@@ -113,7 +108,9 @@ class UserAdminStatusView(MethodView):
         """Remove user admin privlieges."""
         try:
             response = cognito.admin_remove_user_from_group(
-                UserPoolId=user_pool_id, Username=username, GroupName=adminGroup
+                UserPoolId=COGNTIO_USER_POOL_ID,
+                Username=username,
+                GroupName=COGNITO_ADMIN_GROUP,
             )
             return jsonify(response)
         except Exception as e:
