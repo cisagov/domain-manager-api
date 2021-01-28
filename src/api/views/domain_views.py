@@ -15,8 +15,9 @@ from selenium import webdriver
 
 # cisagov Libraries
 from api.manager import ApplicationManager, CategoryManager, DomainManager, ProxyManager
-from api.schemas.domain_schema import DomainSchema, Redirect
+from api.schemas.domain_schema import DomainSchema, Record, Redirect
 from settings import STATIC_GEN_URL, WEBSITE_BUCKET, logger
+from utils.aws import record_handler
 from utils.aws.redirect_handler import delete_redirect, modify_redirect, setup_redirect
 from utils.aws.site_handler import delete_site, launch_site
 from utils.categorization import (
@@ -548,6 +549,34 @@ class DomainRecordView(MethodView):
         ]["id"]
         resp = route53.list_resource_record_sets(HostedZoneId=hosted_zone_id)
         return jsonify(resp["ResourceRecordSets"])
+
+    def post(self, domain_id):
+        """Create a new record in the hosted zone."""
+        data = validate_data(request.json, Record)
+        data["record_id"] = str(uuid4())
+        domain = domain_manager.get(document_id=domain_id)
+        record_handler.add_record(domain["route53"]["id"], data)
+        resp = domain_manager.add_to_list(
+            document_id=domain_id, field="records", data=data
+        )
+        return jsonify(resp)
+
+    def delete(self, domain_id):
+        """Delete the hosted zone record."""
+        record_id = request.args.get("record_id")
+        if not record_id:
+            return jsonify({"error": "Must supply record id in request args."}), 400
+        domain = domain_manager.get(document_id=domain_id)
+        record = next(
+            filter(lambda x: x["record_id"] == record_id, domain.get("records", []))
+        )
+        if not record:
+            return jsonify({"error": "No record with matching id found."}), 400
+        record_handler.delete_record(domain["route53"]["id"], record)
+        resp = domain_manager.delete_from_list(
+            document_id=domain_id, field="records", data={"record_id": record_id}
+        )
+        return jsonify(resp)
 
 
 class DomainCategorizeView(MethodView):

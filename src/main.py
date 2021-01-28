@@ -22,7 +22,6 @@ from api.views.domain_views import (
     DomainView,
 )
 from api.views.email_address import EmailAddressView
-from api.views.hosted_zones import HostedZonesView
 from api.views.proxies import ProxiesView, ProxyView
 from api.views.templates import (
     TemplateAttributesView,
@@ -38,10 +37,7 @@ from api.views.users import (
     UserGroupsView,
 )
 from settings import logger
-from utils.decorators.auth import (
-    auth_required,
-    auth_admin_required,
-)
+from utils.decorators.auth import auth_admin_required, auth_required
 
 app = Flask(__name__)
 app.url_map.strict_slashes = False

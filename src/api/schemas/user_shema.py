@@ -17,7 +17,7 @@ class UserSchema(Schema):
     _id = fields.Str()
     Attributes = fields.List(fields.Dict())
     Enabled = fields.Boolean()
-    # Someone better with Python Datetimes should help here, 
+    # Someone better with Python Datetimes should help here,
     # Im going crazy getting it to accept this
     # UserCreateDate = fields.DateTime()
     # UserLastModifiedDate = fields.DateTime()
