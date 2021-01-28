@@ -15,10 +15,9 @@ from selenium import webdriver
 
 # cisagov Libraries
 from api.manager import ApplicationManager, CategoryManager, DomainManager, ProxyManager
-from api.schemas.domain_schema import DomainSchema, Record, Redirect
+from api.schemas.domain_schema import DomainSchema, Record
 from settings import STATIC_GEN_URL, WEBSITE_BUCKET, logger
 from utils.aws import record_handler
-from utils.aws.redirect_handler import delete_redirect, modify_redirect, setup_redirect
 from utils.aws.site_handler import delete_site, launch_site
 from utils.categorization import (
     bluecoat,
@@ -99,7 +98,7 @@ class DomainView(MethodView):
         """Delete domain and hosted zone."""
         domain = domain_manager.get(document_id=domain_id)
 
-        if domain.get("is_active") and domain.get("redirects"):
+        if domain.get("is_active") and domain.get("records"):
             return jsonify(
                 {"message": "Domain cannot be active and redirects must be removed."}
             )
@@ -267,78 +266,6 @@ class DomainGenerateView(MethodView):
                     "is_generating_template": False,
                 },
             )
-
-
-class DomainRedirectView(MethodView):
-    """DomainRedirectView."""
-
-    def get(self, domain_id):
-        """Get all redirects for a domain."""
-        return jsonify(domain_manager.get(document_id=domain_id, fields=["redirects"]))
-
-    def post(self, domain_id):
-        """Create a domain redirect."""
-        data = {
-            "subdomain": request.json["subdomain"],
-            "redirect_url": request.json["redirect_url"],
-        }
-
-        data = validate_data(data, Redirect)
-
-        redirects = domain_manager.get(document_id=domain_id, fields=["redirects"])
-        if data["subdomain"] in [
-            r["subdomain"] for r in redirects.get("redirects", [])
-        ]:
-            return "Subdomain already utilized."
-
-        setup_redirect(
-            domain_id=domain_id,
-            subdomain=data["subdomain"],
-            redirect_url=data["redirect_url"],
-        )
-
-        return jsonify(
-            domain_manager.add_to_list(
-                document_id=domain_id, field="redirects", data=data
-            )
-        )
-
-    def put(self, domain_id):
-        """Update a subdomain redirect value."""
-        data = {
-            "subdomain": request.json["subdomain"],
-            "redirect_url": request.json["redirect_url"],
-        }
-
-        data = validate_data(data, Redirect)
-
-        modify_redirect(
-            domain_id=domain_id,
-            subdomain=data["subdomain"],
-            redirect_url=data["redirect_url"],
-        )
-        return jsonify(
-            domain_manager.update_in_list(
-                document_id=domain_id,
-                field="redirects.$.redirect_url",
-                data=data["redirect_url"],
-                params={"redirects.subdomain": data["subdomain"]},
-            )
-        )
-
-    def delete(self, domain_id):
-        """Delete a subdomain redirect."""
-        subdomain = request.args.get("subdomain")
-        if not subdomain:
-            return {"error": "must pass subdomain as a request arg to delete."}
-        delete_redirect(domain_id=domain_id, subdomain=subdomain)
-        return jsonify(
-            domain_manager.delete_from_list(
-                document_id=domain_id,
-                field="redirects",
-                data={"subdomain": subdomain},
-            )
-        )
 
 
 class DomainLaunchView(MethodView):
