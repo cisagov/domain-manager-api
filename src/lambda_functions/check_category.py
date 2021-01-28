@@ -5,9 +5,7 @@ import json
 # cisagov Libraries
 from api.manager import DomainManager
 from settings import logger
-
-# from utils.proxies.proxies import get_check_proxy_func
-
+from utils.proxies.proxies import get_check_proxy_func
 
 domain_manager = DomainManager()
 
@@ -27,8 +25,10 @@ def handler(event, context):
     """Handle check category SQS event."""
     for record in event["Records"]:
         payload = json.loads(record["body"])
-        # proxy_func = get_check_proxy_func(payload["proxy"])
-        # domain_name = payload["domain"]
+
+        domain_name = payload["domain"]
+        get_check_proxy_func(payload["proxy"], domain_name)
+
         # domain = domain_manager.get(filter_data={"name": domain_name})
 
         logger.info(payload)

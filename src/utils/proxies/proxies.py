@@ -11,20 +11,20 @@ from utils.proxies import (
 )
 
 
-def get_check_proxies():
+def get_check_proxies(domain):
     """Get proxies to check category with."""
     return {
-        "bluecoat": bluecoat.check_category,
-        "ciscotalos": ciscotalos.check_category,
-        "fortiguard": fortiguard.check_category,
-        "ibmxforce": ibmxforce.check_category,
-        "trusted_source": trusted_source.check_category,
+        "bluecoat": bluecoat.check_category(domain),
+        "ciscotalos": ciscotalos.check_category(domain),
+        "fortiguard": fortiguard.check_category(domain),
+        "ibmxforce": ibmxforce.check_category(domain),
+        "trusted_source": trusted_source.check_category(domain),
     }
 
 
-def get_check_proxy_func(proxy_name):
+def get_check_proxy_func(proxy_name, domain):
     """Get function to check category from proxy name."""
-    return get_check_proxies().get(proxy_name)
+    return get_check_proxies(domain).get(proxy_name)
 
 
 def get_categorize_proxies():
