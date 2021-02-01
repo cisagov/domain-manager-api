@@ -37,13 +37,6 @@ class Profile(Schema):
     phone = fields.Str()
 
 
-class Redirect(Schema):
-    """Schema for Redirects."""
-
-    subdomain = fields.Str(validate=validate.ContainsNoneOf([" "]))
-    redirect_url = fields.Str(validate=is_valid_domain)
-
-
 class Record(Schema):
     """Schema for Redirects."""
 
@@ -114,5 +107,4 @@ class DomainSchema(Schema):
     cloudfront = fields.Dict()
     acm = fields.Dict()
     route53 = fields.Dict()
-    redirects = fields.List(fields.Nested(Redirect))
     records = fields.List(fields.Nested(Record))
