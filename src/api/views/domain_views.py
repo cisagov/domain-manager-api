@@ -60,28 +60,7 @@ class DomainsView(MethodView):
 
     def post(self):
         """Create a new domain."""
-        if g.is_admin:
-            data = validate_data(request.json, DomainSchema)
-            if domain_manager.get(filter_data={"name": data["name"]}):
-                return jsonify({"error": "Domain already exists."}), 400
-            caller_ref = str(uuid4())
-            resp = route53.create_hosted_zone(
-                Name=data["name"], CallerReference=caller_ref
-            )
-            domain_manager.save(
-                {
-                    "name": data["name"],
-                    "is_active": False,
-                    "is_available": True,
-                    "is_launching": False,
-                    "is_delaunching": False,
-                    "is_generating_template": False,
-                    "route53": {"id": resp["HostedZone"]["Id"]},
-                }
-            )
-            add_user_action(f"Created New Domain - {data['name']}")
-            return jsonify(resp["DelegationSet"]["NameServers"])
-        else:
+        if not g.is_admin:
             return (
                 jsonify(
                     {
@@ -90,6 +69,25 @@ class DomainsView(MethodView):
                 ),
                 400,
             )
+
+        data = validate_data(request.json, DomainSchema)
+        if domain_manager.get(filter_data={"name": data["name"]}):
+            return jsonify({"error": "Domain already exists."}), 400
+        caller_ref = str(uuid4())
+        resp = route53.create_hosted_zone(Name=data["name"], CallerReference=caller_ref)
+        domain_manager.save(
+            {
+                "name": data["name"],
+                "is_active": False,
+                "is_available": True,
+                "is_launching": False,
+                "is_delaunching": False,
+                "is_generating_template": False,
+                "route53": {"id": resp["HostedZone"]["Id"]},
+            }
+        )
+        add_user_action(f"Created New Domain - {data['name']}")
+        return jsonify(resp["DelegationSet"]["NameServers"])
 
 
 class DomainView(MethodView):
