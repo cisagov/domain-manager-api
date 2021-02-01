@@ -27,7 +27,13 @@ from api.views.templates import (
     TemplatesView,
     TemplateView,
 )
-from api.views.users import UsersView, UserView
+from api.views.users import (
+    UserAdminStatusView,
+    UserConfirmView,
+    UserGroupsView,
+    UsersView,
+    UserView,
+)
 from settings import logger
 from utils.decorators.auth import auth_admin_required, auth_required
 
@@ -39,8 +45,6 @@ CORS(app)
 url_prefix = "/api"
 
 rules = [
-    ("/applications/", ApplicationsView),
-    ("/application/<application_id>/", ApplicationView),
     ("/generate-email-address/", EmailAddressView),
     ("/categories/", CategoriesView),
     ("/proxies/", ProxiesView),
@@ -59,18 +63,27 @@ rules = [
 ]
 
 admin_rules = [
+    ("/applications/", ApplicationsView),
+    ("/application/<application_id>/", ApplicationView),
     ("/users/", UsersView),
     ("/user/<username>/", UserView),
+    ("/user/<username>/confirm", UserConfirmView),
+    ("/user/<username>/admin", UserAdminStatusView),
+    ("/user/<username>/groups", UserGroupsView),
 ]
 
 for rule in rules:
     url = f"{url_prefix}{rule[0]}"
-    rule[1].decorators = [auth_required]
+    if not rule[1].decorators:
+        rule[1].decorators = []
+    rule[1].decorators.append(auth_required)
     app.add_url_rule(url, view_func=rule[1].as_view(url))
 
 for rule in admin_rules:
     url = f"{url_prefix}{rule[0]}"
-    rule[1].decorators = [auth_admin_required]
+    if not rule[1].decorators:
+        rule[1].decorators = []
+    rule[1].decorators.append(auth_admin_required)
     app.add_url_rule(url, view_func=rule[1].as_view(url))
 
 

@@ -8,7 +8,7 @@ from uuid import uuid4
 
 # Third-Party Libraries
 import boto3
-from flask import current_app, jsonify, request, send_file
+from flask import current_app, g, jsonify, request, send_file
 from flask.views import MethodView
 import requests
 
@@ -18,7 +18,9 @@ from api.schemas.domain_schema import DomainSchema, Record
 from settings import SQS_CATEGORIZE_URL, STATIC_GEN_URL, WEBSITE_BUCKET, logger
 from utils.aws import record_handler
 from utils.aws.site_handler import delete_site, launch_site
+from utils.decorators.auth import can_access_domain
 from utils.proxies.proxies import get_categorize_proxies
+from utils.user_profile import add_user_action, get_users_group_ids
 from utils.validator import validate_data
 
 category_manager = CategoryManager()
@@ -34,10 +36,28 @@ class DomainsView(MethodView):
 
     def get(self):
         """Get all domains."""
-        return jsonify(domain_manager.all(params=request.args))
+        add_user_action("Get Domains")
+
+        if g.is_admin:
+            response = domain_manager.all(params=request.args)
+        else:
+            groups = get_users_group_ids()
+            response = domain_manager.all(params={"application_id": {"$in": groups}})
+
+        return jsonify(response)
 
     def post(self):
         """Create a new domain."""
+        if not g.is_admin:
+            return (
+                jsonify(
+                    {
+                        "error": "User does not have admin rights, can not create a new domain"
+                    }
+                ),
+                400,
+            )
+
         data = validate_data(request.json, DomainSchema)
         if domain_manager.get(filter_data={"name": data["name"]}):
             return jsonify({"error": "Domain already exists."}), 400
@@ -54,23 +74,30 @@ class DomainsView(MethodView):
                 "route53": {"id": resp["HostedZone"]["Id"]},
             }
         )
+        add_user_action(f"Created New Domain - {data['name']}")
         return jsonify(resp["DelegationSet"]["NameServers"])
 
 
 class DomainView(MethodView):
     """DomainView."""
 
+    decorators = [can_access_domain]
+
     def get(self, domain_id):
         """Get Domain details."""
         domain = domain_manager.get(document_id=domain_id)
+        add_user_action(f"View Domain - {domain['name']}")
+        if "application_id" in domain:
+            application = application_manager.get(document_id=domain["application_id"])
+            domain["application_name"] = application["name"]
         return jsonify(domain)
 
     def put(self, domain_id):
         """Update domain."""
         data = validate_data(request.json, DomainSchema)
+        domain = domain_manager.get(document_id=domain_id)
 
         if data.get("application"):
-            domain = domain_manager.get(document_id=domain_id)
             application = application_manager.get(
                 filter_data={"name": data["application"]}
             )
@@ -84,6 +111,7 @@ class DomainView(MethodView):
                 }
             )
 
+        add_user_action(f"Update Domain - {domain['name']}")
         return jsonify(domain_manager.update(document_id=domain_id, data=data))
 
     def delete(self, domain_id):
@@ -103,11 +131,14 @@ class DomainView(MethodView):
             )
 
         route53.delete_hosted_zone(Id=domain["route53"]["id"])
+        add_user_action(f"Delete Domain - {domain['name']}")
         return jsonify(domain_manager.delete(domain["_id"]))
 
 
 class DomainContentView(MethodView):
     """DomainContentView."""
+
+    decorators = [can_access_domain]
 
     def get(self, domain_id):
         """Download Domain."""
@@ -125,6 +156,8 @@ class DomainContentView(MethodView):
         buffer = io.BytesIO()
         buffer.write(resp.content)
         buffer.seek(0)
+
+        add_user_action(f"Download Domain - {domain['name']}")
 
         return send_file(
             buffer,
@@ -165,6 +198,8 @@ class DomainContentView(MethodView):
         # Remove temp files
         shutil.rmtree(f"tmp/{category}/", ignore_errors=True)
 
+        add_user_action(f"Upload Domain - {domain['name']}")
+
         return (
             jsonify(
                 domain_manager.update(
@@ -193,6 +228,7 @@ class DomainContentView(MethodView):
         except requests.exceptions.HTTPError as e:
             return {"error": str(e)}, 400
 
+        add_user_action(f"Delete Domain Content - {domain['name']}")
         return jsonify(
             domain_manager.remove(
                 document_id=domain_id, data={"category": "", "s3_url": ""}
@@ -202,6 +238,8 @@ class DomainContentView(MethodView):
 
 class DomainGenerateView(MethodView):
     """DomainGenerateView."""
+
+    decorators = [can_access_domain]
 
     def post(self, domain_id):
         """Create website."""
@@ -244,6 +282,9 @@ class DomainGenerateView(MethodView):
                 },
             )
 
+            add_user_action(
+                f"Generate domain content from template - Template: {category} - Website {domain['name']}"
+            )
             return jsonify(
                 {
                     "message": f"{domain_name} static site has been created from the {category} template."
@@ -262,6 +303,8 @@ class DomainGenerateView(MethodView):
 
 class DomainLaunchView(MethodView):
     """Launch or stop an existing static site by adding dns records to its domain."""
+
+    decorators = [can_access_domain]
 
     def get(self, domain_id):
         """Launch a static site."""
@@ -290,8 +333,10 @@ class DomainLaunchView(MethodView):
                 data=data,
             )
             name = domain["name"]
+            add_user_action(f"Launch Domain - {data['name']}")
             return jsonify({"success": f"{name} has been launched"})
         except Exception as e:
+            add_user_action(f"Launch Domain - FAILED {data['name']}")
             logger.exception(e)
             # Switch instance to unavailable to prevent user actions
             domain_manager.update(
@@ -331,6 +376,7 @@ class DomainLaunchView(MethodView):
                 document_id=domain_id,
                 data={"acm": "", "cloudfront": ""},
             )
+            add_user_action(f"Take down a Domain site - {domain['name']}")
             return jsonify(resp)
         except Exception as e:
             logger.exception(e)
@@ -346,6 +392,8 @@ class DomainLaunchView(MethodView):
 
 class DomainRecordView(MethodView):
     """View for interacting with website hosted zone records."""
+
+    decorators = [can_access_domain]
 
     def get(self, domain_id):
         """Get the hosted zone records for a domain."""
@@ -386,6 +434,8 @@ class DomainRecordView(MethodView):
 
 class DomainCategorizeView(MethodView):
     """DomainCategorizeView."""
+
+    decorators = [can_access_domain]
 
     def get(self, domain_id):
         """Categorize Domain."""
