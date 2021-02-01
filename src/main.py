@@ -77,12 +77,16 @@ admin_rules = [
 
 for rule in rules:
     url = f"{url_prefix}{rule[0]}"
-    rule[1].decorators = [auth_required]
+    if not rule[1].decorators:
+        rule[1].decorators = []
+    rule[1].decorators.append(auth_required)
     app.add_url_rule(url, view_func=rule[1].as_view(url))
 
 for rule in admin_rules:
     url = f"{url_prefix}{rule[0]}"
-    rule[1].decorators = [auth_admin_required]
+    if not rule[1].decorators:
+        rule[1].decorators = []
+    rule[1].decorators.append(auth_admin_required)
     app.add_url_rule(url, view_func=rule[1].as_view(url))
 
 

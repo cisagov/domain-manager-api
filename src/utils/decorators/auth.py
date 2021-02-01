@@ -10,6 +10,7 @@ import cognitojwt
 from flask import abort, g, request
 
 # cisagov Libraries
+from api.manager import DomainManager
 from settings import (
     AWS_REGION,
     COGNITO_ADMIN_GROUP,
@@ -18,6 +19,9 @@ from settings import (
     COGNTIO_ENABLED,
     COGNTIO_USER_POOL_ID,
 )
+from utils.user_profile import user_can_access_domain
+
+domain_manager = DomainManager()
 
 
 class RequestAuth:
@@ -34,7 +38,7 @@ class RequestAuth:
         if self.check_api_key(request):
             g.is_admin = True
             return True
-        if not self.aws_cognito_enabled:
+        if not COGNTIO_ENABLED:
             g.is_admin = True
             return True
         if self.check_cognito_jwt(request):
@@ -132,5 +136,25 @@ def auth_admin_required(view):
                 abort(401)
         else:
             abort(401)
+
+    return decorated
+
+
+def can_access_domain(view):
+    """Check if user can access domain."""
+
+    @wraps(view)
+    def decorated(*args, **kwargs):
+        """Decorate."""
+        if kwargs.get("domain_id"):
+            domain = domain_manager.get(
+                document_id=kwargs.get("domain_id"), fields=["application_id"]
+            )
+            if user_can_access_domain(domain):
+                return view(*args, **kwargs)
+            else:
+                return "User does not have permission to domain.", 400
+        else:
+            return "URL Path configured improperly.", 500
 
     return decorated
