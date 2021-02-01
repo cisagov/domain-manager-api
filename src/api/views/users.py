@@ -7,10 +7,9 @@ from flask.views import MethodView
 # cisagov Libraries
 from api.manager import UserManager
 from api.schemas.user_shema import UserSchema
-from settings import COGNITO_CLIENT_ID, COGNTIO_USER_POOL_ID
+from settings import COGNITO_ADMIN_GROUP, COGNTIO_USER_POOL_ID, logger
 from utils.validator import validate_data
 
-route53 = boto3.client("route53")
 cognito = boto3.client("cognito-idp")
 user_manager = UserManager()
 
@@ -23,30 +22,31 @@ class UsersView(MethodView):
         response = cognito.list_users(UserPoolId=COGNTIO_USER_POOL_ID)
         aws_users = response["Users"]
         dm_users = user_manager.all(params=request.args)
-        self.merge_user_list(aws_users, dm_users)
+        self.merge_user_lists(aws_users, dm_users)
 
         return jsonify(aws_users)
 
-    def merge_user_list(self, aws_users, db_users):
-        """Merge current database list of users with list in cognito."""
+    def merge_user_lists(self, aws_users, dm_users):
+        """Merge AWS Users from Cognito with Database."""
         for aws_user in aws_users:
-            if len(db_users) <= 0:
+            if len(dm_users) <= 0:
                 data = validate_data(aws_user, UserSchema)
                 user_manager.save(data)
-            for db_user in db_users:
-                if aws_user["Username"] == db_user["Username"]:
-                    self.merge_user(aws_user, db_user)
+            for dm_user in dm_users:
+                if aws_user["Username"] == dm_user["Username"]:
+                    self.merge_user(aws_user, dm_user)
                     break
-                if db_user == db_users[-1] or len(db_users) <= 0:
+                if dm_user == dm_users[-1] or len(dm_users) <= 0:
                     # Last dm user reached and aws user not found, add to db
+                    data["Groups"] = []
                     data = validate_data(aws_user, UserSchema)
                     user_manager.save(data)
 
-    def merge_user(self, aws_user, db_user):
-        """Merge database user with cognito user."""
-        for key in db_user:
+    def merge_user(self, aws_user, dm_user):
+        """Merge AWS User with Domain Manager User."""
+        for key in dm_user:
             if key not in aws_user:
-                aws_user[key] = db_user[key]
+                aws_user[key] = dm_user[key]
 
 
 class UserView(MethodView):
@@ -54,22 +54,96 @@ class UserView(MethodView):
 
     def get(self, username):
         """Get User details."""
-        user = user_manager.get(filter_data={"Username": username})
-        cognito.admin_list_groups_for_user(
-            Username=user["Username"], UserPoolId=COGNTIO_USER_POOL_ID, Limit=1
+        dm_user = user_manager.get(filter_data={"Username": username})
+        groups = cognito.admin_list_groups_for_user(
+            Username=dm_user["Username"], UserPoolId=COGNTIO_USER_POOL_ID, Limit=50
         )
-        return jsonify(user)
+        aws_user = cognito.admin_get_user(
+            UserPoolId=COGNTIO_USER_POOL_ID, Username=dm_user["Username"]
+        )
+        response = UserHelpers.merge_additional_keys(aws_user, dm_user)
+        if "Groups" not in response:
+            response["Groups"] = []
+        if groups["Groups"]:
+            for item in groups["Groups"]:
+                response["Groups"].append(item)
+        return jsonify(response)
 
 
 class UserConfirmView(MethodView):
-    """UserConfirmView."""
+    """User Confirm View."""
 
     def get(self, username):
         """Confirm the selected user."""
         try:
-            cognito.admin_confirm_sign_up(
-                ClientId=COGNITO_CLIENT_ID,
-                Username=username,
+            response = cognito.admin_confirm_sign_up(
+                UserPoolId=COGNTIO_USER_POOL_ID, Username=username
             )
-        except Exception:
+            user = user_manager.get(filter_data={"Username": username})
+            user["UserStatus"] = "CONFIRMED"
+            user_manager.update(document_id=user["_id"], data=user)
+            return jsonify(response)
+        except Exception as e:
+            logger.exception(e)
             return jsonify({"error": "Failed to confirm user"}), 400
+
+
+class UserAdminStatusView(MethodView):
+    """Set Users admin status."""
+
+    def get(self, username):
+        """Set the user as an admin."""
+        try:
+            response = cognito.admin_add_user_to_group(
+                UserPoolId=COGNTIO_USER_POOL_ID,
+                Username=username,
+                GroupName=COGNITO_ADMIN_GROUP,
+            )
+            return jsonify(response)
+        except Exception as e:
+            logger.exception(e)
+            return jsonify({"error": "Failed to add user to admin group"}), 400
+
+    def delete(self, username):
+        """Remove user admin privlieges."""
+        try:
+            response = cognito.admin_remove_user_from_group(
+                UserPoolId=COGNTIO_USER_POOL_ID,
+                Username=username,
+                GroupName=COGNITO_ADMIN_GROUP,
+            )
+            return jsonify(response)
+        except Exception as e:
+            logger.exception(e)
+            return jsonify({"error": "Failed to remove user from admin group"}), 400
+
+
+class UserGroupsView(MethodView):
+    """Manage users groups."""
+
+    def put(self, username):
+        """Set users groups."""
+        try:
+            user = user_manager.get(filter_data={"Username": username})
+            if "Groups" not in user:
+                user["Groups"] = []
+            if user["Groups"] == request.json:
+                return jsonify({"error": "No changes made"}), 200
+            user["Groups"] = request.json
+
+            response = user_manager.update(document_id=user["_id"], data=user)
+            return jsonify(response)
+        except Exception as e:
+            logger.exception(e)
+            return jsonify({"error": "Failed to update user groups"}), 400
+
+
+class UserHelpers:
+    """Helper Class for user management."""
+
+    def merge_additional_keys(base_dict, dict_to_add):
+        """Merge Dicts."""
+        for key in dict_to_add:
+            if key not in base_dict:
+                base_dict[key] = dict_to_add[key]
+        return base_dict
