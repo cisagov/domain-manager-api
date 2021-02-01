@@ -342,10 +342,10 @@ class DomainLaunchView(MethodView):
                 data=data,
             )
             name = domain["name"]
-            add_user_action(f"Launch Domain - {data['name']}")
+            add_user_action(f"Launch Domain - {name}")
             return jsonify({"success": f"{name} has been launched"})
         except Exception as e:
-            add_user_action(f"Launch Domain - FAILED {data['name']}")
+            add_user_action(f"Launch Domain - FAILED {domain['name']}")
             logger.exception(e)
             # Switch instance to unavailable to prevent user actions
             domain_manager.update(
@@ -605,14 +605,20 @@ class DomainDeployedCheckView(MethodView):
 
     def get(self, domain_id):
         """Check the cloudfront deplpooyment status ofa given domain"""
+
+        decorators = [can_access_domain]
         domain = domain_manager.get(document_id=domain_id)
-        can_access = user_can_access_domain(domain)
-        if not can_access:
-            add_user_action(f"View deployment status of domain (ACCESS DENIED) - {domain['name']}")
-            return jsonify({"error": "User does not have permission to view status for this domain"}), 400
+        try:
+            if "cloudfront" in domain:
+                if "id" in domain["cloudfront"]:
+                    results = cloudfront.get_distribution(
+                        Id = domain["cloudfront"]["id"]
+                    )
+                    return jsonify(results["Distribution"])
+                else:
+                    return (jsonify({"error": "Error getting cloudfront status of domain, cloudfront id not assigned in data"}),400,)
+            else:
+                return (jsonify({"error": "Error getting cloudfront status of domain, cloudfront data not on this domain"}),400,)
 
-        print("getting cloudfront status")
-        results = cloudfront.list_distributions()
-        print(results)
-
-        return jsonify(results)
+        except requests.exceptions.HTTPError as e:
+            return {"error": str(e)}, 400
