@@ -69,5 +69,5 @@ refresh:
 ra: refresh	attach
 
 # target: tasks - run lambda function website category check locally
-tasks:
-	docker exec dm-api python lambda_functions
+categorize:
+	docker exec dm-api python lambda_functions/categorize.py

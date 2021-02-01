@@ -32,3 +32,7 @@ def handler(event, context):
         # domain = domain_manager.get(filter_data={"name": domain_name})
 
         logger.info(payload)
+
+
+if __name__ == "__main__":
+    print("test categorize locally")

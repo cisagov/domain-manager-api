@@ -89,3 +89,11 @@ def process(proxy_func, proxy_url, proxy_category, domain_name):
         driver.quit()
         logger.exception(e)
         return False
+
+
+if __name__ == "__main__":
+    print("In Main")
+    domain = input("Please enter a domain:")
+    # TODO: utils.proxies.proxies.get_check_proxies and loop through
+    event = {"Records": [{"body": json.dumps({"domain": domain, "proxy": "bluecoat"})}]}
+    handler(event, None)
