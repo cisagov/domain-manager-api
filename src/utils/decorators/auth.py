@@ -34,7 +34,7 @@ class RequestAuth:
         if self.check_api_key(request):
             g.is_admin = True
             return True
-        if not self.aws_cognito_enabled:
+        if not COGNTIO_ENABLED:
             g.is_admin = True
             return True
         if self.check_cognito_jwt(request):

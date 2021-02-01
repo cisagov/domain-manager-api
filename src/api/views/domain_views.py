@@ -41,6 +41,7 @@ proxy_manager = ProxyManager()
 domain_manager = DomainManager()
 application_manager = ApplicationManager()
 route53 = boto3.client("route53")
+cloudfront = boto3.client("cloudfront")
 
 
 class DomainsView(MethodView):
@@ -665,7 +666,7 @@ class DomainCategorizeView(MethodView):
         )
 
 
-class DomainCheckView(MethodView):
+class DomainCategoryCheckView(MethodView):
     """DomainCategoryCheckView."""
 
     def update_submission(self, query, dicts):
@@ -739,3 +740,22 @@ class DomainCheckView(MethodView):
                 "Websense": ws,
             }
         )
+
+
+
+class DomainDeployedCheckView(MethodView):
+    """DomainCategoryCheckView."""
+
+    def get(self, domain_id):
+        """Check the cloudfront deplpooyment status ofa given domain"""
+        domain = domain_manager.get(document_id=domain_id)
+        can_access = user_can_access_domain(domain)
+        if not can_access:
+            add_user_action(f"View deployment status of domain (ACCESS DENIED) - {domain['name']}")
+            return jsonify({"error": "User does not have permission to view status for this domain"}), 400
+
+        print("getting cloudfront status")
+        results = cloudfront.list_distributions()
+        print(results)
+
+        return jsonify(results)

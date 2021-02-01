@@ -12,8 +12,9 @@ from api.views.applications import ApplicationsView, ApplicationView
 from api.views.categories import CategoriesView, CategoryCheckView
 from api.views.domain_views import (
     DomainCategorizeView,
-    DomainCheckView,
+    DomainCategoryCheckView,
     DomainContentView,
+    DomainDeployedCheckView,
     DomainGenerateView,
     DomainLaunchView,
     DomainRecordView,
@@ -47,7 +48,6 @@ CORS(app)
 url_prefix = "/api"
 
 rules = [
-    ("/generate-dns/", HostedZonesView),
     ("/generate-email-address/", EmailAddressView),
     ("/categories/", CategoriesView),
     ("/check/", CategoryCheckView),
@@ -60,8 +60,9 @@ rules = [
     ("/domains/", DomainsView),
     ("/domain/<domain_id>/", DomainView),
     ("/domain/<domain_id>/categorize/", DomainCategorizeView),
-    ("/domain/<domain_id>/check/", DomainCheckView),
+    ("/domain/<domain_id>/check/", DomainCategoryCheckView),
     ("/domain/<domain_id>/content/", DomainContentView),
+    ("/domain/<domain_id>/deployed/", DomainDeployedCheckView),
     ("/domain/<domain_id>/generate/", DomainGenerateView),
     ("/domain/<domain_id>/redirect/", DomainRedirectView),
     ("/domain/<domain_id>/launch/", DomainLaunchView),
