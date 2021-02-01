@@ -18,7 +18,6 @@ from api.views.domain_views import (
     DomainGenerateView,
     DomainLaunchView,
     DomainRecordView,
-    DomainRedirectView,
     DomainsView,
     DomainView,
 )
@@ -31,11 +30,11 @@ from api.views.templates import (
     TemplateView,
 )
 from api.views.users import (
+    UserAdminStatusView,
+    UserConfirmView,
+    UserGroupsView,
     UsersView,
     UserView,
-    UserConfirmView,
-    UserAdminStatusView,
-    UserGroupsView,
 )
 from settings import logger
 from utils.decorators.auth import auth_admin_required, auth_required
@@ -64,7 +63,6 @@ rules = [
     ("/domain/<domain_id>/content/", DomainContentView),
     ("/domain/<domain_id>/deployed/", DomainDeployedCheckView),
     ("/domain/<domain_id>/generate/", DomainGenerateView),
-    ("/domain/<domain_id>/redirect/", DomainRedirectView),
     ("/domain/<domain_id>/launch/", DomainLaunchView),
     ("/domain/<domain_id>/records/", DomainRecordView),
 ]
@@ -77,17 +75,20 @@ admin_rules = [
     ("/user/<username>/confirm", UserConfirmView),
     ("/user/<username>/admin", UserAdminStatusView),
     ("/user/<username>/groups", UserGroupsView),
-    
 ]
 
 for rule in rules:
     url = f"{url_prefix}{rule[0]}"
-    rule[1].decorators = [auth_required]
+    if not rule[1].decorators:
+        rule[1].decorators = []
+    rule[1].decorators.append(auth_required)
     app.add_url_rule(url, view_func=rule[1].as_view(url))
 
 for rule in admin_rules:
     url = f"{url_prefix}{rule[0]}"
-    rule[1].decorators = [auth_admin_required]
+    if not rule[1].decorators:
+        rule[1].decorators = []
+    rule[1].decorators.append(auth_admin_required)
     app.add_url_rule(url, view_func=rule[1].as_view(url))
 
 

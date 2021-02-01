@@ -8,17 +8,16 @@ from uuid import uuid4
 
 # Third-Party Libraries
 import boto3
-from flask import current_app, jsonify, request, send_file, g
+from flask import current_app, g, jsonify, request, send_file
 from flask.views import MethodView
 import requests
 from selenium import webdriver
 
 # cisagov Libraries
 from api.manager import ApplicationManager, CategoryManager, DomainManager, ProxyManager
-from api.schemas.domain_schema import DomainSchema, Record, Redirect
+from api.schemas.domain_schema import DomainSchema, Record
 from settings import STATIC_GEN_URL, WEBSITE_BUCKET, logger
 from utils.aws import record_handler
-from utils.aws.redirect_handler import delete_redirect, modify_redirect, setup_redirect
 from utils.aws.site_handler import delete_site, launch_site
 from utils.categorization import (
     bluecoat,
@@ -28,13 +27,10 @@ from utils.categorization import (
     trustedsource,
     websense,
 )
+from utils.decorators.auth import can_access_domain
 from utils.two_captcha import two_captcha_api_key
+from utils.user_profile import add_user_action, get_users_group_ids
 from utils.validator import validate_data
-from utils.user_profile import (
-    add_user_action, 
-    get_users_group_ids, 
-    user_can_access_domain,
-)
 
 category_manager = CategoryManager()
 proxy_manager = ProxyManager()
@@ -55,53 +51,55 @@ class DomainsView(MethodView):
             response = domain_manager.all(params=request.args)
         else:
             groups = get_users_group_ids()
-            response = domain_manager.all(params= {
-                "application_id" : {'$in': groups }
-            })
-        
+            response = domain_manager.all(params={"application_id": {"$in": groups}})
+
         return jsonify(response)
 
     def post(self):
         """Create a new domain."""
-
-        if g.is_admin:
-            data = validate_data(request.json, DomainSchema)
-            if domain_manager.get(filter_data={"name": data["name"]}):
-                return jsonify({"error": "Domain already exists."}), 400
-            caller_ref = str(uuid4())
-            resp = route53.create_hosted_zone(Name=data["name"], CallerReference=caller_ref)
-            domain_manager.save(
-                {
-                    "name": data["name"],
-                    "is_active": False,
-                    "is_available": True,
-                    "is_launching": False,
-                    "is_delaunching": False,
-                    "is_generating_template": False,
-                    "route53": {"id": resp["HostedZone"]["Id"]},
-                }
+        if not g.is_admin:
+            return (
+                jsonify(
+                    {
+                        "error": "User does not have admin rights, can not create a new domain"
+                    }
+                ),
+                400,
             )
-            add_user_action(f"Created New Domain - {data['name']}")
-            return jsonify(resp["DelegationSet"]["NameServers"])
-        else:
-            return jsonify({"error": "User does not have admin rights, can not create a new domain"}), 400
+
+        data = validate_data(request.json, DomainSchema)
+        if domain_manager.get(filter_data={"name": data["name"]}):
+            return jsonify({"error": "Domain already exists."}), 400
+        caller_ref = str(uuid4())
+        resp = route53.create_hosted_zone(Name=data["name"], CallerReference=caller_ref)
+        domain_manager.save(
+            {
+                "name": data["name"],
+                "is_active": False,
+                "is_available": True,
+                "is_launching": False,
+                "is_delaunching": False,
+                "is_generating_template": False,
+                "route53": {"id": resp["HostedZone"]["Id"]},
+            }
+        )
+        add_user_action(f"Created New Domain - {data['name']}")
+        return jsonify(resp["DelegationSet"]["NameServers"])
+
 
 class DomainView(MethodView):
     """DomainView."""
 
+    decorators = [can_access_domain]
+
     def get(self, domain_id):
         """Get Domain details."""
         domain = domain_manager.get(document_id=domain_id)
-        can_access = user_can_access_domain(domain)
-        if can_access:
-            add_user_action(f"View Domain - {domain['name']}")
-            if 'application_id' in domain:
-                application = application_manager.get(document_id=domain['application_id'])
-                domain['application_name'] = application['name']
-            return jsonify(domain)
-        else:
-            add_user_action(f"View Domain (ACCESS DENIED) - {domain['name']}")
-            return jsonify({"error": "User does not have permission to view this domain"}), 400
+        add_user_action(f"View Domain - {domain['name']}")
+        if "application_id" in domain:
+            application = application_manager.get(document_id=domain["application_id"])
+            domain["application_name"] = application["name"]
+        return jsonify(domain)
 
     def put(self, domain_id):
         """Update domain."""
@@ -109,11 +107,6 @@ class DomainView(MethodView):
         domain = domain_manager.get(document_id=domain_id)
 
         if data.get("application"):
-            can_access = user_can_access_domain(domain)
-            if not can_access:
-                add_user_action(f"Update Domain (ACCESS DENIED) - {domain['name']}")
-                return jsonify({"error": "User does not have permission to update this domain"}), 400
-
             application = application_manager.get(
                 filter_data={"name": data["application"]}
             )
@@ -133,12 +126,8 @@ class DomainView(MethodView):
     def delete(self, domain_id):
         """Delete domain and hosted zone."""
         domain = domain_manager.get(document_id=domain_id)
-        can_access = user_can_access_domain(domain)
-        if not can_access:
-            add_user_action(f"Delete Domain (ACCESS DENIED) - {domain['name']}")
-            return jsonify({"error": "User does not have permission to delete this domain"}), 400
 
-        if domain.get("is_active") and domain.get("redirects"):
+        if domain.get("is_active") and domain.get("records"):
             return jsonify(
                 {"message": "Domain cannot be active and redirects must be removed."}
             )
@@ -158,14 +147,11 @@ class DomainView(MethodView):
 class DomainContentView(MethodView):
     """DomainContentView."""
 
+    decorators = [can_access_domain]
+
     def get(self, domain_id):
         """Download Domain."""
         domain = domain_manager.get(document_id=domain_id)
-        can_access = user_can_access_domain(domain)
-        if not can_access:
-            add_user_action(f"Download Domain (ACCESS DENIED) - {domain['name']}")
-            return jsonify({"error": "User does not have permission to download this domain"}), 400
-
 
         resp = requests.get(
             f"{STATIC_GEN_URL}/website/?category={domain['category']}&domain={domain['name']}",
@@ -180,7 +166,6 @@ class DomainContentView(MethodView):
         buffer.write(resp.content)
         buffer.seek(0)
 
-
         add_user_action(f"Download Domain - {domain['name']}")
 
         return send_file(
@@ -194,11 +179,6 @@ class DomainContentView(MethodView):
         """Upload files and serve s3 site."""
         # Get domain data
         domain = domain_manager.get(document_id=domain_id)
-        can_access = user_can_access_domain(domain)
-        if not can_access:
-            add_user_action(f"Upload Domain (ACCESS DENIED) - {domain['name']}")
-            return jsonify({"error": "User does not have permission to upload to this domain"}), 400
-
 
         domain_name = domain["name"]
         category = request.args.get("category")
@@ -227,7 +207,6 @@ class DomainContentView(MethodView):
         # Remove temp files
         shutil.rmtree(f"tmp/{category}/", ignore_errors=True)
 
-
         add_user_action(f"Upload Domain - {domain['name']}")
 
         return (
@@ -246,11 +225,6 @@ class DomainContentView(MethodView):
     def delete(self, domain_id):
         """Delete domain content."""
         domain = domain_manager.get(document_id=domain_id)
-        can_access = user_can_access_domain(domain)
-        if not can_access:
-            add_user_action(f"Delete Domain Content (ACCESS DENIED) - {domain['name']}")
-            return jsonify({"error": "User does not have permission to delete to this domain content"}), 400
-
 
         name = domain["name"]
         category = domain["category"]
@@ -274,15 +248,12 @@ class DomainContentView(MethodView):
 class DomainGenerateView(MethodView):
     """DomainGenerateView."""
 
+    decorators = [can_access_domain]
+
     def post(self, domain_id):
         """Create website."""
         category = request.args.get("category")
         domain = domain_manager.get(document_id=domain_id)
-        can_access = user_can_access_domain(domain)
-        if not can_access:
-            add_user_action(f"Generate domain content from template (ACCESS DENIED) - {domain['name']}")
-            return jsonify({"error": "User does not have permission to generate content for this domain"}), 400
-
 
         # Switch instance to unavailable to prevent user actions
         domain_manager.update(
@@ -320,7 +291,9 @@ class DomainGenerateView(MethodView):
                 },
             )
 
-            add_user_action(f"Generate domain content from template - Template: {category} - Website {domain['name']}")
+            add_user_action(
+                f"Generate domain content from template - Template: {category} - Website {domain['name']}"
+            )
             return jsonify(
                 {
                     "message": f"{domain_name} static site has been created from the {category} template."
@@ -337,117 +310,14 @@ class DomainGenerateView(MethodView):
             )
 
 
-class DomainRedirectView(MethodView):
-    """DomainRedirectView."""
-
-    def get(self, domain_id):
-        """Get all redirects for a domain."""
-        domain = domain_manager.get(document_id=domain_id)
-        can_access = user_can_access_domain(domain)
-        if not can_access:
-            add_user_action(f"Access redirects (ACCESS DENIED) - {domain['name']}")
-            return jsonify({"error": "User does not have permission to view redirects for this domain: {domain['name']}"}), 400
-
-        return jsonify(domain_manager.get(document_id=domain_id, fields=["redirects"]))
-
-    def post(self, domain_id):
-        """Create a domain redirect."""
-        domain = domain_manager.get(document_id=domain_id)
-        can_access = user_can_access_domain(domain)
-        if not can_access:
-            add_user_action(f"Create redirect (ACCESS DENIED) - {domain['name']}")
-            return jsonify({"error": "User does not have permission to create redirects for this domain: {domain['name']}"}), 400
-
-        data = {
-            "subdomain": request.json["subdomain"],
-            "redirect_url": request.json["redirect_url"],
-        }
-
-        data = validate_data(data, Redirect)
-
-        redirects = domain_manager.get(document_id=domain_id, fields=["redirects"])
-        if data["subdomain"] in [
-            r["subdomain"] for r in redirects.get("redirects", [])
-        ]:
-            return "Subdomain already utilized."
-
-        setup_redirect(
-            domain_id=domain_id,
-            subdomain=data["subdomain"],
-            redirect_url=data["redirect_url"],
-        )
-
-        add_user_action(f"Add redirect to domain - domain id: {domain_id} - redirect: data['redirect_url']")
-        return jsonify(
-            domain_manager.add_to_list(
-                document_id=domain_id, field="redirects", data=data
-            )
-        )
-
-    def put(self, domain_id):
-        """Update a subdomain redirect value."""
-        domain = domain_manager.get(document_id=domain_id)
-        can_access = user_can_access_domain(domain)
-        if not can_access:
-            add_user_action(f"Update redirects to domain (ACCESS DENIED) - {domain['name']}")
-            return jsonify({"error": "User does not have permission to update redirects for this domain: {domain['name']}"}), 400
-
-        data = {
-            "subdomain": request.json["subdomain"],
-            "redirect_url": request.json["redirect_url"],
-        }
-
-        data = validate_data(data, Redirect)
-
-        modify_redirect(
-            domain_id=domain_id,
-            subdomain=data["subdomain"],
-            redirect_url=data["redirect_url"],
-        )
-
-        add_user_action(f"Update redirect to domain - domain id: {domain_id} - redirect: data['redirect_url']")
-        return jsonify(
-            domain_manager.update_in_list(
-                document_id=domain_id,
-                field="redirects.$.redirect_url",
-                data=data["redirect_url"],
-                params={"redirects.subdomain": data["subdomain"]},
-            )
-        )
-
-    def delete(self, domain_id):
-        """Delete a subdomain redirect."""
-        domain = domain_manager.get(document_id=domain_id)
-        can_access = user_can_access_domain(domain)
-        if not can_access:
-            add_user_action(f"Deelete redirects (ACCESS DENIED) - {domain['name']}")
-            return jsonify({"error": "User does not have permission to delete redirects for this domain: {domain['name']}"}), 400
-
-        subdomain = request.args.get("subdomain")
-        if not subdomain:
-            return {"error": "must pass subdomain as a request arg to delete."}
-        delete_redirect(domain_id=domain_id, subdomain=subdomain)
-        add_user_action(f"Delete redirect for domain - Domain id: {domain_id} - subdomain: {subdomain}")
-        return jsonify(
-            domain_manager.delete_from_list(
-                document_id=domain_id,
-                field="redirects",
-                data={"subdomain": subdomain},
-            )
-        )
-
-
 class DomainLaunchView(MethodView):
     """Launch or stop an existing static site by adding dns records to its domain."""
+
+    decorators = [can_access_domain]
 
     def get(self, domain_id):
         """Launch a static site."""
         domain = domain_manager.get(document_id=domain_id)
-        can_access = user_can_access_domain(domain)
-        if not can_access:
-            add_user_action(f"Launch Domain (ACCESS DENIED) - {domain['name']}")
-            return jsonify({"error": "User does not have permission to launch this domain: {domain['name']}"}), 400
-
 
         # Switch instance to unavailable to prevent user actions
         domain_manager.update(
@@ -489,11 +359,6 @@ class DomainLaunchView(MethodView):
     def delete(self, domain_id):
         """Stop a static site."""
         domain = domain_manager.get(document_id=domain_id)
-        can_access = user_can_access_domain(domain)
-        if not can_access:
-            add_user_action(f"Take down a Domain site (ACCESS DENIED) - {domain['name']}")
-            return jsonify({"error": "User does not have permission to take down this domain: {domain['name']}"}), 400
-
 
         # Switch instance to unavailable to prevent user actions
         domain_manager.update(
@@ -537,14 +402,10 @@ class DomainLaunchView(MethodView):
 class DomainRecordView(MethodView):
     """View for interacting with website hosted zone records."""
 
+    decorators = [can_access_domain]
+
     def get(self, domain_id):
         """Get the hosted zone records for a domain."""
-        domain = domain_manager.get(document_id=domain_id)
-        can_access = user_can_access_domain(domain)
-        if not can_access:
-            add_user_action(f"View domain hosted zone records (ACCESS DENIED) - {domain['name']}")
-            return jsonify({"error": "User does not have permission to view the hosted zone records: {domain['name']}"}), 400
-
         hosted_zone_id = domain_manager.get(document_id=domain_id, fields=["route53"])[
             "route53"
         ]["id"]
@@ -583,6 +444,8 @@ class DomainRecordView(MethodView):
 class DomainCategorizeView(MethodView):
     """DomainCategorizeView."""
 
+    decorators = [can_access_domain]
+
     def get(self, domain_id):
         """Manage categorization of active sites."""
         browserless_endpoint = os.environ.get("BROWSERLESS_ENDPOINT")
@@ -595,11 +458,6 @@ class DomainCategorizeView(MethodView):
         category = category_manager.get(
             filter_data={"name": request.args.get("category", "").capitalize()}
         )
-
-        can_access = user_can_access_domain(domain)
-        if not can_access:
-            add_user_action(f"Categorize domain (ACCESS DENIED) - {domain['name']}")
-            return jsonify({"error": "User does not have permission to categorize the domain: {domain['name']}"}), 400
 
         if domain.get("is_categorized", None):
             return {"error": f"{domain_name} has already been categorized."}
@@ -658,7 +516,9 @@ class DomainCategorizeView(MethodView):
             document_id=domain_id,
             data={"is_category_submitted": is_category_submitted},
         )
-        add_user_action(f"Categorize domain - domain: {domain['name']} - category: {category}")
+        add_user_action(
+            f"Categorize domain - domain: {domain['name']} - category: {category}"
+        )
         return jsonify(
             {
                 "message": f"{domain_name} has been successfully submitted for categorization"
@@ -669,8 +529,10 @@ class DomainCategorizeView(MethodView):
 class DomainCategoryCheckView(MethodView):
     """DomainCategoryCheckView."""
 
+    decorators = [can_access_domain]
+
     def update_submission(self, query, dicts):
-        """Search through existing submissions and check as categorized."""        
+        """Search through existing submissions and check as categorized."""
         next(
             item.update({"is_categorized": True})
             for item in dicts
@@ -682,11 +544,6 @@ class DomainCategoryCheckView(MethodView):
     def get(self, domain_id):
         """Check category for a domain."""
         domain = domain_manager.get(document_id=domain_id)
-        can_access = user_can_access_domain(domain)
-        if not can_access:
-            add_user_action(f"Check domain category (ACCESS DENIED) - {domain['name']}")
-            return jsonify({"error": "User does not have permission to check the category for the domain: {domain['name']}"}), 400
-
 
         if not domain.get("is_category_submitted", None):
             return jsonify(
