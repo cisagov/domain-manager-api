@@ -1,4 +1,4 @@
-.PHONY: all help build logs loc up stop down shell test
+.PHONY: all help build logs loc up stop down shell test ra refresh categorize check_category
 
 # make all - Default Target. Does nothing.
 all:
@@ -68,6 +68,10 @@ refresh:
 # target: ra - refresh api and attach logs
 ra: refresh	attach
 
-# target: tasks - run lambda function website category check locally
+# target: categorize - test run categorize lambda function on a specified domain
 categorize:
-	docker exec dm-api python lambda_functions/categorize.py
+	docker exec -it dm-api python lambda_functions/categorize.py
+
+# target: check_category - test run check categories on a specified domain
+check_category:
+	docker exec -it dm-api python lambda_functions/check_category.py
