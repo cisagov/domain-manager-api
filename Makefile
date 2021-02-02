@@ -53,7 +53,7 @@ shell:
 
 # target: test - run unit tests
 test:
-	docker exec -it dm-api coverage run -m pytest --disable-warnings
+	docker exec -it dm-api coverage run -m pytest --disable-warnings -s
 	docker exec dm-api coverage report -i
 
 # target: lint - run pre-commit linting
