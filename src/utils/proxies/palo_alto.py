@@ -9,10 +9,10 @@ from selenium.webdriver.common.by import By
 from utils.proxies.captcha import get_and_solve
 
 
-def categorize(driver, url, domain, category, two_captcha_api_key):
+def categorize(driver, domain, category, two_captcha_api_key):
     """Categorize with palo alto."""
     print("Running Palo Alto proxy")
-    driver.get(url)
+    driver.get("https://urlfiltering.paloaltonetworks.com/")
     driver.set_window_size(1518, 804)
     driver.find_element(By.ID, "id_url").click()
     driver.find_element(By.ID, "id_url").send_keys(f"http://{domain}")

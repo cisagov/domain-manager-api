@@ -18,10 +18,10 @@ def check_submitted(is_submitted_msg):
     return
 
 
-def categorize(driver, url, domain, category, two_captcha_api_key):
+def categorize(driver, domain, category, two_captcha_api_key):
     """Categorize with bluecoat."""
     print("Running Bluecoat proxy")
-    driver.get(url)
+    driver.get("https://sitereview.bluecoat.com/#/")
     driver.set_window_size(1765, 1040)
     driver.find_element(By.ID, "txtUrl").click()
     driver.find_element(By.ID, "txtUrl").send_keys(f"http://{domain}")

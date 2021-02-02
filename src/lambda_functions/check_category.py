@@ -5,7 +5,7 @@ import json
 # cisagov Libraries
 from api.manager import DomainManager
 from settings import logger
-from utils.proxies.proxies import get_check_proxies, get_check_proxy_func
+from utils.proxies.proxies import get_check_proxy_func
 
 domain_manager = DomainManager()
 
@@ -33,11 +33,3 @@ def handler(event, context):
         # domain = domain_manager.get(filter_data={"name": domain_name})
 
         logger.info(payload)
-
-
-if __name__ == "__main__":
-    print("Checking categories...")
-    domain = input("Please enter a domain: ")
-    for proxy in get_check_proxies(domain).keys():
-        event = {"Records": [{"body": json.dumps({"domain": domain, "proxy": proxy})}]}
-        handler(event, None)

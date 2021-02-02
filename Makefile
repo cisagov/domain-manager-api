@@ -70,8 +70,8 @@ ra: refresh	attach
 
 # target: categorize - test run categorize lambda function on a specified domain
 categorize:
-	docker exec -it dm-api python lambda_functions/categorize.py
+	python -m proxy_harness.categorize
 
 # target: check_category - test run check categories on a specified domain
 check_category:
-	docker exec -it dm-api python lambda_functions/check_category.py
+	python -m proxy_harness.check_category

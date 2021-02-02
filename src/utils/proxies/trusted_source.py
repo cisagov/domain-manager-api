@@ -5,10 +5,10 @@ import requests
 from selenium.webdriver.common.by import By
 
 
-def categorize(driver, url, domain, category, two_captcha_api_key):
+def categorize(driver, domain, category, two_captcha_api_key):
     """Categorize with Trusted Source."""
     print("Running McAfee Trusted Source proxy")
-    driver.get(url)
+    driver.get("https://trustedsource.org/")
     driver.set_window_size(2061, 1265)
     driver.find_element(By.NAME, "product").click()
     dropdown = driver.find_element(By.NAME, "product")

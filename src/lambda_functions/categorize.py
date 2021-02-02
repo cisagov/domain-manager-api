@@ -8,7 +8,7 @@ from selenium import webdriver
 # cisagov Libraries
 from api.manager import CategoryManager, DomainManager, ProxyManager
 from settings import BROWSERLESS_ENDPOINT, TWO_CAPTCHA_API_KEY, logger
-from utils.proxies.proxies import get_categorize_proxies, get_categorize_proxy_func
+from utils.proxies.proxies import get_categorize_proxy_func
 
 domain_manager = DomainManager()
 proxy_manager = ProxyManager()
@@ -33,7 +33,7 @@ def handler(event, context):
             logger.error(f"Category {payload['category']} does not exist")
             continue
 
-        resp = process(proxy_func, proxy["url"], proxy_category, domain["name"])
+        resp = process(proxy_func, proxy_category, domain["name"])
         if resp:
             domain_manager.add_to_list(
                 document_id=domain["_id"],
@@ -65,7 +65,7 @@ def get_proxy_category(proxy_name, category_name):
     )
 
 
-def process(proxy_func, proxy_url, proxy_category, domain_name):
+def process(proxy_func, proxy_category, domain_name):
     """Categorize domain."""
     chrome_options = webdriver.ChromeOptions()
     chrome_options.add_argument("--no-sandbox")
@@ -79,7 +79,6 @@ def process(proxy_func, proxy_url, proxy_category, domain_name):
         driver.set_page_load_timeout(60)
         proxy_func(
             driver=driver,
-            url=proxy_url,
             domain=domain_name,
             category=proxy_category,
             two_captcha_api_key=TWO_CAPTCHA_API_KEY,
@@ -90,20 +89,3 @@ def process(proxy_func, proxy_url, proxy_category, domain_name):
         driver.quit()
         logger.exception(e)
         return False
-
-
-if __name__ == "__main__":
-    print("Running Categorize...")
-    domain = input("Please enter a domain: ")
-    category = input("Please enter a category: ")
-    for proxy in get_categorize_proxies().keys():
-        event = {
-            "Records": [
-                {
-                    "body": json.dumps(
-                        {"domain": domain, "proxy": proxy, "category": category}
-                    )
-                }
-            ]
-        }
-        handler(event, None)
