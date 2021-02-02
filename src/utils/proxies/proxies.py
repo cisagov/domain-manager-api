@@ -8,17 +8,19 @@ from utils.proxies import (
     palo_alto,
     trendmicro,
     trusted_source,
+    websense,
 )
 
 
 def get_check_proxies():
     """Get proxies to check category with."""
     return {
-        "bluecoat": bluecoat.check_category,
-        "ciscotalos": ciscotalos.check_category,
-        "fortiguard": fortiguard.check_category,
-        "ibmxforce": ibmxforce.check_category,
-        "trusted_source": trusted_source.check_category,
+        "Blue Coat": bluecoat.check_category,
+        "Cisco Talos": ciscotalos.check_category,
+        "Fortiguard": fortiguard.check_category,
+        "IBM X Force": ibmxforce.check_category,
+        "Trusted Source": trusted_source.check_category,
+        "Websense": websense.check_category,
     }
 
 

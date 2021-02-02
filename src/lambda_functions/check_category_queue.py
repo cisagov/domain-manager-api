@@ -26,8 +26,13 @@ def handler(event, context):
             )
             continue
 
+        sqs.send_message(
+            QueueUrl=SQS_CHECK_CATEGORY_URL,
+            MessageBody=json.dumps({"domain": domain["name"]}),
+        )
+
         for proxy in get_check_proxies().keys():
             sqs.send_message(
                 QueueUrl=SQS_CHECK_CATEGORY_URL,
-                MessageBody=json.dumps({"domain": domain, "proxy": proxy}),
+                MessageBody=json.dumps({"domain": domain["name"], "proxy": proxy}),
             )

@@ -3,11 +3,12 @@
 import json
 
 # cisagov Libraries
-from api.manager import DomainManager
+from api.manager import DomainManager, ProxyManager
 from settings import logger
-from utils.proxies.proxies import get_check_proxy_func
+from utils.proxies.proxies import get_check_proxies
 
 domain_manager = DomainManager()
+proxy_manager = ProxyManager()
 
 
 def update_submission(query, dicts, response):
@@ -27,9 +28,16 @@ def handler(event, context):
         payload = json.loads(record["body"])
 
         domain_name = payload["domain"]
-        resp = get_check_proxy_func(payload["proxy"])(domain_name)
-        logger.info(resp)
+        domain = domain_manager.get(filter_data={"name": domain_name})
 
-        # domain = domain_manager.get(filter_data={"name": domain_name})
+        for k, v in get_check_proxies().items():
+            try:
+                resp = v(domain_name)
+                update_submission(k, domain["is_category_submitted"], resp)
+            except Exception as e:
+                logger.exception(e)
 
-        logger.info(payload)
+        domain_manager.update(
+            document_id=domain["_id"],
+            data={"is_category_submitted": domain["is_category_submitted"]},
+        )
