@@ -92,7 +92,7 @@ def process(proxy_func, proxy_url, proxy_category, domain_name):
 
 
 if __name__ == "__main__":
-    print("In Main")
+    print("Running Categorize...")
     domain = input("Please enter a domain:")
     # TODO: utils.proxies.proxies.get_check_proxies and loop through
     event = {"Records": [{"body": json.dumps({"domain": domain, "proxy": "bluecoat"})}]}
