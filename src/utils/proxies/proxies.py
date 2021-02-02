@@ -30,11 +30,11 @@ def get_check_proxy_func(proxy_name, domain):
 def get_categorize_proxies():
     """Get proxies to categorize against."""
     return {
-        "bluecoat": bluecoat.categorize,
-        "fortiguard": fortiguard.categorize,
-        "palo_alto": palo_alto.categorize,
-        "trendmicro": trendmicro.categorize,
-        "trusted_source": trusted_source.categorize,
+        "Blue Coat": bluecoat.categorize,
+        "Fortiguard": fortiguard.categorize,
+        "Palo Alto Networks": palo_alto.categorize,
+        "Trend Micro": trendmicro.categorize,
+        "Trusted Source": trusted_source.categorize,
     }
 
 

@@ -8,7 +8,7 @@ from selenium import webdriver
 # cisagov Libraries
 from api.manager import CategoryManager, DomainManager, ProxyManager
 from settings import BROWSERLESS_ENDPOINT, TWO_CAPTCHA_API_KEY, logger
-from utils.proxies.proxies import get_categorize_proxy_func
+from utils.proxies.proxies import get_categorize_proxies, get_categorize_proxy_func
 
 domain_manager = DomainManager()
 proxy_manager = ProxyManager()
@@ -20,12 +20,13 @@ def handler(event, context):
     for record in event["Records"]:
         payload = json.loads(record["body"])
 
-        domain = domain_manager.get(filter_data={"name": payload["domain_name"]})
+        domain = domain_manager.get(filter_data={"name": payload["domain"]})
         if not domain:
-            logger.error(f"Domain {payload['domain_name']} does not exist.")
+            logger.error(f"Domain {payload['domain']} does not exist.")
             continue
 
-        proxy = proxy_manager.get(filter_data={"name": payload["proxy_name"]})
+        proxy = proxy_manager.get(filter_data={"name": payload["proxy"]})
+
         proxy_func = get_categorize_proxy_func(proxy["name"])
         proxy_category = get_proxy_category(proxy["name"], payload["category"])
         if not proxy_category:
@@ -94,6 +95,15 @@ def process(proxy_func, proxy_url, proxy_category, domain_name):
 if __name__ == "__main__":
     print("Running Categorize...")
     domain = input("Please enter a domain: ")
-    # TODO: utils.proxies.proxies.get_check_proxies and loop through
-    event = {"Records": [{"body": json.dumps({"domain": domain, "proxy": "bluecoat"})}]}
-    handler(event, None)
+    category = input("Please enter a category: ")
+    for proxy in get_categorize_proxies().keys():
+        event = {
+            "Records": [
+                {
+                    "body": json.dumps(
+                        {"domain": domain, "proxy": proxy, "category": category}
+                    )
+                }
+            ]
+        }
+        handler(event, None)
