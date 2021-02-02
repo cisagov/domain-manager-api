@@ -7,6 +7,7 @@ import (
 
 func main() {
 	mux := http.NewServeMux()
+	mux.HandleFunc("/health/", HealthCheckHandler)
 	mux.HandleFunc("/generate/", GenerateHandler)
 	mux.HandleFunc("/template/", TemplateHandler)
 	mux.HandleFunc("/website/", WebsiteHandler)

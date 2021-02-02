@@ -6,6 +6,7 @@ from datetime import date
 from flask import Flask, render_template
 from flask.json import JSONEncoder
 from flask_cors import CORS
+import requests
 
 # cisagov Libraries
 from api.views.applications import ApplicationsView, ApplicationView
@@ -34,7 +35,7 @@ from api.views.users import (
     UsersView,
     UserView,
 )
-from settings import logger
+from settings import STATIC_GEN_URL, logger
 from utils.decorators.auth import auth_admin_required, auth_required
 
 app = Flask(__name__)
@@ -115,7 +116,10 @@ def api_map():
         for endpoint in app.url_map.__dict__["_rules"]
         if endpoint.rule not in ["/static/<path:filename>", "/"]
     }
-    return render_template("index.html", endpoints=endpoints)
+    golang_resp = requests.get(f"{STATIC_GEN_URL}/health/")
+    return render_template(
+        "index.html", endpoints=endpoints, golang_resp=golang_resp.text
+    )
 
 
 if __name__ == "__main__":
