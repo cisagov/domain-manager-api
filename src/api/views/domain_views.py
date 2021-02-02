@@ -599,26 +599,23 @@ class DomainCategoryCheckView(MethodView):
         )
 
 
-
 class DomainDeployedCheckView(MethodView):
     """DomainCategoryCheckView."""
 
+    decorators = [can_access_domain]
+
     def get(self, domain_id):
-        """Check the cloudfront deplpooyment status ofa given domain"""
-
-        decorators = [can_access_domain]
+        """Check the cloudfront deployment status of the domain."""
         domain = domain_manager.get(document_id=domain_id)
-        try:
-            if "cloudfront" in domain:
-                if "id" in domain["cloudfront"]:
-                    results = cloudfront.get_distribution(
-                        Id = domain["cloudfront"]["id"]
-                    )
-                    return jsonify(results["Distribution"])
-                else:
-                    return (jsonify({"error": "Error getting cloudfront status of domain, cloudfront id not assigned in data"}),400,)
-            else:
-                return (jsonify({"error": "Error getting cloudfront status of domain, cloudfront data not on this domain"}),400,)
-
-        except requests.exceptions.HTTPError as e:
-            return {"error": str(e)}, 400
+        if domain.get("cloudfront", {}).get("id"):
+            results = cloudfront.get_distribution(Id=domain["cloudfront"]["id"])
+            return jsonify(results["Distribution"])
+        else:
+            return (
+                jsonify(
+                    {
+                        "error": "Error getting cloudfront status of domain, cloudfront data not assigned"
+                    }
+                ),
+                400,
+            )
