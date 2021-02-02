@@ -27,7 +27,8 @@ def handler(event, context):
         payload = json.loads(record["body"])
 
         domain_name = payload["domain"]
-        get_check_proxy_func(payload["proxy"], domain_name)
+        resp = get_check_proxy_func(payload["proxy"])(domain_name)
+        logger.info(resp)
 
         # domain = domain_manager.get(filter_data={"name": domain_name})
 
