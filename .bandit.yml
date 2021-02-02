@@ -14,4 +14,3 @@ skips:
   - B102
   - B310
   - B605
-  - B322 # skip "B322:blacklist" because input is fine in python3
