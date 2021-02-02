@@ -37,6 +37,7 @@ proxy_manager = ProxyManager()
 domain_manager = DomainManager()
 application_manager = ApplicationManager()
 route53 = boto3.client("route53")
+cloudfront = boto3.client("cloudfront")
 
 
 class DomainsView(MethodView):
@@ -341,10 +342,10 @@ class DomainLaunchView(MethodView):
                 data=data,
             )
             name = domain["name"]
-            add_user_action(f"Launch Domain - {data['name']}")
+            add_user_action(f"Launch Domain - {name}")
             return jsonify({"success": f"{name} has been launched"})
         except Exception as e:
-            add_user_action(f"Launch Domain - FAILED {data['name']}")
+            add_user_action(f"Launch Domain - FAILED {domain['name']}")
             logger.exception(e)
             # Switch instance to unavailable to prevent user actions
             domain_manager.update(
@@ -525,7 +526,7 @@ class DomainCategorizeView(MethodView):
         )
 
 
-class DomainCheckView(MethodView):
+class DomainCategoryCheckView(MethodView):
     """DomainCategoryCheckView."""
 
     decorators = [can_access_domain]
@@ -596,3 +597,25 @@ class DomainCheckView(MethodView):
                 "Websense": ws,
             }
         )
+
+
+class DomainDeployedCheckView(MethodView):
+    """DomainCategoryCheckView."""
+
+    decorators = [can_access_domain]
+
+    def get(self, domain_id):
+        """Check the cloudfront deployment status of the domain."""
+        domain = domain_manager.get(document_id=domain_id)
+        if domain.get("cloudfront", {}).get("id"):
+            results = cloudfront.get_distribution(Id=domain["cloudfront"]["id"])
+            return jsonify(results["Distribution"])
+        else:
+            return (
+                jsonify(
+                    {
+                        "error": "Error getting cloudfront status of domain, cloudfront data not assigned"
+                    }
+                ),
+                400,
+            )
