@@ -14,7 +14,7 @@ import (
 
 // HealthCheckHandler returns a simple message if the app is live.
 func HealthCheckHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "GoLang Template Generator is Healthy!")
+	fmt.Fprintf(w, "Live and healthy")
 }
 
 // GenerateHandler generates website files from template files in s3
