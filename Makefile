@@ -1,4 +1,4 @@
-.PHONY: all help build logs loc up stop down shell test
+.PHONY: all help build logs loc up stop down shell test ra refresh categorize check_category
 
 # make all - Default Target. Does nothing.
 all:
@@ -53,7 +53,7 @@ shell:
 
 # target: test - run unit tests
 test:
-	docker exec -it dm-api coverage run -m pytest --disable-warnings
+	docker exec -it dm-api coverage run -m pytest --disable-warnings -s
 	docker exec dm-api coverage report -i
 
 # target: lint - run pre-commit linting
@@ -67,3 +67,11 @@ refresh:
 
 # target: ra - refresh api and attach logs
 ra: refresh	attach
+
+# target: categorize - test run categorize lambda function on a specified domain
+categorize:
+	python -m proxy_harness.categorize
+
+# target: check_category - test run check categories on a specified domain
+check_category:
+	python -m proxy_harness.check_category

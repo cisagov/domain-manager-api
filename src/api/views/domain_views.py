@@ -2,7 +2,7 @@
 # Standard Python Libraries
 from datetime import datetime
 import io
-import os
+import json
 import shutil
 from uuid import uuid4
 
@@ -11,24 +11,15 @@ import boto3
 from flask import current_app, g, jsonify, request, send_file
 from flask.views import MethodView
 import requests
-from selenium import webdriver
 
 # cisagov Libraries
 from api.manager import ApplicationManager, CategoryManager, DomainManager, ProxyManager
 from api.schemas.domain_schema import DomainSchema, Record
-from settings import STATIC_GEN_URL, WEBSITE_BUCKET, logger
+from settings import SQS_CATEGORIZE_URL, STATIC_GEN_URL, WEBSITE_BUCKET, logger
 from utils.aws import record_handler
 from utils.aws.site_handler import delete_site, launch_site
-from utils.categorization import (
-    bluecoat,
-    ciscotalos,
-    fortiguard,
-    ibmxforce,
-    trustedsource,
-    websense,
-)
 from utils.decorators.auth import can_access_domain
-from utils.two_captcha import two_captcha_api_key
+from utils.proxies.proxies import get_categorize_proxies
 from utils.user_profile import add_user_action, get_users_group_ids
 from utils.validator import validate_data
 
@@ -37,6 +28,7 @@ proxy_manager = ProxyManager()
 domain_manager = DomainManager()
 application_manager = ApplicationManager()
 route53 = boto3.client("route53")
+sqs = boto3.client("sqs")
 cloudfront = boto3.client("cloudfront")
 
 
@@ -447,156 +439,26 @@ class DomainCategorizeView(MethodView):
     decorators = [can_access_domain]
 
     def get(self, domain_id):
-        """Manage categorization of active sites."""
-        browserless_endpoint = os.environ.get("BROWSERLESS_ENDPOINT")
-        chrome_options = webdriver.ChromeOptions()
-        chrome_options.add_argument("--no-sandbox")
-        chrome_options.add_argument("--headless")
-        domain = domain_manager.get(document_id=domain_id)
-        domain_name = domain["name"]
+        """Categorize Domain."""
+        domain = domain_manager.get(document_id=domain_id, fields=["name"])
 
-        category = category_manager.get(
-            filter_data={"name": request.args.get("category", "").capitalize()}
-        )
+        if domain.get("is_category_queued"):
+            return "Categorization is already in process."
 
-        if domain.get("is_categorized", None):
-            return {"error": f"{domain_name} has already been categorized."}
-
-        if not category:
-            return {"error": "Category does not exist"}
-
-        is_category_submitted = []
-        # Submit domain to proxy
-        if not current_app.config["TESTING"]:
-            proxies = proxy_manager.all()
-            for proxy in proxies:
-                proxy_name = proxy["name"]
-
-                # Get unique category name for each proxy
-                proxy_category = "".join(
-                    detail.get(proxy_name)
-                    for detail in category.get("proxies")
-                    if proxy_name in detail
+        for proxy in get_categorize_proxies().keys():
+            payload = {
+                "proxy": proxy,
+                "domain": domain["name"],
+                "category": request.args.get("category", ""),
+            }
+            if not current_app.config["TESTING"]:
+                sqs.send_message(
+                    QueueUrl=SQS_CATEGORIZE_URL,
+                    MessageBody=json.dumps(payload),
                 )
 
-                try:
-                    driver = webdriver.Remote(
-                        command_executor=f"http://{browserless_endpoint}/webdriver",
-                        desired_capabilities=chrome_options.to_capabilities(),
-                    )
-                    driver.set_page_load_timeout(60)
-                    exec(
-                        proxy.get("script"),
-                        {
-                            "driver": driver,
-                            "url": proxy.get("url"),
-                            "domain": domain_name,
-                            "api_key": two_captcha_api_key,
-                            "category": proxy_category,
-                        },
-                    )
-                    driver.quit()
-                    is_category_submitted.append(
-                        {
-                            "_id": proxy["_id"],
-                            "name": proxy_name,
-                            "is_categorized": False,
-                        }
-                    )
-                    logger.info(f"Categorized with {proxy_name}")
-                except Exception as e:
-                    driver.quit()
-                    logger.exception(e)
-
-        # Quit WebDriver
-        driver.quit()
-
-        # Update database
-        domain_manager.update(
-            document_id=domain_id,
-            data={"is_category_submitted": is_category_submitted},
-        )
-        add_user_action(
-            f"Categorize domain - domain: {domain['name']} - category: {category}"
-        )
-        return jsonify(
-            {
-                "message": f"{domain_name} has been successfully submitted for categorization"
-            }
-        )
-
-
-class DomainCategoryCheckView(MethodView):
-    """DomainCategoryCheckView."""
-
-    decorators = [can_access_domain]
-
-    def update_submission(self, query, dicts):
-        """Search through existing submissions and check as categorized."""
-        next(
-            item.update({"is_categorized": True})
-            for item in dicts
-            if item["name"] == query
-        )
-        if not any(item["name"] == query for item in dicts):
-            dicts.append({"name": query, "is_categorized": True})
-
-    def get(self, domain_id):
-        """Check category for a domain."""
-        domain = domain_manager.get(document_id=domain_id)
-
-        if not domain.get("is_category_submitted", None):
-            return jsonify(
-                {"error": "website has not yet been submitted for categorization"}
-            )
-
-        domain_name = domain["name"]
-
-        # Trusted source
-        ts = trustedsource.check_category(domain_name)
-        if ts is not None:
-            self.update_submission("Trusted Source", domain["is_category_submitted"])
-
-        # Bluecoat
-        bc = bluecoat.check_category(domain_name)
-        if bc is not None:
-            self.update_submission("Blue Coat", domain["is_category_submitted"])
-
-        # Cisco Talos
-        ct = ciscotalos.check_category(domain_name)
-        if ct is not None:
-            self.update_submission("Cisco Talos", domain["is_category_submitted"])
-
-        # IBM X Force
-        ixf = ibmxforce.check_category(domain_name)
-        if ixf is not None:
-            self.update_submission("IBM X Force", domain["is_category_submitted"])
-
-        # Fortiguard
-        fg = fortiguard.check_category(domain_name)
-        if fg is not None:
-            self.update_submission("Fortiguard", domain["is_category_submitted"])
-
-        # Websense
-        ws = websense.check_category(domain_name)
-        if ws is not None:
-            self.update_submission("Websense", domain["is_category_submitted"])
-
-        # Update database
-        domain_manager.update(
-            document_id=domain_id,
-            data={"is_category_submitted": domain["is_category_submitted"]},
-        )
-        return jsonify(
-            {
-                "Trusted Source": ts,
-                "Bluecoat": bc,
-                "Cisco Talos": ct,
-                "IBM X-Force": ixf,
-                "Fortiguard": fg,
-                "Websense": ws,
-            }
-        )
+        domain_manager.update(document_id=domain_id, data={"is_category_queued": True})
+        return f"{domain['name']} has been queued for categorization"
 
 
 class DomainDeployedCheckView(MethodView):

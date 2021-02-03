@@ -2,6 +2,7 @@ black
 coverage
 Faker
 flake8
+moto
 pre-commit
 pytest
 pytest-cov
