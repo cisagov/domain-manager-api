@@ -66,9 +66,6 @@ func TemplateHandler(w http.ResponseWriter, r *http.Request) {
 		} else if _, err = os.Stat(path + "/home.html"); os.IsNotExist(err) {
 			http.Error(w, "Template incompatible, the required home.html file does not exist", 400)
 			return
-		} else if _, err = os.Stat(path + "/data.json"); os.IsNotExist(err) {
-			http.Error(w, "Template incompatible, the required data.json file does not exist", 400)
-			return
 		}
 
 		// Upload to S3
