@@ -301,6 +301,7 @@ class DomainGenerateView(MethodView):
             )
         except Exception as e:
             logger.exception(e)
+            return jsonify({"error": "Error generating from template."}), 400
             domain_manager.update(
                 document_id=domain_id,
                 data={

@@ -31,43 +31,56 @@ class TemplatesView(MethodView):
     def post(self):
         """Create new template."""
         rvalues = []
-        for f in request.files.getlist("zip"):
-            if not f.filename.endswith(".zip") or " " in f.filename:
-                continue
-            name = f.filename[:-4]
-            try:
-                validate_data({"name": name}, TemplateSchema)
-            except ValidationError:
-                continue
-            url_escaped_name = urllib.parse.quote_plus(name)
-            resp = requests.post(
-                f"{STATIC_GEN_URL}/template/?category={url_escaped_name}",
-                files={"zip": (f"{f.filename}", f)},
-            )
-
-            # remove temp files
-            shutil.rmtree(f"tmp/{url_escaped_name}/", ignore_errors=True)
-
-            try:
-                resp.raise_for_status()
-            except requests.exceptions.HTTPError as e:
-                return jsonify({"error": str(e)}), 400
-
-            s3_url = f"{TEMPLATE_BUCKET}.s3.amazonaws.com/{name}/"
-            try:
-                template_manager.save(
-                    {
-                        "name": name,
-                        "s3_url": s3_url,
-                    }
+        print("TEST")
+        print(STATIC_GEN_URL)
+        print("TEST")
+        print(request.files)
+        print(request.files.getlist("zip"))
+        try:
+            for f in request.files.getlist("zip"):
+                name = f.filename[:-4]
+                if not f.filename.endswith(".zip") or " " in f.filename:
+                    rvalues.append({"name": name, "s3_url": "InvalidName", "status": "InvalidName"})
+                    continue
+                try:
+                    validate_data({"name": name}, TemplateSchema)
+                except ValidationError:
+                    continue
+                url_escaped_name = urllib.parse.quote_plus(name)
+                resp = requests.post(
+                    f"{STATIC_GEN_URL}/template/?category={url_escaped_name}",
+                    files={"zip": (f"{f.filename}", f)},
                 )
-            except Exception as e:
-                logger.exception(e)
-            rvalues.append({"name": name, "s3_url": s3_url})
 
-        add_user_action(f"Create Template - {name}")
-        return jsonify(rvalues, 200)
+                # remove temp files
+                shutil.rmtree(f"tmp/{url_escaped_name}/", ignore_errors=True)
 
+                try:
+                    resp.raise_for_status()
+                except requests.exceptions.HTTPError as e:
+                    rvalues.append({"name": name, "s3_url": "Error", "status": "Error"})
+                    return jsonify({"error": str(e)}), 400
+
+                s3_url = f"{TEMPLATE_BUCKET}.s3.amazonaws.com/{name}/"
+                try:
+                    template_manager.save(
+                        {
+                            "name": name,
+                            "s3_url": s3_url,
+                        }
+                    )
+                    add_user_action(f"Create Template - {name}")
+                except Exception as e:
+                    rvalues.append({"name": name, "s3_url": s3_url, "status": "Unable to upload to s3 bucket"})
+                    logger.exception(e)
+                rvalues.append({"name": name, "s3_url": s3_url, "status": "Uploaded"})
+
+            return jsonify(rvalues, 200)
+        except Exception as e:
+            rvalues.append({"name": name, "s3_url": s3_url, "status": "Unable to upload to s3 bucket"})
+            logger.exception(e)
+            return jsonify({"error": str(e)}), 400
+                
 
 class TemplateView(MethodView):
     """TemplateView."""
