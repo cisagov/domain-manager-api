@@ -3,13 +3,11 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
 	"path/filepath"
 	"staticgen/aws"
-	"strings"
 )
 
 // HealthCheckHandler returns a simple message if the app is live.
@@ -66,23 +64,19 @@ func TemplateHandler(w http.ResponseWriter, r *http.Request) {
 		} else if _, err = os.Stat(path + "/home.html"); os.IsNotExist(err) {
 			http.Error(w, "Template incompatible, the required home.html file does not exist", 400)
 			return
-		} else if _, err = os.Stat(path + "/data.json"); os.IsNotExist(err) {
-			http.Error(w, "Template incompatible, the required data.json file does not exist", 400)
-			return
 		}
 
 		// Upload to S3
 		route.Upload(foldername, aws.TemplateBucket)
 
-		// Generate preview from context data and template
-		data, _ := ioutil.ReadFile(filepath.Join(strings.Join([]string{"tmp", category, foldername}, "/"), "data.json"))
-		context := aws.Context{}
-
-		// Validate context data
-		err = json.Unmarshal([]byte(data), &context)
-		if err != nil {
-			log.Println(err)
-			http.Error(w, "staticgen: json file failed", 400)
+		// Generate preview from preview data and template
+		context := aws.Context{
+			Name:        "{{ .Name }}",
+			Description: "{{ .Description }}",
+			Domain:      "{{ .Domain }}",
+			Phone:       "{{ .Phone }}",
+			Address:     "{{ .Address }}",
+			Email:       "{{ .Email }}",
 		}
 
 		route.Generate(&context, aws.TemplateBucket, foldername)

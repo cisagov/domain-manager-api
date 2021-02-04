@@ -31,6 +31,7 @@ class TemplatesView(MethodView):
     def post(self):
         """Create new template."""
         rvalues = []
+        name = ""
         for f in request.files.getlist("zip"):
             if not f.filename.endswith(".zip") or " " in f.filename:
                 continue
