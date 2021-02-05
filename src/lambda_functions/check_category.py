@@ -26,6 +26,7 @@ def handler(event, context):
     """Handle check category SQS event."""
     for record in event["Records"]:
         payload = json.loads(record["body"])
+        print(f"{payload=}")
 
         domain_name = payload["domain"]
         domain = domain_manager.get(filter_data={"name": domain_name})

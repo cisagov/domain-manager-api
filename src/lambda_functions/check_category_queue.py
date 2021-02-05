@@ -8,7 +8,6 @@ import boto3
 # cisagov Libraries
 from api.manager import DomainManager
 from settings import SQS_CHECK_CATEGORY_URL, logger
-from utils.proxies.proxies import get_check_proxies
 
 sqs = boto3.client("sqs")
 
@@ -26,13 +25,9 @@ def handler(event, context):
             )
             continue
 
+        record = {"domain": domain["name"]}
+        print(f"Queueing {record}")
         sqs.send_message(
             QueueUrl=SQS_CHECK_CATEGORY_URL,
-            MessageBody=json.dumps({"domain": domain["name"]}),
+            MessageBody=json.dumps(record),
         )
-
-        for proxy in get_check_proxies().keys():
-            sqs.send_message(
-                QueueUrl=SQS_CHECK_CATEGORY_URL,
-                MessageBody=json.dumps({"domain": domain["name"], "proxy": proxy}),
-            )
