@@ -268,10 +268,7 @@ class DomainGenerateView(MethodView):
             # remove temp files
             shutil.rmtree("tmp/", ignore_errors=True)
 
-            try:
-                resp.raise_for_status()
-            except requests.exceptions.HTTPError as e:
-                return jsonify({"error": str(e)}), 400
+            resp.raise_for_status()
 
             domain_manager.update(
                 document_id=domain_id,
@@ -300,6 +297,7 @@ class DomainGenerateView(MethodView):
                     "is_generating_template": False,
                 },
             )
+            return jsonify({"error": "Error generating from template."}), 400
 
 
 class DomainLaunchView(MethodView):
