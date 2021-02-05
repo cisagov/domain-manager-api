@@ -38,8 +38,8 @@ class UsersView(MethodView):
                     break
                 if dm_user == dm_users[-1] or len(dm_users) <= 0:
                     # Last dm user reached and aws user not found, add to db
-                    data["Groups"] = []
                     data = validate_data(aws_user, UserSchema)
+                    data["Groups"] = []
                     user_manager.save(data)
 
     def merge_user(self, aws_user, dm_user):
