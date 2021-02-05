@@ -51,8 +51,8 @@ class TemplatesView(MethodView):
 
             try:
                 resp.raise_for_status()
-            except requests.exceptions.HTTPError as e:
-                print(resp.text)
+            except requests.exceptions.HTTPError:
+                logger.error(resp.text)
                 return jsonify({"error": resp.text}), 400
 
             s3_url = f"{TEMPLATE_BUCKET}.s3.amazonaws.com/{name}/"
