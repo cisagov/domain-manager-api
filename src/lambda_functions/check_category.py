@@ -38,6 +38,7 @@ def handler(event, context):
             except Exception as e:
                 logger.exception(e)
 
+        print(f"Updating {domain_name} with {domain['is_category_submitted']}")
         domain_manager.update(
             document_id=domain["_id"],
             data={"is_category_submitted": domain["is_category_submitted"]},

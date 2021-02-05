@@ -25,7 +25,7 @@ class IsCategorySubmitted(Schema):
     _id = fields.Str()
     name = fields.Str()
     is_categorized = fields.Boolean()
-    category = fields.Str()
+    category = fields.Str(allow_none=True)
 
 
 class Profile(Schema):
