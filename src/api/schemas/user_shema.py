@@ -14,12 +14,12 @@ class UserSchema(Schema):
 
         unknown = EXCLUDE
 
-    @post_load
-    def hash_to_boolean(self, data, **kwargs):
-        if "HashedAPI" in data:
-            data["HasAPIKey"] = True
-            del data["HashedAPI"]
-        return data
+    # @post_load
+    # def hash_to_boolean(self, data, **kwargs):
+    #     if "HashedAPI" in data:
+    #         data["HasAPIKey"] = True
+    #         del data["HashedAPI"]
+    #     return data
 
     _id = fields.Str()
     Attributes = fields.List(fields.Dict())
