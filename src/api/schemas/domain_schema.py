@@ -55,6 +55,9 @@ class Record(Schema):
         """Schema for Redirect record."""
 
         value = fields.Str(required=True, validate=is_valid_domain)
+        protocol = fields.Str(
+            missing="https", validate=validate.OneOf(["http", "https"])
+        )
 
     class MAILGUN(Schema):
         """Schema for Mailgun."""
@@ -77,7 +80,11 @@ class Record(Schema):
             "REDIRECT": self.REDIRECT,
             "MAILGUN": self.MAILGUN,
         }
-        validate_data(data["config"], types.get(data["record_type"].upper()))
+        validated_data = validate_data(
+            data["config"], types.get(data["record_type"].upper())
+        )
+        data["config"] = validated_data
+        return data
 
 
 class DomainSchema(Schema):
