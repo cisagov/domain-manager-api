@@ -3,6 +3,7 @@
 from functools import wraps
 import logging
 import os
+import hashlib
 
 # Third-Party Libraries
 import boto3
@@ -10,7 +11,7 @@ import cognitojwt
 from flask import abort, g, request
 
 # cisagov Libraries
-from api.manager import DomainManager
+from api.manager import DomainManager, UserManager
 from settings import (
     AWS_REGION,
     COGNITO_ADMIN_GROUP,
@@ -22,6 +23,7 @@ from settings import (
 from utils.user_profile import user_can_access_domain
 
 domain_manager = DomainManager()
+user_manager = UserManager()
 
 
 class RequestAuth:
@@ -48,7 +50,17 @@ class RequestAuth:
 
     def check_api_key(self, request):
         """Check if API Key is valid."""
-        if os.environ.get("API_KEY") == request.headers.get("api_key"):
+        if "api_key" in request.headers:
+            hash_val = hashlib.sha256(str.encode(request.headers.get("api_key"))).hexdigest()
+            user = user_manager.all(params={"HashedAPI":  hash_val})
+            if not user:
+                return False
+            if len(user) > 1:
+                logger.info(f"Hash Key collision - {hash_val}")
+                return False
+
+            matched_user = user[0]
+            self.username = matched_user["Username"]
             return True
         return False
 

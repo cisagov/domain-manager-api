@@ -1,6 +1,6 @@
 """API Schema."""
 # Third-Party Libraries
-from marshmallow import EXCLUDE, Schema, fields
+from marshmallow import EXCLUDE, Schema, fields, post_load
 
 # cisagov Libraries
 from utils.validator import is_valid_category
@@ -14,6 +14,13 @@ class UserSchema(Schema):
 
         unknown = EXCLUDE
 
+    @post_load
+    def hash_to_boolean(self, data, **kwargs):
+        if "HashedAPI" in data:
+            data["HasAPIKey"] = True
+            del data["HashedAPI"]
+        return data
+
     _id = fields.Str()
     Attributes = fields.List(fields.Dict())
     Enabled = fields.Boolean()
@@ -25,3 +32,5 @@ class UserSchema(Schema):
     Username = fields.Str(validate=is_valid_category)
     Groups = fields.List(fields.Dict())
     History = fields.List(fields.Dict())
+    HashedAPI = fields.Str()
+    HasAPIKey = fields.Boolean()
