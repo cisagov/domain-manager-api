@@ -51,12 +51,8 @@ class RequestAuth:
     def check_api_key(self, request):
         """Check if API Key is valid."""
         if "api_key" in request.headers:
-            print("API KEY IS PRESENT")
-            print(request.headers.get("api_key"))
             hash_val = hashlib.sha256(str.encode(request.headers.get("api_key"))).hexdigest()
-            print(hash_val)
             user = user_manager.all(params={"HashedAPI":  hash_val})
-            print(user)
             if not user:
                 return False
             if len(user) > 1:
@@ -66,9 +62,6 @@ class RequestAuth:
             matched_user = user[0]
             self.username = matched_user["Username"]
             return True
-            
-        # if os.environ.get("API_KEY") == request.headers.get("api_key"):
-        #     return True
         return False
 
     def get_authorization_header(self, request):

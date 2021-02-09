@@ -15,7 +15,7 @@ class UserSchema(Schema):
         unknown = EXCLUDE
 
     @post_load
-    def hashToBoolean(self, data, **kwargs):
+    def hash_to_boolean(self, data, **kwargs):
         if "HashedAPI" in data:
             data["HasAPIKey"] = True
             del data["HashedAPI"]
