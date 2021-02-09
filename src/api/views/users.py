@@ -1,6 +1,5 @@
-
 """Website Views."""
-#python libraries
+# Standard Python Libraries
 import hashlib
 import random
 import string
@@ -143,22 +142,27 @@ class UserGroupsView(MethodView):
             logger.exception(e)
             return jsonify({"error": "Failed to update user groups"}), 400
 
+
 class UserAPIKeyView(MethodView):
-    """Manage a users api key/s"""
+    """Manage a user's api key."""
+
     def get(self, username):
-        """ Get a new api key for hte given user"""
+        """Get a new api key for the user."""
         try:
             api_key_length = 16
             characters = string.ascii_letters + string.digits
-            api_key = ''.join(random.SystemRandom().choice(characters) for i in range(api_key_length))
+            api_key = "".join(
+                random.SystemRandom().choice(characters) for i in range(api_key_length)
+            )
             hash_val = hashlib.sha256(str.encode(api_key)).hexdigest()
             user = user_manager.get(filter_data={"Username": username})
             user["HashedAPI"] = hash_val
             user_manager.update(document_id=user["_id"], data=user)
             return jsonify({"api_key": api_key})
-        except:
+        except Exception as e:
             logger.exception(e)
-            return jsonify({f"error": "Failed to create API key for {username}"}), 400
+            return jsonify({"error": f"Failed to create API key for {username}"}), 400
+
 
 class UserHelpers:
     """Helper Class for user management."""

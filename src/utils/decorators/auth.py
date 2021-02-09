@@ -1,8 +1,6 @@
 """Decorator utils."""
 # Standard Python Libraries
 from functools import wraps
-import logging
-import os
 import hashlib
 
 # Third-Party Libraries
@@ -19,6 +17,7 @@ from settings import (
     COGNITO_DEFAULT_ADMIN,
     COGNTIO_ENABLED,
     COGNTIO_USER_POOL_ID,
+    logger,
 )
 from utils.user_profile import user_can_access_domain
 
@@ -51,8 +50,10 @@ class RequestAuth:
     def check_api_key(self, request):
         """Check if API Key is valid."""
         if "api_key" in request.headers:
-            hash_val = hashlib.sha256(str.encode(request.headers.get("api_key"))).hexdigest()
-            user = user_manager.all(params={"HashedAPI":  hash_val})
+            hash_val = hashlib.sha256(
+                str.encode(request.headers.get("api_key"))
+            ).hexdigest()
+            user = user_manager.all(params={"HashedAPI": hash_val})
             if not user:
                 return False
             if len(user) > 1:
@@ -93,7 +94,7 @@ class RequestAuth:
             self.username = resp["username"]
             return self.username
         except Exception as e:
-            logging.exception(e)
+            logger.exception(e)
             return False
 
     def check_admin_status(self):
