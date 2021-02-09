@@ -29,7 +29,6 @@ class UsersView(MethodView):
         self.merge_user_lists(aws_users, dm_users)
 
         return jsonify(aws_users)
-    
 
     def merge_user_lists(self, aws_users, dm_users):
         """Merge AWS Users from Cognito with Database."""
@@ -75,13 +74,15 @@ class UserView(MethodView):
         return jsonify(response)
 
     def delete(self, username):
-        """delete the user"""
+        """Delete the user."""
         try:
             cognito.admin_delete_user(
                 UserPoolId=COGNTIO_USER_POOL_ID, Username=username
             )
             dm_user = user_manager.get(filter_data={"Username": username})
-            user_manager.update(document_id=dm_user["_id"],data={"UserStatus":"DELETED"})
+            user_manager.update(
+                document_id=dm_user["_id"], data={"UserStatus": "DELETED"}
+            )
             return jsonify({"success": f"{username} was deleted"})
 
         except Exception as e:
@@ -89,28 +90,35 @@ class UserView(MethodView):
             return jsonify({"error": f"Failed to delete user - {username}"}), 400
 
     def put(self, username):
-        """Disable or re-enable the user"""
+        """Disable or re-enable the user."""
         try:
             dm_user = user_manager.get(filter_data={"Username": username})
             if dm_user["Enabled"]:
                 new_status = False
-                response = cognito.admin_disable_user(
+                cognito.admin_disable_user(
                     UserPoolId=COGNTIO_USER_POOL_ID, Username=username
                 )
             else:
                 new_status = True
-                response = cognito.admin_enable_user(
+                cognito.admin_enable_user(
                     UserPoolId=COGNTIO_USER_POOL_ID, Username=username
                 )
 
             dm_user["Enabled"] = new_status
             user_manager.update(document_id=dm_user["_id"], data=dm_user)
-            return jsonify({"success": f"{username} enabled status - {new_status}","status": new_status})
+            return jsonify(
+                {
+                    "success": f"{username} enabled status - {new_status}",
+                    "status": new_status,
+                }
+            )
 
         except Exception as e:
             logger.exception(e)
-            return jsonify({"error": f"Failed to disable/enable user - {username}"}), 400
-        
+            return (
+                jsonify({"error": f"Failed to disable/enable user - {username}"}),
+                400,
+            )
 
 
 class UserConfirmView(MethodView):
