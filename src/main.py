@@ -31,6 +31,7 @@ from api.views.templates import (
 )
 from api.views.users import (
     UserAdminStatusView,
+    UserAPIKeyView,
     UserConfirmView,
     UserGroupsView,
     UsersView,
@@ -73,6 +74,7 @@ admin_rules = [
     ("/user/<username>/confirm", UserConfirmView),
     ("/user/<username>/admin", UserAdminStatusView),
     ("/user/<username>/groups", UserGroupsView),
+    ("/user/<username>/api", UserAPIKeyView),
 ]
 
 for rule in rules:
