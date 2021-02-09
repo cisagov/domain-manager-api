@@ -1,8 +1,7 @@
 """Website Views."""
 # Standard Python Libraries
 import hashlib
-import random
-import string
+import secrets
 
 # Third-Party Libraries
 import boto3
@@ -149,15 +148,10 @@ class UserAPIKeyView(MethodView):
     def get(self, username):
         """Get a new api key for the user."""
         try:
-            api_key_length = 16
-            characters = string.ascii_letters + string.digits
-            api_key = "".join(
-                random.SystemRandom().choice(characters) for i in range(api_key_length)
-            )
+            api_key = secrets.token_urlsafe(40)
             hash_val = hashlib.sha256(str.encode(api_key)).hexdigest()
             user = user_manager.get(filter_data={"Username": username})
-            user["HashedAPI"] = hash_val
-            user_manager.update(document_id=user["_id"], data=user)
+            user_manager.update(document_id=user["_id"], data={"HashedAPI": hash_val})
             return jsonify({"api_key": api_key})
         except Exception as e:
             logger.exception(e)
