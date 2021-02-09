@@ -143,7 +143,7 @@ def modify_redirect_record(action, hosted_zone_id, record):
             WebsiteConfiguration={
                 "RedirectAllRequestsTo": {
                     "HostName": record["config"]["value"],
-                    "Protocol": "https",
+                    "Protocol": record["config"]["protocol"],
                 }
             },
         )
