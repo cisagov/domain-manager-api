@@ -15,7 +15,7 @@ chardet==3.0.4
 click==7.1.2
 cognitojwt==1.2.2
 coverage==5.4
-cryptography==3.3.1
+cryptography==3.3.2
 decorator==4.4.2
 distlib==0.3.1
 dnspython==2.1.0
