@@ -3,12 +3,11 @@
 import json
 
 # cisagov Libraries
-from api.manager import DomainManager, ProxyManager
+from api.manager import DomainManager
 from settings import logger
 from utils.proxies.proxies import get_check_proxies
 
 domain_manager = DomainManager()
-proxy_manager = ProxyManager()
 
 
 def update_submission(query, dicts, response):
