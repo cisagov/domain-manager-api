@@ -6,13 +6,13 @@ import json
 from selenium import webdriver
 
 # cisagov Libraries
-from api.manager import CategoryManager, DomainManager, ProxyManager
+from api.manager import DomainManager, ProxyManager
+from api.views import CATEGORIES
 from settings import BROWSERLESS_ENDPOINT, TWO_CAPTCHA_API_KEY, logger
 from utils.proxies.proxies import get_categorize_proxy_func
 
 domain_manager = DomainManager()
 proxy_manager = ProxyManager()
-category_manager = CategoryManager()
 
 
 def handler(event, context):
@@ -55,7 +55,9 @@ def handler(event, context):
 
 def get_proxy_category(proxy_name, category_name):
     """Get category for proxy."""
-    category = category_manager.get(filter_data={"name": category_name.capitalize()})
+    category = [
+        category for category in CATEGORIES if category["name"] == category_name.title()
+    ][0]
     if not category:
         return None
     return "".join(
