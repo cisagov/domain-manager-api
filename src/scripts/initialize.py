@@ -5,16 +5,14 @@ import os
 
 # Third-Party Libraries
 import boto3
-from bson.binary import Binary
 
 # cisagov Libraries
-from api.manager import ApplicationManager, DomainManager, ProxyManager
+from api.manager import ApplicationManager, DomainManager
 from settings import WEBSITE_BUCKET, WEBSITE_BUCKET_URL, logger
 from utils.aws.s3 import list_top_level_prefixes
 
 application_manager = ApplicationManager()
 domain_manager = DomainManager()
-proxy_manager = ProxyManager()
 
 
 # Initialize AWS Clients
@@ -79,47 +77,7 @@ def load_applications():
         logger.info("Application data has been loaded into the database.")
 
 
-def load_proxy_scripts():
-    """Load categorization proxy scripts."""
-    proxy_json = load_file("data/proxies.json")
-
-    # load scripts
-    trustedsource_script = load_file(
-        "data/proxies/trusted_source.py", data_type="script"
-    )
-    bluecoat_script = load_file("data/proxies/bluecoat.py", data_type="script")
-    fortiguard_script = load_file("data/proxies/fortiguard.py", data_type="script")
-    palo_alto_script = load_file("data/proxies/palo_alto.py", data_type="script")
-    trustedsource_script = load_file(
-        "data/proxies/trusted_source.py", data_type="script"
-    )
-    trendmicro_script = load_file("data/proxies/trendmicro.py", data_type="script")
-
-    proxy_data = []
-    for proxy in proxy_json:
-        name = proxy.get("name")
-        if not proxy_manager.get(filter_data={"name": name}):
-            if name == "Trusted Source":
-                proxy["script"] = Binary(trustedsource_script)
-            elif name == "Blue Coat":
-                proxy["script"] = Binary(bluecoat_script)
-            elif name == "Fortiguard":
-                proxy["script"] = Binary(fortiguard_script)
-            elif name == "Palo Alto Networks":
-                proxy["script"] = Binary(palo_alto_script)
-            elif name == "Trend Micro":
-                proxy["script"] = Binary(trendmicro_script)
-
-            proxy_data.append(proxy)
-
-    # Save latest data to the database
-    if proxy_data != []:
-        proxy_manager.save_many(data=proxy_data)
-        logger.info("Proxy data has been loaded into the database.")
-
-
 if __name__ == "__main__":
     load_domains()
     load_applications()
-    load_proxy_scripts()
     logger.info("Database has been initialized.")

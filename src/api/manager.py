@@ -8,7 +8,6 @@ from bson.objectid import ObjectId
 # cisagov Libraries
 from api.schemas.application_schema import ApplicationSchema
 from api.schemas.domain_schema import DomainSchema
-from api.schemas.proxy_schema import ProxySchema
 from api.schemas.template_schema import TemplateSchema
 from api.schemas.user_shema import UserSchema
 from settings import DB
@@ -174,18 +173,6 @@ class ApplicationManager(Manager):
         return super().__init__(
             collection="applications",
             schema=ApplicationSchema,
-            indexes=["name"],
-        )
-
-
-class ProxyManager(Manager):
-    """ProxyManager."""
-
-    def __init__(self):
-        """Initialize super for proxy."""
-        return super().__init__(
-            collection="proxies",
-            schema=ProxySchema,
             indexes=["name"],
         )
 
