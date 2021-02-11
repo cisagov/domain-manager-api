@@ -4,9 +4,7 @@ from flask import jsonify
 from flask.views import MethodView
 
 # cisagov Libraries
-from api.manager import CategoryManager
-
-category_manager = CategoryManager()
+from api.views import CATEGORIES
 
 
 class CategoriesView(MethodView):
@@ -14,4 +12,4 @@ class CategoriesView(MethodView):
 
     def get(self):
         """Get all categories."""
-        return jsonify(category_manager.all())
+        return jsonify(CATEGORIES)

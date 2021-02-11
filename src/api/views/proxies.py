@@ -1,12 +1,10 @@
 """Proxy views."""
 # Third-Party Libraries
-from flask import jsonify, request
+from flask import jsonify
 from flask.views import MethodView
 
 # cisagov Libraries
-from api.manager import ProxyManager
-
-proxy_manager = ProxyManager()
+from api.views import PROXIES
 
 
 class ProxiesView(MethodView):
@@ -14,24 +12,14 @@ class ProxiesView(MethodView):
 
     def get(self):
         """Get all proxies."""
-        return jsonify(proxy_manager.all())
-
-    def post(self):
-        """Save proxy."""
-        return jsonify(proxy_manager.save(request.json))
+        return jsonify(PROXIES)
 
 
 class ProxyView(MethodView):
     """ProxyView."""
 
-    def get(self, proxy_id):
-        """Get proxy by id."""
-        return jsonify(proxy_manager.get(document_id=proxy_id))
-
-    def put(self, proxy_id):
-        """Update proxy by id."""
-        return jsonify(proxy_manager.update(document_id=proxy_id, data=request.json))
-
-    def delete(self, proxy_id):
-        """Delete proxy by id."""
-        return jsonify(proxy_manager.delete(document_id=proxy_id))
+    def get(self, proxy_name):
+        """Get proxy details by name."""
+        return jsonify(
+            [proxy for proxy in PROXIES if proxy["name"] == proxy_name.title()][0]
+        )

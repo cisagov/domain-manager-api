@@ -6,13 +6,12 @@ import json
 from selenium import webdriver
 
 # cisagov Libraries
-from api.manager import CategoryManager, DomainManager, ProxyManager
+from api.manager import DomainManager
+from api.views import CATEGORIES, PROXIES
 from settings import BROWSERLESS_ENDPOINT, TWO_CAPTCHA_API_KEY, logger
 from utils.proxies.proxies import get_categorize_proxy_func
 
 domain_manager = DomainManager()
-proxy_manager = ProxyManager()
-category_manager = CategoryManager()
 
 
 def handler(event, context):
@@ -25,7 +24,7 @@ def handler(event, context):
             logger.error(f"Domain {payload['domain']} does not exist.")
             continue
 
-        proxy = proxy_manager.get(filter_data={"name": payload["proxy"]})
+        proxy = [proxy for proxy in PROXIES if proxy["name"] == payload["proxy"]][0]
 
         proxy_func = get_categorize_proxy_func(proxy["name"])
         proxy_category = get_proxy_category(proxy["name"], payload["category"])
@@ -39,7 +38,6 @@ def handler(event, context):
                 document_id=domain["_id"],
                 field="is_category_submitted",
                 data={
-                    "_id": proxy["_id"],
                     "name": proxy["name"],
                     "is_categorized": False,
                 },
@@ -55,7 +53,9 @@ def handler(event, context):
 
 def get_proxy_category(proxy_name, category_name):
     """Get category for proxy."""
-    category = category_manager.get(filter_data={"name": category_name.capitalize()})
+    category = [
+        category for category in CATEGORIES if category["name"] == category_name.title()
+    ][0]
     if not category:
         return None
     return "".join(

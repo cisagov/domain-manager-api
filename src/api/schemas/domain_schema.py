@@ -22,7 +22,6 @@ class History(Schema):
 class IsCategorySubmitted(Schema):
     """Submitted Categories Schema."""
 
-    _id = fields.Str()
     name = fields.Str()
     is_categorized = fields.Boolean()
     category = fields.Str(allow_none=True)
