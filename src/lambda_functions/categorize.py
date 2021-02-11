@@ -39,7 +39,6 @@ def handler(event, context):
                 document_id=domain["_id"],
                 field="is_category_submitted",
                 data={
-                    "_id": proxy["_id"],
                     "name": proxy["name"],
                     "is_categorized": False,
                 },
