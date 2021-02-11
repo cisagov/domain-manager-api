@@ -11,7 +11,6 @@ class ProxySchema(Schema):
 
         unknown = EXCLUDE
 
-    _id = fields.Str()
     name = fields.Str()
     url = fields.Str()
     categories = fields.List(fields.Str())

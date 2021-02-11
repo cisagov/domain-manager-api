@@ -51,7 +51,7 @@ rules = [
     ("/generate-email-address/", EmailAddressView),
     ("/categories/", CategoriesView),
     ("/proxies/", ProxiesView),
-    ("/proxy/<proxy_id>/", ProxyView),
+    ("/proxy/<proxy_name>/", ProxyView),
     ("/templates/", TemplatesView),
     ("/template/<template_id>/", TemplateView),
     ("/template/<template_id>/content/", TemplateContentView),

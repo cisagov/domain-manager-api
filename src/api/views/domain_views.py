@@ -13,7 +13,7 @@ from flask.views import MethodView
 import requests
 
 # cisagov Libraries
-from api.manager import ApplicationManager, DomainManager, ProxyManager
+from api.manager import ApplicationManager, DomainManager
 from api.schemas.domain_schema import DomainSchema, Record
 from settings import SQS_CATEGORIZE_URL, STATIC_GEN_URL, WEBSITE_BUCKET, logger
 from utils.aws import record_handler
@@ -23,7 +23,6 @@ from utils.proxies.proxies import get_categorize_proxies
 from utils.user_profile import add_user_action, get_users_group_ids
 from utils.validator import validate_data
 
-proxy_manager = ProxyManager()
 domain_manager = DomainManager()
 application_manager = ApplicationManager()
 route53 = boto3.client("route53")
