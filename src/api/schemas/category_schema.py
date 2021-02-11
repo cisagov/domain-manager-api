@@ -7,10 +7,9 @@ class CategorySchema(Schema):
     """Category Schema."""
 
     class Meta:
-        """Meta atrributes for class."""
+        """Meta attributes for class."""
 
         unknown = EXCLUDE
 
-    _id = fields.Str()
     name = fields.Str()
     proxies = fields.List(fields.Dict())

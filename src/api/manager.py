@@ -7,7 +7,6 @@ from bson.objectid import ObjectId
 
 # cisagov Libraries
 from api.schemas.application_schema import ApplicationSchema
-from api.schemas.category_schema import CategorySchema
 from api.schemas.domain_schema import DomainSchema
 from api.schemas.proxy_schema import ProxySchema
 from api.schemas.template_schema import TemplateSchema
@@ -175,18 +174,6 @@ class ApplicationManager(Manager):
         return super().__init__(
             collection="applications",
             schema=ApplicationSchema,
-            indexes=["name"],
-        )
-
-
-class CategoryManager(Manager):
-    """CategoryManager."""
-
-    def __init__(self):
-        """Initialize super for category."""
-        return super().__init__(
-            collection="categories",
-            schema=CategorySchema,
             indexes=["name"],
         )
 
