@@ -8,14 +8,13 @@ import boto3
 from bson.binary import Binary
 
 # cisagov Libraries
-from api.manager import ApplicationManager, CategoryManager, DomainManager, ProxyManager
+from api.manager import ApplicationManager, DomainManager, ProxyManager
 from settings import WEBSITE_BUCKET, WEBSITE_BUCKET_URL, logger
 from utils.aws.s3 import list_top_level_prefixes
 
 application_manager = ApplicationManager()
 domain_manager = DomainManager()
 proxy_manager = ProxyManager()
-category_manager = CategoryManager()
 
 
 # Initialize AWS Clients
@@ -119,25 +118,8 @@ def load_proxy_scripts():
         logger.info("Proxy data has been loaded into the database.")
 
 
-def load_categories():
-    """Load general categories."""
-    categories_json = load_file("data/categories.json")
-
-    categories_data = []
-    for category in categories_json:
-        name = category.get("name")
-        if not category_manager.get(filter_data={"name": name}):
-            categories_data.append(category)
-
-    # Save latest data to the database
-    if categories_data != []:
-        category_manager.save_many(data=categories_data)
-        logger.info("Category data has been loaded into the database.")
-
-
 if __name__ == "__main__":
     load_domains()
     load_applications()
     load_proxy_scripts()
-    load_categories()
     logger.info("Database has been initialized.")
