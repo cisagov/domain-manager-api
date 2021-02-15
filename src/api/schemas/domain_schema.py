@@ -1,6 +1,6 @@
 """API Schema."""
 # Third-Party Libraries
-from marshmallow import EXCLUDE, Schema, fields, validate, validates_schema
+from marshmallow import EXCLUDE, Schema, fields, pre_load, validate, validates_schema
 
 # cisagov Libraries
 from api.schemas import application_schema
@@ -61,6 +61,7 @@ class Record(Schema):
     class MAILGUN(Schema):
         """Schema for Mailgun."""
 
+        key = fields.Str(required=True)
         value = fields.Str(required=True)
 
     record_id = fields.Str()
@@ -116,3 +117,10 @@ class DomainSchema(Schema):
     acm = fields.Dict()
     route53 = fields.Dict()
     records = fields.List(fields.Nested(Record))
+
+    @pre_load
+    def clean_data(self, in_data, **kwargs):
+        """Clean domain data before loading to database."""
+        if in_data.get("name"):
+            in_data["name"] = in_data["name"].lower().strip()
+        return in_data
