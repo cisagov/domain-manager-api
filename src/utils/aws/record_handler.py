@@ -92,7 +92,7 @@ def modify_mailgun_record(action, hosted_zone_id, record):
                 {
                     "Action": action,
                     "ResourceRecordSet": {
-                        "Name": f"mx._domainkey.{record['name']}",
+                        "Name": f"{record['key']}.{record['name']}",
                         "Type": "TXT",
                         "TTL": 30,
                         "ResourceRecords": [
