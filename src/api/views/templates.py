@@ -5,7 +5,7 @@ import shutil
 import urllib
 
 # Third-Party Libraries
-from flask import jsonify, request, send_file
+from flask import g, jsonify, request, send_file
 from flask.views import MethodView
 from marshmallow import ValidationError
 import requests
@@ -82,6 +82,9 @@ class TemplateView(MethodView):
 
     def delete(self, template_id):
         """Delete template."""
+        if not g.is_admin:
+            return jsonify({"error": "Only admins may delete templates."}), 400
+
         template = template_manager.get(document_id=template_id)
 
         template_name = template["name"]
