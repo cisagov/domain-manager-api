@@ -119,6 +119,7 @@ class DomainSchema(Schema):
 
     @pre_load
     def clean_data(self, in_data, **kwargs):
+        """Clean domain data before loading to database."""
         if in_data.get("name"):
             in_data["name"] = in_data["name"].lower().strip()
         return in_data
