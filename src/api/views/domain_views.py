@@ -3,6 +3,7 @@
 from datetime import datetime
 import io
 import json
+from multiprocessing import Process
 import shutil
 from uuid import uuid4
 
@@ -17,7 +18,7 @@ from api.manager import ApplicationManager, DomainManager
 from api.schemas.domain_schema import DomainSchema, Record
 from settings import SQS_CATEGORIZE_URL, STATIC_GEN_URL, WEBSITE_BUCKET, logger
 from utils.aws import record_handler
-from utils.aws.site_handler import delete_site, launch_site
+from utils.aws.site_handler import launch_domain, unlaunch_domain
 from utils.decorators.auth import can_access_domain
 from utils.proxies.proxies import get_categorize_proxies
 from utils.user_profile import add_user_action, get_users_group_ids
@@ -307,84 +308,27 @@ class DomainLaunchView(MethodView):
         """Launch a static site."""
         domain = domain_manager.get(document_id=domain_id)
 
-        # Switch instance to unavailable to prevent user actions
-        domain_manager.update(
-            document_id=domain_id,
-            data={
-                "is_available": False,
-                "is_launching": True,
-            },
-        )
-        try:
-            # Create distribution, certificates, and dns records
-            metadata = launch_site(domain)
+        if not domain["is_available"]:
+            return "Domain is not available for launching at the moment.", 400
 
-            data = {
-                "is_active": True,
-                "is_available": True,
-                "is_launching": False,
-            }
-            data.update(metadata)
-            domain_manager.update(
-                document_id=domain_id,
-                data=data,
-            )
-            name = domain["name"]
-            add_user_action(f"Launch Domain - {name}")
-            return jsonify({"success": f"{name} has been launched"})
-        except Exception as e:
-            add_user_action(f"Launch Domain - FAILED {domain['name']}")
-            logger.exception(e)
-            # Switch instance to unavailable to prevent user actions
-            domain_manager.update(
-                document_id=domain_id,
-                data={
-                    "is_available": True,
-                    "is_launching": False,
-                },
-            )
+        add_user_action(f"Launch Domain - {domain['name']}")
+
+        task = Process(target=launch_domain, args=(domain,))
+        task.start()
+        return jsonify({"success": "Site is launching in the background."})
 
     def delete(self, domain_id):
         """Stop a static site."""
         domain = domain_manager.get(document_id=domain_id)
 
-        # Switch instance to unavailable to prevent user actions
-        domain_manager.update(
-            document_id=domain_id,
-            data={
-                "is_available": False,
-                "is_delaunching": True,
-            },
-        )
-        try:
-            # Delete distribution, certificates, and dns records
-            resp = delete_site(domain)
+        if not domain["is_available"]:
+            return "Domain is not available for unlaunching at the moment.", 400
 
-            domain_manager.update(
-                document_id=domain_id,
-                data={
-                    "is_active": False,
-                    "is_available": True,
-                    "is_delaunching": False,
-                },
-            )
+        add_user_action(f"Unlaunch Domain - {domain['name']}")
 
-            domain_manager.remove(
-                document_id=domain_id,
-                data={"acm": "", "cloudfront": ""},
-            )
-            add_user_action(f"Take down a Domain site - {domain['name']}")
-            return jsonify(resp)
-        except Exception as e:
-            logger.exception(e)
-            # Switch instance to unavailable to prevent user actions
-            domain_manager.update(
-                document_id=domain_id,
-                data={
-                    "is_available": True,
-                    "is_delaunching": False,
-                },
-            )
+        task = Process(target=unlaunch_domain, args=(domain,))
+        task.start()
+        return jsonify({"success": "Site is unlaunching in the background."})
 
 
 class DomainRecordView(MethodView):
