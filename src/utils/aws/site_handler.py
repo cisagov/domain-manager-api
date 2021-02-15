@@ -8,12 +8,84 @@ import boto3
 import dns.resolver
 
 # cisagov Libraries
+from api.manager import DomainManager
 from settings import WEBSITE_BUCKET_URL, logger
+
+domain_manager = DomainManager()
 
 # Initialize aws clients
 acm = boto3.client("acm")
 cloudfront = boto3.client("cloudfront")
 route53 = boto3.client("route53")
+
+
+def launch_domain(domain):
+    """Launch Domain."""
+    try:
+        domain_manager.update(
+            document_id=domain["_id"],
+            data={
+                "is_available": False,
+                "is_launching": True,
+            },
+        )
+
+        resp = launch_site(domain)
+
+        data = {
+            "is_active": True,
+            "is_available": True,
+            "is_launching": False,
+        }
+        data.update(resp)
+        domain_manager.update(
+            document_id=domain["_id"],
+            data=data,
+        )
+    except Exception as e:
+        logger.exception(e)
+        domain_manager.update(
+            document_id=domain["_id"],
+            data={
+                "is_available": True,
+                "is_launching": False,
+            },
+        )
+
+
+def unlaunch_domain(domain):
+    """Unlaunch domain."""
+    try:
+        domain_manager.update(
+            document_id=domain["_id"],
+            data={
+                "is_available": False,
+                "is_delaunching": True,
+            },
+        )
+        delete_site(domain)
+        domain_manager.update(
+            document_id=domain["_id"],
+            data={
+                "is_active": False,
+                "is_available": True,
+                "is_delaunching": False,
+            },
+        )
+
+        domain_manager.remove(
+            document_id=domain["_id"],
+            data={"acm": "", "cloudfront": ""},
+        )
+    except Exception as e:
+        logger.exception(e)
+        domain_manager.update(
+            document_id=domain["_id"],
+            data={
+                "is_available": True,
+                "is_delaunching": False,
+            },
+        )
 
 
 def launch_site(domain):
