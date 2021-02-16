@@ -1,8 +1,4 @@
 """Fortiguard Categorization."""
-# Standard Python Libraries
-import re
-import urllib
-
 # Third-Party Libraries
 from selenium.webdriver.common.by import By
 
@@ -43,21 +39,8 @@ def categorize(driver, domain, category, two_captcha_api_key):
     driver.find_element(By.ID, "web_filter_rating_info_form_submit").click()
 
 
-def check_category(domain):
+def check_category(driver, domain):
     """Check domain category on Fortiguard."""
-    request = urllib.request.Request("https://fortiguard.com/webfilter?q=" + domain)
-    request.add_header(
-        "User-Agent", "Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 6.1)"
-    )
-    request.add_header("Origin", "https://fortiguard.com")
-    request.add_header("Referer", "https://fortiguard.com/webfilter")
-    response = urllib.request.urlopen(request)
-    try:
-        resp = response.read().decode("utf-8")
-        cat = re.findall('Category: (.*?)" />', resp, re.DOTALL)
-        print("\033[1;32m[!] Site categorized as: " + cat[0] + "\033[0;0m")
-        return cat[0]
-    except Exception as e:
-        print("An error occurred")
-        print(e)
-        return None
+    driver.get(f"https://www.fortiguard.com/webfilter?q={domain}&version=8")
+    category = driver.find_element_by_xpath("//h4[@class='info_title']")
+    return category.text.replace("Category: ", "")
