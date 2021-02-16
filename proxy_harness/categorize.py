@@ -5,7 +5,7 @@ import time
 
 # Third-Party Libraries
 from dotenv import load_dotenv
-from selenium import webdriver
+import undetected_chromedriver as webdriver
 
 # cisagov Libraries
 from utils.proxies.proxies import get_categorize_proxies
