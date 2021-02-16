@@ -9,13 +9,14 @@ from flask import jsonify, request
 from flask.views import MethodView
 
 # cisagov Libraries
-from api.manager import UserManager
+from api.manager import LogManager, UserManager
 from api.schemas.user_shema import UserSchema
 from settings import COGNITO_ADMIN_GROUP, COGNTIO_USER_POOL_ID, logger
 from utils.validator import validate_data
 
 cognito = boto3.client("cognito-idp")
 user_manager = UserManager()
+log_manager = LogManager()
 
 
 class UsersView(MethodView):
@@ -71,6 +72,8 @@ class UserView(MethodView):
         if groups["Groups"]:
             for item in groups["Groups"]:
                 response["Groups"].append(item)
+
+        response["History"] = log_manager.all(params={"username": dm_user["Username"]})
         return jsonify(response)
 
     def delete(self, username):

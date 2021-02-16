@@ -1,29 +1,13 @@
-"""User history tracking utils."""
-# Standard Python Libraries
-from datetime import datetime
-
+"""User utils."""
 # Third-Party Libraries
 from flask import g
 
 # cisagov Libraries
-from api.manager import UserManager
+from api.manager import LogManager, UserManager
 from settings import logger
 
 user_manager = UserManager()
-
-
-def add_user_action(action):
-    """Add an action to a users history for record keeping."""
-    try:
-        user = user_manager.get(filter_data={"Username": g.username})
-        if "History" not in user:
-            user["History"] = []
-        user["History"].append({"Action": action, "Time": datetime.utcnow()})
-        user_manager.update(document_id=user["_id"], data=user)
-        return True
-    except Exception as e:
-        logger.exception(e)
-        return False
+log_manager = LogManager()
 
 
 def get_user_groups():

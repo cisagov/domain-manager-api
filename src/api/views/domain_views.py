@@ -21,7 +21,7 @@ from utils.aws import record_handler
 from utils.aws.site_handler import launch_domain, unlaunch_domain
 from utils.decorators.auth import can_access_domain
 from utils.proxies.proxies import get_categorize_proxies
-from utils.user_profile import add_user_action, get_users_group_ids
+from utils.user_profile import get_users_group_ids
 from utils.validator import validate_data
 
 domain_manager = DomainManager()
@@ -36,8 +36,6 @@ class DomainsView(MethodView):
 
     def get(self):
         """Get all domains."""
-        add_user_action("Get Domains")
-
         if g.is_admin:
             response = domain_manager.all(params=request.args)
         else:
@@ -74,7 +72,6 @@ class DomainsView(MethodView):
                 "route53": {"id": resp["HostedZone"]["Id"]},
             }
         )
-        add_user_action(f"Created New Domain - {data['name']}")
         return jsonify(resp["DelegationSet"]["NameServers"])
 
 
@@ -86,7 +83,6 @@ class DomainView(MethodView):
     def get(self, domain_id):
         """Get Domain details."""
         domain = domain_manager.get(document_id=domain_id)
-        add_user_action(f"View Domain - {domain['name']}")
         if "application_id" in domain:
             application = application_manager.get(document_id=domain["application_id"])
             domain["application_name"] = application["name"]
@@ -111,7 +107,6 @@ class DomainView(MethodView):
                 }
             )
 
-        add_user_action(f"Update Domain - {domain['name']}")
         return jsonify(domain_manager.update(document_id=domain_id, data=data))
 
     def delete(self, domain_id):
@@ -131,7 +126,6 @@ class DomainView(MethodView):
             )
 
         route53.delete_hosted_zone(Id=domain["route53"]["id"])
-        add_user_action(f"Delete Domain - {domain['name']}")
         return jsonify(domain_manager.delete(domain["_id"]))
 
 
@@ -156,8 +150,6 @@ class DomainContentView(MethodView):
         buffer = io.BytesIO()
         buffer.write(resp.content)
         buffer.seek(0)
-
-        add_user_action(f"Download Domain - {domain['name']}")
 
         return send_file(
             buffer,
@@ -198,8 +190,6 @@ class DomainContentView(MethodView):
         # Remove temp files
         shutil.rmtree(f"tmp/{category}/", ignore_errors=True)
 
-        add_user_action(f"Upload Domain - {domain['name']}")
-
         return (
             jsonify(
                 domain_manager.update(
@@ -228,7 +218,6 @@ class DomainContentView(MethodView):
         except requests.exceptions.HTTPError as e:
             return {"error": str(e)}, 400
 
-        add_user_action(f"Delete Domain Content - {domain['name']}")
         return jsonify(
             domain_manager.remove(
                 document_id=domain_id, data={"category": "", "s3_url": ""}
@@ -278,10 +267,6 @@ class DomainGenerateView(MethodView):
                     "is_generating_template": False,
                 },
             )
-
-            add_user_action(
-                f"Generate domain content from template - Template: {category} - Website {domain['name']}"
-            )
             return jsonify(
                 {
                     "message": f"{domain_name} static site has been created from the {category} template."
@@ -311,8 +296,6 @@ class DomainLaunchView(MethodView):
         if not domain["is_available"]:
             return "Domain is not available for launching at the moment.", 400
 
-        add_user_action(f"Launch Domain - {domain['name']}")
-
         task = Process(target=launch_domain, args=(domain,))
         task.start()
         return jsonify({"success": "Site is launching in the background."})
@@ -323,8 +306,6 @@ class DomainLaunchView(MethodView):
 
         if not domain["is_available"]:
             return "Domain is not available for unlaunching at the moment.", 400
-
-        add_user_action(f"Unlaunch Domain - {domain['name']}")
 
         task = Process(target=unlaunch_domain, args=(domain,))
         task.start()

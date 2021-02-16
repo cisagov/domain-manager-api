@@ -24,6 +24,5 @@ class UserSchema(Schema):
     UserStatus = fields.Str()
     Username = fields.Str(validate=is_valid_category)
     Groups = fields.List(fields.Dict())
-    History = fields.List(fields.Dict())
     HashedAPI = fields.Str()
     HasAPIKey = fields.Boolean()
