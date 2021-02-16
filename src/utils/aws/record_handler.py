@@ -12,28 +12,28 @@ route53 = boto3.client("route53")
 s3 = boto3.client("s3")
 
 
-def add_record(hosted_zone_id, record):
+def manage_record(action, hosted_zone_id, record):
     """Create record."""
-    return {
-        "A": modify_a_record,
-        "CNAME": modify_cname_record,
-        "MAILGUN": modify_mailgun_record,
-        "REDIRECT": modify_redirect_record,
-    }[record["record_type"]]("CREATE", hosted_zone_id, record)
+    if record["record_type"] == "MAILGUN":
+        return modify_mailgun_record(action, hosted_zone_id, record)
+    elif record["record_type"] == "REDIRECT":
+        return modify_redirect_record(action, hosted_zone_id, record)
+    else:
+        return modify_record(
+            action,
+            hosted_zone_id,
+            record["name"],
+            record["record_type"],
+            record["config"]["value"],
+        )
 
 
-def delete_record(hosted_zone_id, record):
-    """Delete record."""
-    return {
-        "A": modify_a_record,
-        "CNAME": modify_cname_record,
-        "MAILGUN": modify_mailgun_record,
-        "REDIRECT": modify_redirect_record,
-    }[record["record_type"]]("DELETE", hosted_zone_id, record)
+def modify_record(action, hosted_zone_id, record_name, record_type, record_value):
+    """Modify a simple record in route53."""
+    records = []
+    for value in record_value.splitlines():
+        records.append({"Value": value})
 
-
-def modify_cname_record(action, hosted_zone_id, record):
-    """Modify CNAME record."""
     return route53.change_resource_record_sets(
         HostedZoneId=hosted_zone_id,
         ChangeBatch={
@@ -41,30 +41,10 @@ def modify_cname_record(action, hosted_zone_id, record):
                 {
                     "Action": action,
                     "ResourceRecordSet": {
-                        "Name": record["name"],
-                        "Type": "CNAME",
+                        "Name": record_name,
+                        "Type": record_type,
                         "TTL": 30,
-                        "ResourceRecords": [{"Value": record["config"]["value"]}],
-                    },
-                }
-            ]
-        },
-    )
-
-
-def modify_a_record(action, hosted_zone_id, record):
-    """Modify A record."""
-    return route53.change_resource_record_sets(
-        HostedZoneId=hosted_zone_id,
-        ChangeBatch={
-            "Changes": [
-                {
-                    "Action": action,
-                    "ResourceRecordSet": {
-                        "Name": record["name"],
-                        "Type": "A",
-                        "TTL": 30,
-                        "ResourceRecords": [{"Value": record["config"]["value"]}],
+                        "ResourceRecords": records,
                     },
                 }
             ]

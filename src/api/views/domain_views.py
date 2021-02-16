@@ -349,7 +349,7 @@ class DomainRecordView(MethodView):
         data = validate_data(request.json, Record)
         data["record_id"] = str(uuid4())
         domain = domain_manager.get(document_id=domain_id)
-        record_handler.add_record(domain["route53"]["id"], data)
+        record_handler.manage_record("CREATE", domain["route53"]["id"], data)
         resp = domain_manager.add_to_list(
             document_id=domain_id, field="records", data=data
         )
@@ -366,7 +366,7 @@ class DomainRecordView(MethodView):
         )
         if not record:
             return jsonify({"error": "No record with matching id found."}), 400
-        record_handler.delete_record(domain["route53"]["id"], record)
+        record_handler.manage_record("DELETE", domain["route53"]["id"], record)
         resp = domain_manager.delete_from_list(
             document_id=domain_id, field="records", data={"record_id": record_id}
         )
