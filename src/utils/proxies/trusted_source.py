@@ -24,8 +24,9 @@ def categorize(driver, domain, category, two_captcha_api_key):
     driver.find_element(By.CSS_SELECTOR, "h2").text
 
 
-def check_category(domain):
+def check_category(driver, domain):
     """Check domain category on McAfee trusted source."""
+    print("Checking McAfee Trusted Source proxy")
     session = requests.Session()
     headers = {
         "User-Agent": "Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 6.1)",
@@ -40,7 +41,6 @@ def check_category(domain):
     e = form.find("input", {"name": "e"}).get("value")
     c = form.find("input", {"name": "c"}).get("value")
 
-    print("[*] Checking category for " + domain)
     headers["Referer"] = base_check
     session.headers.update(headers)
     payload = {
@@ -59,12 +59,4 @@ def check_category(domain):
     form = bs.find("form", {"class": "contactForm"})
     results_table = bs.find("table", {"class": "result-table"})
     td = results_table.find_all("td")
-    if td[len(td) - 2].text == "":
-        print(
-            "\033[1;32m[!] Site categorized as: " + td[len(td) - 3].text + "\033[0;0m"
-        )
-    else:
-        print(
-            "\033[1;32m[!] Site categorized as: " + td[len(td) - 2].text + "\033[0;0m"
-        )
     return td[len(td) - 2].text

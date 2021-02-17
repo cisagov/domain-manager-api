@@ -32,7 +32,7 @@ def check(domain_name):
             )
         try:
             resp = v(driver, domain_name)
-            print(f"{k} responsed with {resp}")
+            print(f"{k} responded with {resp}")
             time.sleep(3)
         except Exception as e:
             print(str(e))
