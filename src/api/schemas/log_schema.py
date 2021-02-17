@@ -12,7 +12,7 @@ class LogSchema(Schema):
         unkown = EXCLUDE
 
     _id = fields.Str()
-    username = fields.Str(required=True)
+    username = fields.Str(required=True, allow_none=True)
     is_admin = fields.Bool()
     status_code = fields.Number(required=True)
     path = fields.Str(required=True)
