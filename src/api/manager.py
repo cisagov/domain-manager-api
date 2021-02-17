@@ -8,6 +8,7 @@ from bson.objectid import ObjectId
 # cisagov Libraries
 from api.schemas.application_schema import ApplicationSchema
 from api.schemas.domain_schema import DomainSchema
+from api.schemas.log_schema import LogSchema
 from api.schemas.template_schema import TemplateSchema
 from api.schemas.user_shema import UserSchema
 from settings import DB
@@ -16,11 +17,12 @@ from settings import DB
 class Manager:
     """Manager."""
 
-    def __init__(self, collection, schema, indexes):
+    def __init__(self, collection, schema, unique_indexes=[], other_indexes=[]):
         """Initialize Manager."""
         self.collection = collection
         self.schema = schema
-        self.indexes = indexes
+        self.unique_indexes = unique_indexes
+        self.other_indexes = other_indexes
         self.db = getattr(DB, collection)
         return
 
@@ -53,8 +55,10 @@ class Manager:
 
     def create_indexes(self):
         """Create indexes for collection."""
-        for index in self.indexes:
+        for index in self.unique_indexes:
             self.db.create_index(index, unique=True)
+        for index in self.other_indexes:
+            self.db.create_index(index, unique=False)
 
     def add_created(self, data):
         """Add created attribute to data on save."""
@@ -175,7 +179,7 @@ class ApplicationManager(Manager):
         return super().__init__(
             collection="applications",
             schema=ApplicationSchema,
-            indexes=["name"],
+            unique_indexes=["name"],
         )
 
 
@@ -187,7 +191,7 @@ class TemplateManager(Manager):
         return super().__init__(
             collection="templates",
             schema=TemplateSchema,
-            indexes=["name"],
+            unique_indexes=["name"],
         )
 
 
@@ -199,7 +203,7 @@ class UserManager(Manager):
         return super().__init__(
             collection="users",
             schema=UserSchema,
-            indexes=["Username"],
+            unique_indexes=["Username"],
         )
 
 
@@ -211,5 +215,17 @@ class DomainManager(Manager):
         return super().__init__(
             collection="domains",
             schema=DomainSchema,
-            indexes=["name"],
+            unique_indexes=["name"],
+        )
+
+
+class LogManager(Manager):
+    """LogManager."""
+
+    def __init__(self):
+        """Initialize super for logs."""
+        return super().__init__(
+            collection="logs",
+            schema=LogSchema,
+            other_indexes=["username"],
         )

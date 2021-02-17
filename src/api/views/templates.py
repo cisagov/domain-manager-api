@@ -14,7 +14,6 @@ import requests
 from api.manager import TemplateManager
 from api.schemas.template_schema import TemplateSchema
 from settings import STATIC_GEN_URL, TEMPLATE_BUCKET, logger
-from utils.user_profile import add_user_action
 from utils.validator import validate_data
 
 template_manager = TemplateManager()
@@ -25,7 +24,6 @@ class TemplatesView(MethodView):
 
     def get(self):
         """Get all templates."""
-        add_user_action("View Templates")
         return jsonify(template_manager.all())
 
     def post(self):
@@ -67,7 +65,6 @@ class TemplatesView(MethodView):
                 logger.exception(e)
             rvalues.append({"name": name, "s3_url": s3_url})
 
-        add_user_action(f"Create Template - {name}")
         return jsonify(rvalues, 200)
 
 
@@ -77,7 +74,6 @@ class TemplateView(MethodView):
     def get(self, template_id):
         """Get template details."""
         template = template_manager.get(document_id=template_id)
-        add_user_action(f"View Template - {template['name']}")
         return jsonify(template)
 
     def delete(self, template_id):
@@ -95,7 +91,6 @@ class TemplateView(MethodView):
         except requests.exceptions.HTTPError as e:
             return jsonify({"error": str(e)})
 
-        add_user_action(f"Delete Template - {template['name']}")
         return jsonify(template_manager.delete(document_id=template_id))
 
 
@@ -117,7 +112,6 @@ class TemplateContentView(MethodView):
         buffer.write(resp.content)
         buffer.seek(0)
 
-        add_user_action(f"Download Template - {template['name']}")
         return send_file(
             buffer,
             as_attachment=True,
