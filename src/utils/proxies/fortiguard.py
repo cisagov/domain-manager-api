@@ -41,6 +41,7 @@ def categorize(driver, domain, category, two_captcha_api_key):
 
 def check_category(driver, domain):
     """Check domain category on Fortiguard."""
+    print("Checking Fortiguard proxy")
     driver.get(f"https://www.fortiguard.com/webfilter?q={domain}&version=8")
     category = driver.find_element_by_xpath("//h4[@class='info_title']")
     return category.text.replace("Category: ", "")

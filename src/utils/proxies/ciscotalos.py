@@ -4,7 +4,7 @@ import json
 import urllib
 
 
-def check_category(domain):
+def check_category(driver, domain):
     """Check domain category on Cisco Talos."""
     request = urllib.request.Request(
         "https://talosintelligence.com/sb_api/query_lookup?query=%2Fapi%2Fv2%2Fdetails%2Fdomain%2F&query_entry="
