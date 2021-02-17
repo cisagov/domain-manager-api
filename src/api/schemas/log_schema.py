@@ -18,6 +18,6 @@ class LogSchema(Schema):
     path = fields.Str(required=True)
     method = fields.Str(required=True)
     args = fields.Dict()
-    json = fields.Dict()
+    json = fields.Dict(allow_none=True)
     created = fields.DateTime()
     error = fields.Str()
