@@ -93,6 +93,11 @@ class DomainView(MethodView):
         data = validate_data(request.json, DomainSchema)
         domain = domain_manager.get(document_id=domain_id)
 
+        if not g.is_admin:
+            data.pop("application", None)
+            data.pop("application_id", None)
+            data.pop("history", None)
+
         if data.get("application"):
             application = application_manager.get(
                 filter_data={"name": data["application"]}
