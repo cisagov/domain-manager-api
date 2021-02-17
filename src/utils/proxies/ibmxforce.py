@@ -7,7 +7,7 @@ import requests
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
 
 
-def check_category(domain):
+def check_category(driver, domain):
     """Check domain category on IBM X-Force."""
     print("[*] IBM xForce Check: {}".format(domain))
     s = requests.Session()

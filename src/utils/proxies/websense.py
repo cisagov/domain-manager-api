@@ -1,7 +1,12 @@
 """Websense categorization check."""
 # Standard Python Libraries
 import re
+import time
 import urllib
+
+# Third-Party Libraries
+from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
 
 
 def req_check():
@@ -16,28 +21,20 @@ def req_check():
     return num_remaining
 
 
-def check_category(domain):
+def check_category(driver, domain):
     """Check domain category on Websense."""
-    num_remaining = req_check()
-    print("[-] You have " + num_remaining + " requests left for the day.")
+    print("Checking Websense proxy")
+    num_remaining = "1"
+    print("Forcepoint: You have " + num_remaining + " requests left for the day.")
     if int(num_remaining) > 0:
-        print("[*] Checking category for " + domain)
-        request = urllib.request.Request("http://csi.websense.com")
-        data = urllib.parse.urlencode({"LookupUrl": domain})
-        data = data.encode("utf-8")
-        request.add_header(
-            "User-Agent", "Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 6.1)"
-        )
-        response = urllib.request.urlopen(request, data=data)
-        try:
-            resp = response.read().decode("utf-8")
-            location = re.findall('<td class="classAction">(.*?)</td>', resp, re.DOTALL)
-            cat = location[2]
-            print("\033[1;32m[!] Site categorized as: " + cat + "\033[0;0m")
-            return cat
-        except Exception as e:
-            print("An error occurred")
-            print(e)
-            return None
+        driver.get("http://csi.websense.com/")
+        driver.set_window_size(1765, 1040)
+        driver.find_element(By.ID, "LookupUrl").click()
+        driver.find_element(By.ID, "LookupUrl").send_keys(f"http://{domain}")
+        driver.find_element(By.ID, "LookupUrl").send_keys(Keys.ENTER)
+        time.sleep(2)
+        category = driver.find_element_by_xpath("//td[@class='classAction']")
+
+        return category.text
     else:
-        print("No requests remaining for this IP.")
+        return "No requests remaining for this IP."

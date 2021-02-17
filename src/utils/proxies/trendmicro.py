@@ -41,3 +41,17 @@ def categorize(driver, domain, category, two_captcha_api_key):
     )
     driver.find_element(By.NAME, "send").click()
     driver.find_element(By.LINK_TEXT, "Check a URL").click()
+
+
+def check_category(driver, domain):
+    """Check domain category on Trend Micro."""
+    print("Checking Trend Micro proxy")
+    driver.get("https://global.sitesafety.trendmicro.com/")
+    driver.set_window_size(2576, 1416)
+    driver.find_element(By.ID, "urlname").click()
+    driver.find_element(By.ID, "urlname").send_keys(f"http://{domain}")
+    driver.find_element(By.ID, "getinfo").click()
+    time.sleep(1)
+    category = driver.find_element_by_xpath("//div[@class='labeltitlesmallresult']")
+
+    return category.text
