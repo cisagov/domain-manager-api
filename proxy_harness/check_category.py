@@ -8,7 +8,7 @@ from selenium import webdriver
 import undetected_chromedriver as uc
 
 # cisagov Libraries
-from utils.proxies.proxies import get_check_proxies
+from utils.proxies.proxies import get_check_api_proxies, get_check_proxies
 
 # Load environment variables from .env file
 script_dir = os.path.dirname(os.path.realpath(__file__))
@@ -16,7 +16,12 @@ script_dir = os.path.dirname(os.path.realpath(__file__))
 
 def check(domain_name):
     """Categorize site with all proxies in proxies folder."""
-    # Submit domain to proxy
+    # Submit domain to proxies via apis
+    for k, v in get_check_api_proxies().items():
+        resp = v(domain_name)
+        print(f"{k} responded with {resp}")
+
+    # Submit domain to proxies via selenium
     for k, v in get_check_proxies().items():
         options = webdriver.ChromeOptions()
         options.add_argument("start-maximized")

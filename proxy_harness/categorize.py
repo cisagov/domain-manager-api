@@ -4,7 +4,6 @@ import os
 import time
 
 # Third-Party Libraries
-from dotenv import load_dotenv
 import undetected_chromedriver as webdriver
 
 # cisagov Libraries
@@ -12,7 +11,6 @@ from utils.proxies.proxies import get_categorize_proxies
 
 # Load environment variables from .env file
 script_dir = os.path.dirname(os.path.realpath(__file__))
-load_dotenv(dotenv_path=f"{script_dir}/../.env")
 api_key = os.getenv("TWO_CAPTCHA")
 
 

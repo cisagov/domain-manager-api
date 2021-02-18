@@ -24,7 +24,7 @@ def categorize(driver, domain, category, two_captcha_api_key):
     driver.find_element(By.CSS_SELECTOR, "h2").text
 
 
-def check_category(driver, domain):
+def check_category(domain):
     """Check domain category on McAfee trusted source."""
     print("Checking McAfee Trusted Source proxy")
     session = requests.Session()
