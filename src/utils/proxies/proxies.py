@@ -21,7 +21,7 @@ def get_check_api_proxies():
 
 
 def get_check_proxies():
-    """Get selenium proxies to check acategory."""
+    """Get selenium proxies to check a category."""
     return {
         "Blue Coat": bluecoat.check_category,
         "Fortiguard": fortiguard.check_category,
