@@ -17,6 +17,7 @@ def get_check_api_proxies():
     return {
         "Cisco Talos": ciscotalos.check_category,
         "IBM X Force": ibmxforce.check_category,
+        "Trusted Source": trusted_source.check_category,
     }
 
 
@@ -26,7 +27,6 @@ def get_check_proxies():
         "Blue Coat": bluecoat.check_category,
         "Fortiguard": fortiguard.check_category,
         "Trend Micro": trendmicro.check_category,
-        "Trusted Source": trusted_source.check_category,
         "Websense": websense.check_category,
     }
 
