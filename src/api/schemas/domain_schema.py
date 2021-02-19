@@ -4,6 +4,7 @@ from marshmallow import EXCLUDE, Schema, fields, pre_load, validate, validates_s
 
 # cisagov Libraries
 from api.schemas import application_schema
+from api.schemas.fields import DateTimeField
 from utils import validator
 
 
@@ -11,7 +12,7 @@ class History(Schema):
     """Application History Schema."""
 
     application = fields.Nested(application_schema.ApplicationSchema)
-    launch_date = fields.DateTime()
+    launch_date = DateTimeField()
 
 
 class IsCategorySubmitted(Schema):
@@ -135,7 +136,7 @@ class DomainSchema(Schema):
     category = fields.Str(validate=validator.is_valid_category)
     s3_url = fields.Str()
     ip_address = fields.Str()
-    application_id = fields.Str()
+    application_id = fields.Str(allow_none=True)
     is_active = fields.Boolean()
     is_available = fields.Boolean(default=True)
     is_launching = fields.Boolean(default=False)
@@ -144,7 +145,7 @@ class DomainSchema(Schema):
     is_category_queued = fields.Boolean()
     is_category_submitted = fields.List(fields.Nested(IsCategorySubmitted))
     is_email_active = fields.Boolean()
-    launch_date = fields.DateTime()
+    launch_date = DateTimeField()
     profile = fields.Dict()
     history = fields.List(fields.Nested(History))
     cloudfront = fields.Dict()

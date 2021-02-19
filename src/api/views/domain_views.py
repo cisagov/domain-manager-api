@@ -94,23 +94,22 @@ class DomainView(MethodView):
         domain = domain_manager.get(document_id=domain_id)
 
         if not g.is_admin:
-            data.pop("application", None)
             data.pop("application_id", None)
             data.pop("history", None)
 
-        if data.get("application"):
-            application = application_manager.get(
-                filter_data={"name": data["application"]}
-            )
-            data["application_id"] = application["_id"]
-            # Save application to history
-            data["history"] = domain.get("history", [])
-            data["history"].append(
-                {
-                    "application": application,
-                    "launch_date": datetime.utcnow(),
-                }
-            )
+        if "application_id" in data:
+            if (
+                data["application_id"] != domain.get("application_id", "")
+                and data["application_id"]
+            ):
+                application = application_manager.get(data["application_id"])
+                data["history"] = domain.get("history", [])
+                data["history"].append(
+                    {
+                        "application": application,
+                        "launch_date": datetime.utcnow(),
+                    }
+                )
 
         return jsonify(domain_manager.update(document_id=domain_id, data=data))
 
