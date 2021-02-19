@@ -2,6 +2,9 @@
 # Third-Party Libraries
 from marshmallow import EXCLUDE, Schema, fields
 
+# cisagov Libraries
+from api.schemas.fields import DateTimeField
+
 
 class LogSchema(Schema):
     """LogSchema."""
@@ -19,5 +22,5 @@ class LogSchema(Schema):
     method = fields.Str(required=True)
     args = fields.Dict()
     json = fields.Dict(allow_none=True)
-    created = fields.DateTime()
+    created = DateTimeField()
     error = fields.Str()

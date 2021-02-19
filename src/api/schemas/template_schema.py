@@ -3,6 +3,7 @@
 from marshmallow import EXCLUDE, Schema, fields
 
 # cisagov Libraries
+from api.schemas.fields import DateTimeField
 from utils.validator import is_valid_category
 
 
@@ -17,5 +18,5 @@ class TemplateSchema(Schema):
     _id = fields.Str()
     name = fields.Str(validate=is_valid_category)
     s3_url = fields.Str()
-    created = fields.DateTime()
-    updated = fields.DateTime()
+    created = DateTimeField()
+    updated = DateTimeField()
