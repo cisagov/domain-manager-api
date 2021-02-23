@@ -137,7 +137,9 @@ def get_request_data():
     }
     if request.view_args:
         data["args"] = request.view_args
-    if request.method == "POST":
+
+    methods = ["POST", "PUT"]
+    if request.method in methods:
         data["json"] = request.json
     return data
 
