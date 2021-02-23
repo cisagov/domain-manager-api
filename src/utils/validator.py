@@ -1,4 +1,7 @@
 """Custom validators for marshmallow schemas."""
+# Standard Python Libraries
+import re
+
 # Third-Party Libraries
 from marshmallow import ValidationError
 import validators
@@ -12,7 +15,10 @@ def validate_data(data, schema_class, many=False):
 
 def is_valid_domain(domain):
     """Check if domain is valid."""
-    if validators.domain(domain) or domain == "localhost":
+    pattern = re.compile(
+        r"^(?!:\/\/)([a-zA-Z0-9-_]+\.)*[a-zA-Z0-9][a-zA-Z0-9-_]+\.[a-zA-Z]{2,11}?$"
+    )
+    if pattern.match(domain) or domain == "localhost":
         return True
     raise ValidationError("Must be a valid domain.")
 

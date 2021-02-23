@@ -85,12 +85,6 @@ class Record(Schema):
             validate=validate.OneOf(["http", "https"]),
         )
 
-    class MAILGUN(Schema):
-        """Schema for Mailgun."""
-
-        key = fields.Str(required=True)
-        value = fields.Str(required=True)
-
     record_id = fields.Str()
     record_type = fields.Str(
         required=True,
@@ -105,7 +99,6 @@ class Record(Schema):
                 "SRV",
                 "TXT",
                 "REDIRECT",
-                "MAILGUN",
             ]
         ),
     )

@@ -14,9 +14,7 @@ s3 = boto3.client("s3")
 
 def manage_record(action, hosted_zone_id, record):
     """Create record."""
-    if record["record_type"] == "MAILGUN":
-        return modify_mailgun_record(action, hosted_zone_id, record)
-    elif record["record_type"] == "REDIRECT":
+    if record["record_type"] == "REDIRECT":
         return modify_redirect_record(action, hosted_zone_id, record)
     else:
         return modify_record(
@@ -47,48 +45,6 @@ def modify_record(action, hosted_zone_id, record_name, record_type, record_value
                         "ResourceRecords": records,
                     },
                 }
-            ]
-        },
-    )
-
-
-def modify_mailgun_record(action, hosted_zone_id, record):
-    """Modify mailgun record."""
-    return route53.change_resource_record_sets(
-        HostedZoneId=hosted_zone_id,
-        ChangeBatch={
-            "Changes": [
-                {
-                    "Action": action,
-                    "ResourceRecordSet": {
-                        "Name": record["name"],
-                        "Type": "TXT",
-                        "TTL": 30,
-                        "ResourceRecords": [
-                            {"Value": '"v=spf1 include:mailgun.org ~all"'}
-                        ],
-                    },
-                },
-                {
-                    "Action": action,
-                    "ResourceRecordSet": {
-                        "Name": f"{record['config']['key']}.{record['name']}",
-                        "Type": "TXT",
-                        "TTL": 30,
-                        "ResourceRecords": [
-                            {"Value": f"\"{record['config']['value']}\""}
-                        ],
-                    },
-                },
-                {
-                    "Action": action,
-                    "ResourceRecordSet": {
-                        "Name": f"email.{record['name']}",
-                        "Type": "CNAME",
-                        "TTL": 30,
-                        "ResourceRecords": [{"Value": "mailgun.org"}],
-                    },
-                },
             ]
         },
     )
