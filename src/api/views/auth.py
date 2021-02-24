@@ -46,11 +46,10 @@ class RegisterView(MethodView):
         """register a user."""
         try:
             data = request.json
-            logger.info(data)
             username = data["Username"]
             password = data["Password"]
             email = data["Email"]
-            
+
             resp = cognito.sign_up(
                 ClientId=COGNITO_CLIENT_ID,
                 Username=username,
@@ -71,7 +70,6 @@ class SignInView(MethodView):
         """Sign In User."""
 
         data = request.json
-        logger.info(data)
         username = data["username"]
         password = data["password"]
 
@@ -92,7 +90,6 @@ class SignInView(MethodView):
         expireDate = datetime.utcnow() + timedelta(
             seconds=response["AuthenticationResult"]["ExpiresIn"]
         )
-        logger.info(response)
         return jsonify(
             {
                 "id_token": response["AuthenticationResult"]["IdToken"],

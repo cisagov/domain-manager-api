@@ -86,14 +86,12 @@ class RequestAuth:
         if not jwt:
             return False
         try:
-            logger.info(jwt)
             resp = cognitojwt.decode(
                 jwt,
                 AWS_REGION,
                 COGNTIO_USER_POOL_ID,
                 app_client_id=COGNITO_CLIENT_ID,
             )
-            logger.info(resp)
             self.username = resp["cognito:username"]
             if "cognito:groups" in resp:
                 self.groups = resp["cognito:groups"]
