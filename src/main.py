@@ -11,6 +11,7 @@ import requests
 # cisagov Libraries
 from api.manager import LogManager
 from api.views.applications import ApplicationsView, ApplicationView
+from api.views.auth import RegisterView, SignInView
 from api.views.categories import CategoriesView
 from api.views.domain_views import (
     DomainCategorizeView,
@@ -37,10 +38,6 @@ from api.views.users import (
     UserGroupsView,
     UsersView,
     UserView,
-)
-from api.views.auth import (
-    RegisterView,
-    SignInView,
 )
 from settings import STATIC_GEN_URL, logger
 from utils.decorators.auth import auth_admin_required, auth_required

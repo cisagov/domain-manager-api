@@ -1,4 +1,4 @@
-"""Website Views."""
+"""User Views."""
 # Standard Python Libraries
 import hashlib
 import secrets
@@ -11,7 +11,15 @@ from flask.views import MethodView
 # cisagov Libraries
 from api.manager import LogManager, UserManager
 from api.schemas.user_shema import UserSchema
-from settings import COGNITO_ADMIN_GROUP, COGNTIO_USER_POOL_ID, logger
+from settings import (
+    AWS_REGION,
+    COGNITO_ADMIN_GROUP,
+    COGNITO_CLIENT_ID,
+    COGNITO_DEFAULT_ADMIN,
+    COGNTIO_ENABLED,
+    COGNTIO_USER_POOL_ID,
+    logger,
+)
 from utils.validator import validate_data
 
 cognito = boto3.client("cognito-idp")
@@ -66,6 +74,7 @@ class UserView(MethodView):
         aws_user = cognito.admin_get_user(
             UserPoolId=COGNTIO_USER_POOL_ID, Username=dm_user["Username"]
         )
+        logger.info(aws_user)
         response = UserHelpers.merge_additional_keys(aws_user, dm_user)
         if "Groups" not in response:
             response["Groups"] = []
@@ -184,6 +193,7 @@ class UserGroupsView(MethodView):
             if user["Groups"] == request.json:
                 return jsonify({"error": "No changes made"}), 200
             user["Groups"] = request.json
+            logger.info(user)
 
             response = user_manager.update(document_id=user["_id"], data=user)
             return jsonify(response)

@@ -33,6 +33,7 @@ class RequestAuth:
         self.request = request
         self.cognito = boto3.client("cognito-idp")
         self.username = ""
+        self.groups = []
 
     def validate(self):
         """Validate request."""
@@ -94,6 +95,8 @@ class RequestAuth:
             )
             logger.info(resp)
             self.username = resp["cognito:username"]
+            if "cognito:groups" in resp:
+                self.groups = resp["cognito:groups"]
             return self.username
         except Exception as e:
             logger.exception(e)
@@ -106,11 +109,14 @@ class RequestAuth:
         if COGNITO_DEFAULT_ADMIN:
             return True
 
-        resp = self.cognito.admin_list_groups_for_user(
-            Username=self.username, UserPoolId=COGNTIO_USER_POOL_ID, Limit=60
-        )
-        for group in resp["Groups"]:
-            if group["GroupName"] == COGNITO_ADMIN_GROUP:
+        # resp = self.cognito.admin_list_groups_for_user(
+        #     Username=self.username, UserPoolId=COGNTIO_USER_POOL_ID, Limit=60
+        # )
+        # for group in resp["Groups"]:
+        #     if group["GroupName"] == COGNITO_ADMIN_GROUP:
+        #         return True
+        for group in self.groups:
+            if group == "admin":
                 return True
         return False
 
