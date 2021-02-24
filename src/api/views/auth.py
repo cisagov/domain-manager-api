@@ -50,11 +50,7 @@ class RegisterView(MethodView):
             username = data["Username"]
             password = data["Password"]
             email = data["Email"]
-
-            print(username)
-            print(password)
-            print(email)
-
+            
             resp = cognito.sign_up(
                 ClientId=COGNITO_CLIENT_ID,
                 Username=username,
@@ -92,11 +88,6 @@ class SignInView(MethodView):
                 "password": password,
             },
         )
-        print("---------")
-        logger.info(response)
-        print("---------")
-        print(response["AuthenticationResult"]["ExpiresIn"])
-        print("---------")
 
         expireDate = datetime.utcnow() + timedelta(
             seconds=response["AuthenticationResult"]["ExpiresIn"]
