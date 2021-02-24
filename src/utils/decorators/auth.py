@@ -12,7 +12,6 @@ from flask import abort, g, request
 from api.manager import DomainManager, UserManager
 from settings import (
     AWS_REGION,
-    COGNITO_ADMIN_GROUP,
     COGNITO_CLIENT_ID,
     COGNITO_DEFAULT_ADMIN,
     COGNTIO_ENABLED,
@@ -33,6 +32,7 @@ class RequestAuth:
         self.request = request
         self.cognito = boto3.client("cognito-idp")
         self.username = ""
+        self.groups = []
 
     def validate(self):
         """Validate request."""
@@ -91,7 +91,8 @@ class RequestAuth:
                 COGNTIO_USER_POOL_ID,
                 app_client_id=COGNITO_CLIENT_ID,
             )
-            self.username = resp["username"]
+            self.username = resp["cognito:username"]
+            self.groups = resp.get("cognito:groups", [])
             return self.username
         except Exception as e:
             logger.exception(e)
@@ -103,13 +104,8 @@ class RequestAuth:
             return True
         if COGNITO_DEFAULT_ADMIN:
             return True
-
-        resp = self.cognito.admin_list_groups_for_user(
-            Username=self.username, UserPoolId=COGNTIO_USER_POOL_ID, Limit=60
-        )
-        for group in resp["Groups"]:
-            if group["GroupName"] == COGNITO_ADMIN_GROUP:
-                return True
+        if "admin" in self.groups:
+            return True
         return False
 
 

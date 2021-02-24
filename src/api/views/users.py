@@ -1,4 +1,4 @@
-"""Website Views."""
+"""User Views."""
 # Standard Python Libraries
 import hashlib
 import secrets
