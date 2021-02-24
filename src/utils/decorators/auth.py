@@ -12,7 +12,6 @@ from flask import abort, g, request
 from api.manager import DomainManager, UserManager
 from settings import (
     AWS_REGION,
-    COGNITO_ADMIN_GROUP,
     COGNITO_CLIENT_ID,
     COGNITO_DEFAULT_ADMIN,
     COGNTIO_ENABLED,

@@ -11,15 +11,7 @@ from flask.views import MethodView
 # cisagov Libraries
 from api.manager import LogManager, UserManager
 from api.schemas.user_shema import UserSchema
-from settings import (
-    AWS_REGION,
-    COGNITO_ADMIN_GROUP,
-    COGNITO_CLIENT_ID,
-    COGNITO_DEFAULT_ADMIN,
-    COGNTIO_ENABLED,
-    COGNTIO_USER_POOL_ID,
-    logger,
-)
+from settings import COGNITO_ADMIN_GROUP, COGNTIO_USER_POOL_ID, logger
 from utils.validator import validate_data
 
 cognito = boto3.client("cognito-idp")

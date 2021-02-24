@@ -1,9 +1,6 @@
 """Auth Views."""
 # Standard Python Libraries
-import base64
 from datetime import datetime, timedelta
-import hashlib
-import hmac
 
 # Third-Party Libraries
 import boto3
@@ -12,17 +9,7 @@ from flask.views import MethodView
 
 # cisagov Libraries
 from api.manager import LogManager, UserManager
-from api.schemas.user_shema import UserSchema
-from settings import (
-    AWS_REGION,
-    COGNITO_ADMIN_GROUP,
-    COGNITO_CLIENT_ID,
-    COGNITO_DEFAULT_ADMIN,
-    COGNTIO_ENABLED,
-    COGNTIO_USER_POOL_ID,
-    logger,
-)
-from utils.validator import validate_data
+from settings import COGNITO_CLIENT_ID, COGNTIO_USER_POOL_ID, logger
 
 cognito = boto3.client("cognito-idp")
 user_manager = UserManager()
@@ -32,25 +19,15 @@ log_manager = LogManager()
 class RegisterView(MethodView):
     """Register User View."""
 
-    def get_secret_hash(username):
-        msg = username + COGNITO_CLIENT_ID
-        dig = hmac.new(
-            str(CLIENT_SECRET).encode("utf-8"),
-            msg=str(msg).encode("utf-8"),
-            digestmod=hashlib.sha256,
-        ).digest()
-        d2 = base64.b64encode(dig).decode()
-        return d2
-
     def post(self):
-        """register a user."""
+        """Register a user."""
         try:
             data = request.json
             username = data["Username"]
             password = data["Password"]
             email = data["Email"]
 
-            resp = cognito.sign_up(
+            cognito.sign_up(
                 ClientId=COGNITO_CLIENT_ID,
                 Username=username,
                 Password=password,
@@ -68,7 +45,6 @@ class SignInView(MethodView):
 
     def post(self):
         """Sign In User."""
-
         data = request.json
         username = data["username"]
         password = data["password"]
