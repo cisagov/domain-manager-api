@@ -92,8 +92,7 @@ class RequestAuth:
                 app_client_id=COGNITO_CLIENT_ID,
             )
             self.username = resp["cognito:username"]
-            if "cognito:groups" in resp:
-                self.groups = resp["cognito:groups"]
+            self.groups = resp.get("cognito:groups", [])
             return self.username
         except Exception as e:
             logger.exception(e)
@@ -105,16 +104,8 @@ class RequestAuth:
             return True
         if COGNITO_DEFAULT_ADMIN:
             return True
-
-        # resp = self.cognito.admin_list_groups_for_user(
-        #     Username=self.username, UserPoolId=COGNTIO_USER_POOL_ID, Limit=60
-        # )
-        # for group in resp["Groups"]:
-        #     if group["GroupName"] == COGNITO_ADMIN_GROUP:
-        #         return True
-        for group in self.groups:
-            if group == "admin":
-                return True
+        if "admin" in self.groups:
+            return True
         return False
 
 
