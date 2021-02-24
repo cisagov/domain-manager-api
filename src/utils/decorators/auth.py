@@ -85,13 +85,15 @@ class RequestAuth:
         if not jwt:
             return False
         try:
+            logger.info(jwt)
             resp = cognitojwt.decode(
                 jwt,
                 AWS_REGION,
                 COGNTIO_USER_POOL_ID,
                 app_client_id=COGNITO_CLIENT_ID,
             )
-            self.username = resp["username"]
+            logger.info(resp)
+            self.username = resp["cognito:username"]
             return self.username
         except Exception as e:
             logger.exception(e)

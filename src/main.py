@@ -38,6 +38,10 @@ from api.views.users import (
     UsersView,
     UserView,
 )
+from api.views.auth import (
+    RegisterView,
+    SignInView,
+)
 from settings import STATIC_GEN_URL, logger
 from utils.decorators.auth import auth_admin_required, auth_required
 
@@ -67,6 +71,11 @@ rules = [
     ("/domain/<domain_id>/records/", DomainRecordView),
 ]
 
+login_rules = [
+    ("/auth/register/", RegisterView),
+    ("/auth/signin/", SignInView),
+]
+
 admin_rules = [
     ("/applications/", ApplicationsView),
     ("/application/<application_id>/", ApplicationView),
@@ -83,6 +92,10 @@ for rule in rules:
     if not rule[1].decorators:
         rule[1].decorators = []
     rule[1].decorators.extend([auth_required])
+    app.add_url_rule(url, view_func=rule[1].as_view(url))
+
+for rule in login_rules:
+    url = f"{url_prefix}{rule[0]}"
     app.add_url_rule(url, view_func=rule[1].as_view(url))
 
 for rule in admin_rules:
