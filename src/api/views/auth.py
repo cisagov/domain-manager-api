@@ -17,7 +17,7 @@ log_manager = LogManager()
 
 
 class RegisterView(MethodView):
-    """Register User View."""
+    """RegisterView."""
 
     def post(self):
         """Register a user."""
@@ -37,11 +37,11 @@ class RegisterView(MethodView):
             return jsonify(success=True)
         except Exception as e:
             logger.exception(e)
-            return jsonify({"error": "Error registiring user."}), 400
+            return jsonify({"error": "Error registering user."}), 400
 
 
 class SignInView(MethodView):
-    """Sign In User View."""
+    """SignInView."""
 
     def post(self):
         """Sign In User."""
@@ -63,13 +63,13 @@ class SignInView(MethodView):
             },
         )
 
-        expireDate = datetime.utcnow() + timedelta(
+        expires = datetime.utcnow() + timedelta(
             seconds=response["AuthenticationResult"]["ExpiresIn"]
         )
         return jsonify(
             {
                 "id_token": response["AuthenticationResult"]["IdToken"],
-                "expires_at": expireDate,
+                "expires_at": expires,
                 "username": username,
             }
         )
