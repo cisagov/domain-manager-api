@@ -13,6 +13,10 @@ from .db_settings import get_db
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("dm-api")
 
+# app env
+APP_NAME = os.environ.get("APP_NAME", "dm-local")
+APP_ENV = os.environ.get("APP_ENV", "dev")
+
 # aws
 AWS_REGION = os.environ.get("AWS_REGION", "us-east-1")
 os.environ["AWS_DEFAULT_REGION"] = AWS_REGION
