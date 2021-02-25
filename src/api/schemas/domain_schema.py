@@ -76,6 +76,15 @@ class Record(Schema):
 
         value = fields.Str(required=True)
 
+        @pre_load
+        def wrap_value(self, in_data, **kwargs):
+            """Wrap TXT values with quotes."""
+            if not in_data["value"].startswith('"') and not in_data["value"].endswith(
+                '"'
+            ):
+                in_data["value"] = f'"{in_data["value"]}"'
+            return in_data
+
     class REDIRECT(Schema):
         """Schema for Redirect record."""
 
