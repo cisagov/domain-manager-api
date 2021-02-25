@@ -3,6 +3,7 @@
 import boto3
 
 # cisagov Libraries
+from settings import APP_ENV, APP_NAME
 from utils.aws.regional_s3_endpoints import (
     REGIONAL_HOSTED_ZONE_ID,
     REGIONAL_WEBSITE_ENDPOINT,
@@ -74,6 +75,14 @@ def modify_redirect_record(action, hosted_zone_id, record):
 
     if action == "CREATE":
         s3.create_bucket(ACL="private", Bucket=record["name"])
+
+        # tag bucket
+        s3.put_bucket_tagging(
+            Bucket=record["name"],
+            Tagging={"TagSet": [{"Key": APP_NAME, "Value": APP_ENV}]},
+        )
+
+        # modify bucket
         s3.put_bucket_website(
             Bucket=record["name"],
             WebsiteConfiguration={
