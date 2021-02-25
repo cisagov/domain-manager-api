@@ -9,7 +9,7 @@ import dns.resolver
 
 # cisagov Libraries
 from api.manager import DomainManager
-from settings import WEBSITE_BUCKET_URL, logger
+from settings import APP_ENV, APP_NAME, WEBSITE_BUCKET_URL, logger
 
 domain_manager = DomainManager()
 
@@ -316,6 +316,9 @@ def generate_ssl_certs(domain):
             {"DomainName": domain_name, "ValidationDomain": domain_name},
         ],
         Options={"CertificateTransparencyLoggingPreference": "ENABLED"},
+        Tags=[
+            {"Key": APP_NAME, "Value": APP_ENV},
+        ],
     )
 
     cert_arn = requested_certificate["CertificateArn"]
