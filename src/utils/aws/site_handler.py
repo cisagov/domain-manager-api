@@ -161,47 +161,54 @@ def setup_cloudfront(domain, certificate_arn):
     domain_name = domain["name"]
 
     distribution_config = {
-        "CallerReference": unique_identifier,
-        "Aliases": {"Quantity": 1, "Items": [domain_name]},
-        "DefaultRootObject": "home.html",
-        "Comment": "Managed by Domain Manager",
-        "Enabled": True,
-        "Origins": {
-            "Quantity": 1,
-            "Items": [
-                {
-                    "Id": "1",
-                    "DomainName": WEBSITE_BUCKET_URL,
-                    "OriginPath": f"/{domain_name}",
-                    "CustomOriginConfig": {
-                        "HTTPPort": 80,
-                        "HTTPSPort": 443,
-                        "OriginProtocolPolicy": "http-only",
-                    },
-                }
-            ],
-        },
-        "DefaultCacheBehavior": {
-            "TargetOriginId": "1",
-            "ViewerProtocolPolicy": "redirect-to-https",
-            "TrustedSigners": {"Quantity": 0, "Enabled": False},
-            "ForwardedValues": {
-                "QueryString": False,
-                "Cookies": {"Forward": "all"},
-                "Headers": {"Quantity": 0},
-                "QueryStringCacheKeys": {"Quantity": 0},
+        "DistributionConfig": {
+            "CallerReference": unique_identifier,
+            "Aliases": {"Quantity": 1, "Items": [domain_name]},
+            "DefaultRootObject": "home.html",
+            "Comment": "Managed by Domain Manager",
+            "Enabled": True,
+            "Origins": {
+                "Quantity": 1,
+                "Items": [
+                    {
+                        "Id": "1",
+                        "DomainName": WEBSITE_BUCKET_URL,
+                        "OriginPath": f"/{domain_name}",
+                        "CustomOriginConfig": {
+                            "HTTPPort": 80,
+                            "HTTPSPort": 443,
+                            "OriginProtocolPolicy": "http-only",
+                        },
+                    }
+                ],
             },
-            "MinTTL": 1000,
+            "DefaultCacheBehavior": {
+                "TargetOriginId": "1",
+                "ViewerProtocolPolicy": "redirect-to-https",
+                "TrustedSigners": {"Quantity": 0, "Enabled": False},
+                "ForwardedValues": {
+                    "QueryString": False,
+                    "Cookies": {"Forward": "all"},
+                    "Headers": {"Quantity": 0},
+                    "QueryStringCacheKeys": {"Quantity": 0},
+                },
+                "MinTTL": 1000,
+            },
+            "ViewerCertificate": {
+                "ACMCertificateArn": certificate_arn,
+                "SSLSupportMethod": "sni-only",
+                "MinimumProtocolVersion": "TLSv1.2_2019",
+            },
         },
-        "ViewerCertificate": {
-            "ACMCertificateArn": certificate_arn,
-            "SSLSupportMethod": "sni-only",
-            "MinimumProtocolVersion": "TLSv1.2_2019",
+        "Tags": {
+            "Items": [
+                {"Key": APP_NAME, "Value": APP_ENV},
+            ]
         },
     }
 
-    distribution = cloudfront.create_distribution(
-        DistributionConfig=distribution_config
+    distribution = cloudfront.create_distribution_with_tags(
+        DistributionConfigWithTags=distribution_config
     )
 
     return (
