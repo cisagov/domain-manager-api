@@ -39,6 +39,11 @@ class Manager:
         """Format params."""
         if not params:
             return {}
+        if params.get("_id", {}).get("$in"):
+            new_ids = []
+            for i in params["_id"]["$in"]:
+                new_ids.append(ObjectId(i))
+            params["_id"]["$in"] = new_ids
         return params
 
     def read_data(self, data, many=False):

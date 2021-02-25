@@ -1,17 +1,19 @@
 """User Views."""
 # Standard Python Libraries
 import hashlib
+from http import HTTPStatus
 import secrets
 
 # Third-Party Libraries
 import boto3
-from flask import jsonify, request
+from flask import abort, g, jsonify, request
 from flask.views import MethodView
 
 # cisagov Libraries
 from api.manager import LogManager, UserManager
 from api.schemas.user_shema import UserSchema
 from settings import COGNITO_ADMIN_GROUP, COGNTIO_USER_POOL_ID, logger
+from utils.decorators.auth import can_access_user
 from utils.validator import validate_data
 
 cognito = boto3.client("cognito-idp")
@@ -57,6 +59,8 @@ class UsersView(MethodView):
 class UserView(MethodView):
     """UserView."""
 
+    decorators = [can_access_user]
+
     def get(self, username):
         """Get User details."""
         dm_user = user_manager.get(filter_data={"Username": username})
@@ -78,6 +82,8 @@ class UserView(MethodView):
 
     def delete(self, username):
         """Delete the user."""
+        if not g.is_admin:
+            abort(HTTPStatus.FORBIDDEN.value)
         try:
             cognito.admin_delete_user(
                 UserPoolId=COGNTIO_USER_POOL_ID, Username=username
@@ -90,10 +96,15 @@ class UserView(MethodView):
 
         except Exception as e:
             logger.exception(e)
-            return jsonify({"error": f"Failed to delete user - {username}"}), 400
+            return (
+                jsonify({"error": f"Failed to delete user - {username}"}),
+                HTTPStatus.BAD_REQUEST.value,
+            )
 
     def put(self, username):
         """Disable or re-enable the user."""
+        if not g.is_admin:
+            abort(HTTPStatus.FORBIDDEN.value)
         try:
             dm_user = user_manager.get(filter_data={"Username": username})
             if dm_user["Enabled"]:
@@ -120,7 +131,7 @@ class UserView(MethodView):
             logger.exception(e)
             return (
                 jsonify({"error": f"Failed to disable/enable user - {username}"}),
-                400,
+                HTTPStatus.BAD_REQUEST.value,
             )
 
 
@@ -139,7 +150,10 @@ class UserConfirmView(MethodView):
             return jsonify(response)
         except Exception as e:
             logger.exception(e)
-            return jsonify({"error": "Failed to confirm user"}), 400
+            return (
+                jsonify({"error": "Failed to confirm user"}),
+                HTTPStatus.BAD_REQUEST.value,
+            )
 
 
 class UserAdminStatusView(MethodView):
@@ -156,7 +170,10 @@ class UserAdminStatusView(MethodView):
             return jsonify(response)
         except Exception as e:
             logger.exception(e)
-            return jsonify({"error": "Failed to add user to admin group"}), 400
+            return (
+                jsonify({"error": "Failed to add user to admin group"}),
+                HTTPStatus.BAD_REQUEST.value,
+            )
 
     def delete(self, username):
         """Remove user admin privlieges."""
@@ -169,7 +186,10 @@ class UserAdminStatusView(MethodView):
             return jsonify(response)
         except Exception as e:
             logger.exception(e)
-            return jsonify({"error": "Failed to remove user from admin group"}), 400
+            return (
+                jsonify({"error": "Failed to remove user from admin group"}),
+                HTTPStatus.BAD_REQUEST.value,
+            )
 
 
 class UserGroupsView(MethodView):
@@ -182,14 +202,17 @@ class UserGroupsView(MethodView):
             if "Groups" not in user:
                 user["Groups"] = []
             if user["Groups"] == request.json:
-                return jsonify({"error": "No changes made"}), 200
+                return jsonify({"error": "No changes made"}), HTTPStatus.ACCEPTED
             user["Groups"] = request.json
 
             response = user_manager.update(document_id=user["_id"], data=user)
             return jsonify(response)
         except Exception as e:
             logger.exception(e)
-            return jsonify({"error": "Failed to update user groups"}), 400
+            return (
+                jsonify({"error": "Failed to update user groups"}),
+                HTTPStatus.BAD_REQUEST.value,
+            )
 
 
 class UserAPIKeyView(MethodView):
@@ -205,7 +228,10 @@ class UserAPIKeyView(MethodView):
             return jsonify({"api_key": api_key})
         except Exception as e:
             logger.exception(e)
-            return jsonify({"error": f"Failed to create API key for {username}"}), 400
+            return (
+                jsonify({"error": f"Failed to create API key for {username}"}),
+                HTTPStatus.BAD_REQUEST.value,
+            )
 
 
 class UserHelpers:

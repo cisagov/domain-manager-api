@@ -50,14 +50,8 @@ CORS(app)
 url_prefix = "/api"
 
 rules = [
-    ("/generate-email-address/", EmailAddressView),
+    ("/applications/", ApplicationsView),
     ("/categories/", CategoriesView),
-    ("/proxies/", ProxiesView),
-    ("/proxy/<proxy_name>/", ProxyView),
-    ("/templates/", TemplatesView),
-    ("/template/<template_id>/", TemplateView),
-    ("/template/<template_id>/content/", TemplateContentView),
-    ("/templates/attributes/", TemplateAttributesView),
     ("/domains/", DomainsView),
     ("/domain/<domain_id>/", DomainView),
     ("/domain/<domain_id>/categorize/", DomainCategorizeView),
@@ -66,6 +60,14 @@ rules = [
     ("/domain/<domain_id>/generate/", DomainGenerateView),
     ("/domain/<domain_id>/launch/", DomainLaunchView),
     ("/domain/<domain_id>/records/", DomainRecordView),
+    ("/generate-email-address/", EmailAddressView),
+    ("/proxies/", ProxiesView),
+    ("/proxy/<proxy_name>/", ProxyView),
+    ("/templates/", TemplatesView),
+    ("/template/<template_id>/", TemplateView),
+    ("/template/<template_id>/content/", TemplateContentView),
+    ("/templates/attributes/", TemplateAttributesView),
+    ("/user/<username>/", UserView),
 ]
 
 login_rules = [
@@ -74,10 +76,8 @@ login_rules = [
 ]
 
 admin_rules = [
-    ("/applications/", ApplicationsView),
     ("/application/<application_id>/", ApplicationView),
     ("/users/", UsersView),
-    ("/user/<username>/", UserView),
     ("/user/<username>/confirm", UserConfirmView),
     ("/user/<username>/admin", UserAdminStatusView),
     ("/user/<username>/groups", UserGroupsView),
@@ -99,7 +99,7 @@ for rule in admin_rules:
     url = f"{url_prefix}{rule[0]}"
     if not rule[1].decorators:
         rule[1].decorators = []
-    rule[1].decorators.extend([auth_admin_required])
+    rule[1].decorators.extend([auth_admin_required, auth_required])
     app.add_url_rule(url, view_func=rule[1].as_view(url))
 
 
@@ -149,7 +149,11 @@ def get_request_data():
         data["args"] = request.view_args
 
     methods = ["POST", "PUT"]
-    if request.method in methods:
+    if (
+        request.method in methods
+        and "auth" not in request.path
+        and "user" not in request.path
+    ):
         data["json"] = request.json
     return data
 

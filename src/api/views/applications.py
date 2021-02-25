@@ -1,11 +1,15 @@
 """Application Views."""
+# Standard Python Libraries
+from http import HTTPStatus
+
 # Third-Party Libraries
-from flask import jsonify, request
+from flask import abort, g, jsonify, request
 from flask.views import MethodView
 
 # cisagov Libraries
 from api.manager import ApplicationManager, DomainManager
 from api.schemas.application_schema import ApplicationSchema
+from utils.user_profile import get_users_group_ids
 from utils.validator import validate_data
 
 application_manager = ApplicationManager()
@@ -17,10 +21,17 @@ class ApplicationsView(MethodView):
 
     def get(self):
         """Get all applications."""
-        return jsonify(application_manager.all())
+        if g.is_admin:
+            return jsonify(application_manager.all())
+        else:
+            groups = get_users_group_ids()
+            resp = application_manager.all(params={"_id": {"$in": groups}})
+            return jsonify(resp)
 
     def post(self):
         """Create an application."""
+        if not g.is_admin:
+            abort(HTTPStatus.FORBIDDEN.value)
         data = validate_data(request.json, ApplicationSchema)
         return jsonify(application_manager.save(data))
 

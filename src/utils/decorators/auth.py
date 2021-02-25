@@ -2,6 +2,7 @@
 # Standard Python Libraries
 from functools import wraps
 import hashlib
+from http import HTTPStatus
 
 # Third-Party Libraries
 import boto3
@@ -124,7 +125,7 @@ def auth_required(view):
                 g.is_admin = False
             return view(*args, **kwargs)
         else:
-            abort(401)
+            abort(HTTPStatus.UNAUTHORIZED.value)
 
     return decorated
 
@@ -135,16 +136,9 @@ def auth_admin_required(view):
     @wraps(view)
     def decorated(*args, **kwargs):
         """Decorate."""
-        auth = RequestAuth(request)
-        if auth.validate():
-            if auth.check_admin_status():
-                g.username = auth.username
-                g.is_admin = True
-                return view(*args, **kwargs)
-            else:
-                abort(401)
-        else:
-            abort(401)
+        if not g.is_admin:
+            abort(HTTPStatus.FORBIDDEN.value)
+        return view(*args, **kwargs)
 
     return decorated
 
@@ -162,8 +156,37 @@ def can_access_domain(view):
             if user_can_access_domain(domain):
                 return view(*args, **kwargs)
             else:
-                return "User does not have permission to domain.", 400
+                return (
+                    "User does not have permission to domain.",
+                    HTTPStatus.BAD_REQUEST.value,
+                )
         else:
-            return "URL Path configured improperly.", 500
+            return (
+                "URL Path configured improperly.",
+                HTTPStatus.INTERNAL_SERVER_ERROR.value,
+            )
+
+    return decorated
+
+
+def can_access_user(view):
+    """Check if user can access user."""
+
+    @wraps(view)
+    def decorated(*args, **kwargs):
+        """Decorate."""
+        if kwargs.get("username"):
+            if g.is_admin or g.username == kwargs.get("username"):
+                return view(*args, **kwargs)
+            else:
+                return (
+                    "User does not have permission to user.",
+                    HTTPStatus.BAD_REQUEST.value,
+                )
+        else:
+            return (
+                "URL Path configured improperly.",
+                HTTPStatus.INTERNAL_SERVER_ERROR.value,
+            )
 
     return decorated
