@@ -16,14 +16,7 @@ import requests
 # cisagov Libraries
 from api.manager import ApplicationManager, DomainManager
 from api.schemas.domain_schema import DomainSchema, Record
-from settings import (
-    APP_ENV,
-    APP_NAME,
-    SQS_CATEGORIZE_URL,
-    STATIC_GEN_URL,
-    WEBSITE_BUCKET,
-    logger,
-)
+from settings import SQS_CATEGORIZE_URL, STATIC_GEN_URL, TAGS, WEBSITE_BUCKET, logger
 from utils.aws import record_handler
 from utils.aws.site_handler import launch_domain, unlaunch_domain
 from utils.decorators.auth import can_access_domain
@@ -75,9 +68,7 @@ class DomainsView(MethodView):
         route53.change_tags_for_resource(
             ResourceType="hostedzone",
             ResourceId=hosted_zone_id,
-            AddTags=[
-                {"Key": APP_NAME, "Value": APP_ENV},
-            ],
+            AddTags=TAGS,
         )
 
         # save to db

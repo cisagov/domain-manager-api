@@ -9,7 +9,7 @@ import dns.resolver
 
 # cisagov Libraries
 from api.manager import DomainManager
-from settings import APP_ENV, APP_NAME, WEBSITE_BUCKET_URL, logger
+from settings import TAGS, WEBSITE_BUCKET_URL, logger
 
 domain_manager = DomainManager()
 
@@ -200,11 +200,7 @@ def setup_cloudfront(domain, certificate_arn):
                 "MinimumProtocolVersion": "TLSv1.2_2019",
             },
         },
-        "Tags": {
-            "Items": [
-                {"Key": APP_NAME, "Value": APP_ENV},
-            ]
-        },
+        "Tags": {"Items": TAGS},
     }
 
     distribution = cloudfront.create_distribution_with_tags(
@@ -323,9 +319,7 @@ def generate_ssl_certs(domain):
             {"DomainName": domain_name, "ValidationDomain": domain_name},
         ],
         Options={"CertificateTransparencyLoggingPreference": "ENABLED"},
-        Tags=[
-            {"Key": APP_NAME, "Value": APP_ENV},
-        ],
+        Tags=TAGS,
     )
 
     cert_arn = requested_certificate["CertificateArn"]
