@@ -18,23 +18,26 @@ class CategoriesView(MethodView):
         return jsonify(CATEGORIES)
 
 
-class CheckCategoriesView(MethodView):
-    """External Check Categories View."""
+class ExternalCategoriesView(MethodView):
+    """External Categories View."""
 
-    def get(self, domain_name):
-        """Get categories for external categories."""
+    def driver(self):
+        """Headless Chrome Driver."""
         chrome_options = webdriver.ChromeOptions()
         chrome_options.add_argument("--no-sandbox")
         chrome_options.add_argument("--headless")
 
-        driver = webdriver.Remote(
+        return webdriver.Remote(
             command_executor=f"http://{BROWSERLESS_ENDPOINT}/webdriver",
             desired_capabilities=chrome_options.to_capabilities(),
         )
-        driver.set_page_load_timeout(60)
 
+    def get(self, domain_name):
+        """Check categories for external domains."""
         resp = []
         for k, v in get_check_proxies().items():
+            driver = self.driver()
+            driver.set_page_load_timeout(60)
             try:
                 category = v(
                     driver,
@@ -42,7 +45,7 @@ class CheckCategoriesView(MethodView):
                 )
                 resp.append({k: category})
             except Exception as e:
-                driver.quit()
+                self.driver().quit()
                 logger.exception(e)
 
         return jsonify(resp)

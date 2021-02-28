@@ -12,7 +12,7 @@ import requests
 from api.manager import LogManager
 from api.views.applications import ApplicationsView, ApplicationView
 from api.views.auth import RegisterView, SignInView
-from api.views.categories import CategoriesView, CheckCategoriesView
+from api.views.categories import CategoriesView, ExternalCategoriesView
 from api.views.domain_views import (
     DomainCategorizeView,
     DomainContentView,
@@ -52,7 +52,7 @@ url_prefix = "/api"
 rules = [
     ("/applications/", ApplicationsView),
     ("/categories/", CategoriesView),
-    ("/categories/<domain_name>/check/", CheckCategoriesView),
+    ("/categories/<domain_name>/external/", ExternalCategoriesView),
     ("/domains/", DomainsView),
     ("/domain/<domain_id>/", DomainView),
     ("/domain/<domain_id>/categorize/", DomainCategorizeView),
