@@ -4,6 +4,7 @@ from datetime import datetime
 
 # Third-Party Libraries
 from bson.objectid import ObjectId
+import pymongo
 
 # cisagov Libraries
 from api.schemas.application_schema import ApplicationSchema
@@ -45,6 +46,16 @@ class Manager:
                 new_ids.append(ObjectId(i))
             params["_id"]["$in"] = new_ids
         return params
+
+    def format_sort(self, sortby: dict):
+        """Format sortby for pymongo."""
+        sorts = []
+        for k, v in sortby.items():
+            if v == "DESC":
+                sorts.append((k, pymongo.DESCENDING))
+            if v == "ASC":
+                sorts.append((k, pymongo.ASCENDING))
+        return sorts
 
     def read_data(self, data, many=False):
         """Read data from database."""
@@ -114,16 +125,24 @@ class Manager:
                 )
             )
 
-    def all(self, params=None, fields=None):
+    def all(self, params=None, fields=None, sortby=None, limit=None):
         """Get all items in a collection."""
-        return self.read_data(
-            self.db.find(self.format_params(params), self.convert_fields(fields)),
-            many=True,
-        )
+        query = self.db.find(self.format_params(params), self.convert_fields(fields))
+        if sortby:
+            query.sort(self.format_sort(sortby))
+        if limit:
+            query.limit(limit)
+        return self.read_data(query, many=True)
 
-    def delete(self, document_id):
+    def delete(self, document_id=None, params=None):
         """Delete item by object id."""
-        return self.db.delete_one({"_id": ObjectId(document_id)}).raw_result
+        if document_id:
+            return self.db.delete_one({"_id": ObjectId(document_id)}).raw_result
+        if params:
+            return self.db.delete_many(params).raw_result
+        raise Exception(
+            "Either a document id or params must be supplied when deleting."
+        )
 
     def update(self, document_id, data):
         """Update item by id."""
