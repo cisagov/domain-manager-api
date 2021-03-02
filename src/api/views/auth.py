@@ -10,6 +10,7 @@ from flask.views import MethodView
 # cisagov Libraries
 from api.manager import LogManager, UserManager
 from settings import COGNITO_CLIENT_ID, COGNTIO_USER_POOL_ID, logger
+from utils.logs import cleanup_logs
 
 cognito = boto3.client("cognito-idp")
 user_manager = UserManager()
@@ -66,6 +67,8 @@ class SignInView(MethodView):
         expires = datetime.utcnow() + timedelta(
             seconds=response["AuthenticationResult"]["ExpiresIn"]
         )
+        logs_cleaned = cleanup_logs(username)
+        logger.info(f"Cleanup up logs for {username} - {logs_cleaned}")
         return jsonify(
             {
                 "id_token": response["AuthenticationResult"]["IdToken"],

@@ -15,11 +15,11 @@ class LogSchema(Schema):
         unkown = EXCLUDE
 
     _id = fields.Str()
-    username = fields.Str(required=True, allow_none=True)
+    username = fields.Str()
     is_admin = fields.Bool()
-    status_code = fields.Number(required=True)
-    path = fields.Str(required=True)
-    method = fields.Str(required=True)
+    status_code = fields.Number()
+    path = fields.Str()
+    method = fields.Str()
     args = fields.Dict()
     json = fields.Field(allow_none=True)
     created = DateTimeField()
