@@ -129,7 +129,6 @@ class TemplateAttributesView(MethodView):
             [
                 "address",
                 "description",
-                "domain",
                 "email",
                 "name",
                 "phone",

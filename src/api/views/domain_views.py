@@ -262,10 +262,13 @@ class DomainGenerateView(MethodView):
         try:
             domain_name = domain["name"]
 
+            post_data = request.json
+            post_data["domain"] = domain_name
+
             # Generate website content from a template
             resp = requests.post(
                 f"{STATIC_GEN_URL}/generate/?category={category}&domain={domain_name}",
-                json=request.json,
+                json=post_data,
             )
 
             # remove temp files
