@@ -166,8 +166,9 @@ def log_request(response):
         data = get_request_data()
         data["status_code"] = response.status_code
         logger.info(data)
-        log_manager = LogManager()
-        log_manager.save(data)
+        if data.get("username"):
+            log_manager = LogManager()
+            log_manager.save(data)
     return response
 
 
@@ -178,9 +179,10 @@ def log_request_error(error=None):
         data = get_request_data()
         data["status_code"] = 500
         data["error"] = str(error)
-        log_manager = LogManager()
         logger.info(data)
-        log_manager.save(data)
+        if data.get("username"):
+            log_manager = LogManager()
+            log_manager.save(data)
 
 
 if __name__ == "__main__":
