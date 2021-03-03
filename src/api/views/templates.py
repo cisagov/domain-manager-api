@@ -127,6 +127,7 @@ class TemplateAttributesView(MethodView):
         """Get list of keys for template context."""
         return jsonify(
             [
+                "address",
                 "description",
                 "domain",
                 "email",
