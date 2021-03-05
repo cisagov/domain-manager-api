@@ -16,7 +16,7 @@ logger = logging.getLogger("dm-api")
 # app env
 APP_NAME = os.environ.get("APP_NAME", "dm-local")
 APP_ENV = os.environ.get("APP_ENV", "dev")
-TAGS = [{"Key": "App", "Value": APP_NAME}, {"Key": "Environment", "Value": APP_ENV}]
+TAGS = [{"Key": "app", "Value": APP_NAME}, {"Key": "environment", "Value": APP_ENV}]
 
 # aws
 AWS_REGION = os.environ.get("AWS_REGION", "us-east-1")
