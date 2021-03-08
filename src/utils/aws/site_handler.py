@@ -5,6 +5,7 @@ import time
 
 # Third-Party Libraries
 import boto3
+import botocore
 import dns.resolver
 
 # cisagov Libraries
@@ -118,8 +119,25 @@ def delete_site(domain):
     """Delete an active site off s3."""
     cloudfront_metadata = domain["cloudfront"]
 
-    # get distribution config
-    distribution = cloudfront.get_distribution(Id=cloudfront_metadata["id"])
+    logger.info("Deleting clodufront distribution")
+    delete_cloudfront(cloudfront_metadata)
+
+    logger.info("Deleting ssl certificates from acm.")
+    delete_ssl_certs(domain)
+
+    logger.info("Deleting dns records from route53.")
+    delete_dns(domain=domain, endpoint=cloudfront_metadata["distribution_endpoint"])
+
+
+def delete_cloudfront(cloudfront_metadata):
+    """Delete cloudfront distribution if it exists."""
+    try:
+        distribution = cloudfront.get_distribution(Id=cloudfront_metadata["id"])
+    except botocore.exceptions.ClientError as error:
+        if error.response["Error"]["Code"] == "NoSuchDistribution":
+            return
+        else:
+            raise error
 
     # disable cloudfront distribution
     distribution["Distribution"]["DistributionConfig"]["Enabled"] = False
@@ -143,15 +161,6 @@ def delete_site(domain):
 
     logger.info("Deleting cloudfront distribution.")
     cloudfront.delete_distribution(Id=cloudfront_metadata["id"], IfMatch=status["ETag"])
-
-    logger.info("Deleting ssl certificates from acm.")
-    delete_ssl_certs(domain)
-
-    logger.info("Deleting dns records from route53.")
-    response = delete_dns(
-        domain=domain, endpoint=cloudfront_metadata["distribution_endpoint"]
-    )
-    return response
 
 
 def setup_cloudfront(domain, certificate_arn):
@@ -264,47 +273,51 @@ def delete_dns(domain, endpoint=None, ip_address=None):
     """Create a domain's DNS."""
     domain_name = domain["name"]
     dns_id = domain["route53"]["id"]
-    if ip_address:
-        response = route53.change_resource_record_sets(
-            HostedZoneId=dns_id,
-            ChangeBatch={
-                "Comment": ip_address,
-                "Changes": [
-                    {
-                        "Action": "DELETE",
-                        "ResourceRecordSet": {
-                            "Name": domain_name,
-                            "Type": "A",
-                            "TTL": 15,
-                            "ResourceRecords": [{"Value": ip_address}],
-                        },
-                    }
-                ],
-            },
-        )
-    else:
-        response = route53.change_resource_record_sets(
-            HostedZoneId=dns_id,
-            ChangeBatch={
-                "Comment": domain_name,
-                "Changes": [
-                    {
-                        "Action": "DELETE",
-                        "ResourceRecordSet": {
-                            "Name": domain_name,
-                            "Type": "A",
-                            "AliasTarget": {
-                                "HostedZoneId": "Z2FDTNDATAQYW2",
-                                "EvaluateTargetHealth": False,
-                                "DNSName": endpoint,
+    try:
+        if ip_address:
+            route53.change_resource_record_sets(
+                HostedZoneId=dns_id,
+                ChangeBatch={
+                    "Comment": ip_address,
+                    "Changes": [
+                        {
+                            "Action": "DELETE",
+                            "ResourceRecordSet": {
+                                "Name": domain_name,
+                                "Type": "A",
+                                "TTL": 15,
+                                "ResourceRecords": [{"Value": ip_address}],
                             },
-                        },
-                    }
-                ],
-            },
-        )
-    logger.info(response)
-    return response
+                        }
+                    ],
+                },
+            )
+        else:
+            route53.change_resource_record_sets(
+                HostedZoneId=dns_id,
+                ChangeBatch={
+                    "Comment": domain_name,
+                    "Changes": [
+                        {
+                            "Action": "DELETE",
+                            "ResourceRecordSet": {
+                                "Name": domain_name,
+                                "Type": "A",
+                                "AliasTarget": {
+                                    "HostedZoneId": "Z2FDTNDATAQYW2",
+                                    "EvaluateTargetHealth": False,
+                                    "DNSName": endpoint,
+                                },
+                            },
+                        }
+                    ],
+                },
+            )
+    except botocore.exceptions.ClientError as error:
+        if error.response["Error"]["Code"] == "InvalidChangeBatch":
+            pass
+        else:
+            raise error
 
 
 def generate_ssl_certs(domain):
@@ -358,23 +371,37 @@ def delete_ssl_certs(domain):
     """Delete acm ssl certs."""
     cert_arn = domain["acm"]["certificate_arn"]
     acm_record = get_acm_record(cert_arn)
-    route53.change_resource_record_sets(
-        HostedZoneId=domain["route53"]["id"],
-        ChangeBatch={
-            "Changes": [
-                {
-                    "Action": "DELETE",
-                    "ResourceRecordSet": {
-                        "Name": acm_record["Name"],
-                        "Type": "CNAME",
-                        "TTL": 30,
-                        "ResourceRecords": [{"Value": acm_record["Value"]}],
-                    },
-                }
-            ]
-        },
-    )
-    acm.delete_certificate(CertificateArn=cert_arn)
+
+    try:
+        route53.change_resource_record_sets(
+            HostedZoneId=domain["route53"]["id"],
+            ChangeBatch={
+                "Changes": [
+                    {
+                        "Action": "DELETE",
+                        "ResourceRecordSet": {
+                            "Name": acm_record["Name"],
+                            "Type": "CNAME",
+                            "TTL": 30,
+                            "ResourceRecords": [{"Value": acm_record["Value"]}],
+                        },
+                    }
+                ]
+            },
+        )
+    except botocore.exceptions.ClientError as error:
+        if error.response["Error"]["Code"] == "InvalidChangeBatch":
+            pass
+        else:
+            raise error
+
+    try:
+        acm.delete_certificate(CertificateArn=cert_arn)
+    except botocore.exceptions.ClientError as error:
+        if error.response["Error"]["Code"] == "ResourceNotFoundException":
+            return
+        else:
+            raise error
 
 
 def get_acm_record(cert_arn):
