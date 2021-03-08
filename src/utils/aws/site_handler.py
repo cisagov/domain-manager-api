@@ -370,7 +370,14 @@ def generate_ssl_certs(domain):
 def delete_ssl_certs(domain):
     """Delete acm ssl certs."""
     cert_arn = domain["acm"]["certificate_arn"]
-    acm_record = get_acm_record(cert_arn)
+
+    try:
+        acm_record = get_acm_record(cert_arn)
+    except botocore.exceptions.ClientError as error:
+        if error.response["Error"]["Code"] == "ResourceNotFoundException":
+            return
+        else:
+            raise error
 
     try:
         route53.change_resource_record_sets(
