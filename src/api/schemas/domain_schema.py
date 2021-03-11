@@ -27,10 +27,12 @@ class Profile(Schema):
     """Template context data."""
 
     name = fields.Str()
+    city = fields.Str()
     domain = fields.Str()
     description = fields.Str()
     email = fields.Str()
     phone = fields.Str()
+    state = fields.Str()
 
 
 class Record(Schema):
