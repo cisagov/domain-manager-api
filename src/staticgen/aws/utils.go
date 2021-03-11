@@ -29,6 +29,8 @@ type (
 		Domain      string `json:"domain"`
 		Phone       string `json:"phone"`
 		Address     string `json:"address"`
+		City        string `json:"city"`
+		State       string `json:"state"`
 		Email       string `json:"email"`
 		Zip         []byte `json:"zip"`
 	}
