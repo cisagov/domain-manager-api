@@ -2,9 +2,7 @@
 # cisagov Libraries
 from utils.proxies import (
     bluecoat,
-    ciscotalos,
     fortiguard,
-    ibmxforce,
     palo_alto,
     trendmicro,
     trusted_source,
@@ -15,8 +13,6 @@ from utils.proxies import (
 def get_check_api_proxies():
     """Get API proxies to check a category."""
     return {
-        "Cisco Talos": ciscotalos.check_category,
-        "IBM X Force": ibmxforce.check_category,
         "Trusted Source": trusted_source.check_category,
     }
 
