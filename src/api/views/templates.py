@@ -128,9 +128,11 @@ class TemplateAttributesView(MethodView):
         return jsonify(
             [
                 "address",
+                "city",
                 "description",
                 "email",
                 "name",
                 "phone",
+                "state",
             ]
         )
