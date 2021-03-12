@@ -172,7 +172,7 @@ def setup_cloudfront(domain, certificate_arn):
     distribution_config = {
         "DistributionConfig": {
             "CallerReference": unique_identifier,
-            "Aliases": {"Quantity": 1, "Items": [domain_name]},
+            "Aliases": {"Quantity": 2, "Items": [domain_name, f"www.{domain_name}"]},
             "DefaultRootObject": "home.html",
             "Comment": "Managed by Domain Manager",
             "Enabled": True,
@@ -330,7 +330,19 @@ def delete_dns(domain, endpoint=None, ip_address=None):
                                     "DNSName": endpoint,
                                 },
                             },
-                        }
+                        },
+                        {
+                            "Action": "DELETE",
+                            "ResourceRecordSet": {
+                                "Name": f"www.{domain_name}",
+                                "Type": "CNAME",
+                                "AliasTarget": {
+                                    "HostedZoneId": "Z2FDTNDATAQYW2",
+                                    "EvaluateTargetHealth": False,
+                                    "DNSName": endpoint,
+                                },
+                            },
+                        },
                     ],
                 },
             )
