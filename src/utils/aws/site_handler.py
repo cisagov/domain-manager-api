@@ -466,14 +466,12 @@ def get_acm_record(cert_arn):
     """Get acm route 53 record for validation."""
     certificate_description = acm.describe_certificate(CertificateArn=cert_arn)
 
-    records = [
+    return [
         description.get("ResourceRecord", None)
         for description in certificate_description.get("Certificate", {}).get(
             "DomainValidationOptions"
         )
     ]
-
-    return records
 
 
 def get_hosted_zone_ns_records(hosted_zone_id):
