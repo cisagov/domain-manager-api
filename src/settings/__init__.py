@@ -50,10 +50,3 @@ if os.environ.get("PYTESTING"):
     DB = mongomock.MongoClient().db
 else:
     DB = get_db()
-
-# cisco talos
-CISCO_API_KEY = os.environ.get("CISCO_API_KEY")
-
-# ibm x-force
-IBM_API_KEY = os.environ.get("IBM_API_KEY")
-IBM_API_PASS = os.environ.get("IBM_API_PASS")
