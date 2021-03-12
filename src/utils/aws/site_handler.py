@@ -327,7 +327,7 @@ def generate_ssl_certs(domain):
     requested_certificate = acm.request_certificate(
         DomainName=domain_name,
         ValidationMethod="DNS",
-        SubjectAlternativeNames=[domain_name],
+        SubjectAlternativeNames=[domain_name, f"www.{domain_name}"],
         DomainValidationOptions=[
             {"DomainName": domain_name, "ValidationDomain": domain_name},
         ],
