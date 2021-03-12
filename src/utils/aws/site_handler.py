@@ -240,7 +240,16 @@ def setup_dns(domain, endpoint=None, ip_address=None):
                             "TTL": 15,
                             "ResourceRecords": [{"Value": ip_address}],
                         },
-                    }
+                    },
+                    {
+                        "Action": "UPSERT",
+                        "ResourceRecordSet": {
+                            "Name": f"www.{domain_name}",
+                            "Type": "CNAME",
+                            "TTL": 15,
+                            "ResourceRecords": [{"Value": ip_address}],
+                        },
+                    },
                 ],
             },
         )
@@ -261,7 +270,19 @@ def setup_dns(domain, endpoint=None, ip_address=None):
                                 "DNSName": endpoint,
                             },
                         },
-                    }
+                    },
+                    {
+                        "Action": "UPSERT",
+                        "ResourceRecordSet": {
+                            "Name": f"www.{domain_name}",
+                            "Type": "CNAME",
+                            "AliasTarget": {
+                                "HostedZoneId": "Z2FDTNDATAQYW2",
+                                "EvaluateTargetHealth": False,
+                                "DNSName": endpoint,
+                            },
+                        },
+                    },
                 ],
             },
         )
@@ -336,8 +357,8 @@ def generate_ssl_certs(domain):
     )
 
     cert_arn = requested_certificate["CertificateArn"]
-    acm_record = None
-    while not acm_record:
+    acm_record = [None, None]
+    while None in acm_record:
         time.sleep(2)
         acm_record = get_acm_record(cert_arn)
 
@@ -350,12 +371,21 @@ def generate_ssl_certs(domain):
                 {
                     "Action": "UPSERT",
                     "ResourceRecordSet": {
-                        "Name": acm_record["Name"],
+                        "Name": acm_record[0]["Name"],
                         "Type": "CNAME",
                         "TTL": 30,
-                        "ResourceRecords": [{"Value": acm_record["Value"]}],
+                        "ResourceRecords": [{"Value": acm_record[0]["Value"]}],
                     },
-                }
+                },
+                {
+                    "Action": "UPSERT",
+                    "ResourceRecordSet": {
+                        "Name": acm_record[1]["Name"],
+                        "Type": "CNAME",
+                        "TTL": 30,
+                        "ResourceRecords": [{"Value": acm_record[1]["Value"]}],
+                    },
+                },
             ],
         },
     )
@@ -387,12 +417,21 @@ def delete_ssl_certs(domain):
                     {
                         "Action": "DELETE",
                         "ResourceRecordSet": {
-                            "Name": acm_record["Name"],
+                            "Name": acm_record[0]["Name"],
                             "Type": "CNAME",
                             "TTL": 30,
-                            "ResourceRecords": [{"Value": acm_record["Value"]}],
+                            "ResourceRecords": [{"Value": acm_record[0]["Value"]}],
                         },
-                    }
+                    },
+                    {
+                        "Action": "DELETE",
+                        "ResourceRecordSet": {
+                            "Name": acm_record[1]["Name"],
+                            "Type": "CNAME",
+                            "TTL": 30,
+                            "ResourceRecords": [{"Value": acm_record[1]["Value"]}],
+                        },
+                    },
                 ]
             },
         )
@@ -414,13 +453,15 @@ def delete_ssl_certs(domain):
 def get_acm_record(cert_arn):
     """Get acm route 53 record for validation."""
     certificate_description = acm.describe_certificate(CertificateArn=cert_arn)
-    resource_records = [
+
+    records = [
         description.get("ResourceRecord", None)
         for description in certificate_description.get("Certificate", {}).get(
             "DomainValidationOptions"
         )
-    ][0]
-    return resource_records
+    ]
+
+    return records
 
 
 def get_hosted_zone_ns_records(hosted_zone_id):
