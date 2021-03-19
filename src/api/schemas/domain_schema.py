@@ -13,6 +13,8 @@ class History(Schema):
 
     application = fields.Nested(application_schema.ApplicationSchema)
     launch_date = DateTimeField()
+    start_date = DateTimeField()
+    end_date = DateTimeField()
 
 
 class IsCategorySubmitted(Schema):
