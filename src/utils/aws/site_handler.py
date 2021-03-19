@@ -314,6 +314,7 @@ def delete_dns(domain, endpoint=None, ip_address=None):
                 },
             )
         else:
+            # Delete main resource record
             route53.change_resource_record_sets(
                 HostedZoneId=dns_id,
                 ChangeBatch={
@@ -331,6 +332,16 @@ def delete_dns(domain, endpoint=None, ip_address=None):
                                 },
                             },
                         },
+                    ],
+                },
+            )
+
+            # Delete www dns record
+            route53.change_resource_record_sets(
+                HostedZoneId=dns_id,
+                ChangeBatch={
+                    "Comment": domain_name,
+                    "Changes": [
                         {
                             "Action": "DELETE",
                             "ResourceRecordSet": {
@@ -369,38 +380,30 @@ def generate_ssl_certs(domain):
     )
 
     cert_arn = requested_certificate["CertificateArn"]
-    acm_record = [None, None]
-    while None in acm_record:
+    acm_records = [None, None]
+    while None in acm_records:
         time.sleep(2)
-        acm_record = get_acm_record(cert_arn)
+        acm_records = get_acm_records(cert_arn)
 
-    # add validation record to the dns
-    route53.change_resource_record_sets(
-        HostedZoneId=dns_id,
-        ChangeBatch={
-            "Comment": domain_name,
-            "Changes": [
-                {
-                    "Action": "UPSERT",
-                    "ResourceRecordSet": {
-                        "Name": acm_record[0]["Name"],
-                        "Type": "CNAME",
-                        "TTL": 30,
-                        "ResourceRecords": [{"Value": acm_record[0]["Value"]}],
+    # add validation records to dns
+    for record in acm_records:
+        route53.change_resource_record_sets(
+            HostedZoneId=dns_id,
+            ChangeBatch={
+                "Comment": domain_name,
+                "Changes": [
+                    {
+                        "Action": "UPSERT",
+                        "ResourceRecordSet": {
+                            "Name": record["Name"],
+                            "Type": "CNAME",
+                            "TTL": 30,
+                            "ResourceRecords": [{"Value": record["Value"]}],
+                        },
                     },
-                },
-                {
-                    "Action": "UPSERT",
-                    "ResourceRecordSet": {
-                        "Name": acm_record[1]["Name"],
-                        "Type": "CNAME",
-                        "TTL": 30,
-                        "ResourceRecords": [{"Value": acm_record[1]["Value"]}],
-                    },
-                },
-            ],
-        },
-    )
+                ],
+            },
+        )
 
     # wait until the certificate has been validated
     waiter = acm.get_waiter("certificate_validated")
@@ -414,44 +417,36 @@ def delete_ssl_certs(domain):
     cert_arn = domain["acm"]["certificate_arn"]
 
     try:
-        acm_record = get_acm_record(cert_arn)
+        acm_records = get_acm_records(cert_arn)
     except botocore.exceptions.ClientError as error:
         if error.response["Error"]["Code"] == "ResourceNotFoundException":
             return
         else:
             raise error
 
-    try:
-        route53.change_resource_record_sets(
-            HostedZoneId=domain["route53"]["id"],
-            ChangeBatch={
-                "Changes": [
-                    {
-                        "Action": "DELETE",
-                        "ResourceRecordSet": {
-                            "Name": acm_record[0]["Name"],
-                            "Type": "CNAME",
-                            "TTL": 30,
-                            "ResourceRecords": [{"Value": acm_record[0]["Value"]}],
-                        },
-                    },
-                    {
-                        "Action": "DELETE",
-                        "ResourceRecordSet": {
-                            "Name": acm_record[1]["Name"],
-                            "Type": "CNAME",
-                            "TTL": 30,
-                            "ResourceRecords": [{"Value": acm_record[1]["Value"]}],
-                        },
-                    },
-                ]
-            },
-        )
-    except botocore.exceptions.ClientError as error:
-        if error.response["Error"]["Code"] == "InvalidChangeBatch":
-            pass
-        else:
-            raise error
+    for record in acm_records:
+        try:
+            route53.change_resource_record_sets(
+                HostedZoneId=domain["route53"]["id"],
+                ChangeBatch={
+                    "Changes": [
+                        {
+                            "Action": "DELETE",
+                            "ResourceRecordSet": {
+                                "Name": record["Name"],
+                                "Type": "CNAME",
+                                "TTL": 30,
+                                "ResourceRecords": [{"Value": record["Value"]}],
+                            },
+                        }
+                    ]
+                },
+            )
+        except botocore.exceptions.ClientError as error:
+            if error.response["Error"]["Code"] == "InvalidChangeBatch":
+                pass
+            else:
+                raise error
 
     try:
         acm.delete_certificate(CertificateArn=cert_arn)
@@ -462,7 +457,7 @@ def delete_ssl_certs(domain):
             raise error
 
 
-def get_acm_record(cert_arn):
+def get_acm_records(cert_arn):
     """Get acm route 53 record for validation."""
     certificate_description = acm.describe_certificate(CertificateArn=cert_arn)
 
