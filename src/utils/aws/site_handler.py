@@ -172,7 +172,7 @@ def setup_cloudfront(domain, certificate_arn):
     distribution_config = {
         "DistributionConfig": {
             "CallerReference": unique_identifier,
-            "Aliases": {"Quantity": 1, "Items": [domain_name]},
+            "Aliases": {"Quantity": 2, "Items": [domain_name, f"www.{domain_name}"]},
             "DefaultRootObject": "home.html",
             "Comment": "Managed by Domain Manager",
             "Enabled": True,
@@ -240,7 +240,16 @@ def setup_dns(domain, endpoint=None, ip_address=None):
                             "TTL": 15,
                             "ResourceRecords": [{"Value": ip_address}],
                         },
-                    }
+                    },
+                    {
+                        "Action": "UPSERT",
+                        "ResourceRecordSet": {
+                            "Name": f"www.{domain_name}",
+                            "Type": "CNAME",
+                            "TTL": 15,
+                            "ResourceRecords": [{"Value": ip_address}],
+                        },
+                    },
                 ],
             },
         )
@@ -261,7 +270,19 @@ def setup_dns(domain, endpoint=None, ip_address=None):
                                 "DNSName": endpoint,
                             },
                         },
-                    }
+                    },
+                    {
+                        "Action": "UPSERT",
+                        "ResourceRecordSet": {
+                            "Name": f"www.{domain_name}",
+                            "Type": "CNAME",
+                            "AliasTarget": {
+                                "HostedZoneId": "Z2FDTNDATAQYW2",
+                                "EvaluateTargetHealth": False,
+                                "DNSName": endpoint,
+                            },
+                        },
+                    },
                 ],
             },
         )
@@ -293,6 +314,7 @@ def delete_dns(domain, endpoint=None, ip_address=None):
                 },
             )
         else:
+            # Delete main resource record
             route53.change_resource_record_sets(
                 HostedZoneId=dns_id,
                 ChangeBatch={
@@ -309,7 +331,29 @@ def delete_dns(domain, endpoint=None, ip_address=None):
                                     "DNSName": endpoint,
                                 },
                             },
-                        }
+                        },
+                    ],
+                },
+            )
+
+            # Delete www dns record
+            route53.change_resource_record_sets(
+                HostedZoneId=dns_id,
+                ChangeBatch={
+                    "Comment": domain_name,
+                    "Changes": [
+                        {
+                            "Action": "DELETE",
+                            "ResourceRecordSet": {
+                                "Name": f"www.{domain_name}",
+                                "Type": "CNAME",
+                                "AliasTarget": {
+                                    "HostedZoneId": "Z2FDTNDATAQYW2",
+                                    "EvaluateTargetHealth": False,
+                                    "DNSName": endpoint,
+                                },
+                            },
+                        },
                     ],
                 },
             )
@@ -327,7 +371,7 @@ def generate_ssl_certs(domain):
     requested_certificate = acm.request_certificate(
         DomainName=domain_name,
         ValidationMethod="DNS",
-        SubjectAlternativeNames=[domain_name],
+        SubjectAlternativeNames=[domain_name, f"www.{domain_name}"],
         DomainValidationOptions=[
             {"DomainName": domain_name, "ValidationDomain": domain_name},
         ],
@@ -336,29 +380,30 @@ def generate_ssl_certs(domain):
     )
 
     cert_arn = requested_certificate["CertificateArn"]
-    acm_record = None
-    while not acm_record:
+    acm_records = [None, None]
+    while None in acm_records:
         time.sleep(2)
-        acm_record = get_acm_record(cert_arn)
+        acm_records = get_acm_records(cert_arn)
 
-    # add validation record to the dns
-    route53.change_resource_record_sets(
-        HostedZoneId=dns_id,
-        ChangeBatch={
-            "Comment": domain_name,
-            "Changes": [
-                {
-                    "Action": "UPSERT",
-                    "ResourceRecordSet": {
-                        "Name": acm_record["Name"],
-                        "Type": "CNAME",
-                        "TTL": 30,
-                        "ResourceRecords": [{"Value": acm_record["Value"]}],
+    # add validation records to dns
+    for record in acm_records:
+        route53.change_resource_record_sets(
+            HostedZoneId=dns_id,
+            ChangeBatch={
+                "Comment": domain_name,
+                "Changes": [
+                    {
+                        "Action": "UPSERT",
+                        "ResourceRecordSet": {
+                            "Name": record["Name"],
+                            "Type": "CNAME",
+                            "TTL": 30,
+                            "ResourceRecords": [{"Value": record["Value"]}],
+                        },
                     },
-                }
-            ],
-        },
-    )
+                ],
+            },
+        )
 
     # wait until the certificate has been validated
     waiter = acm.get_waiter("certificate_validated")
@@ -372,35 +417,36 @@ def delete_ssl_certs(domain):
     cert_arn = domain["acm"]["certificate_arn"]
 
     try:
-        acm_record = get_acm_record(cert_arn)
+        acm_records = get_acm_records(cert_arn)
     except botocore.exceptions.ClientError as error:
         if error.response["Error"]["Code"] == "ResourceNotFoundException":
             return
         else:
             raise error
 
-    try:
-        route53.change_resource_record_sets(
-            HostedZoneId=domain["route53"]["id"],
-            ChangeBatch={
-                "Changes": [
-                    {
-                        "Action": "DELETE",
-                        "ResourceRecordSet": {
-                            "Name": acm_record["Name"],
-                            "Type": "CNAME",
-                            "TTL": 30,
-                            "ResourceRecords": [{"Value": acm_record["Value"]}],
-                        },
-                    }
-                ]
-            },
-        )
-    except botocore.exceptions.ClientError as error:
-        if error.response["Error"]["Code"] == "InvalidChangeBatch":
-            pass
-        else:
-            raise error
+    for record in acm_records:
+        try:
+            route53.change_resource_record_sets(
+                HostedZoneId=domain["route53"]["id"],
+                ChangeBatch={
+                    "Changes": [
+                        {
+                            "Action": "DELETE",
+                            "ResourceRecordSet": {
+                                "Name": record["Name"],
+                                "Type": "CNAME",
+                                "TTL": 30,
+                                "ResourceRecords": [{"Value": record["Value"]}],
+                            },
+                        }
+                    ]
+                },
+            )
+        except botocore.exceptions.ClientError as error:
+            if error.response["Error"]["Code"] == "InvalidChangeBatch":
+                pass
+            else:
+                raise error
 
     try:
         acm.delete_certificate(CertificateArn=cert_arn)
@@ -411,16 +457,16 @@ def delete_ssl_certs(domain):
             raise error
 
 
-def get_acm_record(cert_arn):
+def get_acm_records(cert_arn):
     """Get acm route 53 record for validation."""
     certificate_description = acm.describe_certificate(CertificateArn=cert_arn)
-    resource_records = [
+
+    return [
         description.get("ResourceRecord", None)
         for description in certificate_description.get("Certificate", {}).get(
             "DomainValidationOptions"
         )
-    ][0]
-    return resource_records
+    ]
 
 
 def get_hosted_zone_ns_records(hosted_zone_id):
