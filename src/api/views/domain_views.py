@@ -109,16 +109,21 @@ class DomainView(MethodView):
             data.pop("history", None)
 
         if "application_id" in data:
-            if (
-                data["application_id"] != domain.get("application_id", "")
-                and data["application_id"]
-            ):
+            if not data["application_id"]:
+                data["history"] = domain.get("history", [])
+                for history in data["history"]:
+                    if not history.get("end_date"):
+                        history["end_date"] = datetime.utcnow()
+            elif data["application_id"] != domain.get("application_id", ""):
                 application = application_manager.get(data["application_id"])
                 data["history"] = domain.get("history", [])
+                for history in data["history"]:
+                    if not history.get("end_date"):
+                        history["end_date"] = datetime.utcnow()
                 data["history"].append(
                     {
                         "application": application,
-                        "launch_date": datetime.utcnow(),
+                        "start_date": datetime.utcnow(),
                     }
                 )
 
