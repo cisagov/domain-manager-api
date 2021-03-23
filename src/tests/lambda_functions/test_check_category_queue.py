@@ -1,9 +1,9 @@
 """Tests for check category lambda."""
 # Third-Party Libraries
+from lambda_functions.check_category_queue import handler
 from moto import mock_sqs
 
 # cisagov Libraries
-from lambda_functions.check_category_queue import handler
 from tests.data.domain_data import get_domains
 
 

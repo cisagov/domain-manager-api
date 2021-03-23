@@ -17,11 +17,15 @@ class History(Schema):
     end_date = DateTimeField()
 
 
-class IsCategorySubmitted(Schema):
-    """Submitted Categories Schema."""
+class CategoryResult(Schema):
+    """CategoryResult Schema."""
 
-    name = fields.Str()
-    is_categorized = fields.Boolean()
+    proxy = fields.Str()
+    is_submitted = fields.Bool()
+    manually_submitted = fields.Bool()
+    submitted_category = fields.Str(allow_none=True)
+    categorize_url = fields.Str(allow_none=True)
+    check_url = fields.Str(allow_none=True)
     category = fields.Str(allow_none=True)
 
 
@@ -148,8 +152,6 @@ class DomainSchema(Schema):
     is_launching = fields.Boolean(default=False)
     is_delaunching = fields.Boolean(default=False)
     is_generating_template = fields.Boolean(default=False)
-    is_category_queued = fields.Boolean()
-    is_category_submitted = fields.List(fields.Nested(IsCategorySubmitted))
     is_email_active = fields.Boolean()
     launch_date = DateTimeField()
     profile = fields.Dict()
@@ -158,6 +160,8 @@ class DomainSchema(Schema):
     acm = fields.Dict()
     route53 = fields.Dict()
     records = fields.List(fields.Nested(Record))
+    category_results = fields.List(fields.Nested(CategoryResult))
+    submitted_category = fields.Str()
 
     @pre_load
     def clean_data(self, in_data, **kwargs):
