@@ -155,7 +155,7 @@ class DomainContentView(MethodView):
     decorators = [can_access_domain]
 
     def get(self, domain_id):
-        """Download Domain."""
+        """Download website content."""
         domain = domain_manager.get(document_id=domain_id)
 
         resp = requests.get(
