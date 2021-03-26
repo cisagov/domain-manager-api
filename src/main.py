@@ -56,6 +56,7 @@ rules = [
     ("/domains/", DomainsView),
     ("/domain/<domain_id>/", DomainView),
     ("/domain/<domain_id>/categorize/", DomainCategorizeView),
+    ("/domain/<domain_id>/content/", DomainContentView),
     ("/domain/<domain_id>/deployed/", DomainDeployedCheckView),
     ("/domain/<domain_id>/generate/", DomainGenerateView),
     ("/domain/<domain_id>/launch/", DomainLaunchView),
@@ -77,7 +78,6 @@ login_rules = [
 
 admin_rules = [
     ("/application/<application_id>/", ApplicationView),
-    ("/domain/<domain_id>/content/", DomainContentView),
     ("/users/", UsersView),
     ("/user/<username>/confirm", UserConfirmView),
     ("/user/<username>/admin", UserAdminStatusView),

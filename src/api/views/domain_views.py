@@ -180,6 +180,9 @@ class DomainContentView(MethodView):
 
     def post(self, domain_id):
         """Upload files and serve s3 site."""
+        if not g.is_admin:
+            return jsonify({"error": "Upload content not authorized"}), 401
+
         # Get domain data
         domain = domain_manager.get(document_id=domain_id)
 
