@@ -28,6 +28,9 @@ class TemplatesView(MethodView):
 
     def post(self):
         """Create new template."""
+        if not g.is_admin:
+            return jsonify({"error": "Upload template not authorized"}), 401
+
         rvalues = []
         name = ""
         for f in request.files.getlist("zip"):
