@@ -24,7 +24,8 @@ func (r *Route) Upload(foldername, bucket string) {
 	}()
 
 	// For each file found walking, upload it to S3
-	uploader := s3manager.NewUploader(session.New())
+	sess := session.Must(session.NewSession())
+	uploader := s3manager.NewUploader(sess)
 	for path := range walker {
 		rel, err := filepath.Rel("tmp/"+r.Category+"/"+foldername, path)
 		if err != nil {

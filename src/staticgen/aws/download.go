@@ -53,7 +53,6 @@ func (d *Downloader) toZip(page *s3.ListObjectsOutput, more bool) bool {
 	buff := new(bytes.Buffer)
 	writer := zip.NewWriter(buff)
 	for _, obj := range page.Contents {
-		fmt.Println(d.dir)
 		key, _ := filepath.Rel(d.dir, *obj.Key)
 		d.downloadToBuffer(key, writer)
 	}
