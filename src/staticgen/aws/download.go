@@ -14,17 +14,19 @@ import (
 	"github.com/aws/aws-sdk-go/service/s3/s3manager"
 )
 
-// Downloader for s3 bucket
-type Downloader struct {
-	*s3manager.Downloader
-	bucket, dir string
-	writer      http.ResponseWriter
-}
+type (
+	// Downloader for s3 bucket
+	Downloader struct {
+		*s3manager.Downloader
+		bucket, dir string
+		writer      http.ResponseWriter
+	}
 
-// FakeWriterAt fakes AWS NewWriter Struct
-type FakeWriterAt struct {
-	w io.Writer
-}
+	// FakeWriterAt fakes AWS NewWriter Struct
+	FakeWriterAt struct {
+		w io.Writer
+	}
+)
 
 // WriteAt fakes AWS write at method
 func (fw FakeWriterAt) WriteAt(p []byte, offset int64) (n int, err error) {
@@ -34,15 +36,16 @@ func (fw FakeWriterAt) WriteAt(p []byte, offset int64) (n int, err error) {
 
 // BufferDownload downloads from s3 bucket to buffer
 func (r *Route) BufferDownload(w http.ResponseWriter, bucket string) {
-	manager := s3manager.NewDownloader(session.New())
+	sess := session.Must(session.NewSession())
+	downloader := s3manager.NewDownloader(sess)
 
 	dir := filepath.Join(r.Dir)
 	if bucket == TemplateBucket {
 		dir = filepath.Join(r.Dir, "template")
 	}
-	d := Downloader{bucket: bucket, dir: dir, Downloader: manager, writer: w}
+	d := Downloader{bucket: bucket, dir: dir, Downloader: downloader, writer: w}
 
-	client := s3.New(session.New())
+	client := s3.New(sess)
 	params := &s3.ListObjectsInput{Bucket: &bucket, Prefix: &dir}
 	client.ListObjectsPages(params, d.toZip)
 }
@@ -52,9 +55,7 @@ func (d *Downloader) toZip(page *s3.ListObjectsOutput, more bool) bool {
 	buff := new(bytes.Buffer)
 	writer := zip.NewWriter(buff)
 	for _, obj := range page.Contents {
-		fmt.Println(d.dir)
-		key, _ := filepath.Rel(d.dir, *obj.Key)
-		d.downloadToBuffer(key, writer)
+		d.downloadToBuffer(*obj.Key, writer)
 	}
 
 	err := writer.Close()
@@ -73,9 +74,8 @@ func (d *Downloader) downloadToBuffer(key string, writer *zip.Writer) {
 	if err != nil {
 		log.Println(err)
 	}
-
 	// Download object using the AWS SDK
-	fmt.Printf("Downloading s3://%s/%s...\n", d.bucket, key)
+	fmt.Printf("Downloading from s3://%s/%s...\n", d.bucket, key)
 	params := &s3.GetObjectInput{Bucket: &d.bucket, Key: &key}
 	d.Download(FakeWriterAt{f}, params)
 	d.Concurrency = 1

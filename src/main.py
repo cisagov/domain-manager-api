@@ -10,9 +10,9 @@ import requests
 
 # cisagov Libraries
 from api.manager import LogManager
-from api.views.applications import ApplicationsView, ApplicationView
-from api.views.auth import RegisterView, SignInView, RefreshTokenView
-from api.views.categories import CategoriesView, ExternalCategoriesView
+from api.views.application_views import ApplicationsView, ApplicationView
+from api.views.auth_views import RegisterView, SignInView, RefreshTokenView
+from api.views.category_views import CategoriesView, ExternalCategoriesView
 from api.views.domain_views import (
     DomainCategorizeView,
     DomainContentView,
@@ -23,15 +23,15 @@ from api.views.domain_views import (
     DomainsView,
     DomainView,
 )
-from api.views.email_address import EmailAddressView
-from api.views.proxies import ProxiesView, ProxyView
-from api.views.templates import (
+from api.views.email_address_views import EmailAddressView
+from api.views.proxy_views import ProxiesView, ProxyView
+from api.views.template_views import (
     TemplateAttributesView,
     TemplateContentView,
     TemplatesView,
     TemplateView,
 )
-from api.views.users import (
+from api.views.user_views import (
     UserAdminStatusView,
     UserAPIKeyView,
     UserConfirmView,

@@ -13,13 +13,19 @@ class History(Schema):
 
     application = fields.Nested(application_schema.ApplicationSchema)
     launch_date = DateTimeField()
+    start_date = DateTimeField()
+    end_date = DateTimeField()
 
 
-class IsCategorySubmitted(Schema):
-    """Submitted Categories Schema."""
+class CategoryResult(Schema):
+    """CategoryResult Schema."""
 
-    name = fields.Str()
-    is_categorized = fields.Boolean()
+    proxy = fields.Str()
+    is_submitted = fields.Bool()
+    manually_submitted = fields.Bool()
+    submitted_category = fields.Str(allow_none=True)
+    categorize_url = fields.Str(allow_none=True)
+    check_url = fields.Str(allow_none=True)
     category = fields.Str(allow_none=True)
 
 
@@ -81,10 +87,13 @@ class Record(Schema):
         @pre_load
         def wrap_value(self, in_data, **kwargs):
             """Wrap TXT values with quotes."""
-            if not in_data["value"].startswith('"') and not in_data["value"].endswith(
-                '"'
-            ):
-                in_data["value"] = f'"{in_data["value"]}"'
+            new_lines = []
+            for line in in_data["value"].splitlines():
+                if line and not line.startswith('"') and not line.endswith('"'):
+                    new_lines.append(f'"{line}"')
+                elif line:
+                    new_lines.append(line)
+            in_data["value"] = "\n".join(new_lines)
             return in_data
 
     class REDIRECT(Schema):
@@ -146,8 +155,6 @@ class DomainSchema(Schema):
     is_launching = fields.Boolean(default=False)
     is_delaunching = fields.Boolean(default=False)
     is_generating_template = fields.Boolean(default=False)
-    is_category_queued = fields.Boolean()
-    is_category_submitted = fields.List(fields.Nested(IsCategorySubmitted))
     is_email_active = fields.Boolean()
     launch_date = DateTimeField()
     profile = fields.Dict()
@@ -156,6 +163,8 @@ class DomainSchema(Schema):
     acm = fields.Dict()
     route53 = fields.Dict()
     records = fields.List(fields.Nested(Record))
+    category_results = fields.List(fields.Nested(CategoryResult))
+    submitted_category = fields.Str()
 
     @pre_load
     def clean_data(self, in_data, **kwargs):

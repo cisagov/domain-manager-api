@@ -2,25 +2,26 @@
 # Standard Python Libraries
 from datetime import datetime
 import io
-import json
 from multiprocessing import Process
 import shutil
 from uuid import uuid4
 
 # Third-Party Libraries
 import boto3
-from flask import current_app, g, jsonify, request, send_file
+import botocore
+from flask import g, jsonify, request, send_file
 from flask.views import MethodView
 import requests
 
 # cisagov Libraries
 from api.manager import ApplicationManager, DomainManager
 from api.schemas.domain_schema import DomainSchema, Record
-from settings import SQS_CATEGORIZE_URL, STATIC_GEN_URL, TAGS, WEBSITE_BUCKET, logger
+from settings import STATIC_GEN_URL, TAGS, WEBSITE_BUCKET, logger
 from utils.aws import record_handler
 from utils.aws.site_handler import launch_domain, unlaunch_domain
+from utils.categorization.categorize import categorize
+from utils.categorization.check import check_category
 from utils.decorators.auth import can_access_domain
-from utils.proxies.proxies import get_categorize_proxies
 from utils.user_profile import get_users_group_ids
 from utils.validator import validate_data
 
@@ -109,16 +110,21 @@ class DomainView(MethodView):
             data.pop("history", None)
 
         if "application_id" in data:
-            if (
-                data["application_id"] != domain.get("application_id", "")
-                and data["application_id"]
-            ):
+            if not data["application_id"]:
+                data["history"] = domain.get("history", [])
+                for history in data["history"]:
+                    if not history.get("end_date"):
+                        history["end_date"] = datetime.utcnow()
+            elif data["application_id"] != domain.get("application_id", ""):
                 application = application_manager.get(data["application_id"])
                 data["history"] = domain.get("history", [])
+                for history in data["history"]:
+                    if not history.get("end_date"):
+                        history["end_date"] = datetime.utcnow()
                 data["history"].append(
                     {
                         "application": application,
-                        "launch_date": datetime.utcnow(),
+                        "start_date": datetime.utcnow(),
                     }
                 )
 
@@ -150,7 +156,7 @@ class DomainContentView(MethodView):
     decorators = [can_access_domain]
 
     def get(self, domain_id):
-        """Download Domain."""
+        """Download website content."""
         domain = domain_manager.get(document_id=domain_id)
 
         resp = requests.get(
@@ -175,6 +181,9 @@ class DomainContentView(MethodView):
 
     def post(self, domain_id):
         """Upload files and serve s3 site."""
+        if not g.is_admin:
+            return jsonify({"error": "Upload content not authorized"}), 401
+
         # Get domain data
         domain = domain_manager.get(document_id=domain_id)
 
@@ -348,7 +357,14 @@ class DomainRecordView(MethodView):
         data = validate_data(request.json, Record)
         data["record_id"] = str(uuid4())
         domain = domain_manager.get(document_id=domain_id)
-        record_handler.manage_record("CREATE", domain["route53"]["id"], data)
+        try:
+            record_handler.manage_record("CREATE", domain["route53"]["id"], data)
+        except botocore.exceptions.ClientError as error:
+            logger.exception(error)
+            if error.response["Error"]["Code"] == "InvalidChangeBatch":
+                return error.response["Error"]["Message"], 400
+            else:
+                raise error
         resp = domain_manager.add_to_list(
             document_id=domain_id, field="records", data=data
         )
@@ -381,23 +397,55 @@ class DomainCategorizeView(MethodView):
         """Categorize Domain."""
         domain = domain_manager.get(document_id=domain_id, fields=["name"])
 
-        if domain.get("is_category_queued"):
-            return "Categorization is already in process."
-
-        for proxy in get_categorize_proxies().keys():
-            payload = {
-                "proxy": proxy,
-                "domain": domain["name"],
-                "category": request.args.get("category", ""),
+        task = Process(target=check_category, args=(domain["name"],))
+        task.start()
+        return jsonify(
+            {
+                "success": "Site is being checked in the background. Check back later for results and failures."
             }
-            if not current_app.config["TESTING"]:
-                sqs.send_message(
-                    QueueUrl=SQS_CATEGORIZE_URL,
-                    MessageBody=json.dumps(payload),
-                )
+        )
 
-        domain_manager.update(document_id=domain_id, data={"is_category_queued": True})
-        return f"{domain['name']} has been queued for categorization"
+    def post(self, domain_id):
+        """Categorize Domain."""
+        domain = domain_manager.get(document_id=domain_id, fields=["name"])
+        category = request.json["category"]
+
+        if domain.get("submitted_category"):
+            return "Domain has already had a category submitted.", 400
+
+        task = Process(target=categorize, args=(category, domain["name"]))
+        task.start()
+
+        domain_manager.update(
+            document_id=domain["_id"], data={"submitted_category": category}
+        )
+
+        return jsonify(
+            {
+                "success": "Site is being categorized in the background. Check back later for any failures in the categorization process."
+            }
+        )
+
+    def put(self, domain_id):
+        """Manually categorize a domain."""
+        domain = domain_manager.get(document_id=domain_id)
+        proxy = request.json["proxy"]
+
+        domain_manager.update_in_list(
+            document_id=domain["_id"],
+            field="category_results.$.is_submitted",
+            data=True,
+            params={"category_results.proxy": proxy},
+        )
+
+        domain_manager.update_in_list(
+            document_id=domain["_id"],
+            field="category_results.$.manually_submitted",
+            data=True,
+            params={"category_results.proxy": proxy},
+        )
+
+        return jsonify({"success": "Site has been manually categorized."})
 
 
 class DomainDeployedCheckView(MethodView):
