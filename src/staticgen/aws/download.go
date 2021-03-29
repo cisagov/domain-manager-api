@@ -14,17 +14,19 @@ import (
 	"github.com/aws/aws-sdk-go/service/s3/s3manager"
 )
 
-// Downloader for s3 bucket
-type Downloader struct {
-	*s3manager.Downloader
-	bucket, dir string
-	writer      http.ResponseWriter
-}
+type (
+	// Downloader for s3 bucket
+	Downloader struct {
+		*s3manager.Downloader
+		bucket, dir string
+		writer      http.ResponseWriter
+	}
 
-// FakeWriterAt fakes AWS NewWriter Struct
-type FakeWriterAt struct {
-	w io.Writer
-}
+	// FakeWriterAt fakes AWS NewWriter Struct
+	FakeWriterAt struct {
+		w io.Writer
+	}
+)
 
 // WriteAt fakes AWS write at method
 func (fw FakeWriterAt) WriteAt(p []byte, offset int64) (n int, err error) {
@@ -53,8 +55,7 @@ func (d *Downloader) toZip(page *s3.ListObjectsOutput, more bool) bool {
 	buff := new(bytes.Buffer)
 	writer := zip.NewWriter(buff)
 	for _, obj := range page.Contents {
-		key, _ := filepath.Rel(d.dir, *obj.Key)
-		d.downloadToBuffer(key, writer)
+		d.downloadToBuffer(*obj.Key, writer)
 	}
 
 	err := writer.Close()
@@ -73,7 +74,6 @@ func (d *Downloader) downloadToBuffer(key string, writer *zip.Writer) {
 	if err != nil {
 		log.Println(err)
 	}
-
 	// Download object using the AWS SDK
 	fmt.Printf("Downloading from s3://%s/%s...\n", d.bucket, key)
 	params := &s3.GetObjectInput{Bucket: &d.bucket, Key: &key}
