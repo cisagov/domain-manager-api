@@ -8,6 +8,7 @@ from uuid import uuid4
 
 # Third-Party Libraries
 import boto3
+import botocore
 from flask import g, jsonify, request, send_file
 from flask.views import MethodView
 import requests
@@ -356,7 +357,14 @@ class DomainRecordView(MethodView):
         data = validate_data(request.json, Record)
         data["record_id"] = str(uuid4())
         domain = domain_manager.get(document_id=domain_id)
-        record_handler.manage_record("CREATE", domain["route53"]["id"], data)
+        try:
+            record_handler.manage_record("CREATE", domain["route53"]["id"], data)
+        except botocore.exceptions.ClientError as error:
+            logger.exception(error)
+            if error.response["Error"]["Code"] == "InvalidChangeBatch":
+                return error.response["Error"]["Message"], 400
+            else:
+                raise error
         resp = domain_manager.add_to_list(
             document_id=domain_id, field="records", data=data
         )
