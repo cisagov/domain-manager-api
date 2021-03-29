@@ -29,7 +29,8 @@ func (r *Route) Generate(ctx *Context, bucket, foldername string) {
 	}()
 
 	// For each file found walking, upload it to S3
-	uploader := s3manager.NewUploader(session.New())
+	sess := session.Must(session.NewSession())
+	uploader := s3manager.NewUploader(sess)
 	for path := range walker {
 		if !strings.Contains(path, "base.html") {
 
@@ -105,11 +106,12 @@ func parse(path, rel string, ctx *Context) *bytes.Reader {
 
 // FileDownload downloads from s3 bucket to temp folder
 func (r *Route) FileDownload() {
-	manager := s3manager.NewDownloader(session.New())
+	sess := session.Must(session.NewSession())
+	manager := s3manager.NewDownloader(sess)
 
 	directory := filepath.Join("tmp/", r.Category)
 	d := Downloader{bucket: TemplateBucket, dir: directory, Downloader: manager}
-	client := s3.New(session.New())
+	client := s3.New(sess)
 
 	bucketPrefix := strings.Join([]string{r.Category, "template"}, "/")
 	params := &s3.ListObjectsInput{Bucket: &TemplateBucket, Prefix: &bucketPrefix}

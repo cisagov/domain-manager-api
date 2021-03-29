@@ -155,7 +155,7 @@ class DomainContentView(MethodView):
     decorators = [can_access_domain]
 
     def get(self, domain_id):
-        """Download Domain."""
+        """Download website content."""
         domain = domain_manager.get(document_id=domain_id)
 
         resp = requests.get(
@@ -180,6 +180,9 @@ class DomainContentView(MethodView):
 
     def post(self, domain_id):
         """Upload files and serve s3 site."""
+        if not g.is_admin:
+            return jsonify({"error": "Upload content not authorized"}), 401
+
         # Get domain data
         domain = domain_manager.get(document_id=domain_id)
 
