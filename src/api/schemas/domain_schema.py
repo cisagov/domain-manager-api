@@ -91,7 +91,7 @@ class Record(Schema):
             for line in in_data["value"].splitlines():
                 if line and not line.startswith('"') and not line.endswith('"'):
                     new_lines.append(f'"{line}"')
-                else:
+                elif line:
                     new_lines.append(line)
             in_data["value"] = "\n".join(new_lines)
             return in_data
