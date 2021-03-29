@@ -11,7 +11,7 @@ import requests
 # cisagov Libraries
 from api.manager import LogManager
 from api.views.applications import ApplicationsView, ApplicationView
-from api.views.auth import RegisterView, SignInView
+from api.views.auth import RegisterView, SignInView, RefreshTokenView
 from api.views.categories import CategoriesView, ExternalCategoriesView
 from api.views.domain_views import (
     DomainCategorizeView,
@@ -74,6 +74,7 @@ rules = [
 login_rules = [
     ("/auth/register/", RegisterView),
     ("/auth/signin/", SignInView),
+    ("/auth/refreshtoken/", RefreshTokenView),
 ]
 
 admin_rules = [

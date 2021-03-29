@@ -95,8 +95,11 @@ class RequestAuth:
             self.username = resp["cognito:username"]
             self.groups = resp.get("cognito:groups", [])
             return self.username
-        except Exception as e:
-            logger.exception(e)
+        except Exception as e: 
+            if str(e) != 'Token is expired':
+                logger.exception(e)
+            else: 
+                print("Token is expired")
             return False
 
     def check_admin_status(self):
