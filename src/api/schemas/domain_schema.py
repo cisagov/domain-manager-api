@@ -87,10 +87,13 @@ class Record(Schema):
         @pre_load
         def wrap_value(self, in_data, **kwargs):
             """Wrap TXT values with quotes."""
-            if not in_data["value"].startswith('"') and not in_data["value"].endswith(
-                '"'
-            ):
-                in_data["value"] = f'"{in_data["value"]}"'
+            new_lines = []
+            for line in in_data["value"].splitlines():
+                if line and not line.startswith('"') and not line.endswith('"'):
+                    new_lines.append(f'"{line}"')
+                else:
+                    new_lines.append(line)
+            in_data["value"] = "\n".join(new_lines)
             return in_data
 
     class REDIRECT(Schema):
