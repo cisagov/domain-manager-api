@@ -95,10 +95,10 @@ class RequestAuth:
             self.username = resp["cognito:username"]
             self.groups = resp.get("cognito:groups", [])
             return self.username
-        except Exception as e: 
-            if str(e) != 'Token is expired':
+        except Exception as e:
+            if str(e) != "Token is expired":
                 logger.exception(e)
-            else: 
+            else:
                 print("Token is expired")
             return False
 
