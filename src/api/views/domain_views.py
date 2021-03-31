@@ -297,13 +297,10 @@ class DomainGenerateView(MethodView):
             post_data = {
                 "s3_url": f"https://{WEBSITE_BUCKET}.s3.amazonaws.com/{domain_name}/",
                 "category": category,
+                "is_approved": True,
                 "is_available": True,
                 "is_generating_template": False,
             }
-
-            # Content automatically approved if uploaded by admins
-            if g.is_admin:
-                post_data["is_approved"] = True
 
             domain_manager.update(
                 document_id=domain_id,

@@ -28,9 +28,6 @@ class TemplatesView(MethodView):
 
     def post(self):
         """Create new template."""
-        if not g.is_admin:
-            return jsonify({"error": "Upload template not authorized"}), 401
-
         rvalues = []
         name = ""
         for f in request.files.getlist("zip"):
@@ -56,17 +53,19 @@ class TemplatesView(MethodView):
                 logger.error(resp.text)
                 return jsonify({"error": resp.text}), 400
 
-            s3_url = f"{TEMPLATE_BUCKET}.s3.amazonaws.com/{name}/"
+            post_data = {
+                "name": name,
+                "s3_url": f"{TEMPLATE_BUCKET}.s3.amazonaws.com/{name}/",
+                "is_approved": False,
+            }
+            if g.is_admin:
+                post_data["is_approved"] = True
+
             try:
-                template_manager.save(
-                    {
-                        "name": name,
-                        "s3_url": s3_url,
-                    }
-                )
+                template_manager.save(post_data)
             except Exception as e:
                 logger.exception(e)
-            rvalues.append({"name": name, "s3_url": s3_url})
+            rvalues.append(post_data)
 
         return jsonify(rvalues, 200)
 
