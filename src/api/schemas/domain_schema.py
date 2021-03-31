@@ -151,6 +151,7 @@ class DomainSchema(Schema):
     ip_address = fields.Str()
     application_id = fields.Str(allow_none=True)
     is_active = fields.Boolean()
+    is_approved = fields.Boolean(default=False)
     is_available = fields.Boolean(default=True)
     is_launching = fields.Boolean(default=False)
     is_delaunching = fields.Boolean(default=False)

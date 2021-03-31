@@ -18,5 +18,6 @@ class TemplateSchema(Schema):
     _id = fields.Str()
     name = fields.Str(validate=is_valid_category)
     s3_url = fields.Str()
+    is_approved = fields.Boolean(default=False)
     created = DateTimeField()
     updated = DateTimeField()
