@@ -77,6 +77,7 @@ class DomainsView(MethodView):
             {
                 "name": data["name"],
                 "is_active": False,
+                "is_approved": False,
                 "is_available": True,
                 "is_launching": False,
                 "is_delaunching": False,
@@ -181,14 +182,19 @@ class DomainContentView(MethodView):
 
     def post(self, domain_id):
         """Upload files and serve s3 site."""
-        if not g.is_admin:
-            return jsonify({"error": "Upload content not authorized"}), 401
-
         # Get domain data
         domain = domain_manager.get(document_id=domain_id)
 
         domain_name = domain["name"]
         category = request.args.get("category")
+
+        post_data = {
+            "category": category,
+            "s3_url": f"https://{WEBSITE_BUCKET}.s3.amazonaws.com/{domain_name}/",
+        }
+
+        if g.is_admin:
+            post_data["is_approved"] = True
 
         # Delete existing website files
         resp = requests.delete(
@@ -218,10 +224,7 @@ class DomainContentView(MethodView):
             jsonify(
                 domain_manager.update(
                     document_id=domain_id,
-                    data={
-                        "category": category,
-                        "s3_url": f"https://{WEBSITE_BUCKET}.s3.amazonaws.com/{domain_name}/",
-                    },
+                    data=post_data,
                 )
             ),
             200,
@@ -322,6 +325,12 @@ class DomainLaunchView(MethodView):
 
         if not domain["is_available"]:
             return "Domain is not available for launching at the moment.", 400
+
+        if not domain["is_approved"]:
+            return (
+                "Website content is not approved. Please reach out to an admin for approval.",
+                400,
+            )
 
         task = Process(target=launch_domain, args=(domain,))
         task.start()
