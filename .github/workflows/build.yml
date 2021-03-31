@@ -58,6 +58,10 @@ jobs:
             ${{ hashFiles('**/.pre-commit-config.yaml') }}"
           restore-keys: |
             ${{ env.BASE_CACHE_KEY }}
+      # A .env file is required in the base directory for
+      # tests to run successfully.
+      - name: Copy env.dist
+        run: cp etc/env.dist .env
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
@@ -256,6 +260,10 @@ jobs:
             ${{ hashFiles('**/requirements.txt') }}"
           restore-keys: |
             ${{ env.BASE_CACHE_KEY }}
+      # A .env file is required in the base directory for
+      # tests to run successfully.
+      - name: Copy env.dist
+        run: cp etc/env.dist .env
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
