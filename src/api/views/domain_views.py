@@ -193,6 +193,7 @@ class DomainContentView(MethodView):
             "s3_url": f"https://{WEBSITE_BUCKET}.s3.amazonaws.com/{domain_name}/",
         }
 
+        # Content automatically approved if uploaded by admins
         if g.is_admin:
             post_data["is_approved"] = True
 
@@ -247,7 +248,12 @@ class DomainContentView(MethodView):
 
         return jsonify(
             domain_manager.remove(
-                document_id=domain_id, data={"category": "", "s3_url": ""}
+                document_id=domain_id,
+                data={
+                    "category": "",
+                    "is_approved": False,
+                    "s3_url": "",
+                },
             )
         )
 
@@ -288,14 +294,20 @@ class DomainGenerateView(MethodView):
 
             resp.raise_for_status()
 
+            post_data = {
+                "s3_url": f"https://{WEBSITE_BUCKET}.s3.amazonaws.com/{domain_name}/",
+                "category": category,
+                "is_available": True,
+                "is_generating_template": False,
+            }
+
+            # Content automatically approved if uploaded by admins
+            if g.is_admin:
+                post_data["is_approved"] = True
+
             domain_manager.update(
                 document_id=domain_id,
-                data={
-                    "s3_url": f"https://{WEBSITE_BUCKET}.s3.amazonaws.com/{domain_name}/",
-                    "category": category,
-                    "is_available": True,
-                    "is_generating_template": False,
-                },
+                data=post_data,
             )
             return jsonify(
                 {
@@ -326,7 +338,7 @@ class DomainLaunchView(MethodView):
         if not domain["is_available"]:
             return "Domain is not available for launching at the moment.", 400
 
-        if not domain["is_approved"]:
+        if not domain.get("is_approved", False):
             return (
                 "Website content is not approved. Please reach out to an admin for approval.",
                 400,
