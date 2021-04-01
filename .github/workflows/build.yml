@@ -28,9 +28,9 @@ env:
   BUILDX_CACHE_DIR: ~/.cache/buildx
   IMAGE_NAME: cisagov/domain-manager-api
   PIP_CACHE_DIR: ~/.cache/pip
-  # Disabled linux/arm/v6 as there are issues building GO.
-  PLATFORMS: "linux/amd64,linux/arm/v7,\
-  linux/arm64,linux/ppc64le,linux/s390x"
+  # Disabled following platforms due to issues with GO
+  # linux/arm/v6,linux/ppc64le,linux/s390x
+  PLATFORMS: "linux/amd64,linux/arm/v7,linux/arm64"
   PRE_COMMIT_CACHE_DIR: ~/.cache/pre-commit
 
 jobs:
