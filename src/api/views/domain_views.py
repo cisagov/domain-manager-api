@@ -14,7 +14,7 @@ from flask.views import MethodView
 import requests
 
 # cisagov Libraries
-from api.manager import ApplicationManager, DomainManager
+from api.manager import ApplicationManager, DomainManager, TemplateManager
 from api.schemas.domain_schema import DomainSchema, Record
 from settings import STATIC_GEN_URL, TAGS, WEBSITE_BUCKET, logger
 from utils.aws import record_handler
@@ -26,6 +26,8 @@ from utils.user_profile import get_users_group_ids
 from utils.validator import validate_data
 
 domain_manager = DomainManager()
+template_manager = TemplateManager()
+
 application_manager = ApplicationManager()
 route53 = boto3.client("route53")
 sqs = boto3.client("sqs")
@@ -259,13 +261,19 @@ class DomainContentView(MethodView):
 
 
 class DomainGenerateView(MethodView):
-    """DomainGenerateView."""
+    """Generate static content from a template."""
 
     decorators = [can_access_domain]
 
     def post(self, domain_id):
         """Create website."""
         category = request.args.get("category")
+
+        template = template_manager.get(filter_data={"name": category})
+
+        if template.get("is_approved", False) is False:
+            return jsonify({"error": "Template is not authorized for use."}), 401
+
         domain = domain_manager.get(document_id=domain_id)
 
         # Switch instance to unavailable to prevent user actions
@@ -335,7 +343,7 @@ class DomainLaunchView(MethodView):
         if not domain["is_available"]:
             return "Domain is not available for launching at the moment.", 400
 
-        if not domain.get("is_approved", False):
+        if domain.get("is_approved", False) is False:
             return (
                 "Website content is not approved. Please reach out to an admin for approval.",
                 400,
