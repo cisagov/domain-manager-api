@@ -14,6 +14,7 @@ from api.views.application_views import ApplicationsView, ApplicationView
 from api.views.auth_views import RefreshTokenView, RegisterView, SignInView
 from api.views.category_views import CategoriesView, ExternalCategoriesView
 from api.views.domain_views import (
+    DomainApprovalView,
     DomainCategorizeView,
     DomainContentView,
     DomainDeployedCheckView,
@@ -80,6 +81,7 @@ login_rules = [
 
 admin_rules = [
     ("/application/<application_id>/", ApplicationView),
+    ("/domain/<domain_id>/approve/", DomainApprovalView),
     ("/template/<template_id>/approve/", TemplateApprovalView),
     ("/users/", UsersView),
     ("/user/<username>/confirm", UserConfirmView),

@@ -494,3 +494,18 @@ class DomainDeployedCheckView(MethodView):
                 ),
                 400,
             )
+
+
+class DomainApprovalView(MethodView):
+    """Domain approval view."""
+
+    def get(self, domain_id):
+        """Approve uploaded content pending for review."""
+        template = domain_manager.get(document_id=domain_id)
+
+        if template.get("is_approved", False):
+            return jsonify({"error": "This content is already approved"}), 400
+
+        return jsonify(
+            domain_manager.update(document_id=domain_id, data={"is_approved": True})
+        )
