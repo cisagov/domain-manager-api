@@ -271,7 +271,7 @@ class DomainGenerateView(MethodView):
 
         template = template_manager.get(filter_data={"name": category})
 
-        if template.get("is_approved", False) is False:
+        if not template.get("is_approved", False):
             return jsonify({"error": "Template is not authorized for use."}), 401
 
         domain = domain_manager.get(document_id=domain_id)
@@ -343,7 +343,7 @@ class DomainLaunchView(MethodView):
         if not domain["is_available"]:
             return "Domain is not available for launching at the moment.", 400
 
-        if domain.get("is_approved", False) is False:
+        if not domain.get("is_approved", False):
             return (
                 "Website content is not approved. Please reach out to an admin for approval.",
                 400,
