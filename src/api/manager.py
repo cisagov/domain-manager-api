@@ -81,23 +81,22 @@ class Manager:
         """Add created attribute to data on save."""
         if type(data) is dict:
             data["created"] = datetime.utcnow().isoformat()
+            data["created_by"] = g.get("username")
         elif type(data) is list:
             for item in data:
                 item["created"] = datetime.utcnow().isoformat()
+                item["created_by"] = g.get("username")
         return data
 
     def add_updated(self, data):
         """Update updated data on update."""
         if type(data) is dict:
             data["updated"] = datetime.utcnow().isoformat()
+            data["updated_by"] = g.get("username")
         elif type(data) is list:
             for item in data:
                 item["updated"] = datetime.utcnow().isoformat()
-        return data
-
-    def add_user(self, data):
-        """Add user attribute to data on save."""
-        data["created_by"] = g.get("username")
+                item["updated_by"] = g.get("username")
         return data
 
     def clean_data(self, data):
@@ -224,11 +223,6 @@ class TemplateManager(Manager):
             unique_indexes=["name"],
         )
 
-    def save(self, data):
-        """Save with user data."""
-        data = self.add_user(data)
-        super().save(data)
-
 
 class UserManager(Manager):
     """UserManager."""
@@ -252,11 +246,6 @@ class DomainManager(Manager):
             schema=DomainSchema,
             unique_indexes=["name"],
         )
-
-    def save(self, data):
-        """Save with user data."""
-        data = self.add_user(data)
-        super().save(data)
 
 
 class LogManager(Manager):

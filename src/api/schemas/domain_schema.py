@@ -4,6 +4,7 @@ from marshmallow import EXCLUDE, Schema, fields, pre_load, validate, validates_s
 
 # cisagov Libraries
 from api.schemas import application_schema
+from api.schemas.base_schema import BaseSchema
 from api.schemas.fields import DateTimeField
 from utils import validator
 
@@ -135,7 +136,7 @@ class Record(Schema):
         return data
 
 
-class DomainSchema(Schema):
+class DomainSchema(BaseSchema):
     """DomainSchema."""
 
     class Meta:
@@ -143,7 +144,6 @@ class DomainSchema(Schema):
 
         unknown = EXCLUDE
 
-    _id = fields.Str()
     name = fields.Str(validate=validator.is_valid_domain)
     description = fields.Str()
     category = fields.Str(validate=validator.is_valid_category)
@@ -159,7 +159,6 @@ class DomainSchema(Schema):
     is_email_active = fields.Boolean()
     launch_date = DateTimeField()
     profile = fields.Dict()
-    created_by = fields.Str()
     history = fields.List(fields.Nested(History))
     cloudfront = fields.Dict()
     acm = fields.Dict()
