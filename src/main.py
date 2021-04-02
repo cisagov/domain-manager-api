@@ -26,6 +26,7 @@ from api.views.domain_views import (
 from api.views.email_address_views import EmailAddressView
 from api.views.proxy_views import ProxiesView, ProxyView
 from api.views.template_views import (
+    TemplateApprovalView,
     TemplateAttributesView,
     TemplateContentView,
     TemplatesView,
@@ -79,6 +80,7 @@ login_rules = [
 
 admin_rules = [
     ("/application/<application_id>/", ApplicationView),
+    ("/template/<template_id>/approve/", TemplateApprovalView),
     ("/users/", UsersView),
     ("/user/<username>/confirm", UserConfirmView),
     ("/user/<username>/admin", UserAdminStatusView),

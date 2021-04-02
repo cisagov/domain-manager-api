@@ -138,3 +138,18 @@ class TemplateAttributesView(MethodView):
                 "state",
             ]
         )
+
+
+class TemplateApprovalView(MethodView):
+    """Template approval view."""
+
+    def get(self, template_id):
+        """Approve a template pending for review."""
+        template = template_manager.get(document_id=template_id)
+
+        if template.get("is_approved", False):
+            return jsonify({"error": "This template is already approved"}), 400
+
+        return jsonify(
+            template_manager.update(document_id=template_id, data={"is_approved": True})
+        )
