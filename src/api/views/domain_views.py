@@ -501,24 +501,25 @@ class DomainApprovalView(MethodView):
 
     def get(self, domain_id):
         """Approve uploaded content pending for review."""
-        template = domain_manager.get(document_id=domain_id)
+        domain = domain_manager.get(document_id=domain_id)
+        return domain.get("is_approved")
 
-        if template.get("is_approved", False):
+    def post(self, domain_id):
+        """Approve uploaded content pending for review."""
+        domain = domain_manager.get(document_id=domain_id)
+
+        if domain.get("is_approved", False):
             return jsonify({"error": "This content is already approved"}), 400
 
         return jsonify(
             domain_manager.update(document_id=domain_id, data={"is_approved": True})
         )
 
-
-class DomainDisapprovalView(MethodView):
-    """Domain disapproval view."""
-
-    def get(self, domain_id):
+    def delete(self, domain_id):
         """Disapprove previously approved content."""
-        template = domain_manager.get(document_id=domain_id)
+        domain = domain_manager.get(document_id=domain_id)
 
-        if not template.get("is_approved", True):
+        if not domain.get("is_approved", True):
             return jsonify({"error": "This content is not yet approved"}), 400
 
         return jsonify(
