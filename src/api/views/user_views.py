@@ -218,6 +218,8 @@ class UserGroupsView(MethodView):
 class UserAPIKeyView(MethodView):
     """Manage a user's api key."""
 
+    decorators = [can_access_user]
+
     def get(self, username):
         """Get a new api key for the user."""
         try:

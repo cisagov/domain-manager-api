@@ -71,6 +71,7 @@ rules = [
     ("/template/<template_id>/content/", TemplateContentView),
     ("/templates/attributes/", TemplateAttributesView),
     ("/user/<username>/", UserView),
+    ("/user/<username>/api", UserAPIKeyView),
 ]
 
 login_rules = [
@@ -87,7 +88,6 @@ admin_rules = [
     ("/user/<username>/confirm", UserConfirmView),
     ("/user/<username>/admin", UserAdminStatusView),
     ("/user/<username>/groups", UserGroupsView),
-    ("/user/<username>/api", UserAPIKeyView),
 ]
 
 for rule in rules:
