@@ -509,3 +509,18 @@ class DomainApprovalView(MethodView):
         return jsonify(
             domain_manager.update(document_id=domain_id, data={"is_approved": True})
         )
+
+
+class DomainDisapprovalView(MethodView):
+    """Domain disapproval view."""
+
+    def get(self, domain_id):
+        """Disapprove previously approved content."""
+        template = domain_manager.get(document_id=domain_id)
+
+        if not template.get("is_approved", True):
+            return jsonify({"error": "This content is not yet approved"}), 400
+
+        return jsonify(
+            domain_manager.update(document_id=domain_id, data={"is_approved": False})
+        )
