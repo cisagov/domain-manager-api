@@ -1,12 +1,12 @@
 """API Schema."""
 # Third-Party Libraries
-from marshmallow import EXCLUDE, Schema, fields
+from marshmallow import EXCLUDE, fields
 
 # cisagov Libraries
-from api.schemas.fields import DateTimeField
+from api.schemas.base_schema import BaseSchema
 
 
-class ApplicationSchema(Schema):
+class ApplicationSchema(BaseSchema):
     """Application Schema."""
 
     class Meta:
@@ -14,11 +14,8 @@ class ApplicationSchema(Schema):
 
         unknown = EXCLUDE
 
-    _id = fields.Str()
     name = fields.Str()
     requester_name = fields.Str()
     contact_name = fields.Str()
     contact_email = fields.Email()
     contact_phone = fields.Str()
-    created = DateTimeField()
-    updated = DateTimeField()

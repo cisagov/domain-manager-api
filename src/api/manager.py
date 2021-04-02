@@ -4,6 +4,7 @@ from datetime import datetime
 
 # Third-Party Libraries
 from bson.objectid import ObjectId
+from flask import g
 import pymongo
 
 # cisagov Libraries
@@ -80,18 +81,22 @@ class Manager:
         """Add created attribute to data on save."""
         if type(data) is dict:
             data["created"] = datetime.utcnow().isoformat()
+            data["created_by"] = g.get("username")
         elif type(data) is list:
             for item in data:
                 item["created"] = datetime.utcnow().isoformat()
+                item["created_by"] = g.get("username")
         return data
 
     def add_updated(self, data):
         """Update updated data on update."""
         if type(data) is dict:
             data["updated"] = datetime.utcnow().isoformat()
+            data["updated_by"] = g.get("username")
         elif type(data) is list:
             for item in data:
                 item["updated"] = datetime.utcnow().isoformat()
+                item["updated_by"] = g.get("username")
         return data
 
     def clean_data(self, data):

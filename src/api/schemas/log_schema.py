@@ -1,12 +1,12 @@
 """Log Schema."""
 # Third-Party Libraries
-from marshmallow import EXCLUDE, Schema, fields
+from marshmallow import EXCLUDE, fields
 
 # cisagov Libraries
-from api.schemas.fields import DateTimeField
+from api.schemas.base_schema import BaseSchema
 
 
-class LogSchema(Schema):
+class LogSchema(BaseSchema):
     """LogSchema."""
 
     class Meta:
@@ -14,7 +14,6 @@ class LogSchema(Schema):
 
         unkown = EXCLUDE
 
-    _id = fields.Str()
     username = fields.Str()
     is_admin = fields.Bool()
     status_code = fields.Number()
@@ -22,5 +21,4 @@ class LogSchema(Schema):
     method = fields.Str()
     args = fields.Dict()
     json = fields.Field(allow_none=True)
-    created = DateTimeField()
     error = fields.Str()

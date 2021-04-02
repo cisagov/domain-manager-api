@@ -28,9 +28,6 @@ class TemplatesView(MethodView):
 
     def post(self):
         """Create new template."""
-        if not g.is_admin:
-            return jsonify({"error": "Upload template not authorized"}), 401
-
         rvalues = []
         name = ""
         for f in request.files.getlist("zip"):
@@ -56,17 +53,19 @@ class TemplatesView(MethodView):
                 logger.error(resp.text)
                 return jsonify({"error": resp.text}), 400
 
-            s3_url = f"{TEMPLATE_BUCKET}.s3.amazonaws.com/{name}/"
+            post_data = {
+                "name": name,
+                "s3_url": f"{TEMPLATE_BUCKET}.s3.amazonaws.com/{name}/",
+                "is_approved": False,
+            }
+            if g.is_admin:
+                post_data["is_approved"] = True
+
             try:
-                template_manager.save(
-                    {
-                        "name": name,
-                        "s3_url": s3_url,
-                    }
-                )
+                template_manager.save(post_data)
             except Exception as e:
                 logger.exception(e)
-            rvalues.append({"name": name, "s3_url": s3_url})
+            rvalues.append(post_data)
 
         return jsonify(rvalues, 200)
 
@@ -138,4 +137,32 @@ class TemplateAttributesView(MethodView):
                 "phone",
                 "state",
             ]
+        )
+
+
+class TemplateApprovalView(MethodView):
+    """Template approval view."""
+
+    def get(self, template_id):
+        """Approve a template pending for review."""
+        template = template_manager.get(document_id=template_id)
+
+        if template.get("is_approved", False):
+            return jsonify({"error": "This template is already approved"}), 400
+
+        return jsonify(
+            template_manager.update(document_id=template_id, data={"is_approved": True})
+        )
+
+    def delete(self, template_id):
+        """Disapprove a previously approved template."""
+        template = template_manager.get(document_id=template_id)
+
+        if not template.get("is_approved", True):
+            return jsonify({"error": "This template is not yet approved"}), 400
+
+        return jsonify(
+            template_manager.update(
+                document_id=template_id, data={"is_approved": False}
+            )
         )

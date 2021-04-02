@@ -14,7 +14,7 @@ from flask.views import MethodView
 import requests
 
 # cisagov Libraries
-from api.manager import ApplicationManager, DomainManager
+from api.manager import ApplicationManager, DomainManager, TemplateManager
 from api.schemas.domain_schema import DomainSchema, Record
 from settings import STATIC_GEN_URL, TAGS, WEBSITE_BUCKET, logger
 from utils.aws import record_handler
@@ -26,6 +26,8 @@ from utils.user_profile import get_users_group_ids
 from utils.validator import validate_data
 
 domain_manager = DomainManager()
+template_manager = TemplateManager()
+
 application_manager = ApplicationManager()
 route53 = boto3.client("route53")
 sqs = boto3.client("sqs")
@@ -77,6 +79,7 @@ class DomainsView(MethodView):
             {
                 "name": data["name"],
                 "is_active": False,
+                "is_approved": False,
                 "is_available": True,
                 "is_launching": False,
                 "is_delaunching": False,
@@ -181,14 +184,20 @@ class DomainContentView(MethodView):
 
     def post(self, domain_id):
         """Upload files and serve s3 site."""
-        if not g.is_admin:
-            return jsonify({"error": "Upload content not authorized"}), 401
-
         # Get domain data
         domain = domain_manager.get(document_id=domain_id)
 
         domain_name = domain["name"]
         category = request.args.get("category")
+
+        post_data = {
+            "category": category,
+            "s3_url": f"https://{WEBSITE_BUCKET}.s3.amazonaws.com/{domain_name}/",
+        }
+
+        # Content automatically approved if uploaded by admins
+        if g.is_admin:
+            post_data["is_approved"] = True
 
         # Delete existing website files
         resp = requests.delete(
@@ -218,10 +227,7 @@ class DomainContentView(MethodView):
             jsonify(
                 domain_manager.update(
                     document_id=domain_id,
-                    data={
-                        "category": category,
-                        "s3_url": f"https://{WEBSITE_BUCKET}.s3.amazonaws.com/{domain_name}/",
-                    },
+                    data=post_data,
                 )
             ),
             200,
@@ -244,19 +250,30 @@ class DomainContentView(MethodView):
 
         return jsonify(
             domain_manager.remove(
-                document_id=domain_id, data={"category": "", "s3_url": ""}
+                document_id=domain_id,
+                data={
+                    "category": "",
+                    "is_approved": False,
+                    "s3_url": "",
+                },
             )
         )
 
 
 class DomainGenerateView(MethodView):
-    """DomainGenerateView."""
+    """Generate static content from a template."""
 
     decorators = [can_access_domain]
 
     def post(self, domain_id):
         """Create website."""
         category = request.args.get("category")
+
+        template = template_manager.get(filter_data={"name": category})
+
+        if not template.get("is_approved", False):
+            return jsonify({"error": "Template is not authorized for use."}), 401
+
         domain = domain_manager.get(document_id=domain_id)
 
         # Switch instance to unavailable to prevent user actions
@@ -285,14 +302,17 @@ class DomainGenerateView(MethodView):
 
             resp.raise_for_status()
 
+            post_data = {
+                "s3_url": f"https://{WEBSITE_BUCKET}.s3.amazonaws.com/{domain_name}/",
+                "category": category,
+                "is_approved": True,
+                "is_available": True,
+                "is_generating_template": False,
+            }
+
             domain_manager.update(
                 document_id=domain_id,
-                data={
-                    "s3_url": f"https://{WEBSITE_BUCKET}.s3.amazonaws.com/{domain_name}/",
-                    "category": category,
-                    "is_available": True,
-                    "is_generating_template": False,
-                },
+                data=post_data,
             )
             return jsonify(
                 {
@@ -322,6 +342,12 @@ class DomainLaunchView(MethodView):
 
         if not domain["is_available"]:
             return "Domain is not available for launching at the moment.", 400
+
+        if not domain.get("is_approved", False):
+            return (
+                "Website content is not approved. Please reach out to an admin for approval.",
+                400,
+            )
 
         task = Process(target=launch_domain, args=(domain,))
         task.start()
@@ -468,3 +494,29 @@ class DomainDeployedCheckView(MethodView):
                 ),
                 400,
             )
+
+
+class DomainApprovalView(MethodView):
+    """Domain approval view."""
+
+    def get(self, domain_id):
+        """Approve uploaded content pending for review."""
+        domain = domain_manager.get(document_id=domain_id)
+
+        if domain.get("is_approved", False):
+            return jsonify({"error": "This content is already approved"}), 400
+
+        return jsonify(
+            domain_manager.update(document_id=domain_id, data={"is_approved": True})
+        )
+
+    def delete(self, domain_id):
+        """Disapprove previously approved content."""
+        domain = domain_manager.get(document_id=domain_id)
+
+        if not domain.get("is_approved", True):
+            return jsonify({"error": "This content is not yet approved"}), 400
+
+        return jsonify(
+            domain_manager.update(document_id=domain_id, data={"is_approved": False})
+        )
