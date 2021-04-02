@@ -31,7 +31,6 @@ from api.views.template_views import (
     TemplateApprovalView,
     TemplateAttributesView,
     TemplateContentView,
-    TemplateDisapprovalView,
     TemplatesView,
     TemplateView,
 )
@@ -86,7 +85,6 @@ admin_rules = [
     ("/domain/<domain_id>/approve/", DomainApprovalView),
     ("/domain/<domain_id>/disapprove/", DomainDisapprovalView),
     ("/template/<template_id>/approve/", TemplateApprovalView),
-    ("/template/<template_id>/disapprove/", TemplateDisapprovalView),
     ("/users/", UsersView),
     ("/user/<username>/confirm", UserConfirmView),
     ("/user/<username>/admin", UserAdminStatusView),
