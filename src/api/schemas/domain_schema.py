@@ -159,6 +159,7 @@ class DomainSchema(Schema):
     is_email_active = fields.Boolean()
     launch_date = DateTimeField()
     profile = fields.Dict()
+    created_by = fields.Str()
     history = fields.List(fields.Nested(History))
     cloudfront = fields.Dict()
     acm = fields.Dict()

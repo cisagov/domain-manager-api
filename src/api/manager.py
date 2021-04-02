@@ -4,6 +4,7 @@ from datetime import datetime
 
 # Third-Party Libraries
 from bson.objectid import ObjectId
+from flask import g
 import pymongo
 
 # cisagov Libraries
@@ -92,6 +93,11 @@ class Manager:
         elif type(data) is list:
             for item in data:
                 item["updated"] = datetime.utcnow().isoformat()
+        return data
+
+    def add_user(self, data):
+        """Add user attribute to data on save."""
+        data["created_by"] = g.get("username")
         return data
 
     def clean_data(self, data):
@@ -218,6 +224,11 @@ class TemplateManager(Manager):
             unique_indexes=["name"],
         )
 
+    def save(self, data):
+        """Save with user data."""
+        data = self.add_user(data)
+        super().save(data)
+
 
 class UserManager(Manager):
     """UserManager."""
@@ -241,6 +252,11 @@ class DomainManager(Manager):
             schema=DomainSchema,
             unique_indexes=["name"],
         )
+
+    def save(self, data):
+        """Save with user data."""
+        data = self.add_user(data)
+        super().save(data)
 
 
 class LogManager(Manager):

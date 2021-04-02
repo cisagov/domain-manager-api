@@ -21,3 +21,4 @@ class TemplateSchema(Schema):
     is_approved = fields.Boolean(default=False)
     created = DateTimeField()
     updated = DateTimeField()
+    created_by = fields.Str()
