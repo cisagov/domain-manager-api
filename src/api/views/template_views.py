@@ -144,11 +144,6 @@ class TemplateApprovalView(MethodView):
     """Template approval view."""
 
     def get(self, template_id):
-        """Get template approval status."""
-        template = template_manager.get(document_id=template_id)
-        return template.get("is_approved", False)
-
-    def post(self, template_id):
         """Approve a template pending for review."""
         template = template_manager.get(document_id=template_id)
 

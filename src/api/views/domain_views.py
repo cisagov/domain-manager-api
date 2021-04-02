@@ -502,11 +502,6 @@ class DomainApprovalView(MethodView):
     def get(self, domain_id):
         """Approve uploaded content pending for review."""
         domain = domain_manager.get(document_id=domain_id)
-        return domain.get("is_approved")
-
-    def post(self, domain_id):
-        """Approve uploaded content pending for review."""
-        domain = domain_manager.get(document_id=domain_id)
 
         if domain.get("is_approved", False):
             return jsonify({"error": "This content is already approved"}), 400
