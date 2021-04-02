@@ -96,4 +96,15 @@ def modify_redirect_record(action, hosted_zone_id, record):
     if action == "DELETE":
         s3.delete_bucket(Bucket=record["name"])
 
+    if action == "UPSERT":
+        s3.put_bucket_website(
+            Bucket=record["name"],
+            WebsiteConfiguration={
+                "RedirectAllRequestsTo": {
+                    "HostName": record["config"]["value"],
+                    "Protocol": record["config"]["protocol"],
+                }
+            },
+        )
+
     return resp

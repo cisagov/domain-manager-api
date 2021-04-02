@@ -400,7 +400,7 @@ class DomainRecordView(MethodView):
         """Delete the hosted zone record."""
         record_id = request.args.get("record_id")
         if not record_id:
-            return jsonify({"error": "Must supply record id in request args."}), 400
+            return jsonify({"error": "Must supply record_id in request args."}), 400
         domain = domain_manager.get(document_id=domain_id)
         record = next(
             filter(lambda x: x["record_id"] == record_id, domain.get("records", []))
@@ -412,6 +412,29 @@ class DomainRecordView(MethodView):
             document_id=domain_id, field="records", data={"record_id": record_id}
         )
         return jsonify(resp)
+
+    def put(self, domain_id):
+        """Modify the hosted zone record."""
+        record_id = request.args.get("record_id")
+        if not record_id:
+            return jsonify({"error": "Must supply record_id in request args."}), 400
+        domain = domain_manager.get(document_id=domain_id)
+        record = next(
+            filter(lambda x: x["record_id"] == record_id, domain.get("records", []))
+        )
+        if not record:
+            return jsonify({"error": "No record with matching id found."}), 400
+
+        data = validate_data(request.json, Record)
+        record["config"] = data["config"]
+        record_handler.manage_record("UPSERT", domain["route53"]["id"], record)
+        domain_manager.update_in_list(
+            document_id=domain["_id"],
+            field="records.$.config",
+            data=record["config"],
+            params={"records.record_id": record_id},
+        )
+        return jsonify({"success": "Record has been updated."})
 
 
 class DomainCategorizeView(MethodView):
