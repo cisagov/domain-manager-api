@@ -49,15 +49,15 @@ class DomainsView(MethodView):
 
     def post(self):
         """Create a new domain."""
-        # if not g.is_admin:
-        #     return (
-        #         jsonify(
-        #             {
-        #                 "error": "User does not have admin rights, can not create a new domain"
-        #             }
-        #         ),
-        #         400,
-        #     )
+        if not g.is_admin:
+            return (
+                jsonify(
+                    {
+                        "error": "User does not have admin rights, can not create a new domain"
+                    }
+                ),
+                400,
+            )
         response = []
         for domain_name in request.json:
             data = validate_data({"name": domain_name}, DomainSchema)
