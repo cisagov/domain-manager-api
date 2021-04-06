@@ -11,6 +11,7 @@ import boto3
 import botocore
 from flask import g, jsonify, request, send_file
 from flask.views import MethodView
+from marshmallow.exceptions import ValidationError
 import requests
 
 # cisagov Libraries
@@ -380,7 +381,11 @@ class DomainRecordView(MethodView):
 
     def post(self, domain_id):
         """Create a new record in the hosted zone."""
-        data = validate_data(request.json, Record)
+        try:
+            data = validate_data(request.json, Record)
+        except ValidationError as e:
+            logger.exception(e)
+            return str(e), 400
         data["record_id"] = str(uuid4())
         domain = domain_manager.get(document_id=domain_id)
         try:
@@ -425,7 +430,11 @@ class DomainRecordView(MethodView):
         if not record:
             return jsonify({"error": "No record with matching id found."}), 400
 
-        data = validate_data(request.json, Record)
+        try:
+            data = validate_data(request.json, Record)
+        except ValidationError as e:
+            logger.exception(e)
+            return str(e), 400
         record["config"] = data["config"]
         record_handler.manage_record("UPSERT", domain["route53"]["id"], record)
         domain_manager.update_in_list(
