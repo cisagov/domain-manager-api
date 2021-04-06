@@ -49,20 +49,23 @@ class DomainsView(MethodView):
 
     def post(self):
         """Create a new domain."""
-        if not g.is_admin:
-            return (
-                jsonify(
-                    {
-                        "error": "User does not have admin rights, can not create a new domain"
-                    }
-                ),
-                400,
-            )
+        # if not g.is_admin:
+        #     return (
+        #         jsonify(
+        #             {
+        #                 "error": "User does not have admin rights, can not create a new domain"
+        #             }
+        #         ),
+        #         400,
+        #     )
         response = []
         for domain_name in request.json:
             data = validate_data({"name": domain_name}, DomainSchema)
             if domain_manager.get(filter_data={"name": data["name"]}):
-                return jsonify({"error": "Domain already exists."}), 400
+                logger.error(f"{domain_name} already exists.")
+                response.append({domain_name: "Skipped. Already exists."})
+                continue
+
             caller_ref = str(uuid4())
             resp = route53.create_hosted_zone(
                 Name=data["name"], CallerReference=caller_ref
