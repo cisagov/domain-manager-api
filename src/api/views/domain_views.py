@@ -18,7 +18,7 @@ from api.manager import ApplicationManager, DomainManager, TemplateManager
 from api.schemas.domain_schema import DomainSchema, Record
 from settings import STATIC_GEN_URL, TAGS, WEBSITE_BUCKET, logger
 from utils.aws import record_handler
-from utils.aws.site_handler import launch_domain, unlaunch_domain
+from utils.aws.site_handler import launch_domain, unlaunch_domain, verify_hosted_zone
 from utils.categorization.categorize import categorize
 from utils.categorization.check import check_category
 from utils.decorators.auth import can_access_domain
@@ -348,6 +348,11 @@ class DomainLaunchView(MethodView):
                 "Website content is not approved. Please reach out to an admin for approval.",
                 400,
             )
+
+        try:
+            verify_hosted_zone(domain)
+        except Exception as e:
+            return str(e), 400
 
         task = Process(target=launch_domain, args=(domain,))
         task.start()
