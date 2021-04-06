@@ -58,36 +58,40 @@ class DomainsView(MethodView):
                 ),
                 400,
             )
+        response = []
+        for domain_name in request.json:
+            data = validate_data({"name": domain_name}, DomainSchema)
+            if domain_manager.get(filter_data={"name": data["name"]}):
+                return jsonify({"error": "Domain already exists."}), 400
+            caller_ref = str(uuid4())
+            resp = route53.create_hosted_zone(
+                Name=data["name"], CallerReference=caller_ref
+            )
 
-        data = validate_data(request.json, DomainSchema)
-        if domain_manager.get(filter_data={"name": data["name"]}):
-            return jsonify({"error": "Domain already exists."}), 400
-        caller_ref = str(uuid4())
-        resp = route53.create_hosted_zone(Name=data["name"], CallerReference=caller_ref)
+            # tag resource
+            hosted_zone_id = resp["HostedZone"]["Id"].strip("/hostedzone/")
 
-        # tag resource
-        hosted_zone_id = resp["HostedZone"]["Id"].strip("/hostedzone/")
+            route53.change_tags_for_resource(
+                ResourceType="hostedzone",
+                ResourceId=hosted_zone_id,
+                AddTags=TAGS,
+            )
 
-        route53.change_tags_for_resource(
-            ResourceType="hostedzone",
-            ResourceId=hosted_zone_id,
-            AddTags=TAGS,
-        )
-
-        # save to db
-        domain_manager.save(
-            {
-                "name": data["name"],
-                "is_active": False,
-                "is_approved": False,
-                "is_available": True,
-                "is_launching": False,
-                "is_delaunching": False,
-                "is_generating_template": False,
-                "route53": {"id": resp["HostedZone"]["Id"]},
-            }
-        )
-        return jsonify(resp["DelegationSet"]["NameServers"])
+            # save to db
+            domain_manager.save(
+                {
+                    "name": domain_name,
+                    "is_active": False,
+                    "is_approved": False,
+                    "is_available": True,
+                    "is_launching": False,
+                    "is_delaunching": False,
+                    "is_generating_template": False,
+                    "route53": {"id": resp["HostedZone"]["Id"]},
+                }
+            )
+            response.append({domain_name: resp["DelegationSet"]["NameServers"]})
+        return jsonify(response)
 
 
 class DomainView(MethodView):
