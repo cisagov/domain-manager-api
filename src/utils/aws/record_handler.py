@@ -24,10 +24,13 @@ def manage_record(action, hosted_zone_id, record):
             record["name"],
             record["record_type"],
             record["config"]["value"],
+            record["ttl"],
         )
 
 
-def modify_record(action, hosted_zone_id, record_name, record_type, record_value):
+def modify_record(
+    action, hosted_zone_id, record_name, record_type, record_value, record_ttl
+):
     """Modify a simple record in route53."""
     records = []
     for value in record_value.splitlines():
@@ -42,7 +45,7 @@ def modify_record(action, hosted_zone_id, record_name, record_type, record_value
                     "ResourceRecordSet": {
                         "Name": record_name,
                         "Type": record_type,
-                        "TTL": 30,
+                        "TTL": record_ttl,
                         "ResourceRecords": records,
                     },
                 }

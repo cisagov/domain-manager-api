@@ -11,6 +11,7 @@ import boto3
 import botocore
 from flask import g, jsonify, request, send_file
 from flask.views import MethodView
+from marshmallow.exceptions import ValidationError
 import requests
 
 # cisagov Libraries
@@ -18,7 +19,7 @@ from api.manager import ApplicationManager, DomainManager, TemplateManager
 from api.schemas.domain_schema import DomainSchema, Record
 from settings import STATIC_GEN_URL, TAGS, WEBSITE_BUCKET, logger
 from utils.aws import record_handler
-from utils.aws.site_handler import launch_domain, unlaunch_domain
+from utils.aws.site_handler import launch_domain, unlaunch_domain, verify_hosted_zone
 from utils.categorization.categorize import categorize
 from utils.categorization.check import check_category
 from utils.decorators.auth import can_access_domain
@@ -356,6 +357,11 @@ class DomainLaunchView(MethodView):
                 400,
             )
 
+        try:
+            verify_hosted_zone(domain)
+        except Exception as e:
+            return str(e), 400
+
         task = Process(target=launch_domain, args=(domain,))
         task.start()
         return jsonify({"success": "Site is launching in the background."})
@@ -387,7 +393,11 @@ class DomainRecordView(MethodView):
 
     def post(self, domain_id):
         """Create a new record in the hosted zone."""
-        data = validate_data(request.json, Record)
+        try:
+            data = validate_data(request.json, Record)
+        except ValidationError as e:
+            logger.exception(e)
+            return str(e), 400
         data["record_id"] = str(uuid4())
         domain = domain_manager.get(document_id=domain_id)
         try:
@@ -432,7 +442,11 @@ class DomainRecordView(MethodView):
         if not record:
             return jsonify({"error": "No record with matching id found."}), 400
 
-        data = validate_data(request.json, Record)
+        try:
+            data = validate_data(request.json, Record)
+        except ValidationError as e:
+            logger.exception(e)
+            return str(e), 400
         record["config"] = data["config"]
         record_handler.manage_record("UPSERT", domain["route53"]["id"], record)
         domain_manager.update_in_list(
