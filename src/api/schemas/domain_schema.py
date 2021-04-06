@@ -124,6 +124,7 @@ class Record(Schema):
         ),
     )
     name = fields.Str(required=True, validate=validator.is_valid_domain)
+    ttl = fields.Integer(default=30, missing=30)
     config = fields.Dict(required=True)
 
     @validates_schema
