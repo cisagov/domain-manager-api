@@ -41,6 +41,9 @@ from api.views.user_views import (
     UsersView,
     UserView,
 )
+from api.views.help_views import (
+    UserGuideView
+)
 from settings import STATIC_GEN_URL, logger
 from utils.decorators.auth import auth_admin_required, auth_required
 
@@ -64,6 +67,7 @@ rules = [
     ("/domain/<domain_id>/launch/", DomainLaunchView),
     ("/domain/<domain_id>/records/", DomainRecordView),
     ("/generate-email-address/", EmailAddressView),
+    ("/help/", UserGuideView),
     ("/proxies/", ProxiesView),
     ("/proxy/<proxy_name>/", ProxyView),
     ("/templates/", TemplatesView),
