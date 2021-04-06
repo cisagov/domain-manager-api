@@ -13,7 +13,6 @@ class History(Schema):
     """Application History Schema."""
 
     application = fields.Nested(application_schema.ApplicationSchema)
-    launch_date = DateTimeField()
     start_date = DateTimeField()
     end_date = DateTimeField()
 
@@ -145,7 +144,6 @@ class DomainSchema(BaseSchema):
         unknown = EXCLUDE
 
     name = fields.Str(validate=validator.is_valid_domain)
-    description = fields.Str()
     category = fields.Str(validate=validator.is_valid_category)
     s3_url = fields.Str()
     ip_address = fields.Str()
@@ -157,7 +155,6 @@ class DomainSchema(BaseSchema):
     is_delaunching = fields.Boolean(default=False)
     is_generating_template = fields.Boolean(default=False)
     is_email_active = fields.Boolean()
-    launch_date = DateTimeField()
     profile = fields.Dict()
     history = fields.List(fields.Nested(History))
     cloudfront = fields.Dict()
