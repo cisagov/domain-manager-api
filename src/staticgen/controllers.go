@@ -26,6 +26,7 @@ func GenerateHandler(w http.ResponseWriter, r *http.Request) {
 	query := r.URL.Query()
 	templateName := query.Get("template-name")
 	domain := query.Get("domain")
+	isTemplate := query.Get("is-template")
 
 	route := aws.Route{TemplateName: templateName, Dir: domain}
 	if r.Method == "POST" {
@@ -37,7 +38,7 @@ func GenerateHandler(w http.ResponseWriter, r *http.Request) {
 		context := aws.Context{}
 		decoder := json.NewDecoder(r.Body)
 		decoder.Decode(&context)
-		route.Generate(&context, aws.WebsiteBucket, "template")
+		route.Generate(&context, aws.WebsiteBucket, isTemplate, "template")
 
 		// Remove local temp files
 		err := os.RemoveAll("tmp/" + templateName)
@@ -98,7 +99,7 @@ func TemplateHandler(w http.ResponseWriter, r *http.Request) {
 			Email:       "{{ .Email }}",
 		}
 
-		route.Generate(&context, aws.TemplateBucket, foldername)
+		route.Generate(&context, aws.TemplateBucket, "true", foldername)
 
 		// Remove local temp files
 		err = os.RemoveAll("tmp/" + templateName)

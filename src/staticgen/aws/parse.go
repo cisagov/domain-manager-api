@@ -17,7 +17,7 @@ import (
 )
 
 // Generate static files and upload static to s3 bucket
-func (r *Route) Generate(ctx *Context, bucket, foldername string) {
+func (r *Route) Generate(ctx *Context, bucket, isTemplate, foldername string) {
 	// Gather the files to upload by walking the path recursively
 	walker := make(fileWalk)
 	// Run concurrently
@@ -43,7 +43,7 @@ func (r *Route) Generate(ctx *Context, bucket, foldername string) {
 			var file io.Reader
 
 			ext := strings.ToLower(filepath.Ext(path))
-			if ext == ".html" {
+			if ext == ".html" && isTemplate == "true" {
 				contenttype = "text/html"
 				file = parse(path, rel, ctx)
 			} else if ext == ".css" {
