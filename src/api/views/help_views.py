@@ -1,8 +1,7 @@
 """Category Views."""
 # Third-Party Libraries
-from flask import request
-from flask.views import MethodView
 from flask import send_file
+from flask.views import MethodView
 
 
 class UserGuideView(MethodView):

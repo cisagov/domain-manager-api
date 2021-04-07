@@ -46,12 +46,12 @@ class DomainsView(MethodView):
             groups = get_users_group_ids()
             response = domain_manager.all(params={"application_id": {"$in": groups}})
         applications = application_manager.all()
+
         for domain in response:
-            if "application_id" in domain:
-                for application in applications:
-                    if application["_id"] == domain["application_id"]:
-                        domain["application_name"] = application["name"]
-                        break;
+            if domain.get("application_id"):
+                domain["application_name"] = next(
+                    filter(lambda x: x["_id"] == domain["application_id"], applications)
+                )["name"]
 
         return jsonify(response)
 
