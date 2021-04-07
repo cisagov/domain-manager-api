@@ -143,11 +143,11 @@ class DomainView(MethodView):
                 {"message": "Domain cannot be active and redirects must be removed."}
             )
 
-        if domain.get("category"):
-            category = domain["category"]
+        if domain.get("template_name"):
+            template_name = domain["template_name"]
             name = domain["name"]
             requests.delete(
-                f"{STATIC_GEN_URL}/website/?category={category}&domain={name}",
+                f"{STATIC_GEN_URL}/website/?template-name={template_name}&domain={name}",
             )
 
         route53.delete_hosted_zone(Id=domain["route53"]["id"])
@@ -164,7 +164,7 @@ class DomainContentView(MethodView):
         domain = domain_manager.get(document_id=domain_id)
 
         resp = requests.get(
-            f"{STATIC_GEN_URL}/website/?category={domain['category']}&domain={domain['name']}",
+            f"{STATIC_GEN_URL}/website/?template-name={domain['template_name']}&domain={domain['name']}",
         )
 
         try:
@@ -189,10 +189,10 @@ class DomainContentView(MethodView):
         domain = domain_manager.get(document_id=domain_id)
 
         domain_name = domain["name"]
-        category = request.args.get("category")
+        template_name = request.args.get("template-name")
 
         post_data = {
-            "category": category,
+            "template_name": template_name,
             "s3_url": f"https://{WEBSITE_BUCKET}.s3.amazonaws.com/{domain_name}/",
         }
 
@@ -202,7 +202,7 @@ class DomainContentView(MethodView):
 
         # Delete existing website files
         resp = requests.delete(
-            f"{STATIC_GEN_URL}/website/?category={category}&domain={domain_name}",
+            f"{STATIC_GEN_URL}/website/?template-name={template_name}&domain={domain_name}",
         )
 
         try:
@@ -212,8 +212,8 @@ class DomainContentView(MethodView):
 
         # Post new website files
         resp = requests.post(
-            f"{STATIC_GEN_URL}/website/?category={category}&domain={domain_name}",
-            files={"zip": (f"{category}.zip", request.files["zip"])},
+            f"{STATIC_GEN_URL}/website/?template-name={template_name}&domain={domain_name}",
+            files={"zip": (f"{template_name}.zip", request.files["zip"])},
         )
 
         try:
@@ -222,7 +222,7 @@ class DomainContentView(MethodView):
             return jsonify({"error": resp.text}), 400
 
         # Remove temp files
-        shutil.rmtree(f"tmp/{category}/", ignore_errors=True)
+        shutil.rmtree(f"tmp/{template_name}/", ignore_errors=True)
 
         return (
             jsonify(
@@ -239,9 +239,9 @@ class DomainContentView(MethodView):
         domain = domain_manager.get(document_id=domain_id)
 
         name = domain["name"]
-        category = domain["category"]
+        template_name = domain["template_name"]
         resp = requests.delete(
-            f"{STATIC_GEN_URL}/website/?category={category}&domain={name}",
+            f"{STATIC_GEN_URL}/website/?template-name={template_name}&domain={name}",
         )
 
         try:
@@ -253,7 +253,7 @@ class DomainContentView(MethodView):
             domain_manager.remove(
                 document_id=domain_id,
                 data={
-                    "category": "",
+                    "template_name": "",
                     "is_approved": False,
                     "s3_url": "",
                 },
@@ -268,9 +268,9 @@ class DomainGenerateView(MethodView):
 
     def post(self, domain_id):
         """Create website."""
-        category = request.args.get("category")
+        template_name = request.args.get("template-name")
 
-        template = template_manager.get(filter_data={"name": category})
+        template = template_manager.get(filter_data={"name": template_name})
 
         if not template.get("is_approved", False):
             return jsonify({"error": "Template is not authorized for use."}), 401
@@ -294,7 +294,7 @@ class DomainGenerateView(MethodView):
 
             # Generate website content from a template
             resp = requests.post(
-                f"{STATIC_GEN_URL}/generate/?category={category}&domain={domain_name}",
+                f"{STATIC_GEN_URL}/generate/?template-name={template_name}&domain={domain_name}",
                 json=post_data,
             )
 
@@ -305,7 +305,7 @@ class DomainGenerateView(MethodView):
 
             post_data = {
                 "s3_url": f"https://{WEBSITE_BUCKET}.s3.amazonaws.com/{domain_name}/",
-                "category": category,
+                "template_name": template_name,
                 "is_approved": True,
                 "is_available": True,
                 "is_generating_template": False,
@@ -317,7 +317,7 @@ class DomainGenerateView(MethodView):
             )
             return jsonify(
                 {
-                    "message": f"{domain_name} static site has been created from the {category} template."
+                    "message": f"{domain_name} static site has been created from the {template_name} template."
                 }
             )
         except Exception as e:
