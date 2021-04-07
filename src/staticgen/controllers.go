@@ -24,7 +24,7 @@ func GenerateHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	query := r.URL.Query()
-	templateName := query.Get("template_name")
+	templateName := query.Get("template-name")
 	domain := query.Get("domain")
 
 	route := aws.Route{TemplateName: templateName, Dir: domain}
@@ -50,18 +50,18 @@ func GenerateHandler(w http.ResponseWriter, r *http.Request) {
 // TemplateHandler manages template files in s3
 func TemplateHandler(w http.ResponseWriter, r *http.Request) {
 	query := r.URL.Query()
-	category := query.Get("template_name")
-	route := aws.Route{TemplateName: category, Dir: category}
+	templateName := query.Get("template-name")
+	route := aws.Route{TemplateName: templateName, Dir: templateName}
 	if r.Method == "POST" {
 		// Recieve and unzip file
-		foldername, err := Receive(r, category)
+		foldername, err := Receive(r, templateName)
 		if err != nil {
 			log.Println(err)
 			http.Error(w, "staticgen: uploaded zipfile failed", 400)
 		}
 
 		// Check if required files exist
-		path := filepath.Join("tmp", category, foldername)
+		path := filepath.Join("tmp", templateName, foldername)
 		if _, err := os.Stat(path + "/home.html"); os.IsNotExist(err) {
 			http.Error(w, "Template incompatible, the required home.html file does not exist", 400)
 			return
@@ -101,7 +101,7 @@ func TemplateHandler(w http.ResponseWriter, r *http.Request) {
 		route.Generate(&context, aws.TemplateBucket, foldername)
 
 		// Remove local temp files
-		err = os.RemoveAll("tmp/" + category)
+		err = os.RemoveAll("tmp/" + templateName)
 		if err != nil {
 			log.Println(err)
 		}
@@ -119,7 +119,7 @@ func TemplateHandler(w http.ResponseWriter, r *http.Request) {
 
 	} else if r.Method == "GET" {
 		w.Header().Set("Content-Type", "application/zip")
-		w.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=\"%s.zip\"", category))
+		w.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=\"%s.zip\"", templateName))
 		route.BufferDownload(w, aws.TemplateBucket)
 	} else if r.Method == "DELETE" {
 		route.Delete(aws.TemplateBucket)
@@ -134,19 +134,19 @@ func WebsiteHandler(w http.ResponseWriter, r *http.Request) {
 
 	query := r.URL.Query()
 	domain := query.Get("domain")
-	category := query.Get("template_name")
+	templateName := query.Get("template-name")
 
-	route := aws.Route{TemplateName: category, Dir: domain}
+	route := aws.Route{TemplateName: templateName, Dir: domain}
 	if r.Method == "POST" {
 		// Recieve and unzip file
-		foldername, err := Receive(r, category)
+		foldername, err := Receive(r, templateName)
 		if err != nil {
 			log.Println(err)
 			http.Error(w, "staticgen: uploaded zipfile failed", 400)
 		}
 
 		// Check if required files exist
-		if _, err := os.Stat(filepath.Join("tmp", category, foldername, "home.html")); os.IsNotExist(err) {
+		if _, err := os.Stat(filepath.Join("tmp", templateName, foldername, "home.html")); os.IsNotExist(err) {
 			http.Error(w, "Website content incompatible, the required home.html file does not exist", 400)
 			return
 		}
@@ -155,7 +155,7 @@ func WebsiteHandler(w http.ResponseWriter, r *http.Request) {
 		route.Upload(foldername, aws.WebsiteBucket)
 
 		// Remove local temp files
-		err = os.RemoveAll("tmp/" + category)
+		err = os.RemoveAll("tmp/" + templateName)
 		if err != nil {
 			log.Println(err)
 		}
