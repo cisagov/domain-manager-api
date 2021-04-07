@@ -9,5 +9,5 @@ class UserGuideView(MethodView):
 
     def get(self):
         """Download the User Guide."""
-        path = "userGuide/DomainManager.pdf"
+        path = "user_guide/DomainManager.pdf"
         return send_file(path, as_attachment=True)
