@@ -10,6 +10,10 @@ import (
 	"staticgen/aws"
 )
 
+type TemplateResp struct {
+	IsGoTemplate bool `json:"is_go_template"`
+}
+
 // HealthCheckHandler returns a simple message if the app is live.
 func HealthCheckHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Live and healthy")
@@ -58,11 +62,15 @@ func TemplateHandler(w http.ResponseWriter, r *http.Request) {
 
 		// Check if required files exist
 		path := filepath.Join("tmp", category, foldername)
-		if _, err := os.Stat(path + "/base.html"); os.IsNotExist(err) {
-			http.Error(w, "Template incompatible, the required base.html file does not exist", 400)
-			return
-		} else if _, err = os.Stat(path + "/home.html"); os.IsNotExist(err) {
+		if _, err := os.Stat(path + "/home.html"); os.IsNotExist(err) {
 			http.Error(w, "Template incompatible, the required home.html file does not exist", 400)
+			return
+		}
+
+		// Upload website content if base.html is missing
+		if _, err = os.Stat(path + "/base.html"); os.IsNotExist(err) {
+			// Upload to S3
+			route.Upload(foldername, aws.TemplateBucket)
 			return
 		}
 

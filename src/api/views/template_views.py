@@ -57,7 +57,9 @@ class TemplatesView(MethodView):
                 "name": name,
                 "s3_url": f"{TEMPLATE_BUCKET}.s3.amazonaws.com/{name}/",
                 "is_approved": False,
+                "is_go_template": True,
             }
+
             if g.is_admin:
                 post_data["is_approved"] = True
 
