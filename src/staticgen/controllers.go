@@ -71,6 +71,17 @@ func TemplateHandler(w http.ResponseWriter, r *http.Request) {
 		if _, err = os.Stat(path + "/base.html"); os.IsNotExist(err) {
 			// Upload to S3
 			route.Upload(foldername, aws.TemplateBucket)
+
+			// Return IsGoTemplate as false
+			resp := TemplateResp{
+				IsGoTemplate: false,
+			}
+
+			err = json.NewEncoder(w).Encode(resp)
+			if err != nil {
+				http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+				return
+			}
 			return
 		}
 
@@ -93,6 +104,17 @@ func TemplateHandler(w http.ResponseWriter, r *http.Request) {
 		err = os.RemoveAll("tmp/" + category)
 		if err != nil {
 			log.Println(err)
+		}
+
+		// Return IsGoTemplate as true
+		resp := TemplateResp{
+			IsGoTemplate: true,
+		}
+
+		err = json.NewEncoder(w).Encode(resp)
+		if err != nil {
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+			return
 		}
 
 	} else if r.Method == "GET" {
