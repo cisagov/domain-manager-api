@@ -24,10 +24,10 @@ func GenerateHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	query := r.URL.Query()
-	category := query.Get("category")
+	templateName := query.Get("template_name")
 	domain := query.Get("domain")
 
-	route := aws.Route{Category: category, Dir: domain}
+	route := aws.Route{TemplateName: templateName, Dir: domain}
 	if r.Method == "POST" {
 		// Download template files from s3
 		route.FileDownload()
@@ -40,7 +40,7 @@ func GenerateHandler(w http.ResponseWriter, r *http.Request) {
 		route.Generate(&context, aws.WebsiteBucket, "template")
 
 		// Remove local temp files
-		err := os.RemoveAll("tmp/" + category)
+		err := os.RemoveAll("tmp/" + templateName)
 		if err != nil {
 			log.Println(err)
 		}
@@ -50,8 +50,8 @@ func GenerateHandler(w http.ResponseWriter, r *http.Request) {
 // TemplateHandler manages template files in s3
 func TemplateHandler(w http.ResponseWriter, r *http.Request) {
 	query := r.URL.Query()
-	category := query.Get("category")
-	route := aws.Route{Category: category, Dir: category}
+	category := query.Get("template_name")
+	route := aws.Route{TemplateName: category, Dir: category}
 	if r.Method == "POST" {
 		// Recieve and unzip file
 		foldername, err := Receive(r, category)
@@ -134,9 +134,9 @@ func WebsiteHandler(w http.ResponseWriter, r *http.Request) {
 
 	query := r.URL.Query()
 	domain := query.Get("domain")
-	category := query.Get("category")
+	category := query.Get("template_name")
 
-	route := aws.Route{Category: category, Dir: domain}
+	route := aws.Route{TemplateName: category, Dir: domain}
 	if r.Method == "POST" {
 		// Recieve and unzip file
 		foldername, err := Receive(r, category)
