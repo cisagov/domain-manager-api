@@ -26,7 +26,7 @@ func GenerateHandler(w http.ResponseWriter, r *http.Request) {
 	query := r.URL.Query()
 	templateName := query.Get("template_name")
 	domain := query.Get("domain")
-	isTemplate := query.Get("is-template")
+	isTemplate := query.Get("is_template")
 
 	route := aws.Route{TemplateName: templateName, Dir: domain}
 	if r.Method == "POST" {

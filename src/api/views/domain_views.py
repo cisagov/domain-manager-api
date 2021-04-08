@@ -297,7 +297,7 @@ class DomainGenerateView(MethodView):
 
             # Generate website content from a template
             resp = requests.post(
-                f"{STATIC_GEN_URL}/generate/?template_name={template_name}&domain={domain_name}&is-template={is_template}",
+                f"{STATIC_GEN_URL}/generate/?template_name={template_name}&domain={domain_name}&is_template={is_template}",
                 json=post_data,
             )
 
