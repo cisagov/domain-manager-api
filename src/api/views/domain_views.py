@@ -289,15 +289,11 @@ class DomainGenerateView(MethodView):
             post_data = request.json
             post_data["domain"] = domain_name
 
-            is_go_template = template.get("is_go_template")
-            if is_go_template:
-                is_template = "true"
-            else:
-                is_template = "false"
+            is_go_template = "true" if template.get("is_go_template", True) else "false"
 
             # Generate website content from a template
             resp = requests.post(
-                f"{STATIC_GEN_URL}/generate/?template_name={template_name}&domain={domain_name}&is_template={is_template}",
+                f"{STATIC_GEN_URL}/generate/?template_name={template_name}&domain={domain_name}&is_template={is_go_template}",
                 json=post_data,
             )
 
