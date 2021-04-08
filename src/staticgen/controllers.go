@@ -24,7 +24,7 @@ func GenerateHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	query := r.URL.Query()
-	templateName := query.Get("template-name")
+	templateName := query.Get("template_name")
 	domain := query.Get("domain")
 	isTemplate := query.Get("is-template")
 
@@ -51,7 +51,7 @@ func GenerateHandler(w http.ResponseWriter, r *http.Request) {
 // TemplateHandler manages template files in s3
 func TemplateHandler(w http.ResponseWriter, r *http.Request) {
 	query := r.URL.Query()
-	templateName := query.Get("template-name")
+	templateName := query.Get("template_name")
 	route := aws.Route{TemplateName: templateName, Dir: templateName}
 	if r.Method == "POST" {
 		// Recieve and unzip file
@@ -135,7 +135,7 @@ func WebsiteHandler(w http.ResponseWriter, r *http.Request) {
 
 	query := r.URL.Query()
 	domain := query.Get("domain")
-	templateName := query.Get("template-name")
+	templateName := query.Get("template_name")
 
 	route := aws.Route{TemplateName: templateName, Dir: domain}
 	if r.Method == "POST" {
