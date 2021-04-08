@@ -143,12 +143,10 @@ class DomainView(MethodView):
                 {"message": "Domain cannot be active and redirects must be removed."}
             )
 
-        if domain.get("template_name"):
-            template_name = domain["template_name"]
-            name = domain["name"]
-            requests.delete(
-                f"{STATIC_GEN_URL}/website/?template_name={template_name}&domain={name}",
-            )
+        name = domain["name"]
+        requests.delete(
+            f"{STATIC_GEN_URL}/website/?domain={name}",
+        )
 
         route53.delete_hosted_zone(Id=domain["route53"]["id"])
         return jsonify(domain_manager.delete(domain["_id"]))
@@ -202,7 +200,7 @@ class DomainContentView(MethodView):
 
         # Delete existing website files
         resp = requests.delete(
-            f"{STATIC_GEN_URL}/website/?template_name={template_name}&domain={domain_name}",
+            f"{STATIC_GEN_URL}/website/?domain={domain_name}",
         )
 
         try:
@@ -239,9 +237,8 @@ class DomainContentView(MethodView):
         domain = domain_manager.get(document_id=domain_id)
 
         name = domain["name"]
-        template_name = domain["template_name"]
         resp = requests.delete(
-            f"{STATIC_GEN_URL}/website/?template_name={template_name}&domain={name}",
+            f"{STATIC_GEN_URL}/website/?domain={name}",
         )
 
         try:
