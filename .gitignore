@@ -1,33 +1,35 @@
+# Environments
+.env
+.venv
+/old.env
+ENV/
+env.bak/
+env/
+venv.bak/
+venv/
+
 # Golang executable
 src/staticgen/staticgen
 src/staticgen/staticgen.exe
 src/staticgen/tmp
-deleteme
-/old.env
-__pycache__
+
+# Other
+**/.DS_Store
+Dockerfile-x
+
+# PEM Files
+!rds-combined-ca-bundle.pem
+*.pem
+
+# Python Ignores
 .mypy_cache
 .pytest_cache
 .python-version
-Dockerfile-x
+__pycache__
 
 # Unit test / coverage reports
 .coverage
 htmlcov/
 
-# Environments
-.env
-.venv
-env/
-venv/
-ENV/
-env.bak/
-venv.bak/
-
 # VS Code
 .vscode/
-
-# DS Store
-**/.DS_Store
-
-*.pem
-!rds-combined-ca-bundle.pem
