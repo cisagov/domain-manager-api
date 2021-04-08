@@ -40,7 +40,7 @@ class TemplatesView(MethodView):
                 continue
             url_escaped_name = urllib.parse.quote_plus(name)
             staticgen_resp = requests.post(
-                f"{STATIC_GEN_URL}/template/?template-name={url_escaped_name}",
+                f"{STATIC_GEN_URL}/template/?template_name={url_escaped_name}",
                 files={"zip": (f"{f.filename}", f)},
             )
 
@@ -89,7 +89,7 @@ class TemplateView(MethodView):
 
         template_name = template["name"]
         resp = requests.delete(
-            f"{STATIC_GEN_URL}/template/?template-name={template_name}"
+            f"{STATIC_GEN_URL}/template/?template_name={template_name}"
         )
 
         try:
@@ -107,7 +107,7 @@ class TemplateContentView(MethodView):
         """Download template."""
         template = template_manager.get(document_id=template_id)
         resp = requests.get(
-            f"{STATIC_GEN_URL}/template/?template-name={template['name']}"
+            f"{STATIC_GEN_URL}/template/?template_name={template['name']}"
         )
 
         try:

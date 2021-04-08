@@ -147,7 +147,7 @@ class DomainView(MethodView):
             template_name = domain["template_name"]
             name = domain["name"]
             requests.delete(
-                f"{STATIC_GEN_URL}/website/?template-name={template_name}&domain={name}",
+                f"{STATIC_GEN_URL}/website/?template_name={template_name}&domain={name}",
             )
 
         route53.delete_hosted_zone(Id=domain["route53"]["id"])
@@ -164,7 +164,7 @@ class DomainContentView(MethodView):
         domain = domain_manager.get(document_id=domain_id)
 
         resp = requests.get(
-            f"{STATIC_GEN_URL}/website/?template-name={domain['template_name']}&domain={domain['name']}",
+            f"{STATIC_GEN_URL}/website/?template_name={domain['template_name']}&domain={domain['name']}",
         )
 
         try:
@@ -189,7 +189,7 @@ class DomainContentView(MethodView):
         domain = domain_manager.get(document_id=domain_id)
 
         domain_name = domain["name"]
-        template_name = request.args.get("template-name")
+        template_name = request.args.get("template_name")
 
         post_data = {
             "template_name": template_name,
@@ -202,7 +202,7 @@ class DomainContentView(MethodView):
 
         # Delete existing website files
         resp = requests.delete(
-            f"{STATIC_GEN_URL}/website/?template-name={template_name}&domain={domain_name}",
+            f"{STATIC_GEN_URL}/website/?template_name={template_name}&domain={domain_name}",
         )
 
         try:
@@ -212,7 +212,7 @@ class DomainContentView(MethodView):
 
         # Post new website files
         resp = requests.post(
-            f"{STATIC_GEN_URL}/website/?template-name={template_name}&domain={domain_name}",
+            f"{STATIC_GEN_URL}/website/?template_name={template_name}&domain={domain_name}",
             files={"zip": (f"{template_name}.zip", request.files["zip"])},
         )
 
@@ -241,7 +241,7 @@ class DomainContentView(MethodView):
         name = domain["name"]
         template_name = domain["template_name"]
         resp = requests.delete(
-            f"{STATIC_GEN_URL}/website/?template-name={template_name}&domain={name}",
+            f"{STATIC_GEN_URL}/website/?template_name={template_name}&domain={name}",
         )
 
         try:
@@ -268,7 +268,7 @@ class DomainGenerateView(MethodView):
 
     def post(self, domain_id):
         """Create website."""
-        template_name = request.args.get("template-name")
+        template_name = request.args.get("template_name")
 
         template = template_manager.get(filter_data={"name": template_name})
 
@@ -300,7 +300,7 @@ class DomainGenerateView(MethodView):
 
             # Generate website content from a template
             resp = requests.post(
-                f"{STATIC_GEN_URL}/generate/?template-name={template_name}&domain={domain_name}&is-template={is_template}",
+                f"{STATIC_GEN_URL}/generate/?template_name={template_name}&domain={domain_name}&is-template={is_template}",
                 json=post_data,
             )
 
