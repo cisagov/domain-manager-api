@@ -11,7 +11,7 @@ READY_MESSAGE = "Starting Domain Manager API"
 
 
 def test_container_count(dockerc):
-    """Verify the test composition and container."""
+    """Verify the correct number of containers is started."""
     # stopped parameter allows non-running containers in results
     assert (
         len(dockerc.containers(stopped=True)) == 2
