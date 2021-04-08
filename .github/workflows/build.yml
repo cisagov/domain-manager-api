@@ -31,9 +31,16 @@ env:
   # Disabled linux/arm/v6 for the following errors:
   # running [/bin/sh -c CGO_ENABLED=0 GOOS=linux go build -o /bin/main]
   # aws/delete.go:7:2: Get net/http: TLS handshake timeout
+
   # Disabled linux/s390x because it times out while building GO.
+
   # Disabled linux/ppc64le because it takes too much time doing the pip install.
-  PLATFORMS: "linux/amd64,linux/arm/v7,linux/arm64"
+
+  # Disabled linux/arm/v7 for the following error:
+  # Failed to build cryptography
+  # ERROR: Could not build wheels for cryptography which
+  # use PEP 517 and cannot be installed directly
+  PLATFORMS: "linux/amd64,linux/arm64"
   PRE_COMMIT_CACHE_DIR: ~/.cache/pre-commit
 
 jobs:
