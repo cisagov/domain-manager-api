@@ -1,5 +1,5 @@
 #!/usr/bin/env pytest -vs
-"""Tests for example container."""
+"""Tests for domain-manager-api container."""
 
 # Standard Python Libraries
 import time
