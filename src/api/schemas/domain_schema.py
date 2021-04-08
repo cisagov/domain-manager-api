@@ -145,7 +145,7 @@ class DomainSchema(BaseSchema):
         unknown = EXCLUDE
 
     name = fields.Str(validate=validator.is_valid_domain)
-    category = fields.Str(validate=validator.is_valid_category)
+    template_name = fields.Str(validate=validator.is_valid_category)
     s3_url = fields.Str()
     ip_address = fields.Str()
     application_id = fields.Str(allow_none=True)

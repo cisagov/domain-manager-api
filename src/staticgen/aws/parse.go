@@ -17,12 +17,12 @@ import (
 )
 
 // Generate static files and upload static to s3 bucket
-func (r *Route) Generate(ctx *Context, bucket, foldername string) {
+func (r *Route) Generate(ctx *Context, bucket, isTemplate, foldername string) {
 	// Gather the files to upload by walking the path recursively
 	walker := make(fileWalk)
 	// Run concurrently
 	go func() {
-		if err := filepath.Walk(strings.Join([]string{"tmp", r.Category, foldername}, "/"), walker.Walk); err != nil {
+		if err := filepath.Walk(strings.Join([]string{"tmp", r.TemplateName, foldername}, "/"), walker.Walk); err != nil {
 			log.Println("Walk failed:", err)
 		}
 		close(walker)
@@ -35,7 +35,7 @@ func (r *Route) Generate(ctx *Context, bucket, foldername string) {
 		if !strings.Contains(path, "base.html") {
 
 			// set tmp folder prefix
-			rel, err := filepath.Rel(strings.Join([]string{"tmp", r.Category, foldername}, "/"), path)
+			rel, err := filepath.Rel(strings.Join([]string{"tmp", r.TemplateName, foldername}, "/"), path)
 			if err != nil {
 				log.Println("Unable to get relative path:", path, err)
 			}
@@ -43,7 +43,7 @@ func (r *Route) Generate(ctx *Context, bucket, foldername string) {
 			var file io.Reader
 
 			ext := strings.ToLower(filepath.Ext(path))
-			if ext == ".html" {
+			if ext == ".html" && isTemplate == "true" {
 				contenttype = "text/html"
 				file = parse(path, rel, ctx)
 			} else if ext == ".css" {
@@ -109,11 +109,11 @@ func (r *Route) FileDownload() {
 	sess := session.Must(session.NewSession())
 	manager := s3manager.NewDownloader(sess)
 
-	directory := filepath.Join("tmp/", r.Category)
+	directory := filepath.Join("tmp/", r.TemplateName)
 	d := Downloader{bucket: TemplateBucket, dir: directory, Downloader: manager}
 	client := s3.New(sess)
 
-	bucketPrefix := strings.Join([]string{r.Category, "template"}, "/")
+	bucketPrefix := strings.Join([]string{r.TemplateName, "template"}, "/")
 	params := &s3.ListObjectsInput{Bucket: &TemplateBucket, Prefix: &bucketPrefix}
 	client.ListObjectsPages(params, d.eachPage)
 }
