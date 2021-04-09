@@ -5,6 +5,7 @@ import shutil
 import urllib
 
 # Third-Party Libraries
+from faker import Faker
 from flask import g, jsonify, request, send_file
 from flask.views import MethodView
 from marshmallow import ValidationError
@@ -127,16 +128,18 @@ class TemplateAttributesView(MethodView):
 
     def get(self):
         """Get list of keys for template context."""
+        fake = Faker()
+
         return jsonify(
-            [
-                "address",
-                "city",
-                "description",
-                "email",
-                "name",
-                "phone",
-                "state",
-            ]
+            {
+                "address": fake.street_address(),
+                "city": fake.city(),
+                "name": "",
+                "state": fake.state(),
+                "email": "",
+                "description": "",
+                "phone": "",
+            }
         )
 
 
