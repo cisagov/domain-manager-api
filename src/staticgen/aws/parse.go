@@ -46,6 +46,14 @@ func (r *Route) Generate(ctx *Context, bucket, isTemplate, foldername string) {
 			if ext == ".html" && isTemplate == "true" {
 				contenttype = "text/html"
 				file = parse(path, rel, ctx)
+			} else if ext == ".html" {
+				log.Println("opening as html file")
+				contenttype = "text/html"
+				file, err = os.Open(path)
+				if err != nil {
+					log.Println("Failed opening html file", path, err)
+					continue
+				}
 			} else if ext == ".css" {
 				contenttype = "text/css"
 				file, err = os.Open(path)
