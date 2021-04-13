@@ -5,6 +5,7 @@ import shutil
 import urllib
 
 # Third-Party Libraries
+from faker import Faker
 from flask import g, jsonify, request, send_file
 from flask.views import MethodView
 from marshmallow import ValidationError
@@ -39,8 +40,8 @@ class TemplatesView(MethodView):
             except ValidationError:
                 continue
             url_escaped_name = urllib.parse.quote_plus(name)
-            resp = requests.post(
-                f"{STATIC_GEN_URL}/template/?category={url_escaped_name}",
+            staticgen_resp = requests.post(
+                f"{STATIC_GEN_URL}/template/?template_name={url_escaped_name}",
                 files={"zip": (f"{f.filename}", f)},
             )
 
@@ -48,16 +49,18 @@ class TemplatesView(MethodView):
             shutil.rmtree(f"tmp/{url_escaped_name}/", ignore_errors=True)
 
             try:
-                resp.raise_for_status()
+                staticgen_resp.raise_for_status()
             except requests.exceptions.HTTPError:
-                logger.error(resp.text)
-                return jsonify({"error": resp.text}), 400
+                logger.error(staticgen_resp.text)
+                return jsonify({"error": staticgen_resp.text}), 400
 
             post_data = {
                 "name": name,
                 "s3_url": f"{TEMPLATE_BUCKET}.s3.amazonaws.com/{name}/",
                 "is_approved": False,
+                "is_go_template": staticgen_resp.json()["is_go_template"],
             }
+
             if g.is_admin:
                 post_data["is_approved"] = True
 
@@ -86,7 +89,9 @@ class TemplateView(MethodView):
         template = template_manager.get(document_id=template_id)
 
         template_name = template["name"]
-        resp = requests.delete(f"{STATIC_GEN_URL}/template/?category={template_name}")
+        resp = requests.delete(
+            f"{STATIC_GEN_URL}/template/?template_name={template_name}"
+        )
 
         try:
             resp.raise_for_status()
@@ -102,7 +107,9 @@ class TemplateContentView(MethodView):
     def get(self, template_id):
         """Download template."""
         template = template_manager.get(document_id=template_id)
-        resp = requests.get(f"{STATIC_GEN_URL}/template/?category={template['name']}")
+        resp = requests.get(
+            f"{STATIC_GEN_URL}/template/?template_name={template['name']}"
+        )
 
         try:
             resp.raise_for_status()
@@ -127,16 +134,18 @@ class TemplateAttributesView(MethodView):
 
     def get(self):
         """Get list of keys for template context."""
+        fake = Faker()
+
         return jsonify(
-            [
-                "address",
-                "city",
-                "description",
-                "email",
-                "name",
-                "phone",
-                "state",
-            ]
+            {
+                "address": fake.street_address(),
+                "city": fake.city(),
+                "description": "",
+                "email": "",
+                "name": "",
+                "phone": fake.numerify(text="1-%##-###-####"),
+                "state": fake.state(),
+            }
         )
 
 

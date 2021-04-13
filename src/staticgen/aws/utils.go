@@ -18,8 +18,8 @@ type (
 
 	// Route for s3 bucket
 	Route struct {
-		Category string
-		Dir      string
+		TemplateName string
+		Dir          string
 	}
 
 	// Context for templates
