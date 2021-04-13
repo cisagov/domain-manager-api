@@ -11,6 +11,7 @@ import dns.resolver
 # cisagov Libraries
 from api.manager import DomainManager
 from settings import TAGS, WEBSITE_BUCKET_URL, logger
+from utils.notifications import Notification
 
 domain_manager = DomainManager()
 
@@ -32,6 +33,11 @@ def launch_domain(domain):
         )
 
         resp = launch_site(domain)
+
+        email = Notification(
+            message_type="website_launched", context={"domain_name": domain["name"]}
+        )
+        email.send()
 
         data = {
             "is_active": True,

@@ -1,6 +1,7 @@
 """Create DNS email records from SES."""
 # Third-Party Libraries
 import boto3
+from botocore.exceptions import ClientError
 
 # cisagov Libraries
 from settings import APP_ENV, APP_NAME, SES_ASSUME_ROLE_ARN, SMTP_FROM
@@ -99,22 +100,28 @@ def create_email_address(domain_name: str):
 
 def send_message(to: str, subject: str, text: str, html: str):
     """Send message via SES."""
-    return ses.send_email(
-        Source=SMTP_FROM,
-        Destination={
-            "ToAddresses": [
-                to,
-            ],
-        },
-        Message={
-            "Subject": {"Data": subject, "Charset": "UTF-8"},
-            "Body": {
-                "Text": {"Data": text, "Charset": "UTF-8"},
-                "Html": {"Data": html, "Charset": "UTF-8"},
+    resp = {}
+    try:
+        resp = ses.send_email(
+            Source=SMTP_FROM,
+            Destination={
+                "ToAddresses": [
+                    to,
+                ],
             },
-        },
-        Tags=[
-            {"Name": "app", "Value": APP_NAME},
-            {"Name": "environment", "Value": APP_ENV},
-        ],
-    )
+            Message={
+                "Subject": {"Data": subject, "Charset": "UTF-8"},
+                "Body": {
+                    "Text": {"Data": text, "Charset": "UTF-8"},
+                    "Html": {"Data": html, "Charset": "UTF-8"},
+                },
+            },
+            Tags=[
+                {"Name": "app", "Value": APP_NAME},
+                {"Name": "environment", "Value": APP_ENV},
+            ],
+        )
+    except ClientError as e:
+        return e.response["Error"]
+
+    return resp
