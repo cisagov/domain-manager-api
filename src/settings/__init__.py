@@ -28,6 +28,10 @@ TEMPLATE_BUCKET_URL = f"{TEMPLATE_BUCKET}.s3-website-{AWS_REGION}.amazonaws.com"
 WEBSITE_BUCKET = os.environ["WEBSITE_BUCKET"]
 WEBSITE_BUCKET_URL = f"{WEBSITE_BUCKET}.s3-website-{AWS_REGION}.amazonaws.com"
 
+# ses
+SES_ASSUME_ROLE_ARN = os.environ["SES_ASSUME_ROLE_ARN"]
+USE_SES = os.environ["USE_SES"]
+
 # sqs
 SQS_CATEGORIZE_URL = os.environ.get("SQS_CATEGORIZE_URL")
 SQS_CHECK_CATEGORY_URL = os.environ.get("SQS_CHECK_CATEGORY_URL")
