@@ -13,7 +13,7 @@ from api.schemas.domain_schema import DomainSchema
 from api.schemas.log_schema import LogSchema
 from api.schemas.template_schema import TemplateSchema
 from api.schemas.user_shema import UserSchema
-from settings import DB, logger
+from settings import DB
 
 
 class Manager:

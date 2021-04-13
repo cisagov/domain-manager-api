@@ -1,10 +1,15 @@
 """Logging utils."""
 # cisagov Libraries
 
-from api.manager import LogManager
+# Third-Party Libraries
 from bson.objectid import ObjectId
 
+# cisagov Libraries
+from api.manager import LogManager
+
 log_manager = LogManager()
+
+
 def cleanup_logs(username):
     """Cleanup log collection."""
     to_keep = log_manager.all(
