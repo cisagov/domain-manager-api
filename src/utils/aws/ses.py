@@ -3,7 +3,7 @@
 import boto3
 
 # cisagov Libraries
-from settings import SES_ASSUME_ROLE_ARN, SMTP_FROM, TAGS
+from settings import APP_ENV, APP_NAME, SES_ASSUME_ROLE_ARN, SMTP_FROM
 from utils.aws import sts
 
 route53 = boto3.client("route53")
@@ -12,6 +12,18 @@ if SES_ASSUME_ROLE_ARN:
     ses = sts.assume_role_client("ses", SES_ASSUME_ROLE_ARN)
 else:
     ses = boto3.client("ses")
+
+
+def list_hosted_zones(names_only: bool = False):
+    """
+    List hosted zones.
+
+    Set names_only to true if only hosted zone names are needed.
+    """
+    if not names_only:
+        return route53.list_hosted_zones()["HostedZones"]
+
+    return [hosted_zone.get("Name") for hosted_zone in list_hosted_zones()]
 
 
 def create_email_address(domain_name: str):
@@ -85,54 +97,24 @@ def create_email_address(domain_name: str):
     return response
 
 
-def list_hosted_zones(names_only: bool = False):
-    """
-    List hosted zones.
-
-    Set names_only to true if only hosted zone names are needed.
-    """
-    if not names_only:
-        return route53.list_hosted_zones()["HostedZones"]
-
-    return [hosted_zone.get("Name") for hosted_zone in list_hosted_zones()]
-
-
-def send_message(
-    to: list,
-    subject: str,
-    bcc: list = [],
-    text: str = None,
-    html: str = None,
-    attachments: list = None,
-    binary_attachments: list = None,
-):
+def send_message(to: str, subject: str, text: str, html: str):
     """Send message via SES."""
     return ses.send_email(
         Source=SMTP_FROM,
         Destination={
             "ToAddresses": [
-                "string",
-            ],
-            "CcAddresses": [
-                "string",
-            ],
-            "BccAddresses": [
-                "string",
+                to,
             ],
         },
         Message={
-            "Subject": {"Data": "string", "Charset": "string"},
+            "Subject": {"Data": subject, "Charset": "UTF-8"},
             "Body": {
-                "Text": {"Data": "string", "Charset": "string"},
-                "Html": {"Data": "string", "Charset": "string"},
+                "Text": {"Data": text, "Charset": "UTF-8"},
+                "Html": {"Data": html, "Charset": "UTF-8"},
             },
         },
-        ReplyToAddresses=[
-            "string",
+        Tags=[
+            {"Name": "app", "Value": APP_NAME},
+            {"Name": "environment", "Value": APP_ENV},
         ],
-        ReturnPath="string",
-        SourceArn="string",
-        ReturnPathArn="string",
-        Tags=TAGS,
-        ConfigurationSetName="string",
     )
