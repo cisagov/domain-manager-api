@@ -13,7 +13,7 @@ from api.schemas.domain_schema import DomainSchema
 from api.schemas.log_schema import LogSchema
 from api.schemas.template_schema import TemplateSchema
 from api.schemas.user_shema import UserSchema
-from settings import DB
+from settings import DB, logger
 
 
 class Manager:
@@ -144,6 +144,8 @@ class Manager:
         if document_id:
             return self.db.delete_one({"_id": ObjectId(document_id)}).raw_result
         if params:
+            print("IN PARAMS")
+            logger.info(params)
             return self.db.delete_many(params).raw_result
         raise Exception(
             "Either a document id or params must be supplied when deleting."
