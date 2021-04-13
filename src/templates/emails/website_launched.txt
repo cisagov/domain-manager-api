@@ -1,0 +1,10 @@
+Domain Manager
+Website has been launched
+
+
+Hello {{ username }},
+
+Your website, {{ domain_name }}, is now live.
+
+Respectfully,
+Domain Manager Administrator
