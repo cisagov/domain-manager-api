@@ -30,6 +30,7 @@ WEBSITE_BUCKET_URL = f"{WEBSITE_BUCKET}.s3-website-{AWS_REGION}.amazonaws.com"
 
 # ses
 SES_ASSUME_ROLE_ARN = os.environ["SES_ASSUME_ROLE_ARN"]
+SMTP_FROM = os.environ["SMTP_FROM"]
 USE_SES = os.environ["USE_SES"]
 
 # sqs

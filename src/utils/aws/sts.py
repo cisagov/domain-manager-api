@@ -5,7 +5,7 @@ import boto3
 sts = boto3.client("sts")
 
 
-def assume_role_client(self, service, role_arn):
+def assume_role_client(service, role_arn):
     """Assume Role via STS."""
     resp = sts.assume_role(RoleArn=role_arn, RoleSessionName=f"{service}_session")
 
