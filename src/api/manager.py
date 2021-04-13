@@ -144,8 +144,6 @@ class Manager:
         if document_id:
             return self.db.delete_one({"_id": ObjectId(document_id)}).raw_result
         if params:
-            print("IN PARAMS")
-            logger.info(params)
             return self.db.delete_many(params).raw_result
         raise Exception(
             "Either a document id or params must be supplied when deleting."
