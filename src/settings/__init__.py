@@ -29,9 +29,8 @@ WEBSITE_BUCKET = os.environ["WEBSITE_BUCKET"]
 WEBSITE_BUCKET_URL = f"{WEBSITE_BUCKET}.s3-website-{AWS_REGION}.amazonaws.com"
 
 # ses
-SES_ASSUME_ROLE_ARN = os.environ["SES_ASSUME_ROLE_ARN"]
-SMTP_FROM = os.environ["SMTP_FROM"]
-USE_SES = os.environ["USE_SES"]
+SES_ASSUME_ROLE_ARN = os.environ.get("SES_ASSUME_ROLE_ARN")
+SMTP_FROM = os.environ.get("SMTP_FROM")
 
 # sqs
 SQS_CATEGORIZE_URL = os.environ.get("SQS_CATEGORIZE_URL")
