@@ -1,18 +1,9 @@
 """Create DNS email records from SES."""
 # Third-Party Libraries
 import boto3
-from botocore.exceptions import ClientError
-
-# cisagov Libraries
-from settings import APP_ENV, APP_NAME, SES_ASSUME_ROLE_ARN, SMTP_FROM
-from utils.aws import sts
 
 route53 = boto3.client("route53")
-
-if SES_ASSUME_ROLE_ARN:
-    ses = sts.assume_role_client("ses", SES_ASSUME_ROLE_ARN)
-else:
-    ses = boto3.client("ses")
+ses = boto3.client("ses")
 
 
 def list_hosted_zones(names_only: bool = False):
@@ -96,32 +87,3 @@ def create_email_address(domain_name: str):
 
     ses.verify_email_identity(EmailAddress=f"admin@{domain_name}")
     return response
-
-
-def send_message(to: str, subject: str, text: str, html: str):
-    """Send message via SES."""
-    resp = {}
-    try:
-        resp = ses.send_email(
-            Source=SMTP_FROM,
-            Destination={
-                "ToAddresses": [
-                    to,
-                ],
-            },
-            Message={
-                "Subject": {"Data": subject, "Charset": "UTF-8"},
-                "Body": {
-                    "Text": {"Data": text, "Charset": "UTF-8"},
-                    "Html": {"Data": html, "Charset": "UTF-8"},
-                },
-            },
-            Tags=[
-                {"Name": "app", "Value": APP_NAME},
-                {"Name": "environment", "Value": APP_ENV},
-            ],
-        )
-    except ClientError as e:
-        return e.response["Error"]
-
-    return resp

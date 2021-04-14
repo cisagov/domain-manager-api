@@ -34,11 +34,6 @@ def launch_domain(domain):
 
         resp = launch_site(domain)
 
-        email = Notification(
-            message_type="website_launched", context={"domain_name": domain["name"]}
-        )
-        email.send()
-
         data = {
             "is_active": True,
             "is_available": True,
@@ -49,6 +44,11 @@ def launch_domain(domain):
             document_id=domain["_id"],
             data=data,
         )
+
+        email = Notification(
+            message_type="website_launched", context={"domain_name": domain["name"]}
+        )
+        email.send()
     except Exception as e:
         logger.exception(e)
         domain_manager.update(
