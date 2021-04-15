@@ -20,15 +20,51 @@ user_manager = UserManager()
 class Notification:
     """Manage sending email notifications."""
 
-    def __init__(self, message_type, context):
+    def __init__(
+        self,
+        message_type,
+        context,
+        send_to_admins=False,
+        send_to_group=False,
+    ):
         """Initialize."""
         self.message_type = message_type
         self.context = context
+        self.send_to_admins = send_to_admins
+        self.send_to_group = send_to_group
 
     def _set_context(self, message_type, context):
         """Set context."""
+        send_to = []
+        # Get authenticated user email
+        context["username"] = g.get("username")
+        auth_user = user_manager.get(filter_data={"Username": g.get("username")})
+        send_to.append(
+            "".join(
+                attribute["Value"]
+                for attribute in auth_user["Attributes"]
+                if attribute["Name"] == "email"
+            )
+        )
+
+        if self.send_to_group:
+            group_users = user_manager.all(
+                params={"Groups": auth_user.get("Groups", [])}
+            )
+            for user in group_users:
+                send_to.append(
+                    "".join(
+                        attribute["Value"]
+                        for attribute in user["Attributes"]
+                        if attribute["Name"] == "email"
+                    )
+                )
+
+        send_to = list(filter(None, send_to))
+
         return {
             "website_launched": {
+                "send_to": send_to,
                 "subject": "[Domain Manager] Your Website has been Launched",
                 "text_content": render_template(
                     "emails/website_launched.txt", **context
@@ -41,36 +77,25 @@ class Notification:
 
     def send(self):
         """Send Email."""
-        # Get user email
-        dm_user = user_manager.get(filter_data={"Username": g.username})
-        send_to = "".join(
-            attribute["Value"]
-            for attribute in dm_user["Attributes"]
-            if attribute["Name"] == "email"
-        )
-
         # Set Context
-        self.context["username"] = g.username
         content = self._set_context(self.message_type, self.context)
 
         return send_message(
-            to=send_to,
+            to=content["send_to"],
             subject=content["subject"],
             text=content["text_content"],
             html=content["html_content"],
         )
 
 
-def send_message(to: str, subject: str, text: str, html: str):
+def send_message(to: list, subject: str, text: str, html: str):
     """Send message via SES."""
     resp = {}
     try:
         resp = ses.send_email(
             Source=SMTP_FROM,
             Destination={
-                "ToAddresses": [
-                    to,
-                ],
+                "ToAddresses": to,
             },
             Message={
                 "Subject": {"Data": subject, "Charset": "UTF-8"},
