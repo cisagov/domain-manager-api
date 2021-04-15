@@ -21,11 +21,13 @@ class ApplicationsView(MethodView):
 
     def get(self):
         """Get all applications."""
+        params = dict(request.args)
         if g.is_admin:
-            return jsonify(application_manager.all())
+            return jsonify(application_manager.all(params=params))
         else:
             groups = get_users_group_ids()
-            resp = application_manager.all(params={"_id": {"$in": groups}})
+            params.update({"_id": {"$in": groups}})
+            resp = application_manager.all(params=params)
             return jsonify(resp)
 
     def post(self):

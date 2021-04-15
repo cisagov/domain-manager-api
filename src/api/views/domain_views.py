@@ -41,11 +41,14 @@ class DomainsView(MethodView):
 
     def get(self):
         """Get all domains."""
+        params = dict(request.args)
         if g.is_admin:
-            response = domain_manager.all(params=request.args)
+            response = domain_manager.all(params=params)
         else:
             groups = get_users_group_ids()
-            response = domain_manager.all(params={"application_id": {"$in": groups}})
+            params.update({"application_id": {"$in": groups}})
+            response = domain_manager.all(params=params)
+
         applications = application_manager.all()
 
         for domain in response:

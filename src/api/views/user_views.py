@@ -10,11 +10,9 @@ from flask.views import MethodView
 
 # cisagov Libraries
 from api.manager import LogManager, UserManager
-from api.schemas.user_shema import UserSchema
 from settings import logger
 from utils.aws import cognito
 from utils.decorators.auth import can_access_user
-from utils.validator import validate_data
 
 user_manager = UserManager()
 log_manager = LogManager()
@@ -25,33 +23,53 @@ class UsersView(MethodView):
 
     def get(self):
         """Get all users."""
-        aws_users = cognito.list_users()
-        dm_users = user_manager.all(params=request.args)
-        self.merge_user_lists(aws_users, dm_users)
+        self.aws_users = cognito.list_users()
+        self.dm_users = user_manager.all(params=request.args)
+        self.merge_user_lists()
 
-        return jsonify(aws_users)
+        return jsonify(self.aws_users)
 
-    def merge_user_lists(self, aws_users, dm_users):
+    def merge_user_lists(self):
         """Merge AWS Users from Cognito with Database."""
-        for aws_user in aws_users:
-            if len(dm_users) <= 0:
-                data = validate_data(aws_user, UserSchema)
-                user_manager.save(data)
-            for dm_user in dm_users:
-                if aws_user["Username"] == dm_user["Username"]:
-                    self.merge_user(aws_user, dm_user)
-                    break
-                if dm_user == dm_users[-1] or len(dm_users) <= 0:
-                    # Last dm user reached and aws user not found, add to db
-                    data = validate_data(aws_user, UserSchema)
-                    data["Groups"] = []
-                    user_manager.save(data)
+        aws_usernames = {u["Username"] for u in self.aws_users}
+        dm_usernames = {u["Username"] for u in self.dm_users}
 
-    def merge_user(self, aws_user, dm_user):
-        """Merge AWS User with Domain Manager User."""
-        for key in dm_user:
-            if key not in aws_user:
-                aws_user[key] = dm_user[key]
+        # Don't need to update everyone time,
+        # uncomment when database is out of sync again.
+        # common_users = aws_usernames.intersection(dm_usernames)
+        # for user in common_users:
+        #     self.update_user(user)
+
+        # Add users not in database
+        not_in_dm = aws_usernames.difference(dm_usernames)
+        for user in not_in_dm:
+            self.add_user(user)
+
+        # Remove users that don't exist in AWS
+        not_in_aws = dm_usernames.difference(aws_usernames)
+        for user in not_in_aws:
+            self.remove_user(user)
+
+    def remove_user(self, username):
+        """Remove user from database."""
+        dm_user = self.get_user(self.dm_users, username)
+        user_manager.delete(document_id=dm_user["_id"])
+
+    def add_user(self, username):
+        """Add user to database."""
+        aws_user = self.get_user(self.aws_users, username)
+        aws_user["Groups"] = []
+        user_manager.save(aws_user)
+
+    def update_user(self, username):
+        """Update user in database."""
+        aws_user = self.get_user(self.aws_users, username)
+        dm_user = self.get_user(self.dm_users, username)
+        user_manager.update(document_id=dm_user["_id"], data=aws_user)
+
+    def get_user(self, users, username):
+        """Get user from list by username."""
+        return next(filter(lambda x: x["Username"] == username, users), None)
 
 
 class UserView(MethodView):
@@ -81,9 +99,7 @@ class UserView(MethodView):
         try:
             cognito.delete_user(username)
             dm_user = user_manager.get(filter_data={"Username": username})
-            user_manager.update(
-                document_id=dm_user["_id"], data={"UserStatus": "DELETED"}
-            )
+            user_manager.delete(document_id=dm_user["_id"])
             return jsonify({"success": f"{username} was deleted"})
 
         except Exception as e:
