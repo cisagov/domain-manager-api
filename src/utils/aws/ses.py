@@ -6,7 +6,7 @@ route53 = boto3.client("route53")
 ses = boto3.client("ses")
 
 
-def list_hosted_zones(names_only=False):
+def list_hosted_zones(names_only: bool = False):
     """
     List hosted zones.
 
@@ -18,7 +18,7 @@ def list_hosted_zones(names_only=False):
     return [hosted_zone.get("Name") for hosted_zone in list_hosted_zones()]
 
 
-def create_email_address(domain_name):
+def create_email_address(domain_name: str):
     """Create an admin email address for a specified domain."""
     if f"{domain_name}." not in list_hosted_zones(names_only=True):
         return "Domain's hosted zone does not exist."

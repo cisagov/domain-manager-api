@@ -9,7 +9,7 @@ from flask.views import MethodView
 # cisagov Libraries
 from api.manager import ApplicationManager, DomainManager
 from api.schemas.application_schema import ApplicationSchema
-from utils.user_profile import get_users_group_ids
+from utils.users import get_users_group_ids
 from utils.validator import validate_data
 
 application_manager = ApplicationManager()

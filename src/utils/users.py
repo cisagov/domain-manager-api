@@ -53,3 +53,27 @@ def user_can_access_domain(domain):
     except Exception as e:
         logger.exception(e)
         return False
+
+
+def get_email_from_user(user):
+    """Get email address for user returned by cognito or database."""
+    key = "UserAttributes" if "UserAttributes" in user else "Attributes"
+    return next(filter(lambda x: x["Name"] == "email", user[key]), {}).get("Value")
+
+
+def get_emails_from_users(users):
+    """Get emails from a list of users from cognito or database."""
+    emails = []
+    for user in users:
+        email = get_email_from_user(user)
+        if email:
+            emails.append(email)
+    return emails
+
+
+def get_users_in_group(application_id: str, return_emails: bool = False):
+    """Get all users in group."""
+    users = user_manager.all(params={"Groups.Application_Id": application_id})
+    if return_emails:
+        return get_emails_from_users(users)
+    return users

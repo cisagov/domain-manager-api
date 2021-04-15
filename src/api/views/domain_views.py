@@ -9,6 +9,7 @@ from uuid import uuid4
 # Third-Party Libraries
 import boto3
 import botocore
+from botocore.exceptions import ClientError
 from flask import g, jsonify, request, send_file
 from flask.views import MethodView
 from marshmallow.exceptions import ValidationError
@@ -23,7 +24,7 @@ from utils.aws.site_handler import launch_domain, unlaunch_domain, verify_hosted
 from utils.categorization.categorize import categorize
 from utils.categorization.check import check_category
 from utils.decorators.auth import can_access_domain
-from utils.user_profile import get_users_group_ids
+from utils.users import get_users_group_ids
 from utils.validator import validate_data
 
 domain_manager = DomainManager()
@@ -165,7 +166,15 @@ class DomainView(MethodView):
             f"{STATIC_GEN_URL}/website/?domain={name}",
         )
 
-        route53.delete_hosted_zone(Id=domain["route53"]["id"])
+        try:
+            route53.delete_hosted_zone(Id=domain["route53"]["id"])
+        except ClientError as e:
+            logger.error(e.response)
+            if e.response["Error"]["Code"] == "NoSuchHostedZone":
+                logger.info("Hosted zone doesn't exist.")
+            else:
+                raise e
+
         return jsonify(domain_manager.delete(domain["_id"]))
 
 
