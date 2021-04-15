@@ -3,16 +3,15 @@
 from datetime import datetime, timedelta
 
 # Third-Party Libraries
-import boto3
 from flask import jsonify, request
 from flask.views import MethodView
 
 # cisagov Libraries
 from api.manager import LogManager, UserManager
-from settings import COGNITO_CLIENT_ID, COGNTIO_USER_POOL_ID, logger
+from settings import logger
+from utils.aws import cognito
 from utils.logs import cleanup_logs
 
-cognito = boto3.client("cognito-idp")
 user_manager = UserManager()
 log_manager = LogManager()
 
@@ -28,12 +27,7 @@ class RegisterView(MethodView):
             password = data["Password"]
             email = data["Email"]
 
-            cognito.sign_up(
-                ClientId=COGNITO_CLIENT_ID,
-                Username=username,
-                Password=password,
-                UserAttributes=[{"Name": "email", "Value": email}],
-            )
+            cognito.sign_up(username, password, email)
 
             return jsonify(success=True)
         except Exception as e:
@@ -50,19 +44,7 @@ class SignInView(MethodView):
         username = data["username"]
         password = data["password"]
 
-        response = cognito.admin_initiate_auth(
-            UserPoolId=COGNTIO_USER_POOL_ID,
-            ClientId=COGNITO_CLIENT_ID,
-            AuthFlow="ADMIN_NO_SRP_AUTH",
-            AuthParameters={
-                "USERNAME": username,
-                "PASSWORD": password,
-            },
-            ClientMetadata={
-                "username": username,
-                "password": password,
-            },
-        )
+        response = cognito.authenticate(username, password)
 
         expires = datetime.utcnow() + timedelta(
             seconds=response["AuthenticationResult"]["ExpiresIn"]
@@ -86,14 +68,8 @@ class RefreshTokenView(MethodView):
         """Refresh user token."""
         data = request.json
         username = data["username"]
-        refreshToken = data["refeshToken"]
-
-        response = cognito.admin_initiate_auth(
-            UserPoolId=COGNTIO_USER_POOL_ID,
-            ClientId=COGNITO_CLIENT_ID,
-            AuthFlow="REFRESH_TOKEN_AUTH",
-            AuthParameters={"REFRESH_TOKEN": refreshToken},
-        )
+        refresh_token = data["refeshToken"]
+        response = cognito.refresh(refresh_token)
 
         expires = datetime.utcnow() + timedelta(
             seconds=response["AuthenticationResult"]["ExpiresIn"]
@@ -103,7 +79,7 @@ class RefreshTokenView(MethodView):
         return jsonify(
             {
                 "id_token": response["AuthenticationResult"]["IdToken"],
-                "refresh_token": refreshToken,
+                "refresh_token": refresh_token,
                 "expires_at": expires,
                 "username": username,
             }

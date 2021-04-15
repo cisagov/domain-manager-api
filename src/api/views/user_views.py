@@ -5,18 +5,17 @@ from http import HTTPStatus
 import secrets
 
 # Third-Party Libraries
-import boto3
 from flask import abort, g, jsonify, request
 from flask.views import MethodView
 
 # cisagov Libraries
 from api.manager import LogManager, UserManager
 from api.schemas.user_shema import UserSchema
-from settings import COGNITO_ADMIN_GROUP, COGNTIO_USER_POOL_ID, logger
+from settings import logger
+from utils.aws import cognito
 from utils.decorators.auth import can_access_user
 from utils.validator import validate_data
 
-cognito = boto3.client("cognito-idp")
 user_manager = UserManager()
 log_manager = LogManager()
 
@@ -26,8 +25,7 @@ class UsersView(MethodView):
 
     def get(self):
         """Get all users."""
-        response = cognito.list_users(UserPoolId=COGNTIO_USER_POOL_ID)
-        aws_users = response["Users"]
+        aws_users = cognito.list_users()
         dm_users = user_manager.all(params=request.args)
         self.merge_user_lists(aws_users, dm_users)
 
@@ -64,12 +62,8 @@ class UserView(MethodView):
     def get(self, username):
         """Get User details."""
         dm_user = user_manager.get(filter_data={"Username": username})
-        groups = cognito.admin_list_groups_for_user(
-            Username=dm_user["Username"], UserPoolId=COGNTIO_USER_POOL_ID, Limit=50
-        )
-        aws_user = cognito.admin_get_user(
-            UserPoolId=COGNTIO_USER_POOL_ID, Username=dm_user["Username"]
-        )
+        groups = cognito.get_user_groups(dm_user["Username"])
+        aws_user = cognito.get_user(dm_user["Username"])
         response = UserHelpers.merge_additional_keys(aws_user, dm_user)
         if "Groups" not in response:
             response["Groups"] = []
@@ -85,9 +79,7 @@ class UserView(MethodView):
         if not g.is_admin:
             abort(HTTPStatus.FORBIDDEN.value)
         try:
-            cognito.admin_delete_user(
-                UserPoolId=COGNTIO_USER_POOL_ID, Username=username
-            )
+            cognito.delete_user(username)
             dm_user = user_manager.get(filter_data={"Username": username})
             user_manager.update(
                 document_id=dm_user["_id"], data={"UserStatus": "DELETED"}
@@ -109,14 +101,10 @@ class UserView(MethodView):
             dm_user = user_manager.get(filter_data={"Username": username})
             if dm_user["Enabled"]:
                 new_status = False
-                cognito.admin_disable_user(
-                    UserPoolId=COGNTIO_USER_POOL_ID, Username=username
-                )
+                cognito.disable_user(username)
             else:
                 new_status = True
-                cognito.admin_enable_user(
-                    UserPoolId=COGNTIO_USER_POOL_ID, Username=username
-                )
+                cognito.enable_user(username)
 
             dm_user["Enabled"] = new_status
             user_manager.update(document_id=dm_user["_id"], data=dm_user)
@@ -141,9 +129,7 @@ class UserConfirmView(MethodView):
     def get(self, username):
         """Confirm the selected user."""
         try:
-            response = cognito.admin_confirm_sign_up(
-                UserPoolId=COGNTIO_USER_POOL_ID, Username=username
-            )
+            response = cognito.confirm_user(username)
             user = user_manager.get(filter_data={"Username": username})
             user["UserStatus"] = "CONFIRMED"
             user_manager.update(document_id=user["_id"], data=user)
@@ -162,11 +148,7 @@ class UserAdminStatusView(MethodView):
     def get(self, username):
         """Set the user as an admin."""
         try:
-            response = cognito.admin_add_user_to_group(
-                UserPoolId=COGNTIO_USER_POOL_ID,
-                Username=username,
-                GroupName=COGNITO_ADMIN_GROUP,
-            )
+            response = cognito.add_admin_user(username)
             return jsonify(response)
         except Exception as e:
             logger.exception(e)
@@ -178,11 +160,7 @@ class UserAdminStatusView(MethodView):
     def delete(self, username):
         """Remove user admin privlieges."""
         try:
-            response = cognito.admin_remove_user_from_group(
-                UserPoolId=COGNTIO_USER_POOL_ID,
-                Username=username,
-                GroupName=COGNITO_ADMIN_GROUP,
-            )
+            response = cognito.remove_admin_user(username)
             return jsonify(response)
         except Exception as e:
             logger.exception(e)
