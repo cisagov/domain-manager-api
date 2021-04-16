@@ -1,5 +1,5 @@
 """
-This is the setup module for the example project.
+This is the setup module for the Domain Manager API project.
 
 Based on:
 
@@ -42,10 +42,10 @@ def get_version(version_file):
 
 
 setup(
-    name="example",
+    name="domain-manager-api",
     # Versions should comply with PEP440
     version=get_version("src/_version.py"),
-    description="Example Python library",
+    description="Domain Manager API Flask Python library",
     long_description=readme(),
     long_description_content_type="text/markdown",
     # Landing page for CISA's cybersecurity mission
@@ -53,8 +53,8 @@ setup(
     # Additional URLs for this project per
     # https://packaging.python.org/guides/distributing-packages-using-setuptools/#project-urls
     project_urls={
-        "Source": "https://github.com/cisagov/skeleton-python-library",
-        "Tracker": "https://github.com/cisagov/skeleton-python-library/issues",
+        "Source": "https://github.com/cisagov/domain-manager-api",
+        "Tracker": "https://github.com/cisagov/domain-manager-api/issues",
     },
     # Author details
     author="Cybersecurity and Infrastructure Security Agency",
@@ -81,10 +81,9 @@ setup(
     ],
     python_requires=">=3.6",
     # What does your project relate to?
-    keywords="skeleton",
+    keywords="domains",
     packages=find_packages(where="src"),
     package_dir={"": "src"},
-    package_data={"example": ["data/*.txt"]},
     py_modules=[splitext(basename(path))[0] for path in glob("src/*.py")],
     include_package_data=True,
     install_requires=[
@@ -189,6 +188,4 @@ setup(
             "pytest-pythonpath",
         ]
     },
-    # Conveniently allows one to run the CLI tool as `example`
-    entry_points={"console_scripts": ["example = example.example:main"]},
 )
