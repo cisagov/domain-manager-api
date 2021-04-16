@@ -5,7 +5,6 @@ import hashlib
 from http import HTTPStatus
 
 # Third-Party Libraries
-import boto3
 import cognitojwt
 from flask import abort, g, request
 
@@ -19,7 +18,7 @@ from settings import (
     COGNTIO_USER_POOL_ID,
     logger,
 )
-from utils.user_profile import user_can_access_domain
+from utils.users import user_can_access_domain
 
 domain_manager = DomainManager()
 user_manager = UserManager()
@@ -31,7 +30,6 @@ class RequestAuth:
     def __init__(self, request):
         """Initialize class with cognito settings and associated request."""
         self.request = request
-        self.cognito = boto3.client("cognito-idp")
         self.username = ""
         self.groups = []
 

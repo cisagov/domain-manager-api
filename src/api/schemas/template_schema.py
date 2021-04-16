@@ -1,13 +1,13 @@
 """API Schema."""
 # Third-Party Libraries
-from marshmallow import EXCLUDE, Schema, fields
+from marshmallow import EXCLUDE, fields
 
 # cisagov Libraries
-from api.schemas.fields import DateTimeField
+from api.schemas.base_schema import BaseSchema
 from utils.validator import is_valid_category
 
 
-class TemplateSchema(Schema):
+class TemplateSchema(BaseSchema):
     """Template Schema."""
 
     class Meta:
@@ -15,8 +15,7 @@ class TemplateSchema(Schema):
 
         unknown = EXCLUDE
 
-    _id = fields.Str()
     name = fields.Str(validate=is_valid_category)
     s3_url = fields.Str()
-    created = DateTimeField()
-    updated = DateTimeField()
+    is_approved = fields.Boolean(default=False)
+    is_go_template = fields.Boolean(default=False)

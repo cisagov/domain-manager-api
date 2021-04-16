@@ -11,6 +11,7 @@ import dns.resolver
 # cisagov Libraries
 from api.manager import DomainManager
 from settings import TAGS, WEBSITE_BUCKET_URL, logger
+from utils.notifications import Notification
 
 domain_manager = DomainManager()
 
@@ -43,6 +44,11 @@ def launch_domain(domain):
             document_id=domain["_id"],
             data=data,
         )
+
+        email = Notification(
+            message_type="website_launched", context={"domain_name": domain["name"]}
+        )
+        email.send()
     except Exception as e:
         logger.exception(e)
         domain_manager.update(
@@ -92,8 +98,7 @@ def unlaunch_domain(domain):
 def launch_site(domain):
     """Launch an active site onto s3."""
     # Verify that site is owned.
-    ns_records = get_hosted_zone_ns_records(domain["route53"]["id"])
-    verify_hosted_zone(domain["name"], ns_records)
+    verify_hosted_zone(domain)
 
     # generate ssl certs and return certificate ARN
     certificate_arn = generate_ssl_certs(domain=domain)
@@ -469,14 +474,11 @@ def get_acm_records(cert_arn):
     ]
 
 
-def get_hosted_zone_ns_records(hosted_zone_id):
-    """Get hosted zone NS records."""
-    resp = route53.get_hosted_zone(Id=hosted_zone_id)
-    return resp["DelegationSet"]["NameServers"]
-
-
-def verify_hosted_zone(domain_name, r53_nameservers):
+def verify_hosted_zone(domain):
     """Verify that we have control of hosted zone."""
+    hosted_zone = route53.get_hosted_zone(Id=domain["route53"]["id"])
+    r53_nameservers = hosted_zone["DelegationSet"]["NameServers"]
+
     new_nameservers = []
     for server in r53_nameservers:
         if not server.endswith("."):
@@ -485,7 +487,7 @@ def verify_hosted_zone(domain_name, r53_nameservers):
 
     dns_resolver = dns.resolver.Resolver()
     try:
-        response = dns_resolver.resolve(domain_name, "NS").response
+        response = dns_resolver.resolve(domain["name"], "NS").response
     except Exception as e:
         logger.exception(e)
         raise e
@@ -493,4 +495,4 @@ def verify_hosted_zone(domain_name, r53_nameservers):
     for answer in response.answer[0]:
         ns_servers.append(answer.to_text())
     if len(set(ns_servers) - set(new_nameservers)) > 0:
-        raise Exception("Route53 nameservers don't match.")
+        raise Exception("Route53 nameservers don't match NS lookup.")

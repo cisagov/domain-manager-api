@@ -9,23 +9,27 @@ from uuid import uuid4
 # Third-Party Libraries
 import boto3
 import botocore
+from botocore.exceptions import ClientError
 from flask import g, jsonify, request, send_file
 from flask.views import MethodView
+from marshmallow.exceptions import ValidationError
 import requests
 
 # cisagov Libraries
-from api.manager import ApplicationManager, DomainManager
+from api.manager import ApplicationManager, DomainManager, TemplateManager
 from api.schemas.domain_schema import DomainSchema, Record
 from settings import STATIC_GEN_URL, TAGS, WEBSITE_BUCKET, logger
 from utils.aws import record_handler
-from utils.aws.site_handler import launch_domain, unlaunch_domain
+from utils.aws.site_handler import launch_domain, unlaunch_domain, verify_hosted_zone
 from utils.categorization.categorize import categorize
 from utils.categorization.check import check_category
 from utils.decorators.auth import can_access_domain
-from utils.user_profile import get_users_group_ids
+from utils.users import get_users_group_ids
 from utils.validator import validate_data
 
 domain_manager = DomainManager()
+template_manager = TemplateManager()
+
 application_manager = ApplicationManager()
 route53 = boto3.client("route53")
 sqs = boto3.client("sqs")
@@ -37,11 +41,21 @@ class DomainsView(MethodView):
 
     def get(self):
         """Get all domains."""
+        params = dict(request.args)
         if g.is_admin:
-            response = domain_manager.all(params=request.args)
+            response = domain_manager.all(params=params)
         else:
             groups = get_users_group_ids()
-            response = domain_manager.all(params={"application_id": {"$in": groups}})
+            params.update({"application_id": {"$in": groups}})
+            response = domain_manager.all(params=params)
+
+        applications = application_manager.all()
+
+        for domain in response:
+            if domain.get("application_id"):
+                domain["application_name"] = next(
+                    filter(lambda x: x["_id"] == domain["application_id"], applications)
+                )["name"]
 
         return jsonify(response)
 
@@ -56,35 +70,43 @@ class DomainsView(MethodView):
                 ),
                 400,
             )
+        response = []
+        for domain_name in request.json:
+            data = validate_data({"name": domain_name}, DomainSchema)
+            if domain_manager.get(filter_data={"name": data["name"]}):
+                logger.error(f"{domain_name} already exists.")
+                response.append({domain_name: "Skipped. Already exists."})
+                continue
 
-        data = validate_data(request.json, DomainSchema)
-        if domain_manager.get(filter_data={"name": data["name"]}):
-            return jsonify({"error": "Domain already exists."}), 400
-        caller_ref = str(uuid4())
-        resp = route53.create_hosted_zone(Name=data["name"], CallerReference=caller_ref)
+            caller_ref = str(uuid4())
+            resp = route53.create_hosted_zone(
+                Name=data["name"], CallerReference=caller_ref
+            )
 
-        # tag resource
-        hosted_zone_id = resp["HostedZone"]["Id"].strip("/hostedzone/")
+            # tag resource
+            hosted_zone_id = resp["HostedZone"]["Id"].strip("/hostedzone/")
 
-        route53.change_tags_for_resource(
-            ResourceType="hostedzone",
-            ResourceId=hosted_zone_id,
-            AddTags=TAGS,
-        )
+            route53.change_tags_for_resource(
+                ResourceType="hostedzone",
+                ResourceId=hosted_zone_id,
+                AddTags=TAGS,
+            )
 
-        # save to db
-        domain_manager.save(
-            {
-                "name": data["name"],
-                "is_active": False,
-                "is_available": True,
-                "is_launching": False,
-                "is_delaunching": False,
-                "is_generating_template": False,
-                "route53": {"id": resp["HostedZone"]["Id"]},
-            }
-        )
-        return jsonify(resp["DelegationSet"]["NameServers"])
+            # save to db
+            domain_manager.save(
+                {
+                    "name": domain_name,
+                    "is_active": False,
+                    "is_approved": False,
+                    "is_available": True,
+                    "is_launching": False,
+                    "is_delaunching": False,
+                    "is_generating_template": False,
+                    "route53": {"id": resp["HostedZone"]["Id"]},
+                }
+            )
+            response.append({domain_name: resp["DelegationSet"]["NameServers"]})
+        return jsonify(response)
 
 
 class DomainView(MethodView):
@@ -139,14 +161,20 @@ class DomainView(MethodView):
                 {"message": "Domain cannot be active and redirects must be removed."}
             )
 
-        if domain.get("category"):
-            category = domain["category"]
-            name = domain["name"]
-            requests.delete(
-                f"{STATIC_GEN_URL}/website/?category={category}&domain={name}",
-            )
+        name = domain["name"]
+        requests.delete(
+            f"{STATIC_GEN_URL}/website/?domain={name}",
+        )
 
-        route53.delete_hosted_zone(Id=domain["route53"]["id"])
+        try:
+            route53.delete_hosted_zone(Id=domain["route53"]["id"])
+        except ClientError as e:
+            logger.error(e.response)
+            if e.response["Error"]["Code"] == "NoSuchHostedZone":
+                logger.info("Hosted zone doesn't exist.")
+            else:
+                raise e
+
         return jsonify(domain_manager.delete(domain["_id"]))
 
 
@@ -160,7 +188,7 @@ class DomainContentView(MethodView):
         domain = domain_manager.get(document_id=domain_id)
 
         resp = requests.get(
-            f"{STATIC_GEN_URL}/website/?category={domain['category']}&domain={domain['name']}",
+            f"{STATIC_GEN_URL}/website/?template_name={domain['template_name']}&domain={domain['name']}",
         )
 
         try:
@@ -181,18 +209,24 @@ class DomainContentView(MethodView):
 
     def post(self, domain_id):
         """Upload files and serve s3 site."""
-        if not g.is_admin:
-            return jsonify({"error": "Upload content not authorized"}), 401
-
         # Get domain data
         domain = domain_manager.get(document_id=domain_id)
 
         domain_name = domain["name"]
-        category = request.args.get("category")
+        template_name = request.args.get("template_name")
+
+        post_data = {
+            "template_name": template_name,
+            "s3_url": f"https://{WEBSITE_BUCKET}.s3.amazonaws.com/{domain_name}/",
+        }
+
+        # Content automatically approved if uploaded by admins
+        if g.is_admin:
+            post_data["is_approved"] = True
 
         # Delete existing website files
         resp = requests.delete(
-            f"{STATIC_GEN_URL}/website/?category={category}&domain={domain_name}",
+            f"{STATIC_GEN_URL}/website/?domain={domain_name}",
         )
 
         try:
@@ -202,8 +236,8 @@ class DomainContentView(MethodView):
 
         # Post new website files
         resp = requests.post(
-            f"{STATIC_GEN_URL}/website/?category={category}&domain={domain_name}",
-            files={"zip": (f"{category}.zip", request.files["zip"])},
+            f"{STATIC_GEN_URL}/website/?template_name={template_name}&domain={domain_name}",
+            files={"zip": (f"{template_name}.zip", request.files["zip"])},
         )
 
         try:
@@ -212,16 +246,13 @@ class DomainContentView(MethodView):
             return jsonify({"error": resp.text}), 400
 
         # Remove temp files
-        shutil.rmtree(f"tmp/{category}/", ignore_errors=True)
+        shutil.rmtree(f"tmp/{template_name}/", ignore_errors=True)
 
         return (
             jsonify(
                 domain_manager.update(
                     document_id=domain_id,
-                    data={
-                        "category": category,
-                        "s3_url": f"https://{WEBSITE_BUCKET}.s3.amazonaws.com/{domain_name}/",
-                    },
+                    data=post_data,
                 )
             ),
             200,
@@ -232,9 +263,8 @@ class DomainContentView(MethodView):
         domain = domain_manager.get(document_id=domain_id)
 
         name = domain["name"]
-        category = domain["category"]
         resp = requests.delete(
-            f"{STATIC_GEN_URL}/website/?category={category}&domain={name}",
+            f"{STATIC_GEN_URL}/website/?domain={name}",
         )
 
         try:
@@ -244,19 +274,30 @@ class DomainContentView(MethodView):
 
         return jsonify(
             domain_manager.remove(
-                document_id=domain_id, data={"category": "", "s3_url": ""}
+                document_id=domain_id,
+                data={
+                    "template_name": "",
+                    "is_approved": False,
+                    "s3_url": "",
+                },
             )
         )
 
 
 class DomainGenerateView(MethodView):
-    """DomainGenerateView."""
+    """Generate static content from a template."""
 
     decorators = [can_access_domain]
 
     def post(self, domain_id):
         """Create website."""
-        category = request.args.get("category")
+        template_name = request.args.get("template_name")
+
+        template = template_manager.get(filter_data={"name": template_name})
+
+        if not template.get("is_approved", False):
+            return jsonify({"error": "Template is not authorized for use."}), 401
+
         domain = domain_manager.get(document_id=domain_id)
 
         # Switch instance to unavailable to prevent user actions
@@ -274,9 +315,11 @@ class DomainGenerateView(MethodView):
             post_data = request.json
             post_data["domain"] = domain_name
 
+            is_go_template = "true" if template.get("is_go_template", True) else "false"
+
             # Generate website content from a template
             resp = requests.post(
-                f"{STATIC_GEN_URL}/generate/?category={category}&domain={domain_name}",
+                f"{STATIC_GEN_URL}/generate/?template_name={template_name}&domain={domain_name}&is_template={is_go_template}",
                 json=post_data,
             )
 
@@ -285,18 +328,21 @@ class DomainGenerateView(MethodView):
 
             resp.raise_for_status()
 
+            post_data = {
+                "s3_url": f"https://{WEBSITE_BUCKET}.s3.amazonaws.com/{domain_name}/",
+                "template_name": template_name,
+                "is_approved": True,
+                "is_available": True,
+                "is_generating_template": False,
+            }
+
             domain_manager.update(
                 document_id=domain_id,
-                data={
-                    "s3_url": f"https://{WEBSITE_BUCKET}.s3.amazonaws.com/{domain_name}/",
-                    "category": category,
-                    "is_available": True,
-                    "is_generating_template": False,
-                },
+                data=post_data,
             )
             return jsonify(
                 {
-                    "message": f"{domain_name} static site has been created from the {category} template."
+                    "message": f"{domain_name} static site has been created from the {template_name} template."
                 }
             )
         except Exception as e:
@@ -322,6 +368,17 @@ class DomainLaunchView(MethodView):
 
         if not domain["is_available"]:
             return "Domain is not available for launching at the moment.", 400
+
+        if not domain.get("is_approved", False):
+            return (
+                "Website content is not approved. Please reach out to an admin for approval.",
+                400,
+            )
+
+        try:
+            verify_hosted_zone(domain)
+        except Exception as e:
+            return str(e), 400
 
         task = Process(target=launch_domain, args=(domain,))
         task.start()
@@ -354,7 +411,11 @@ class DomainRecordView(MethodView):
 
     def post(self, domain_id):
         """Create a new record in the hosted zone."""
-        data = validate_data(request.json, Record)
+        try:
+            data = validate_data(request.json, Record)
+        except ValidationError as e:
+            logger.exception(e)
+            return str(e), 400
         data["record_id"] = str(uuid4())
         domain = domain_manager.get(document_id=domain_id)
         try:
@@ -374,7 +435,7 @@ class DomainRecordView(MethodView):
         """Delete the hosted zone record."""
         record_id = request.args.get("record_id")
         if not record_id:
-            return jsonify({"error": "Must supply record id in request args."}), 400
+            return jsonify({"error": "Must supply record_id in request args."}), 400
         domain = domain_manager.get(document_id=domain_id)
         record = next(
             filter(lambda x: x["record_id"] == record_id, domain.get("records", []))
@@ -386,6 +447,33 @@ class DomainRecordView(MethodView):
             document_id=domain_id, field="records", data={"record_id": record_id}
         )
         return jsonify(resp)
+
+    def put(self, domain_id):
+        """Modify the hosted zone record."""
+        record_id = request.args.get("record_id")
+        if not record_id:
+            return jsonify({"error": "Must supply record_id in request args."}), 400
+        domain = domain_manager.get(document_id=domain_id)
+        record = next(
+            filter(lambda x: x["record_id"] == record_id, domain.get("records", []))
+        )
+        if not record:
+            return jsonify({"error": "No record with matching id found."}), 400
+
+        try:
+            data = validate_data(request.json, Record)
+        except ValidationError as e:
+            logger.exception(e)
+            return str(e), 400
+        record["config"] = data["config"]
+        record_handler.manage_record("UPSERT", domain["route53"]["id"], record)
+        domain_manager.update_in_list(
+            document_id=domain["_id"],
+            field="records.$.config",
+            data=record["config"],
+            params={"records.record_id": record_id},
+        )
+        return jsonify({"success": "Record has been updated."})
 
 
 class DomainCategorizeView(MethodView):
@@ -468,3 +556,29 @@ class DomainDeployedCheckView(MethodView):
                 ),
                 400,
             )
+
+
+class DomainApprovalView(MethodView):
+    """Domain approval view."""
+
+    def get(self, domain_id):
+        """Approve uploaded content pending for review."""
+        domain = domain_manager.get(document_id=domain_id)
+
+        if domain.get("is_approved", False):
+            return jsonify({"error": "This content is already approved"}), 400
+
+        return jsonify(
+            domain_manager.update(document_id=domain_id, data={"is_approved": True})
+        )
+
+    def delete(self, domain_id):
+        """Disapprove previously approved content."""
+        domain = domain_manager.get(document_id=domain_id)
+
+        if not domain.get("is_approved", True):
+            return jsonify({"error": "This content is not yet approved"}), 400
+
+        return jsonify(
+            domain_manager.update(document_id=domain_id, data={"is_approved": False})
+        )

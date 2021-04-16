@@ -1,13 +1,14 @@
 """API Schema."""
 # Third-Party Libraries
-from marshmallow import EXCLUDE, Schema, fields
+from marshmallow import EXCLUDE, fields
 
 # cisagov Libraries
+from api.schemas.base_schema import BaseSchema
 from api.schemas.fields import DateTimeField
 from utils.validator import is_valid_category
 
 
-class UserSchema(Schema):
+class UserSchema(BaseSchema):
     """User Schema."""
 
     class Meta:
@@ -15,7 +16,6 @@ class UserSchema(Schema):
 
         unknown = EXCLUDE
 
-    _id = fields.Str()
     Attributes = fields.List(fields.Dict())
     Enabled = fields.Boolean()
     UserCreateDate = DateTimeField()

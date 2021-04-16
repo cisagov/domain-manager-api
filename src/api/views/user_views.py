@@ -5,18 +5,15 @@ from http import HTTPStatus
 import secrets
 
 # Third-Party Libraries
-import boto3
 from flask import abort, g, jsonify, request
 from flask.views import MethodView
 
 # cisagov Libraries
 from api.manager import LogManager, UserManager
-from api.schemas.user_shema import UserSchema
-from settings import COGNITO_ADMIN_GROUP, COGNTIO_USER_POOL_ID, logger
+from settings import logger
+from utils.aws import cognito
 from utils.decorators.auth import can_access_user
-from utils.validator import validate_data
 
-cognito = boto3.client("cognito-idp")
 user_manager = UserManager()
 log_manager = LogManager()
 
@@ -26,34 +23,53 @@ class UsersView(MethodView):
 
     def get(self):
         """Get all users."""
-        response = cognito.list_users(UserPoolId=COGNTIO_USER_POOL_ID)
-        aws_users = response["Users"]
-        dm_users = user_manager.all(params=request.args)
-        self.merge_user_lists(aws_users, dm_users)
+        self.aws_users = cognito.list_users()
+        self.dm_users = user_manager.all(params=request.args)
+        self.merge_user_lists()
 
-        return jsonify(aws_users)
+        return jsonify(self.aws_users)
 
-    def merge_user_lists(self, aws_users, dm_users):
+    def merge_user_lists(self):
         """Merge AWS Users from Cognito with Database."""
-        for aws_user in aws_users:
-            if len(dm_users) <= 0:
-                data = validate_data(aws_user, UserSchema)
-                user_manager.save(data)
-            for dm_user in dm_users:
-                if aws_user["Username"] == dm_user["Username"]:
-                    self.merge_user(aws_user, dm_user)
-                    break
-                if dm_user == dm_users[-1] or len(dm_users) <= 0:
-                    # Last dm user reached and aws user not found, add to db
-                    data = validate_data(aws_user, UserSchema)
-                    data["Groups"] = []
-                    user_manager.save(data)
+        aws_usernames = {u["Username"] for u in self.aws_users}
+        dm_usernames = {u["Username"] for u in self.dm_users}
 
-    def merge_user(self, aws_user, dm_user):
-        """Merge AWS User with Domain Manager User."""
-        for key in dm_user:
-            if key not in aws_user:
-                aws_user[key] = dm_user[key]
+        # Don't need to update everyone time,
+        # uncomment when database is out of sync again.
+        # common_users = aws_usernames.intersection(dm_usernames)
+        # for user in common_users:
+        #     self.update_user(user)
+
+        # Add users not in database
+        not_in_dm = aws_usernames.difference(dm_usernames)
+        for user in not_in_dm:
+            self.add_user(user)
+
+        # Remove users that don't exist in AWS
+        not_in_aws = dm_usernames.difference(aws_usernames)
+        for user in not_in_aws:
+            self.remove_user(user)
+
+    def remove_user(self, username):
+        """Remove user from database."""
+        dm_user = self.get_user(self.dm_users, username)
+        user_manager.delete(document_id=dm_user["_id"])
+
+    def add_user(self, username):
+        """Add user to database."""
+        aws_user = self.get_user(self.aws_users, username)
+        aws_user["Groups"] = []
+        user_manager.save(aws_user)
+
+    def update_user(self, username):
+        """Update user in database."""
+        aws_user = self.get_user(self.aws_users, username)
+        dm_user = self.get_user(self.dm_users, username)
+        user_manager.update(document_id=dm_user["_id"], data=aws_user)
+
+    def get_user(self, users, username):
+        """Get user from list by username."""
+        return next(filter(lambda x: x["Username"] == username, users), None)
 
 
 class UserView(MethodView):
@@ -64,12 +80,8 @@ class UserView(MethodView):
     def get(self, username):
         """Get User details."""
         dm_user = user_manager.get(filter_data={"Username": username})
-        groups = cognito.admin_list_groups_for_user(
-            Username=dm_user["Username"], UserPoolId=COGNTIO_USER_POOL_ID, Limit=50
-        )
-        aws_user = cognito.admin_get_user(
-            UserPoolId=COGNTIO_USER_POOL_ID, Username=dm_user["Username"]
-        )
+        groups = cognito.get_user_groups(dm_user["Username"])
+        aws_user = cognito.get_user(dm_user["Username"])
         response = UserHelpers.merge_additional_keys(aws_user, dm_user)
         if "Groups" not in response:
             response["Groups"] = []
@@ -85,13 +97,9 @@ class UserView(MethodView):
         if not g.is_admin:
             abort(HTTPStatus.FORBIDDEN.value)
         try:
-            cognito.admin_delete_user(
-                UserPoolId=COGNTIO_USER_POOL_ID, Username=username
-            )
+            cognito.delete_user(username)
             dm_user = user_manager.get(filter_data={"Username": username})
-            user_manager.update(
-                document_id=dm_user["_id"], data={"UserStatus": "DELETED"}
-            )
+            user_manager.delete(document_id=dm_user["_id"])
             return jsonify({"success": f"{username} was deleted"})
 
         except Exception as e:
@@ -109,14 +117,10 @@ class UserView(MethodView):
             dm_user = user_manager.get(filter_data={"Username": username})
             if dm_user["Enabled"]:
                 new_status = False
-                cognito.admin_disable_user(
-                    UserPoolId=COGNTIO_USER_POOL_ID, Username=username
-                )
+                cognito.disable_user(username)
             else:
                 new_status = True
-                cognito.admin_enable_user(
-                    UserPoolId=COGNTIO_USER_POOL_ID, Username=username
-                )
+                cognito.enable_user(username)
 
             dm_user["Enabled"] = new_status
             user_manager.update(document_id=dm_user["_id"], data=dm_user)
@@ -141,9 +145,7 @@ class UserConfirmView(MethodView):
     def get(self, username):
         """Confirm the selected user."""
         try:
-            response = cognito.admin_confirm_sign_up(
-                UserPoolId=COGNTIO_USER_POOL_ID, Username=username
-            )
+            response = cognito.confirm_user(username)
             user = user_manager.get(filter_data={"Username": username})
             user["UserStatus"] = "CONFIRMED"
             user_manager.update(document_id=user["_id"], data=user)
@@ -162,11 +164,7 @@ class UserAdminStatusView(MethodView):
     def get(self, username):
         """Set the user as an admin."""
         try:
-            response = cognito.admin_add_user_to_group(
-                UserPoolId=COGNTIO_USER_POOL_ID,
-                Username=username,
-                GroupName=COGNITO_ADMIN_GROUP,
-            )
+            response = cognito.add_admin_user(username)
             return jsonify(response)
         except Exception as e:
             logger.exception(e)
@@ -178,11 +176,7 @@ class UserAdminStatusView(MethodView):
     def delete(self, username):
         """Remove user admin privlieges."""
         try:
-            response = cognito.admin_remove_user_from_group(
-                UserPoolId=COGNTIO_USER_POOL_ID,
-                Username=username,
-                GroupName=COGNITO_ADMIN_GROUP,
-            )
+            response = cognito.remove_admin_user(username)
             return jsonify(response)
         except Exception as e:
             logger.exception(e)
@@ -217,6 +211,8 @@ class UserGroupsView(MethodView):
 
 class UserAPIKeyView(MethodView):
     """Manage a user's api key."""
+
+    decorators = [can_access_user]
 
     def get(self, username):
         """Get a new api key for the user."""

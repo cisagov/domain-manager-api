@@ -14,6 +14,7 @@ from api.views.application_views import ApplicationsView, ApplicationView
 from api.views.auth_views import RefreshTokenView, RegisterView, SignInView
 from api.views.category_views import CategoriesView, ExternalCategoriesView
 from api.views.domain_views import (
+    DomainApprovalView,
     DomainCategorizeView,
     DomainContentView,
     DomainDeployedCheckView,
@@ -24,8 +25,10 @@ from api.views.domain_views import (
     DomainView,
 )
 from api.views.email_address_views import EmailAddressView
+from api.views.help_views import UserGuideView
 from api.views.proxy_views import ProxiesView, ProxyView
 from api.views.template_views import (
+    TemplateApprovalView,
     TemplateAttributesView,
     TemplateContentView,
     TemplatesView,
@@ -62,6 +65,7 @@ rules = [
     ("/domain/<domain_id>/launch/", DomainLaunchView),
     ("/domain/<domain_id>/records/", DomainRecordView),
     ("/generate-email-address/", EmailAddressView),
+    ("/help/", UserGuideView),
     ("/proxies/", ProxiesView),
     ("/proxy/<proxy_name>/", ProxyView),
     ("/templates/", TemplatesView),
@@ -69,6 +73,7 @@ rules = [
     ("/template/<template_id>/content/", TemplateContentView),
     ("/templates/attributes/", TemplateAttributesView),
     ("/user/<username>/", UserView),
+    ("/user/<username>/api", UserAPIKeyView),
 ]
 
 login_rules = [
@@ -79,11 +84,12 @@ login_rules = [
 
 admin_rules = [
     ("/application/<application_id>/", ApplicationView),
+    ("/domain/<domain_id>/approve/", DomainApprovalView),
+    ("/template/<template_id>/approve/", TemplateApprovalView),
     ("/users/", UsersView),
     ("/user/<username>/confirm", UserConfirmView),
     ("/user/<username>/admin", UserAdminStatusView),
     ("/user/<username>/groups", UserGroupsView),
-    ("/user/<username>/api", UserAPIKeyView),
 ]
 
 for rule in rules:

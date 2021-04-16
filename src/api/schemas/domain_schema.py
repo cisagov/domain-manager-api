@@ -4,6 +4,7 @@ from marshmallow import EXCLUDE, Schema, fields, pre_load, validate, validates_s
 
 # cisagov Libraries
 from api.schemas import application_schema
+from api.schemas.base_schema import BaseSchema
 from api.schemas.fields import DateTimeField
 from utils import validator
 
@@ -12,7 +13,6 @@ class History(Schema):
     """Application History Schema."""
 
     application = fields.Nested(application_schema.ApplicationSchema)
-    launch_date = DateTimeField()
     start_date = DateTimeField()
     end_date = DateTimeField()
 
@@ -123,6 +123,7 @@ class Record(Schema):
         ),
     )
     name = fields.Str(required=True, validate=validator.is_valid_domain)
+    ttl = fields.Integer(default=30, missing=30)
     config = fields.Dict(required=True)
 
     @validates_schema
@@ -135,7 +136,7 @@ class Record(Schema):
         return data
 
 
-class DomainSchema(Schema):
+class DomainSchema(BaseSchema):
     """DomainSchema."""
 
     class Meta:
@@ -143,20 +144,18 @@ class DomainSchema(Schema):
 
         unknown = EXCLUDE
 
-    _id = fields.Str()
     name = fields.Str(validate=validator.is_valid_domain)
-    description = fields.Str()
-    category = fields.Str(validate=validator.is_valid_category)
+    template_name = fields.Str(validate=validator.is_valid_category)
     s3_url = fields.Str()
     ip_address = fields.Str()
     application_id = fields.Str(allow_none=True)
     is_active = fields.Boolean()
+    is_approved = fields.Boolean(default=False)
     is_available = fields.Boolean(default=True)
     is_launching = fields.Boolean(default=False)
     is_delaunching = fields.Boolean(default=False)
     is_generating_template = fields.Boolean(default=False)
     is_email_active = fields.Boolean()
-    launch_date = DateTimeField()
     profile = fields.Dict()
     history = fields.List(fields.Nested(History))
     cloudfront = fields.Dict()
