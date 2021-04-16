@@ -39,7 +39,7 @@ PROXIES = [
         "url": "https://urlfiltering.paloaltonetworks.com/",
         "categorize_url": "https://urlfiltering.paloaltonetworks.com/",
         "check_url": "https://urlfiltering.paloaltonetworks.com/",
-        "check_category_func": None,
+        "check_category_func": palo_alto.check_category,
         "categorize_func": palo_alto.categorize,
     },
     {

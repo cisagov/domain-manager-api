@@ -39,3 +39,8 @@ def categorize(driver, domain, category, two_captcha_api_key):
         driver, two_captcha_api_key, "https://urlfiltering.paloaltonetworks.com/"
     )
     driver.find_element(By.CSS_SELECTOR, ".btn-primary").click()
+
+
+def check_category(driver, domain, category, two_captcha_api_key):
+    """Check domain category on Palo Alto."""
+    pass
