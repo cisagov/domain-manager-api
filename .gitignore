@@ -18,8 +18,8 @@ src/staticgen/tmp
 Dockerfile-x
 
 # PEM Files
-!rds-combined-ca-bundle.pem
 *.pem
+!rds-combined-ca-bundle.pem
 
 # Python Ignores
 .mypy_cache

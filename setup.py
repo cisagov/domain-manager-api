@@ -44,7 +44,7 @@ def get_version(version_file):
 setup(
     name="domain-manager-api",
     # Versions should comply with PEP440
-    version=get_version("src/_version.py"),
+    version=get_version("src/api/_version.py"),
     description="Domain Manager API Flask Python library",
     long_description=readme(),
     long_description_content_type="text/markdown",
@@ -188,4 +188,5 @@ setup(
             "pytest-pythonpath",
         ]
     },
+    entry_points={"console_scripts": ["dm-api=api.main"]},
 )

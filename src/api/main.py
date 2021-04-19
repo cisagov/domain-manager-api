@@ -45,7 +45,7 @@ from api.views.user_views import (
 from settings import STATIC_GEN_URL, logger
 from utils.decorators.auth import auth_admin_required, auth_required
 
-app = Flask(__name__)
+app = Flask(__name__, template_folder="templates")
 app.url_map.strict_slashes = False
 CORS(app)
 
