@@ -7,7 +7,7 @@ https://docs.pytest.org/en/latest/writing_plugins.html#conftest-py-plugins
 import pytest
 
 # cisagov Libraries
-from main import app
+from api.main import app
 
 MAIN_SERVICE_NAME = "api"
 
