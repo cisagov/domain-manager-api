@@ -140,11 +140,11 @@ class TemplateAttributesView(MethodView):
             {
                 "Address": fake.street_address(),
                 "City": fake.city(),
-                "Description": "",
-                "Email": "",
                 "CompanyName": "",
+                "Email": "",
                 "Phone": fake.numerify(text="1-%##-###-####"),
                 "State": fake.state(),
+                "ZipCode": fake.zipcode(),
             }
         )
 
