@@ -91,12 +91,15 @@ func TemplateHandler(w http.ResponseWriter, r *http.Request) {
 
 		// Generate preview from preview data and template
 		context := aws.Context{
-			CompanyName: "{{ .CompanyName }}",
-			Description: "{{ .Description }}",
-			Domain:      "{{ .Domain }}",
-			Phone:       "{{ .Phone }}",
-			Address:     "{{ .Address }}",
-			Email:       "{{ .Email }}",
+			CompanyName:   "{{ .CompanyName }}",
+			Domain:        "{{ .Domain }}",
+			Phone:         "{{ .Phone }}",
+			StreetAddress: "{{ .StreetAddress }}",
+			City:          "{{ .City }}",
+			State:         "{{ .State }}",
+			ZipCode:       "{{ .ZipCode }}",
+			Email:         "{{ .Email }}",
+			Phone:         "{{ .Phone }}",
 		}
 
 		route.Generate(&context, aws.TemplateBucket, "true", foldername)
