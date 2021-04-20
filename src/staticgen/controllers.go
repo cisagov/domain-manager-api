@@ -91,7 +91,7 @@ func TemplateHandler(w http.ResponseWriter, r *http.Request) {
 
 		// Generate preview from preview data and template
 		context := aws.Context{
-			Name:        "{{ .Name }}",
+			CompanyName: "{{ .CompanyName }}",
 			Description: "{{ .Description }}",
 			Domain:      "{{ .Domain }}",
 			Phone:       "{{ .Phone }}",
