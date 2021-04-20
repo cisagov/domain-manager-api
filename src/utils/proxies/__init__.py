@@ -39,7 +39,7 @@ PROXIES = [
         "url": "https://urlfiltering.paloaltonetworks.com/",
         "categorize_url": "https://urlfiltering.paloaltonetworks.com/",
         "check_url": "https://urlfiltering.paloaltonetworks.com/",
-        "check_category_func": None,
+        "check_category_func": palo_alto.check_category,
         "categorize_func": palo_alto.categorize,
     },
     {
@@ -53,7 +53,7 @@ PROXIES = [
     {
         "name": "Websense",
         "url": "http://csi.websense.com",
-        "categorize_url": "",
+        "categorize_url": None,
         "check_url": "http://csi.websense.com",
         "check_category_func": websense.check_category,
         "categorize_func": None,

@@ -1,48 +1,66 @@
 """Categorization controller. Mac and linux compatible."""
 # Standard Python Libraries
 import os
-import time
 
 # Third-Party Libraries
 from selenium import webdriver
 import undetected_chromedriver as uc
 
 # cisagov Libraries
-from utils.proxies.proxies import get_check_api_proxies, get_check_proxies
+from utils.proxies import PROXIES
 
 # Load environment variables from .env file
 script_dir = os.path.dirname(os.path.realpath(__file__))
+api_key = os.getenv("TWO_CAPTCHA")
 
 
 def check(domain_name):
     """Categorize site with all proxies in proxies folder."""
-    # Submit domain to proxies via apis
-    for k, v in get_check_api_proxies().items():
-        resp = v(domain_name)
-        print(f"{k} responded with {resp}")
+    category_results = []
 
     # Submit domain to proxies via selenium
-    for k, v in get_check_proxies().items():
-        options = webdriver.ChromeOptions()
-        options.add_argument("start-maximized")
-        try:
-            driver = uc.Chrome(
-                executable_path=f"{script_dir}/drivers/chromedriver",
-                options=options,
-            )
-        except OSError:
-            driver = uc.Chrome(
-                executable_path=f"{script_dir}/drivers/chromedriver.exe",
-                options=options,
-            )
-        try:
-            resp = v(driver, domain_name)
-            print(f"{k} responded with {resp}")
-            time.sleep(3)
-        except Exception as e:
-            print(str(e))
-        finally:
-            driver.quit()
+    for proxy in PROXIES:
+        if proxy.get("check_url"):
+            category = process(proxy.get("check_category_func"), domain_name)
+            data = {
+                "proxy": proxy["name"],
+                "check_url": proxy.get("check_url"),
+                "category": category,
+            }
+            category_results.append(data)
+
+    return "\n".join(category_results)
+
+
+def process(proxy_func, domain_name):
+    """Check a category against each proxy."""
+    options = webdriver.ChromeOptions()
+    options.add_argument("start-maximized")
+
+    # Set driver
+    try:
+        driver = uc.Chrome(
+            executable_path=f"{script_dir}/drivers/chromedriver",
+            options=options,
+        )
+    except OSError:
+        driver = uc.Chrome(
+            executable_path=f"{script_dir}/drivers/chromedriver.exe",
+            options=options,
+        )
+
+    # Check category
+    try:
+        if "two_captcha_api_key" in proxy_func.__code__.co_varnames:
+            category = proxy_func(driver, domain_name, api_key)
+        else:
+            category = proxy_func(driver, domain_name)
+        return category
+    except Exception as e:
+        print(str(e))
+        return None
+    finally:
+        driver.quit()
 
 
 domain_name = input("Enter a domain name: ")
