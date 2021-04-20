@@ -24,15 +24,15 @@ type (
 
 	// Context for templates
 	Context struct {
-		CompanyName string `json:"company_name"`
-		Description string `json:"description"`
-		Domain      string `json:"domain"`
-		Phone       string `json:"phone"`
-		Address     string `json:"address"`
-		City        string `json:"city"`
-		State       string `json:"state"`
-		Email       string `json:"email"`
-		Zip         []byte `json:"zip"`
+		CompanyName string `json:"CompanyName"`
+		Description string `json:"Description"`
+		Domain      string `json:"Domain"`
+		Phone       string `json:"Phone"`
+		Address     string `json:"Address"`
+		City        string `json:"City"`
+		State       string `json:"State"`
+		Email       string `json:"Email"`
+		Zip         []byte `json:"Zip"`
 	}
 )
 
