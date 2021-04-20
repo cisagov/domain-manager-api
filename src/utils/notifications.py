@@ -6,7 +6,7 @@ from flask import g, render_template, render_template_string
 
 # cisagov Libraries
 from api.manager import UserManager
-from settings import APP_ENV, APP_NAME, SES_ASSUME_ROLE_ARN, SMTP_FROM, logger
+from settings import APP_ENV, APP_NAME, SES_ASSUME_ROLE_ARN, SMTP_FROM, logger, NEW_USER_NOTIFICATION_EMAIL_ADDRESS
 from utils.aws import cognito, sts
 from utils.users import get_users_in_group
 
@@ -54,11 +54,22 @@ class Notification:
                     "emails/website_launched.html", **context
                 ),
             },
+            "user_registered": {
+                "send_to": "UserRegistered",
+                "subject": "[Domain Manager] A New User Has Registered",
+                "text_content": render_template_string(
+                    "emails/new_user_registered.html", **context
+                ),
+                "html_content": render_template(
+                    "emails/new_user_registered.html", **context
+                ),
+            },
         }.get(message_type)
 
     def get_to_addresses(self, content):
         """Get email addresses to send to."""
         addresses = []
+        logger.info(content["send_to"])
         if self.application_id:
             addresses.extend(
                 get_users_in_group(
@@ -71,6 +82,8 @@ class Notification:
             addresses.extend(cognito.get_admin_users(return_emails=True))
         elif content["send_to"] == "All":
             addresses.extend(cognito.list_users(return_emails=True))
+        elif content["send_to"] == "UserRegistered":
+            addresses.append(NEW_USER_NOTIFICATION_EMAIL_ADDRESS)
         return addresses
 
     def send(self):
