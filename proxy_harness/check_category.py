@@ -11,6 +11,7 @@ from utils.proxies import PROXIES
 
 # Load environment variables from .env file
 script_dir = os.path.dirname(os.path.realpath(__file__))
+api_key = os.getenv("TWO_CAPTCHA")
 
 
 def check(domain_name):
@@ -27,6 +28,8 @@ def check(domain_name):
                 "category": category,
             }
             category_results.append(data)
+
+    return "\n".join(category_results)
 
 
 def process(proxy_func, domain_name):
@@ -48,7 +51,10 @@ def process(proxy_func, domain_name):
 
     # Check category
     try:
-        category = proxy_func(driver, domain_name)
+        if "two_captcha_api_key" in proxy_func.__code__.co_varnames:
+            category = proxy_func(driver, domain_name, api_key)
+        else:
+            category = proxy_func(driver, domain_name)
         return category
     except Exception as e:
         print(str(e))

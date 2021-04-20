@@ -43,6 +43,7 @@ def categorize(driver, domain, category, two_captcha_api_key):
 
 def check_category(driver, domain, two_captcha_api_key):
     """Check domain category on Palo Alto."""
+    print("Checking Palo Alto proxy")
     driver.get("https://urlfiltering.paloaltonetworks.com/")
     driver.set_window_size(1177, 953)
     driver.find_element(By.ID, "id_url").click()
@@ -53,8 +54,6 @@ def check_category(driver, domain, two_captcha_api_key):
     driver.switch_to.default_content()
     driver.find_element(By.CSS_SELECTOR, ".btn-primary").click()
     driver.find_element(By.CSS_SELECTOR, ".query-result-ul > li:nth-child(3)").click()
-    driver.find_element(By.CSS_SELECTOR, ".query-result-ul > li:nth-child(3)").click()
-    driver.find_element(By.CSS_SELECTOR, ".query-result-ul > li:nth-child(3)")
     category = driver.find_element(
         By.CSS_SELECTOR, ".query-result-ul > li:nth-child(3)"
     ).click()
