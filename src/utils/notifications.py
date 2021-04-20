@@ -6,7 +6,14 @@ from flask import g, render_template, render_template_string
 
 # cisagov Libraries
 from api.manager import UserManager
-from settings import APP_ENV, APP_NAME, SES_ASSUME_ROLE_ARN, SMTP_FROM, logger, NEW_USER_NOTIFICATION_EMAIL_ADDRESS
+from settings import (
+    APP_ENV,
+    APP_NAME,
+    NEW_USER_NOTIFICATION_EMAIL_ADDRESS,
+    SES_ASSUME_ROLE_ARN,
+    SMTP_FROM,
+    logger,
+)
 from utils.aws import cognito, sts
 from utils.users import get_users_in_group
 
