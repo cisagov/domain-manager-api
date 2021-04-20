@@ -99,7 +99,6 @@ func TemplateHandler(w http.ResponseWriter, r *http.Request) {
 			State:         "{{ .State }}",
 			ZipCode:       "{{ .ZipCode }}",
 			Email:         "{{ .Email }}",
-			Phone:         "{{ .Phone }}",
 		}
 
 		route.Generate(&context, aws.TemplateBucket, "true", foldername)
