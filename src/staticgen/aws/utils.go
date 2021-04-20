@@ -24,7 +24,7 @@ type (
 
 	// Context for templates
 	Context struct {
-		Name        string `json:"company name"`
+		CompanyName string `json:"company_name"`
 		Description string `json:"description"`
 		Domain      string `json:"domain"`
 		Phone       string `json:"phone"`
