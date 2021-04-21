@@ -138,13 +138,13 @@ class TemplateAttributesView(MethodView):
 
         return jsonify(
             {
-                "address": fake.street_address(),
-                "city": fake.city(),
-                "description": "",
-                "email": "",
-                "name": "",
-                "phone": fake.numerify(text="1-%##-###-####"),
-                "state": fake.state(),
+                "StreetAddress": fake.street_address(),
+                "City": fake.city(),
+                "CompanyName": "",
+                "Email": "",
+                "Phone": fake.numerify(text="1-%##-###-####"),
+                "State": fake.state(),
+                "ZipCode": fake.zipcode(),
             }
         )
 
