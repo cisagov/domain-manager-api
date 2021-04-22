@@ -10,7 +10,7 @@ from sshtunnel import SSHTunnelForwarder
 def get_connection_string(db_user, db_pw, db_host, db_port):
     """Get connection string for connecting to MongoDB."""
     if os.environ.get("MONGO_TYPE", "MONGO") == "DOCUMENTDB":
-        fmt = "mongodb://{}:{}@{}:{}/?ssl=true&ssl_ca_certs=rds-combined-ca-bundle.pem&retryWrites=false"
+        fmt = "mongodb://{}:{}@{}:{}/?ssl=true&ssl_ca_certs=static/rds-combined-ca-bundle.pem&retryWrites=false"
     else:
         fmt = "mongodb://{}:{}@{}:{}/"
     return fmt.format(db_user, db_pw, db_host, db_port)
