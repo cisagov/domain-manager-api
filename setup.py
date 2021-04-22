@@ -1,5 +1,5 @@
 """
-This is the setup module for the example lambda.
+This is the setup module for the Domain Manager API project.
 
 Based on:
 
@@ -9,8 +9,9 @@ Based on:
 """
 
 # Standard Python Libraries
+import codecs
 from glob import glob
-from os.path import basename, splitext
+from os.path import abspath, basename, dirname, join, splitext
 
 # Third-Party Libraries
 from setuptools import find_packages, setup
@@ -22,28 +23,42 @@ def readme():
         return f.read()
 
 
-def package_vars(version_file):
-    """Read in and return the variables defined by the version_file."""
-    pkg_vars = {}
-    with open(version_file) as f:
-        exec(f.read(), pkg_vars)  # nosec
-    return pkg_vars
+# Below two methods were pulled from:
+# https://packaging.python.org/guides/single-sourcing-package-version/
+def read(rel_path):
+    """Open a file for reading from a given relative path."""
+    here = abspath(dirname(__file__))
+    with codecs.open(join(here, rel_path), "r") as fp:
+        return fp.read()
+
+
+def get_version(version_file):
+    """Extract a version number from the given file path."""
+    for line in read(version_file).splitlines():
+        if line.startswith("__version__"):
+            delim = '"' if '"' in line else "'"
+            return line.split(delim)[1]
+    raise RuntimeError("Unable to find version string.")
 
 
 setup(
     name="domain-manager-api",
     # Versions should comply with PEP440
-    version=package_vars("_version.py")["__version__"],
-    description="Domain Management API",
+    version=get_version("src/api/_version.py"),
+    description="Domain Manager API Flask Python library",
     long_description=readme(),
     long_description_content_type="text/markdown",
-    # NCATS "homepage"
-    url="https://www.us-cert.gov/resources/ncats",
-    # The project's main homepage
-    download_url="https://github.com/cisagov/domain-manager-api",
+    # Landing page for CISA's cybersecurity mission
+    url="https://www.cisa.gov/cybersecurity",
+    # Additional URLs for this project per
+    # https://packaging.python.org/guides/distributing-packages-using-setuptools/#project-urls
+    project_urls={
+        "Source": "https://github.com/cisagov/domain-manager-api",
+        "Tracker": "https://github.com/cisagov/domain-manager-api/issues",
+    },
     # Author details
-    author="Cyber and Infrastructure Security Agency",
-    author_email="ncats@hq.dhs.gov",
+    author="Cybersecurity and Infrastructure Security Agency",
+    author_email="github@cisa.dhs.gov",
     license="License :: CC0 1.0 Universal (CC0 1.0) Public Domain Dedication",
     # See https://pypi.python.org/pypi?%3Aaction=list_classifiers
     classifiers=[
@@ -62,16 +77,105 @@ setup(
         "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
     ],
     python_requires=">=3.6",
     # What does your project relate to?
-    keywords="domain",
-    packages=find_packages(where="."),
+    keywords="domains",
+    packages=find_packages(where="src"),
+    package_dir={"": "src"},
     py_modules=[splitext(basename(path))[0] for path in glob("src/*.py")],
-    install_requires=["docopt", "setuptools"],
+    include_package_data=True,
+    install_requires=[
+        "2captcha-python>=1.0.3",
+        "appdirs>=1.4.4",
+        "appnope>=0.1.0",
+        "attrs>=20.3.0",
+        "backcall>=0.2.0",
+        "bcrypt>=3.2.0",
+        "beautifulsoup4>=4.9.1",
+        "boto3>=1.14.39",
+        "botocore>=1.17.63",
+        "certifi>=2020.12.5",
+        "cffi>=1.14.4",
+        "cfgv>=3.2.0",
+        "chardet>=3.0.4",
+        "click>=7.1.2",
+        "cognitojwt>=1.2.2",
+        "cryptography>=3.3.2",
+        "decorator>=4.4.2",
+        "distlib>=0.3.1",
+        "dnspython>=2.1.0",
+        "docutils>=0.15.2",
+        "ecdsa>=0.14.1",
+        "Faker>=5.8.0",
+        "filelock>=3.0.12",
+        "Flask>=1.1.2",
+        "Flask-Cors>=3.0.9",
+        "gunicorn>=20.0.4",
+        "identify>=1.5.5",
+        "idna>=2.10",
+        "iniconfig>=1.1.1",
+        "ipdb>=0.13.4",
+        "ipython>=7.18.1",
+        "ipython-genutils>=0.2.0",
+        "itsdangerous>=1.1.0",
+        "jedi>=0.17.2",
+        "Jinja2>=2.11.3",
+        "jmespath>=0.10.0",
+        "MarkupSafe>=1.1.1",
+        "marshmallow>=3.7.1",
+        "mccabe>=0.6.1",
+        "mongomock>=3.22.0",
+        "mypy-extensions>=0.4.3",
+        "nodeenv>=1.5.0",
+        "packaging>=20.9",
+        "paramiko>=2.7.2",
+        "parso>=0.7.1",
+        "pathspec>=0.8.0",
+        "pexpect>=4.8.0",
+        "pickleshare>=0.7.5",
+        "pluggy>=0.13.1",
+        "prompt-toolkit>=3.0.8",
+        "ptyprocess>=0.6.0",
+        "py>=1.10.0",
+        "pyasn1>=0.4.8",
+        "pycodestyle>=2.6.0",
+        "pycparser>=2.20",
+        "pyflakes>=2.2.0",
+        "Pygments>=2.7.4",
+        "pymongo>=3.11.1",
+        "PyNaCl>=1.4.0",
+        "pyparsing>=2.4.7",
+        "python-dateutil>=2.8.1",
+        "python-dotenv>=0.14.0",
+        "python-jose>=3.2.0",
+        "PyYAML>=5.4",
+        "regex>=2020.10.11",
+        "requests>=2.24.0",
+        "rsa>=4.7",
+        "s3transfer>=0.3.4",
+        "selenium>=3.141.0",
+        "sentinels>=1.0.0",
+        "six>=1.15.0",
+        "soupsieve>=2.1",
+        "sshtunnel>=0.3.1",
+        "text-unidecode>=1.3",
+        "toml>=0.10.1",
+        "traitlets>=5.0.5",
+        "TwoCaptcha>=0.0.1",
+        "typed-ast>=1.4.1",
+        "typing-extensions>=3.7.4.3",
+        "undetected-chromedriver>=2.1.2",
+        "urllib3>=1.25.11",
+        "validators>=0.18.2",
+        "wcwidth>=0.2.5",
+        "Werkzeug>=1.0.1",
+    ],
     extras_require={
         "test": [
-            "pre-commit",
+            "black",
+            "coverage",
             # coveralls 1.11.0 added a service number for calls from
             # GitHub Actions. This caused a regression which resulted in a 422
             # response from the coveralls API with the message:
@@ -79,10 +183,17 @@ setup(
             # 1.11.1 fixed this issue, but to ensure expected behavior we'll pin
             # to never grab the regression version.
             "coveralls != 1.11.0",
-            "coverage",
-            "pytest-cov",
+            "flake8",
+            "moto",
+            "pre-commit",
             "pytest",
+            "pytest-cov",
+            "pytest-dockerc",
+            "pytest-dotenv",
+            "pytest-env",
+            "pytest-mock",
+            "pytest-pythonpath",
         ]
     },
-    entry_points={"console_scripts": ["eal = eal.example_aws_lambda:main"]},
+    entry_points={"console_scripts": ["dm-api=api.main"]},
 )

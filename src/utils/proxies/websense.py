@@ -15,7 +15,10 @@ def req_check():
     request.add_header(
         "User-Agent", "Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 6.1)"
     )
-    response = urllib.request.urlopen(request)
+    # Bandit complains that url is not being audited as it will open file:/ or custom schemes.
+    # Only an http scheme is being opened and so there is nothing to worry about.
+    # https://bandit.readthedocs.io/en/latest/blacklists/blacklist_calls.html#b310-urllib-urlopen
+    response = urllib.request.urlopen(request)  # nosec
     resp = response.read().decode("utf-8")
     num_remaining = re.findall('reports">(.*?) report', resp, re.DOTALL)[0]
     return num_remaining

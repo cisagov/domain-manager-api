@@ -1,3 +1,4 @@
+---
 name: Deploy Dev
 
 on:
@@ -20,4 +21,4 @@ jobs:
           token: ${{ secrets.DOMAIN_MANAGER_ACCESS_TOKEN }}
           repository: cisagov/domain-manager-cicd
           event-type: deploy
-          client-payload: '{"trigger": "domain-manager-api", "env": "${{ steps.ref.outputs.branch }}"}'
+          client-payload: '{"trigger": "domain-manager-api"}'
