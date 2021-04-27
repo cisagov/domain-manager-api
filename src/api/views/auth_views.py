@@ -11,6 +11,7 @@ from api.manager import LogManager, UserManager
 from settings import logger
 from utils.aws import cognito
 from utils.logs import cleanup_logs
+from utils.notifications import Notification
 
 user_manager = UserManager()
 log_manager = LogManager()
@@ -28,6 +29,11 @@ class RegisterView(MethodView):
             email = data["Email"]
 
             cognito.sign_up(username, password, email)
+
+            email = Notification(
+                message_type="user_registered", context={"new_user": data["Username"]}
+            )
+            email.send()
 
             return jsonify(success=True)
         except Exception as e:
