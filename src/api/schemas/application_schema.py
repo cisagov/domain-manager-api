@@ -15,7 +15,6 @@ class ApplicationSchema(BaseSchema):
         unknown = EXCLUDE
 
     name = fields.Str()
-    requester_name = fields.Str()
     contact_name = fields.Str()
     contact_email = fields.Email()
     contact_phone = fields.Str()

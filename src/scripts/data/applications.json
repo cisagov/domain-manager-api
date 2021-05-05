@@ -1,14 +1,11 @@
 [
   {
-    "name": "DHS Con-PCA",
-    "requester_name": "Initialized"
+    "name": "DHS Con-PCA"
   },
   {
-    "name": "DHS Lie-PCA",
-    "requester_name": "Initialized"
+    "name": "DHS Lie-PCA"
   },
   {
-    "name": "DHS Red Team",
-    "requester_name": "Initialized"
+    "name": "DHS Red Team"
   }
 ]
