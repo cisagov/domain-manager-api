@@ -10,7 +10,6 @@ def get_application():
     return {
         "_id": fake.uuid4(),
         "name": fake.name(),
-        "requester_name": fake.name(),
         "contact_name": fake.name(),
         "contact_email": fake.email(),
         "contact_phone": fake.phone_number(),
