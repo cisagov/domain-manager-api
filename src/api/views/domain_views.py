@@ -19,6 +19,7 @@ import requests
 from api.manager import ApplicationManager, DomainManager, TemplateManager
 from api.schemas.domain_schema import DomainSchema, Record
 from settings import STATIC_GEN_URL, TAGS, WEBSITE_BUCKET, logger
+from utils.apex_records import contains_apex_record, is_apex_record
 from utils.aws import record_handler
 from utils.aws.site_handler import launch_domain, unlaunch_domain, verify_hosted_zone
 from utils.categorization.categorize import categorize
@@ -417,6 +418,7 @@ class DomainRecordView(MethodView):
             logger.exception(e)
             return str(e), 400
         data["record_id"] = str(uuid4())
+
         domain = domain_manager.get(document_id=domain_id)
         try:
             record_handler.manage_record("CREATE", domain["route53"]["id"], data)
@@ -429,6 +431,14 @@ class DomainRecordView(MethodView):
         resp = domain_manager.add_to_list(
             document_id=domain_id, field="records", data=data
         )
+
+        if is_apex_record(record=data, domain_name=domain["name"]):
+            domain_manager.update(
+                document_id=domain_id,
+                data={
+                    "is_active": True,
+                },
+            )
         return jsonify(resp)
 
     def delete(self, domain_id):
@@ -446,6 +456,14 @@ class DomainRecordView(MethodView):
         resp = domain_manager.delete_from_list(
             document_id=domain_id, field="records", data={"record_id": record_id}
         )
+
+        if record["record_type"] == "A" and record["name"] == domain["name"]:
+            domain_manager.update(
+                document_id=domain_id,
+                data={
+                    "is_active": False,
+                },
+            )
         return jsonify(resp)
 
     def put(self, domain_id):
@@ -547,6 +565,8 @@ class DomainDeployedCheckView(MethodView):
         if domain.get("cloudfront", {}).get("id"):
             results = cloudfront.get_distribution(Id=domain["cloudfront"]["id"])
             return jsonify(results["Distribution"])
+        elif contains_apex_record(domain):
+            return jsonify({"Status": "Externally Deployed"})
         else:
             return (
                 jsonify(
