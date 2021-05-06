@@ -3,6 +3,7 @@
 from datetime import datetime, timedelta
 
 # Third-Party Libraries
+import botocore
 from flask import jsonify, request
 from flask.views import MethodView
 
@@ -36,9 +37,9 @@ class RegisterView(MethodView):
             email.send()
 
             return jsonify(success=True)
-        except Exception as e:
+        except botocore.exceptions.ClientError as e:
             logger.exception(e)
-            return jsonify({"error": "Error registering user."}), 400
+            return e.response["Error"]["Message"], 400
 
 
 class SignInView(MethodView):
@@ -50,7 +51,11 @@ class SignInView(MethodView):
         username = data["username"]
         password = data["password"]
 
-        response = cognito.authenticate(username, password)
+        try:
+            response = cognito.authenticate(username, password)
+        except botocore.exceptions.ClientError as e:
+            logger.exception(e)
+            return e.response["Error"]["Message"], 400
 
         expires = datetime.utcnow() + timedelta(
             seconds=response["AuthenticationResult"]["ExpiresIn"]
