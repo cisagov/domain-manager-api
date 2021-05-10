@@ -27,7 +27,6 @@ from api.views.domain_views import (
     DomainView,
 )
 from api.views.email_address_views import EmailAddressView
-from api.views.help_views import UserGuideView
 from api.views.proxy_views import ProxiesView, ProxyView
 from api.views.template_views import (
     TemplateApprovalView,
@@ -67,7 +66,6 @@ rules = [
     ("/domain/<domain_id>/launch/", DomainLaunchView),
     ("/domain/<domain_id>/records/", DomainRecordView),
     ("/generate-email-address/", EmailAddressView),
-    ("/help/", UserGuideView),
     ("/proxies/", ProxiesView),
     ("/proxy/<proxy_name>/", ProxyView),
     ("/templates/", TemplatesView),
