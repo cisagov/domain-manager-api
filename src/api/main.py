@@ -1,6 +1,8 @@
 """Domain manager."""
 # Standard Python Libraries
 from datetime import date
+import glob
+import ntpath
 
 # Third-Party Libraries
 from flask import Flask, g, render_template, request
@@ -143,6 +145,24 @@ def api_map():
     return render_template(
         "index.html", endpoints=endpoints, golang_resp=golang_resp.text
     )
+
+
+@app.route("/help")
+def userGuide():
+    """Endpoint for user guide static html."""
+    return render_template("/user_guide/index.htm")
+
+
+@app.route("/<path:path>")
+def catch_all(path):
+    """Endpoint for user guide static html pages."""
+    user_guide_htmls = [
+        ntpath.basename(path) for path in glob.glob("api/templates/user_guide/*.htm")
+    ]
+    if path in user_guide_htmls:
+        return render_template(f"/user_guide/{path}")
+    else:
+        return render_template("/user_guide/index.htm")
 
 
 def get_request_data():
