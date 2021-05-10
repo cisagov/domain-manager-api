@@ -1,6 +1,6 @@
 """Apex records."""
 # Standard Python Libraries
-from typing import Any, Union
+from typing import Any
 
 
 def contains_apex_record(domain: dict):
@@ -15,6 +15,6 @@ def contains_apex_record(domain: dict):
     )
 
 
-def is_apex_record(record: Union[Any, Any], domain_name: str):
+def is_apex_record(record: Any, domain_name: str):
     """Check if it is an apex record."""
     return record["name"] == domain_name and record["record_type"] == "A"
