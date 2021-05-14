@@ -227,45 +227,59 @@ def setup_cloudfront(domain, certificate_arn):
     )
 
 
-def setup_dns(domain, endpoint=None, ip_address=None):
+def setup_dns(domain, endpoint=None):
     """Create a domain's DNS."""
     domain_name = domain["name"]
     dns_id = domain["route53"]["id"]
-    if ip_address:
-        response = route53.change_resource_record_sets(
-            HostedZoneId=dns_id,
-            ChangeBatch={
-                "Comment": ip_address,
-                "Changes": [
-                    {
-                        "Action": "UPSERT",
-                        "ResourceRecordSet": {
-                            "Name": domain_name,
-                            "Type": "A",
-                            "TTL": 15,
-                            "ResourceRecords": [{"Value": ip_address}],
+    response = route53.change_resource_record_sets(
+        HostedZoneId=dns_id,
+        ChangeBatch={
+            "Comment": domain_name,
+            "Changes": [
+                {
+                    "Action": "UPSERT",
+                    "ResourceRecordSet": {
+                        "Name": domain_name,
+                        "Type": "A",
+                        "AliasTarget": {
+                            "HostedZoneId": "Z2FDTNDATAQYW2",
+                            "EvaluateTargetHealth": False,
+                            "DNSName": endpoint,
                         },
                     },
-                    {
-                        "Action": "UPSERT",
-                        "ResourceRecordSet": {
-                            "Name": f"www.{domain_name}",
-                            "Type": "CNAME",
-                            "TTL": 15,
-                            "ResourceRecords": [{"Value": ip_address}],
+                },
+                {
+                    "Action": "UPSERT",
+                    "ResourceRecordSet": {
+                        "Name": f"www.{domain_name}",
+                        "Type": "A",
+                        "AliasTarget": {
+                            "HostedZoneId": "Z2FDTNDATAQYW2",
+                            "EvaluateTargetHealth": False,
+                            "DNSName": endpoint,
                         },
                     },
-                ],
-            },
-        )
-    else:
-        response = route53.change_resource_record_sets(
+                },
+            ],
+        },
+    )
+    logger.info(response)
+    return response
+
+
+def delete_dns(domain, endpoint=None):
+    """Create a domain's DNS."""
+    domain_name = domain["name"]
+    dns_id = domain["route53"]["id"]
+    try:
+        # Delete main resource record
+        route53.change_resource_record_sets(
             HostedZoneId=dns_id,
             ChangeBatch={
                 "Comment": domain_name,
                 "Changes": [
                     {
-                        "Action": "UPSERT",
+                        "Action": "DELETE",
                         "ResourceRecordSet": {
                             "Name": domain_name,
                             "Type": "A",
@@ -276,8 +290,54 @@ def setup_dns(domain, endpoint=None, ip_address=None):
                             },
                         },
                     },
+                ],
+            },
+        )
+    except botocore.exceptions.ClientError as error:
+        if error.response["Error"]["Code"] == "InvalidChangeBatch":
+            pass
+        else:
+            raise error
+
+    try:
+        # Delete www dns record
+        route53.change_resource_record_sets(
+            HostedZoneId=dns_id,
+            ChangeBatch={
+                "Comment": domain_name,
+                "Changes": [
                     {
-                        "Action": "UPSERT",
+                        "Action": "DELETE",
+                        "ResourceRecordSet": {
+                            "Name": f"www.{domain_name}",
+                            "Type": "A",
+                            "AliasTarget": {
+                                "HostedZoneId": "Z2FDTNDATAQYW2",
+                                "EvaluateTargetHealth": False,
+                                "DNSName": endpoint,
+                            },
+                        },
+                    },
+                ],
+            },
+        )
+    except botocore.exceptions.ClientError as error:
+        if error.response["Error"]["Code"] == "InvalidChangeBatch":
+            pass
+        else:
+            raise error
+
+    try:
+        # Try delete old CNAME record if it exists
+        # This can be removed later after all
+        # deployments have transitioned
+        route53.change_resource_record_sets(
+            HostedZoneId=dns_id,
+            ChangeBatch={
+                "Comment": domain_name,
+                "Changes": [
+                    {
+                        "Action": "DELETE",
                         "ResourceRecordSet": {
                             "Name": f"www.{domain_name}",
                             "Type": "CNAME",
@@ -291,77 +351,6 @@ def setup_dns(domain, endpoint=None, ip_address=None):
                 ],
             },
         )
-    logger.info(response)
-    return response
-
-
-def delete_dns(domain, endpoint=None, ip_address=None):
-    """Create a domain's DNS."""
-    domain_name = domain["name"]
-    dns_id = domain["route53"]["id"]
-    try:
-        if ip_address:
-            route53.change_resource_record_sets(
-                HostedZoneId=dns_id,
-                ChangeBatch={
-                    "Comment": ip_address,
-                    "Changes": [
-                        {
-                            "Action": "DELETE",
-                            "ResourceRecordSet": {
-                                "Name": domain_name,
-                                "Type": "A",
-                                "TTL": 15,
-                                "ResourceRecords": [{"Value": ip_address}],
-                            },
-                        }
-                    ],
-                },
-            )
-        else:
-            # Delete main resource record
-            route53.change_resource_record_sets(
-                HostedZoneId=dns_id,
-                ChangeBatch={
-                    "Comment": domain_name,
-                    "Changes": [
-                        {
-                            "Action": "DELETE",
-                            "ResourceRecordSet": {
-                                "Name": domain_name,
-                                "Type": "A",
-                                "AliasTarget": {
-                                    "HostedZoneId": "Z2FDTNDATAQYW2",
-                                    "EvaluateTargetHealth": False,
-                                    "DNSName": endpoint,
-                                },
-                            },
-                        },
-                    ],
-                },
-            )
-
-            # Delete www dns record
-            route53.change_resource_record_sets(
-                HostedZoneId=dns_id,
-                ChangeBatch={
-                    "Comment": domain_name,
-                    "Changes": [
-                        {
-                            "Action": "DELETE",
-                            "ResourceRecordSet": {
-                                "Name": f"www.{domain_name}",
-                                "Type": "CNAME",
-                                "AliasTarget": {
-                                    "HostedZoneId": "Z2FDTNDATAQYW2",
-                                    "EvaluateTargetHealth": False,
-                                    "DNSName": endpoint,
-                                },
-                            },
-                        },
-                    ],
-                },
-            )
     except botocore.exceptions.ClientError as error:
         if error.response["Error"]["Code"] == "InvalidChangeBatch":
             pass

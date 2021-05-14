@@ -1,6 +1,7 @@
 """DNS Record Handler."""
 # Third-Party Libraries
 import boto3
+import botocore
 
 # cisagov Libraries
 from settings import TAGS
@@ -36,22 +37,32 @@ def modify_record(
     for value in record_value.splitlines():
         records.append({"Value": value})
 
-    return route53.change_resource_record_sets(
-        HostedZoneId=hosted_zone_id,
-        ChangeBatch={
-            "Changes": [
-                {
-                    "Action": action,
-                    "ResourceRecordSet": {
-                        "Name": record_name,
-                        "Type": record_type,
-                        "TTL": record_ttl,
-                        "ResourceRecords": records,
-                    },
-                }
-            ]
-        },
-    )
+    try:
+        resp = route53.change_resource_record_sets(
+            HostedZoneId=hosted_zone_id,
+            ChangeBatch={
+                "Changes": [
+                    {
+                        "Action": action,
+                        "ResourceRecordSet": {
+                            "Name": record_name,
+                            "Type": record_type,
+                            "TTL": record_ttl,
+                            "ResourceRecords": records,
+                        },
+                    }
+                ]
+            },
+        )
+        return resp
+    except botocore.exceptions.ClientError as error:
+        if (
+            error.response["Error"]["Code"] == "InvalidChangeBatch"
+            and action == "DELETE"
+        ):
+            return None
+        else:
+            raise error
 
 
 def modify_redirect_record(action, hosted_zone_id, record):
