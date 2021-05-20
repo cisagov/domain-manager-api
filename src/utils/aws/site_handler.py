@@ -111,6 +111,10 @@ def launch_site(domain):
     # setup DNS
     setup_dns(domain=domain, endpoint=distribution_endpoint)
 
+    # wait for cloudfront to be deployed
+    waiter = cloudfront.get_waiter("distribution_deployed")
+    waiter.wait(Id=distribution_id)
+
     return {
         "cloudfront": {
             "id": distribution_id,
