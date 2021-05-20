@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"html/template"
 	"io"
+	"io/fs"
 	"log"
 	"os"
 	"path/filepath"
@@ -28,24 +29,30 @@ func (r *Route) Generate(ctx *Context, bucket, isTemplate, foldername string) {
 		close(walker)
 	}()
 
-	// For each file found walking, upload it to S3
-	sess := session.Must(session.NewSession())
-	uploader := s3manager.NewUploader(sess)
-	for path := range walker {
-		if !strings.Contains(path, "base.html") {
+	// get path for base.html
+	var basePath string
+	_ = filepath.Walk(".", func(path string, info fs.FileInfo, err error) error {
+		if err != nil {
+			fmt.Println(err)
+		}
+		if !info.IsDir() && info.Name() ==
+			"base.html" {
+			basePath = path
+		}
+		return nil
+	})
 
-			// set tmp folder prefix
-			rel, err := filepath.Rel(strings.Join([]string{"tmp", r.TemplateName, foldername}, "/"), path)
-			if err != nil {
-				log.Println("Unable to get relative path:", path, err)
-			}
+	// For each file found walking, upload it to S3
+	for path := range walker {
+		if path != basePath {
 			var contenttype string
 			var file io.Reader
+			var err error
 
 			ext := strings.ToLower(filepath.Ext(path))
 			if ext == ".html" && isTemplate == "true" {
 				contenttype = "text/html"
-				file = parse(path, rel, ctx)
+				file = parse(path, basePath, ctx)
 			} else if ext == ".html" {
 				log.Println("opening as html file")
 				contenttype = "text/html"
@@ -70,6 +77,12 @@ func (r *Route) Generate(ctx *Context, bucket, isTemplate, foldername string) {
 				}
 			}
 
+			// set tmp folder prefix
+			rel, err := filepath.Rel(strings.Join([]string{"tmp", r.TemplateName, foldername}, "/"), path)
+			if err != nil {
+				log.Println("Unable to get relative path:", path, err)
+			}
+
 			var key []string
 			if bucket == TemplateBucket {
 				key = []string{r.Dir, "preview", rel}
@@ -77,7 +90,11 @@ func (r *Route) Generate(ctx *Context, bucket, isTemplate, foldername string) {
 				key = []string{r.Dir, rel}
 			}
 
+			// initialize s3 uploader
+			sess := session.Must(session.NewSession())
+			uploader := s3manager.NewUploader(sess)
 			uploadKey := strings.Replace(strings.Join(key, "/"), "\\", "/", -1)
+
 			_, err = uploader.Upload(&s3manager.UploadInput{
 				Bucket:      &bucket,
 				ContentType: &contenttype,
@@ -94,14 +111,14 @@ func (r *Route) Generate(ctx *Context, bucket, isTemplate, foldername string) {
 }
 
 // Parse html templates
-func parse(path, rel string, ctx *Context) *bytes.Reader {
+func parse(path, base string, ctx *Context) *bytes.Reader {
 	file, err := os.Open(path)
 	if err != nil {
 		log.Println("Failed opening html file", path, err)
 	}
 	defer file.Close()
 
-	t := template.Must(template.ParseFiles(filepath.Dir(path)+"/base.html", path))
+	t := template.Must(template.ParseFiles(base, path))
 	if err != nil {
 		log.Println("Failed to parse html files", err)
 	}
