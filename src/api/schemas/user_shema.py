@@ -18,10 +18,11 @@ class UserSchema(BaseSchema):
 
     Attributes = fields.List(fields.Dict())
     Enabled = fields.Boolean()
-    UserCreateDate = DateTimeField()
+    UserCreateDate = DateTimeField(allow_none=True)
     UserLastModifiedDate = DateTimeField()
     UserStatus = fields.Str()
     Username = fields.Str(validate=is_valid_category)
     Groups = fields.List(fields.Dict())
     HashedAPI = fields.Str()
     HasAPIKey = fields.Boolean()
+    SelectedApplicationId = fields.Str()
