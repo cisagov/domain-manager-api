@@ -18,7 +18,7 @@ import requests
 # cisagov Libraries
 from api.manager import ApplicationManager, DomainManager, TemplateManager
 from api.schemas.domain_schema import DomainSchema, Record
-from settings import STATIC_GEN_URL, TAGS, WEBSITE_BUCKET, logger
+from settings import STATIC_GEN_URL, WEBSITE_BUCKET, logger
 from utils.apex_records import contains_apex_record, is_apex_record
 from utils.aws import record_handler
 from utils.aws.site_handler import launch_domain, unlaunch_domain, verify_hosted_zone
@@ -71,27 +71,35 @@ class DomainsView(MethodView):
                 ),
                 400,
             )
-        response = []
+        response = {
+            "error": {},
+            "success": {},
+        }
         for domain_name in request.json:
-            data = validate_data({"name": domain_name}, DomainSchema)
+            # Catch errors validation domain name
+            try:
+                data = validate_data({"name": domain_name}, DomainSchema)
+            except ValidationError as e:
+                logger.exception(e)
+                response["error"][domain_name] = "Invalid Domain"
+                continue
+
+            # Catch error if domain already exists.
             if domain_manager.get(filter_data={"name": data["name"]}):
                 logger.error(f"{domain_name} already exists.")
-                response.append({domain_name: "Skipped. Already exists."})
+                response["error"][domain_name] = "Domain already exists."
                 continue
 
             caller_ref = str(uuid4())
-            resp = route53.create_hosted_zone(
-                Name=data["name"], CallerReference=caller_ref
-            )
 
-            # tag resource
-            hosted_zone_id = resp["HostedZone"]["Id"].strip("/hostedzone/")
-
-            route53.change_tags_for_resource(
-                ResourceType="hostedzone",
-                ResourceId=hosted_zone_id,
-                AddTags=TAGS,
-            )
+            try:
+                resp = route53.create_hosted_zone(
+                    Name=data["name"], CallerReference=caller_ref
+                )
+            except ClientError as e:
+                logger.exception(e)
+                response["error"][domain_name] = e.response["Error"]["Message"]
+                continue
 
             # save to db
             domain_manager.save(
@@ -106,7 +114,7 @@ class DomainsView(MethodView):
                     "route53": {"id": resp["HostedZone"]["Id"]},
                 }
             )
-            response.append({domain_name: resp["DelegationSet"]["NameServers"]})
+            response["success"][domain_name] = resp["DelegationSet"]["NameServers"]
         return jsonify(response)
 
 

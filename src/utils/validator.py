@@ -16,7 +16,7 @@ def validate_data(data, schema_class, many=False):
 def is_valid_domain(domain):
     """Check if domain is valid."""
     pattern = re.compile(
-        r"^(?!:\/\/)([a-zA-Z0-9-_]+\.)*[a-zA-Z0-9][a-zA-Z0-9-_]+\.[a-zA-Z]{2,11}?$"
+        r"^(?!:\/\/)([a-zA-Z0-9-_]+\.)*[a-zA-Z0-9][a-zA-Z0-9-_]+\.[a-zA-Z]{2,24}?$"
     )
     if pattern.match(domain) or domain == "localhost":
         return True
