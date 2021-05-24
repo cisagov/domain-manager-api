@@ -71,23 +71,20 @@ class DomainsView(MethodView):
                 ),
                 400,
             )
-        response = {
-            "error": {},
-            "success": {},
-        }
+        response = {}
         for domain_name in request.json:
             # Catch errors validation domain name
             try:
                 data = validate_data({"name": domain_name}, DomainSchema)
             except ValidationError as e:
                 logger.exception(e)
-                response["error"][domain_name] = "Invalid Domain"
+                response[domain_name] = "Error: Invalid Domain"
                 continue
 
             # Catch error if domain already exists.
             if domain_manager.get(filter_data={"name": data["name"]}):
                 logger.error(f"{domain_name} already exists.")
-                response["error"][domain_name] = "Domain already exists."
+                response[domain_name] = "Error: Domain already exists."
                 continue
 
             caller_ref = str(uuid4())
@@ -98,7 +95,7 @@ class DomainsView(MethodView):
                 )
             except ClientError as e:
                 logger.exception(e)
-                response["error"][domain_name] = e.response["Error"]["Message"]
+                response[domain_name] = f"Error: {e.response['Error']['Message']}"
                 continue
 
             # save to db
@@ -114,7 +111,7 @@ class DomainsView(MethodView):
                     "route53": {"id": resp["HostedZone"]["Id"]},
                 }
             )
-            response["success"][domain_name] = resp["DelegationSet"]["NameServers"]
+            response[domain_name] = resp["DelegationSet"]["NameServers"]
         return jsonify(response)
 
 
