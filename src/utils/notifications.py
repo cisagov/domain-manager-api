@@ -71,6 +71,16 @@ class Notification:
                     "emails/new_user_registered.html", **context
                 ),
             },
+            "user_confirmed": {
+                "send_to": "Specified",
+                "subject": "[Domain Manager] Your Account Has Been Confirmed",
+                "text_content": render_template_string(
+                    "emails/user_confirmed.html", **context
+                ),
+                "html_content": render_template(
+                    "emails/user_confirmed.html", **context
+                ),
+            },
         }.get(message_type)
 
     def get_to_addresses(self, content):
@@ -91,6 +101,9 @@ class Notification:
             addresses.extend(cognito.list_users(return_emails=True))
         elif content["send_to"] == "UserRegistered":
             addresses.append(NEW_USER_NOTIFICATION_EMAIL_ADDRESS)
+        elif content["send_to"] == "Specified":
+            email = self.context["UserEmail"]
+            addresses.append(email)
         return addresses
 
     def send(self):

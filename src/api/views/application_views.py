@@ -38,6 +38,14 @@ class ApplicationsView(MethodView):
         return jsonify(application_manager.save(data))
 
 
+class ApplicationsViewNoAuth(MethodView):
+    """ApplicationsView for retrieving applications on the user register page without authorization."""
+
+    def get(self):
+        """Get base of all applications for the user register page."""
+        return jsonify(application_manager.all(fields=["name", "_id"]))
+
+
 class ApplicationView(MethodView):
     """ApplicationView."""
 

@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 
 # Third-Party Libraries
 import botocore
-from flask import jsonify, request
+from flask import g, jsonify, request
 from flask.views import MethodView
 
 # cisagov Libraries
@@ -29,10 +29,24 @@ class RegisterView(MethodView):
             password = data["Password"]
             email = data["Email"]
 
+            g.username = "Registration"
             cognito.sign_up(username, password, email)
+            user = cognito.get_user(username)
+            user["Groups"] = []
+            user["Groups"].append(
+                {
+                    "GroupName": data["ApplicationName"],
+                    "Application_Id": data["ApplicationId"],
+                }
+            )
+            user_manager.save(user)
 
             email = Notification(
-                message_type="user_registered", context={"new_user": data["Username"]}
+                message_type="user_registered",
+                context={
+                    "new_user": data["Username"],
+                    "application": data["ApplicationName"],
+                },
             )
             email.send()
 

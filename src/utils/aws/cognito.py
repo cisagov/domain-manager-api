@@ -45,6 +45,7 @@ def list_users(return_emails: bool = False):
 
 def delete_user(username):
     """Delete user from cognito."""
+    disable_user(username)
     return cognito.admin_delete_user(UserPoolId=COGNTIO_USER_POOL_ID, Username=username)
 
 
