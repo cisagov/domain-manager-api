@@ -45,7 +45,7 @@ def list_users(return_emails: bool = False):
 
 def delete_user(username):
     """Delete user from cognito."""
-    cognito.admin_disable_user(UserPoolId=COGNTIO_USER_POOL_ID, Username=username)
+    disable_user(username)
     return cognito.admin_delete_user(UserPoolId=COGNTIO_USER_POOL_ID, Username=username)
 
 
@@ -121,8 +121,3 @@ def refresh(token):
         AuthFlow="REFRESH_TOKEN_AUTH",
         AuthParameters={"REFRESH_TOKEN": token},
     )
-
-
-def getUser(username):
-    """Get the users info by username."""
-    return cognito.admin_get_user(UserPoolId=COGNTIO_USER_POOL_ID, Username=username)
