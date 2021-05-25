@@ -125,9 +125,8 @@ class Notification:
 
 def send_message(to: list, subject: str, text: str, html: str):
     """Send message via SES."""
-    resp = {}
     try:
-        resp = ses.send_email(
+        return ses.send_email(
             Source=SMTP_FROM,
             Destination={
                 "BccAddresses": to,
@@ -145,6 +144,5 @@ def send_message(to: list, subject: str, text: str, html: str):
             ],
         )
     except ClientError as e:
+        logger.exception(e)
         return e.response["Error"]
-
-    return resp
