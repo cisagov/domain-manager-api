@@ -13,6 +13,8 @@ from api.manager import LogManager, UserManager
 from settings import logger
 from utils.aws import cognito
 from utils.decorators.auth import can_access_user
+from utils.notifications import Notification
+from utils.users import get_email_from_user
 
 user_manager = UserManager()
 log_manager = LogManager()
@@ -149,6 +151,16 @@ class UserConfirmView(MethodView):
             user = user_manager.get(filter_data={"Username": username})
             user["UserStatus"] = "CONFIRMED"
             user_manager.update(document_id=user["_id"], data=user)
+            cog_user = cognito.get_user(username)
+
+            email = Notification(
+                message_type="user_confirmed",
+                context={
+                    "Username": user["Username"],
+                    "UserEmail": get_email_from_user(cog_user),
+                },
+            )
+            email.send()
             return jsonify(response)
         except Exception as e:
             logger.exception(e)
