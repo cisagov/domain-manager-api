@@ -7,8 +7,6 @@ from flask import g, render_template, render_template_string
 # cisagov Libraries
 from api.manager import UserManager
 from settings import (
-    APP_ENV,
-    APP_NAME,
     NEW_USER_NOTIFICATION_EMAIL_ADDRESS,
     SES_ASSUME_ROLE_ARN,
     SMTP_FROM,
@@ -139,10 +137,6 @@ def send_message(to: list, subject: str, text: str, html: str):
                     "Html": {"Data": html, "Charset": "UTF-8"},
                 },
             },
-            Tags=[
-                {"Name": "app", "Value": APP_NAME},
-                {"Name": "environment", "Value": APP_ENV},
-            ],
         )
     except ClientError as e:
         return e.response["Error"]
