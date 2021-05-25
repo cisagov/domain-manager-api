@@ -36,7 +36,7 @@ class RegisterView(MethodView):
             user["Groups"].append(
                 {
                     "GroupName": data["ApplicationName"],
-                    "Application_Id": data["ApplicationUUID"],
+                    "Application_Id": data["ApplicationId"],
                 }
             )
             user_manager.save(user)

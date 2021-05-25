@@ -25,4 +25,3 @@ class UserSchema(BaseSchema):
     Groups = fields.List(fields.Dict())
     HashedAPI = fields.Str()
     HasAPIKey = fields.Boolean()
-    SelectedApplicationId = fields.Str()
