@@ -45,7 +45,7 @@ class Manager:
             new_ids = []
             for i in params["_id"]["$in"]:
                 new_ids.append(ObjectId(i))
-            params["_id"]["$in"] = new_ids
+            params["_id"][""] = new_ids
         return params
 
     def format_sort(self, sortby: dict):
