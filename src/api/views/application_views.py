@@ -98,14 +98,24 @@ class ApplicationBulkDomainView(MethodView):
 
     def put(self, application_id):
         """Update domains assigned to an application."""
-        assigned_domains = [
+        assigned_domains = domain_manager.all(params={"application_id": application_id})
+
+        remove_domains = [
+            domain_manager.update(
+                document_id=domain["_id"],
+                data={"application_id": ""},
+            )
+            for domain in assigned_domains
+        ]
+
+        add_domains = [
             domain_manager.update(
                 document_id=domain_id, data={"application_id": application_id}
             )
             for domain_id in request.json
         ]
 
-        return jsonify({"success": assigned_domains}), 200
+        return jsonify({"success": [add_domains, remove_domains]}), 200
 
 
 class ApplicationUsersView(MethodView):
