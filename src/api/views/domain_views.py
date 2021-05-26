@@ -7,7 +7,6 @@ import shutil
 from uuid import uuid4
 
 # Third-Party Libraries
-import boto3
 import botocore
 from botocore.exceptions import ClientError
 from flask import g, jsonify, request, send_file
@@ -21,6 +20,7 @@ from api.schemas.domain_schema import DomainSchema, Record
 from settings import STATIC_GEN_URL, WEBSITE_BUCKET, logger
 from utils.apex_records import contains_apex_record, is_apex_record
 from utils.aws import record_handler
+from utils.aws.clients import Cloudfront, Route53
 from utils.aws.site_handler import launch_domain, unlaunch_domain, verify_hosted_zone
 from utils.categorization.categorize import categorize
 from utils.categorization.check import check_category
@@ -32,9 +32,8 @@ domain_manager = DomainManager()
 template_manager = TemplateManager()
 
 application_manager = ApplicationManager()
-route53 = boto3.client("route53")
-sqs = boto3.client("sqs")
-cloudfront = boto3.client("cloudfront")
+route53 = Route53()
+cloudfront = Cloudfront()
 
 
 class DomainsView(MethodView):
@@ -87,12 +86,8 @@ class DomainsView(MethodView):
                 response[domain_name] = "Error: Domain already exists."
                 continue
 
-            caller_ref = str(uuid4())
-
             try:
-                resp = route53.create_hosted_zone(
-                    Name=data["name"], CallerReference=caller_ref
-                )
+                resp = route53.create_hosted_zone(data["name"])
             except ClientError as e:
                 logger.exception(e)
                 response[domain_name] = f"Error: {e.response['Error']['Message']}"
@@ -173,7 +168,7 @@ class DomainView(MethodView):
         )
 
         try:
-            route53.delete_hosted_zone(Id=domain["route53"]["id"])
+            route53.delete_hosted_zone(domain["route53"]["id"])
         except ClientError as e:
             logger.error(e.response)
             if e.response["Error"]["Code"] == "NoSuchHostedZone":
@@ -412,7 +407,7 @@ class DomainRecordView(MethodView):
         hosted_zone_id = domain_manager.get(document_id=domain_id, fields=["route53"])[
             "route53"
         ]["id"]
-        resp = route53.list_resource_record_sets(HostedZoneId=hosted_zone_id)
+        resp = route53.list_resource_record_sets(hosted_zone_id)
         return jsonify(resp["ResourceRecordSets"])
 
     def post(self, domain_id):
@@ -568,7 +563,7 @@ class DomainDeployedCheckView(MethodView):
         """Check the cloudfront deployment status of the domain."""
         domain = domain_manager.get(document_id=domain_id)
         if domain.get("cloudfront", {}).get("id"):
-            results = cloudfront.get_distribution(Id=domain["cloudfront"]["id"])
+            results = cloudfront.get_distribution(domain["cloudfront"]["id"])
             return jsonify(results["Distribution"])
         elif contains_apex_record(domain):
             return jsonify({"Status": "Externally Deployed"})

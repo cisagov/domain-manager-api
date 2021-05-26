@@ -1,26 +1,15 @@
 """Email Notifications."""
 # Third-Party Libraries
-import boto3
-from botocore.exceptions import ClientError
 from flask import g, render_template, render_template_string
 
 # cisagov Libraries
 from api.manager import UserManager
-from settings import (
-    NEW_USER_NOTIFICATION_EMAIL_ADDRESS,
-    SES_ASSUME_ROLE_ARN,
-    SMTP_FROM,
-    logger,
-)
-from utils.aws import cognito, sts
+from settings import NEW_USER_NOTIFICATION_EMAIL_ADDRESS, SMTP_FROM, logger
+from utils.aws.clients import SES, Cognito
 from utils.users import get_users_in_group
 
-if SES_ASSUME_ROLE_ARN:
-    ses = sts.assume_role_client("ses", SES_ASSUME_ROLE_ARN)
-else:
-    ses = boto3.client("ses")
-
 user_manager = UserManager()
+cognito = Cognito()
 
 
 class Notification:
@@ -106,37 +95,17 @@ class Notification:
 
     def send(self):
         """Send Email."""
+        ses = SES()
         # Set Context
         self.context["username"] = g.get("username")
         content = self._set_context(self.message_type, self.context)
         addresses = self.get_to_addresses(content)
 
         logger.info(f"Sending template {self.message_type} to {addresses}")
-
-        return send_message(
+        return ses.send_email(
+            source=SMTP_FROM,
             to=addresses,
             subject=content["subject"],
             text=content["text_content"],
             html=content["html_content"],
         )
-
-
-def send_message(to: list, subject: str, text: str, html: str):
-    """Send message via SES."""
-    try:
-        return ses.send_email(
-            Source=SMTP_FROM,
-            Destination={
-                "BccAddresses": to,
-            },
-            Message={
-                "Subject": {"Data": subject, "Charset": "UTF-8"},
-                "Body": {
-                    "Text": {"Data": text, "Charset": "UTF-8"},
-                    "Html": {"Data": html, "Charset": "UTF-8"},
-                },
-            },
-        )
-    except ClientError as e:
-        logger.exception(e)
-        return e.response["Error"]
