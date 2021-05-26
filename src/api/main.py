@@ -11,6 +11,7 @@ import requests
 # cisagov Libraries
 from api.manager import LogManager
 from api.views.application_views import (
+    ApplicationBulkDomainView,
     ApplicationsView,
     ApplicationsViewNoAuth,
     ApplicationView,
@@ -87,6 +88,7 @@ login_rules = [
 
 admin_rules = [
     ("/application/<application_id>/", ApplicationView),
+    ("/application/<application_id>/domains/", ApplicationBulkDomainView),
     ("/domain/<domain_id>/approve/", DomainApprovalView),
     ("/template/<template_id>/approve/", TemplateApprovalView),
     ("/users/", UsersView),

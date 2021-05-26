@@ -76,3 +76,22 @@ class ApplicationView(MethodView):
                 400,
             )
         return jsonify(application_manager.delete(document_id=application_id))
+
+
+class ApplicationBulkDomainView(MethodView):
+    """Manage domains in bulk for application assignment."""
+
+    def get(self, application_id):
+        """Get domains assigned to an application."""
+        return jsonify(
+            [
+                {"_id": domain["_id"], "name": domain["name"]}
+                for domain in domain_manager.all(
+                    params={"application_id": application_id}
+                )
+            ]
+        )
+
+    def update(self, application_id):
+        """Update domains assigned to an application."""
+        return jsonify(application_manager.update(document_id=application_id, data={}))
