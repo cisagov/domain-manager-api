@@ -21,7 +21,12 @@ from settings import STATIC_GEN_URL, WEBSITE_BUCKET, logger
 from utils.apex_records import contains_apex_record, is_apex_record
 from utils.aws import record_handler
 from utils.aws.clients import Cloudfront, Route53
-from utils.aws.site_handler import launch_domain, unlaunch_domain, verify_hosted_zone
+from utils.aws.site_handler import (
+    launch_domain,
+    unlaunch_domain,
+    verify_hosted_zone,
+    verify_launch_records,
+)
 from utils.categorization.categorize import categorize
 from utils.categorization.check import check_category
 from utils.decorators.auth import can_access_domain
@@ -378,6 +383,7 @@ class DomainLaunchView(MethodView):
 
         try:
             verify_hosted_zone(domain)
+            verify_launch_records(domain)
         except Exception as e:
             return str(e), 400
 
