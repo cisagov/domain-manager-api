@@ -485,3 +485,18 @@ def verify_hosted_zone(domain):
         ns_servers.append(answer.to_text())
     if len(set(ns_servers) - set(new_nameservers)) > 0:
         raise Exception("Route53 nameservers don't match NS lookup.")
+
+
+def verify_launch_records(domain):
+    """Verify that no DNS records will clash on launch."""
+    bad_records = list(
+        filter(
+            lambda x: x["name"] in [f"www.{domain['name']}", domain["name"]]
+            and x["record_type"] == "A",
+            domain.get("records", []),
+        )
+    )
+    if bad_records:
+        raise Exception(
+            "You cannot have an A apex record or an A www record before launching the domain."
+        )
