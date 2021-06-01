@@ -497,9 +497,6 @@ def verify_launch_records(domain):
         )
     )
     if bad_records:
-        bad_message = ""
-        for r in bad_records:
-            bad_message += ""
         raise Exception(
             "You cannot have an A apex record or an A www record before launching the domain."
         )
