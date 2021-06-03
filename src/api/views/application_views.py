@@ -7,13 +7,14 @@ from flask import abort, g, jsonify, request
 from flask.views import MethodView
 
 # cisagov Libraries
-from api.manager import ApplicationManager, DomainManager
+from api.manager import ApplicationManager, DomainManager, UserManager
 from api.schemas.application_schema import ApplicationSchema
-from utils.users import get_users_group_ids
+from utils.users import get_users_group_ids, get_users_in_group
 from utils.validator import validate_data
 
 application_manager = ApplicationManager()
 domain_manager = DomainManager()
+user_manager = UserManager()
 
 
 class ApplicationsView(MethodView):
@@ -76,3 +77,55 @@ class ApplicationView(MethodView):
                 400,
             )
         return jsonify(application_manager.delete(document_id=application_id))
+
+
+class ApplicationBulkDomainView(MethodView):
+    """Manage domains in bulk for application assignment."""
+
+    def get(self, application_id):
+        """Get domains assigned to an application."""
+        return (
+            jsonify(
+                [
+                    {"_id": domain["_id"], "name": domain["name"]}
+                    for domain in domain_manager.all(
+                        params={"application_id": application_id}
+                    )
+                ]
+            ),
+            200,
+        )
+
+    def put(self, application_id):
+        """Update domains assigned to an application."""
+        assigned_domains = domain_manager.all(params={"application_id": application_id})
+
+        remove_domains = [
+            domain_manager.update(
+                document_id=domain["_id"],
+                data={"application_id": ""},
+            )
+            for domain in assigned_domains
+        ]
+
+        add_domains = [
+            domain_manager.update(
+                document_id=domain_id, data={"application_id": application_id}
+            )
+            for domain_id in request.json
+        ]
+
+        return jsonify({"success": [add_domains, remove_domains]}), 200
+
+
+class ApplicationUsersView(MethodView):
+    """Users in an application group."""
+
+    def get(self, application_id):
+        """Get users assigned to an application."""
+        return jsonify(
+            [
+                {"_id": user["_id"], "Username": user["Username"]}
+                for user in get_users_in_group(application_id=application_id)
+            ]
+        )
