@@ -179,44 +179,42 @@ def setup_cloudfront(domain, certificate_arn):
     domain_name = domain["name"]
 
     distribution_config = {
-        "DistributionConfig": {
-            "CallerReference": unique_identifier,
-            "Aliases": {"Quantity": 2, "Items": [domain_name, f"www.{domain_name}"]},
-            "DefaultRootObject": "home.html",
-            "Comment": "Managed by Domain Manager",
-            "Enabled": True,
-            "Origins": {
-                "Quantity": 1,
-                "Items": [
-                    {
-                        "Id": "1",
-                        "DomainName": WEBSITE_BUCKET_URL,
-                        "OriginPath": f"/{domain_name}",
-                        "CustomOriginConfig": {
-                            "HTTPPort": 80,
-                            "HTTPSPort": 443,
-                            "OriginProtocolPolicy": "http-only",
-                        },
-                    }
-                ],
+        "CallerReference": unique_identifier,
+        "Aliases": {"Quantity": 2, "Items": [domain_name, f"www.{domain_name}"]},
+        "DefaultRootObject": "home.html",
+        "Comment": "Managed by Domain Manager",
+        "Enabled": True,
+        "Origins": {
+            "Quantity": 1,
+            "Items": [
+                {
+                    "Id": "1",
+                    "DomainName": WEBSITE_BUCKET_URL,
+                    "OriginPath": f"/{domain_name}",
+                    "CustomOriginConfig": {
+                        "HTTPPort": 80,
+                        "HTTPSPort": 443,
+                        "OriginProtocolPolicy": "http-only",
+                    },
+                }
+            ],
+        },
+        "DefaultCacheBehavior": {
+            "TargetOriginId": "1",
+            "ViewerProtocolPolicy": "redirect-to-https",
+            "TrustedSigners": {"Quantity": 0, "Enabled": False},
+            "ForwardedValues": {
+                "QueryString": False,
+                "Cookies": {"Forward": "all"},
+                "Headers": {"Quantity": 0},
+                "QueryStringCacheKeys": {"Quantity": 0},
             },
-            "DefaultCacheBehavior": {
-                "TargetOriginId": "1",
-                "ViewerProtocolPolicy": "redirect-to-https",
-                "TrustedSigners": {"Quantity": 0, "Enabled": False},
-                "ForwardedValues": {
-                    "QueryString": False,
-                    "Cookies": {"Forward": "all"},
-                    "Headers": {"Quantity": 0},
-                    "QueryStringCacheKeys": {"Quantity": 0},
-                },
-                "MinTTL": 1000,
-            },
-            "ViewerCertificate": {
-                "ACMCertificateArn": certificate_arn,
-                "SSLSupportMethod": "sni-only",
-                "MinimumProtocolVersion": "TLSv1.2_2019",
-            },
+            "MinTTL": 1000,
+        },
+        "ViewerCertificate": {
+            "ACMCertificateArn": certificate_arn,
+            "SSLSupportMethod": "sni-only",
+            "MinimumProtocolVersion": "TLSv1.2_2019",
         },
     }
 
@@ -487,3 +485,18 @@ def verify_hosted_zone(domain):
         ns_servers.append(answer.to_text())
     if len(set(ns_servers) - set(new_nameservers)) > 0:
         raise Exception("Route53 nameservers don't match NS lookup.")
+
+
+def verify_launch_records(domain):
+    """Verify that no DNS records will clash on launch."""
+    bad_records = list(
+        filter(
+            lambda x: x["name"] in [f"www.{domain['name']}", domain["name"]]
+            and x["record_type"] == "A",
+            domain.get("records", []),
+        )
+    )
+    if bad_records:
+        raise Exception(
+            "You cannot have an A apex record or an A www record before launching the domain."
+        )
