@@ -160,6 +160,9 @@ class DomainView(MethodView):
 
     def delete(self, domain_id):
         """Delete domain and hosted zone."""
+        if not g.is_admin:
+            return jsonify({"error": "User not authorized to delete domains."}), 401
+
         domain = domain_manager.get(document_id=domain_id)
 
         if domain.get("is_active") and domain.get("records"):
