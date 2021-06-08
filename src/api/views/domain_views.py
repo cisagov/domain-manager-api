@@ -1,6 +1,7 @@
 """Domain Views."""
 # Standard Python Libraries
 from datetime import datetime
+from http import HTTPStatus
 import io
 from multiprocessing import Process
 import shutil
@@ -9,7 +10,7 @@ from uuid import uuid4
 # Third-Party Libraries
 import botocore
 from botocore.exceptions import ClientError
-from flask import g, jsonify, request, send_file
+from flask import abort, g, jsonify, request, send_file
 from flask.views import MethodView
 from marshmallow.exceptions import ValidationError
 import requests
@@ -160,6 +161,9 @@ class DomainView(MethodView):
 
     def delete(self, domain_id):
         """Delete domain and hosted zone."""
+        if not g.is_admin:
+            abort(HTTPStatus.FORBIDDEN.value)
+
         domain = domain_manager.get(document_id=domain_id)
 
         if domain.get("is_active") and domain.get("records"):
