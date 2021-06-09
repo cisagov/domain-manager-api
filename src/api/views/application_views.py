@@ -9,7 +9,7 @@ from flask.views import MethodView
 # cisagov Libraries
 from api.manager import ApplicationManager, DomainManager, UserManager
 from api.schemas.application_schema import ApplicationSchema
-from utils.users import get_users_group_ids, get_users_in_group
+from utils.users import get_users_group_ids
 from utils.validator import validate_data
 
 application_manager = ApplicationManager()
@@ -116,16 +116,3 @@ class ApplicationBulkDomainView(MethodView):
         ]
 
         return jsonify({"success": [add_domains, remove_domains]}), 200
-
-
-class ApplicationUsersView(MethodView):
-    """Users in an application group."""
-
-    def get(self, application_id):
-        """Get users assigned to an application."""
-        return jsonify(
-            [
-                {"_id": user["_id"], "Username": user["Username"]}
-                for user in get_users_in_group(application_id=application_id)
-            ]
-        )
