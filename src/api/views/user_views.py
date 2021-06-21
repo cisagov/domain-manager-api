@@ -14,7 +14,7 @@ from settings import logger
 from utils.aws.clients import Cognito
 from utils.decorators.auth import can_access_user
 from utils.notifications import Notification
-from utils.users import get_email_from_user
+from utils.users import get_email_from_user, get_users_in_group
 
 user_manager = UserManager()
 log_manager = LogManager()
@@ -26,6 +26,10 @@ class UsersView(MethodView):
 
     def get(self):
         """Get all users."""
+        application = request.args.get("application")
+        if application:
+            return jsonify(get_users_in_group(application))
+
         self.aws_users = cognito.list_users()
         self.dm_users = user_manager.all(params=request.args)
         self.merge_user_lists()
