@@ -15,9 +15,9 @@ class AboutView(MethodView):
         return (
             jsonify(
                 {
-                    "api-commit-id": API_COMMIT_ID,
-                    "ui-commit-id": UI_COMMIT_ID,
-                    "deployed-date": DEPLOYED_DATE,
+                    "api_commit_id": API_COMMIT_ID,
+                    "ui_commit_id": UI_COMMIT_ID,
+                    "deployed_date": DEPLOYED_DATE,
                 },
             ),
             200,
