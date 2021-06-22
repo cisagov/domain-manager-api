@@ -10,6 +10,7 @@ import requests
 
 # cisagov Libraries
 from api.manager import LogManager
+from api.views.about_views import AboutView
 from api.views.application_views import (
     ApplicationBulkDomainView,
     ApplicationsView,
@@ -57,6 +58,7 @@ CORS(app)
 url_prefix = "/api"
 
 rules = [
+    ("/about/", AboutView),
     ("/applications/", ApplicationsView),
     ("/categories/", CategoriesView),
     ("/categories/<domain_name>/external/", ExternalCategoriesView),
