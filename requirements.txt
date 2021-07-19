@@ -65,7 +65,7 @@ python-dotenv==0.18.0
 python-jose==3.3.0
 PyYAML==5.4.1
 regex==2021.4.4
-requests==2.25.1
+requests==2.26.0
 rsa==4.7.2
 s3transfer==0.4.2
 selenium==3.141.0
