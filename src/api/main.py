@@ -26,6 +26,7 @@ from api.views.domain_views import (
     DomainDeployedCheckView,
     DomainGenerateView,
     DomainLaunchView,
+    DomainRecordView,
     DomainsView,
     DomainView,
 )
@@ -67,6 +68,7 @@ rules = [
     ("/domain/<domain_id>/deployed/", DomainDeployedCheckView),
     ("/domain/<domain_id>/generate/", DomainGenerateView),
     ("/domain/<domain_id>/launch/", DomainLaunchView),
+    ("/domain/<domain_id>/records/", DomainRecordView),
     ("/proxies/", ProxiesView),
     ("/proxy/<proxy_name>/", ProxyView),
     ("/templates/", TemplatesView),
