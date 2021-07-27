@@ -13,7 +13,6 @@ class Settings:
     def __init__(self) -> None:
         """Init."""
         self.settings_manager = SettingsManager()
-        pass
 
     def load(self):
         """Load settings from database."""
