@@ -12,9 +12,9 @@ from marshmallow import ValidationError
 import requests
 
 # cisagov Libraries
+from api.config import STATIC_GEN_URL, TEMPLATE_BUCKET, logger
 from api.manager import TemplateManager
 from api.schemas.template_schema import TemplateSchema
-from settings import STATIC_GEN_URL, TEMPLATE_BUCKET, logger
 from utils.validator import validate_data
 
 template_manager = TemplateManager()

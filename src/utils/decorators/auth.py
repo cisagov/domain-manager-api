@@ -9,8 +9,7 @@ import cognitojwt
 from flask import abort, g, request
 
 # cisagov Libraries
-from api.manager import DomainManager, UserManager
-from settings import (
+from api.config import (
     AWS_REGION,
     COGNITO_CLIENT_ID,
     COGNITO_DEFAULT_ADMIN,
@@ -18,6 +17,7 @@ from settings import (
     COGNTIO_USER_POOL_ID,
     logger,
 )
+from api.manager import DomainManager, UserManager
 from utils.users import user_can_access_domain
 
 domain_manager = DomainManager()

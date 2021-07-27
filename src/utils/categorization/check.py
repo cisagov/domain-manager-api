@@ -1,7 +1,7 @@
 """Check categorization utils."""
 # cisagov Libraries
+from api.config import logger
 from api.manager import DomainManager
-from settings import logger
 from utils.categorization.driver import get_driver
 from utils.proxies import PROXIES
 

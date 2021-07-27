@@ -3,8 +3,8 @@
 from flask import g
 
 # cisagov Libraries
+from api.config import logger
 from api.manager import LogManager, UserManager
-from settings import logger
 
 user_manager = UserManager()
 log_manager = LogManager()

@@ -7,7 +7,7 @@ import os
 # Third-Party Libraries
 import mongomock
 
-from .db_settings import get_db
+from .db import get_db
 
 # logger
 logging.basicConfig(level=logging.INFO)

@@ -1,7 +1,7 @@
 """Categorization utils."""
 # cisagov Libraries
+from api.config import TWO_CAPTCHA_API_KEY, logger
 from api.manager import DomainManager
-from settings import TWO_CAPTCHA_API_KEY, logger
 from utils.categorization.driver import get_driver
 from utils.proxies import CATEGORIES, PROXIES
 

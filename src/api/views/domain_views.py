@@ -16,9 +16,9 @@ from marshmallow.exceptions import ValidationError
 import requests
 
 # cisagov Libraries
+from api.config import STATIC_GEN_URL, WEBSITE_BUCKET, logger
 from api.manager import ApplicationManager, DomainManager, TemplateManager
 from api.schemas.domain_schema import DomainSchema, Record
-from settings import STATIC_GEN_URL, WEBSITE_BUCKET, logger
 from utils.apex_records import contains_apex_record, is_apex_record
 from utils.aws import record_handler
 from utils.aws.clients import Cloudfront, Route53

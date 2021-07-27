@@ -9,6 +9,7 @@ from flask_cors import CORS
 import requests
 
 # cisagov Libraries
+from api.config import STATIC_GEN_URL, logger
 from api.manager import LogManager
 from api.views.about_views import AboutView
 from api.views.application_views import (
@@ -31,6 +32,7 @@ from api.views.domain_views import (
     DomainView,
 )
 from api.views.proxy_views import ProxiesView, ProxyView
+from api.views.settings_views import SettingsView
 from api.views.template_views import (
     TemplateApprovalView,
     TemplateAttributesView,
@@ -46,7 +48,6 @@ from api.views.user_views import (
     UsersView,
     UserView,
 )
-from settings import STATIC_GEN_URL, logger
 from utils.decorators.auth import auth_admin_required, auth_required
 
 app = Flask(__name__, template_folder="templates")
@@ -77,6 +78,7 @@ rules = [
     ("/templates/attributes/", TemplateAttributesView),
     ("/user/<username>/", UserView),
     ("/user/<username>/api", UserAPIKeyView),
+    ("/settings/", SettingsView),
 ]
 
 login_rules = [
