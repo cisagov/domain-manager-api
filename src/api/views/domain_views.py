@@ -612,3 +612,31 @@ class DomainApprovalView(MethodView):
         return jsonify(
             domain_manager.update(document_id=domain_id, data={"is_approved": False})
         )
+
+
+class DomainReceiveEmailsView(MethodView):
+    """Enable or disable the ability to receive emails via SES."""
+
+    decorators = [can_access_domain]
+
+    def get(self, domain_id):
+        """Enable ability to receive emails."""
+        domain = domain_manager.get(document_id=domain_id)
+
+        return (
+            jsonify(
+                {"success": f"{domain['name']} has been enabled for receiving emails."}
+            ),
+            200,
+        )
+
+    def delete(self, domain_id):
+        """Disable ability to receive emails."""
+        domain = domain_manager.get(document_id=domain_id)
+
+        return (
+            jsonify(
+                {"success": f"{domain['name']} has been disabled for receiving emails"}
+            ),
+            200,
+        )
