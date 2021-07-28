@@ -3,7 +3,7 @@
 from selenium import webdriver
 
 # cisagov Libraries
-from settings import BROWSERLESS_ENDPOINT
+from api.config import BROWSERLESS_ENDPOINT
 
 
 def get_driver():

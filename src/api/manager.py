@@ -8,12 +8,13 @@ from flask import g
 import pymongo
 
 # cisagov Libraries
+from api.config import DB
 from api.schemas.application_schema import ApplicationSchema
 from api.schemas.domain_schema import DomainSchema
 from api.schemas.log_schema import LogSchema
+from api.schemas.settings_schema import SettingsSchema
 from api.schemas.template_schema import TemplateSchema
 from api.schemas.user_shema import UserSchema
-from settings import DB
 
 
 class Manager:
@@ -158,6 +159,17 @@ class Manager:
             {"$set": self.load_data(data)},
         ).raw_result
 
+    def upsert(self, query, data):
+        """Upsert document into database."""
+        data = self.clean_data(data)
+        data = self.add_created(data)
+        data = self.add_updated(data)
+        return self.db.update_one(
+            query,
+            {"$set": self.load_data(data)},
+            upsert=True,
+        )
+
     def remove(self, document_id, data):
         """Remove document fields by id."""
         return self.db.update_one(
@@ -257,4 +269,16 @@ class LogManager(Manager):
             collection="logs",
             schema=LogSchema,
             other_indexes=["username"],
+        )
+
+
+class SettingsManager(Manager):
+    """SettingsManager."""
+
+    def __init__(self):
+        """Initialize super for settings."""
+        return super().__init__(
+            collection="settings",
+            schema=SettingsSchema,
+            other_indexes=["key"],
         )

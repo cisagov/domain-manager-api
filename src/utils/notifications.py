@@ -3,8 +3,8 @@
 from flask import g, render_template, render_template_string
 
 # cisagov Libraries
+from api.config import NEW_USER_NOTIFICATION_EMAIL_ADDRESS, SMTP_FROM, logger
 from api.manager import UserManager
-from settings import NEW_USER_NOTIFICATION_EMAIL_ADDRESS, SMTP_FROM, logger
 from utils.aws.clients import SES, Cognito
 from utils.users import get_users_in_group
 

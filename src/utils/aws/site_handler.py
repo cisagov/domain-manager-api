@@ -9,8 +9,8 @@ import botocore
 import dns.resolver
 
 # cisagov Libraries
+from api.config import WEBSITE_BUCKET_URL, logger
 from api.manager import DomainManager
-from settings import WEBSITE_BUCKET_URL, logger
 from utils.notifications import Notification
 
 domain_manager = DomainManager()

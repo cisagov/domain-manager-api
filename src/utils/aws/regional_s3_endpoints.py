@@ -4,7 +4,7 @@ Regional Endpoints for S3.
 There is not an API for this information and thus has to be hardcoded. The values can be found at https://docs.aws.amazon.com/general/latest/gr/s3.html.
 """
 # cisagov Libraries
-from settings import AWS_REGION
+from api.config import AWS_REGION
 
 REGIONAL_ENDPOINTS = {
     "us-east-1": {

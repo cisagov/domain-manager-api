@@ -8,8 +8,8 @@ from flask import g, jsonify, request
 from flask.views import MethodView
 
 # cisagov Libraries
+from api.config import logger
 from api.manager import LogManager, UserManager
-from settings import logger
 from utils.aws.clients import Cognito
 from utils.logs import cleanup_logs
 from utils.notifications import Notification

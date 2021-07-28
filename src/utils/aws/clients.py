@@ -7,7 +7,7 @@ import boto3
 from botocore.exceptions import ClientError
 
 # cisagov Libraries
-from settings import (
+from api.config import (
     COGNITO_ADMIN_GROUP,
     COGNITO_CLIENT_ID,
     COGNTIO_USER_POOL_ID,
