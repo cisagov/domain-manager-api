@@ -22,6 +22,7 @@ from api.schemas.domain_schema import DomainSchema, Record
 from utils.apex_records import contains_apex_record, is_apex_record
 from utils.aws import record_handler
 from utils.aws.clients import Cloudfront, Route53
+from utils.aws.ses import disable_email_receiving, enable_email_receiving
 from utils.aws.site_handler import (
     launch_domain,
     unlaunch_domain,
@@ -622,21 +623,19 @@ class DomainReceiveEmailsView(MethodView):
     def get(self, domain_id):
         """Enable ability to receive emails."""
         domain = domain_manager.get(document_id=domain_id)
-
+        resp = enable_email_receiving(domain["name"])
+        domain_manager.update(document_id=domain_id, data={"is_email_active": True})
         return (
-            jsonify(
-                {"success": f"{domain['name']} has been enabled for receiving emails."}
-            ),
+            jsonify({"success": resp}),
             200,
         )
 
     def delete(self, domain_id):
         """Disable ability to receive emails."""
         domain = domain_manager.get(document_id=domain_id)
-
+        resp = disable_email_receiving(domain["name"])
+        domain_manager.update(document_id=domain_id, data={"is_email_active": False})
         return (
-            jsonify(
-                {"success": f"{domain['name']} has been disabled for receiving emails"}
-            ),
+            jsonify({"success": resp}),
             200,
         )
