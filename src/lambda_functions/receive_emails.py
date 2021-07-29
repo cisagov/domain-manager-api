@@ -3,7 +3,7 @@
 
 def lambda_handler(event, context):
     """Lambda Handler."""
-    print("test")
+    print(event)
 
 
 if __name__ == "__main__":
