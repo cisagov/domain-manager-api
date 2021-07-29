@@ -223,6 +223,12 @@ class SES(AWS):
             logger.exception(e)
             return e.response["Error"]
 
+    def verify_domain_identity_token(self, domain_name: str):
+        """Get identity verification token."""
+        return self.client.verify_domain_identity(Domain=domain_name)[
+            "VerificationToken"
+        ]
+
 
 class Cloudfront(AWS):
     """Cloudfront."""
