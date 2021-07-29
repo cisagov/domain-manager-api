@@ -623,6 +623,10 @@ class DomainReceiveEmailsView(MethodView):
     def get(self, domain_id):
         """Enable ability to receive emails."""
         domain = domain_manager.get(document_id=domain_id)
+
+        if domain.get("is_email_active"):
+            return jsonify({"message": "Email receiving is already active."}), 400
+
         resp = enable_email_receiving(domain["name"])
         domain_manager.update(document_id=domain_id, data={"is_email_active": True})
         return (
