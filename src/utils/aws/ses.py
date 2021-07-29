@@ -22,9 +22,6 @@ def manage_resource_records(
     domain_name: str,
     action: str,
     verification_token: str,
-    dkim_token_1: str,
-    dkim_token_2: str,
-    dkim_token_3: str,
 ):
     """Manage Route53 Records."""
     if f"{domain_name}." not in list_hosted_zones(names_only=True):
@@ -50,33 +47,6 @@ def manage_resource_records(
                         "ResourceRecords": [{"Value": f'"{verification_token}"'}],
                     },
                 },
-                {
-                    "Action": action,
-                    "ResourceRecordSet": {
-                        "Name": f"{dkim_token_1}._domainkey.{domain_name}",
-                        "Type": "CNAME",
-                        "TTL": 300,
-                        "ResourceRecords": [{"Value": f"{dkim_token_1}.amazonses.com"}],
-                    },
-                },
-                {
-                    "Action": action,
-                    "ResourceRecordSet": {
-                        "Name": f"{dkim_token_2}._domainkey.{domain_name}",
-                        "Type": "CNAME",
-                        "TTL": 300,
-                        "ResourceRecords": [{"Value": f"{dkim_token_2}.amazonses.com"}],
-                    },
-                },
-                {
-                    "Action": action,
-                    "ResourceRecordSet": {
-                        "Name": f"{dkim_token_3}._domainkey.{domain_name}",
-                        "Type": "CNAME",
-                        "TTL": 300,
-                        "ResourceRecords": [{"Value": f"{dkim_token_3}.amazonses.com"}],
-                    },
-                },
             ],
         },
     )
@@ -89,18 +59,10 @@ def enable_email_receiving(domain_name: str):
         "VerificationToken"
     ]
 
-    # Generate CNAME record DKIM tokens
-    dkim_token_1, dkim_token_2, dkim_token_3 = ses.verify_domain_dkim(
-        Domain=domain_name
-    )["DkimTokens"]
-
     response = manage_resource_records(
         domain_name=domain_name,
         action="UPSERT",
         verification_token=verification_token,
-        dkim_token_1=dkim_token_1,
-        dkim_token_2=dkim_token_2,
-        dkim_token_3=dkim_token_3,
     )
 
     return response
@@ -111,17 +73,11 @@ def disable_email_receiving(domain_name: str):
     verification_token = ses.get_identity_verification_attributes(
         Identities=[domain_name]
     )["VerificationAttributes"][domain_name]["VerificationToken"]
-    dkim_token_1, dkim_token_2, dkim_token_3 = ses.get_identity_dkim_attributes(
-        Identities=[domain_name]
-    )["DkimAttributes"][domain_name]["DkimTokens"]
 
     manage_resource_records(
         domain_name=domain_name,
         action="DELETE",
         verification_token=verification_token,
-        dkim_token_1=dkim_token_1,
-        dkim_token_2=dkim_token_2,
-        dkim_token_3=dkim_token_3,
     )
 
     return ses.delete_identity(Identity=domain_name)
