@@ -16,6 +16,9 @@ def lambda_handler(event, context):
     domain = domain_manager.get(filter_data={"name": incoming["destination"][0]})
 
     if not domain:
+        print("context: ", context)
+        print("incoming: ", incoming)
+        print("from: ", incoming["destination"][0])
         logger.error("domain does not exist")
         return
 
@@ -23,7 +26,7 @@ def lambda_handler(event, context):
         "domain_id": domain["_id"],
         "timestamp": incoming["timestamp"],
         "from": incoming["commonHeaders"]["from"],
-        "to": domain["name"],
+        "to": incoming["commonHeaders"]["to"],
         "subject": incoming["commonHeaders"]["subject"],
     }
     print("domain: ", domain)
