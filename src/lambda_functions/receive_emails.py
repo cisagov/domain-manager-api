@@ -3,36 +3,34 @@
 import logging
 
 # cisagov Libraries
-from api.manager import DomainManager
+from api.manager import DomainManager, EmailManager
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
+domain_manager = DomainManager()
+email_manager = EmailManager()
 
 
 def lambda_handler(event, context):
     """Lambda Handler."""
-    domain_manager = DomainManager()
-
     incoming = event["Records"][0]["ses"]["mail"]
-    domain = domain_manager.get(filter_data={"name": incoming["destination"][0]})
+    target_email = incoming["destination"][0]
+    domain = domain_manager.get(filter_data={"name": target_email.split("@")[1]})
 
     if not domain:
-        print("context: ", context)
-        print("incoming: ", incoming)
-        print("from: ", incoming["destination"][0])
-        logger.error("domain does not exist")
+        logger.info(incoming)
+        logger.error(f"domain from {target_email} does not exist")
         return
 
     data = {
         "domain_id": domain["_id"],
         "timestamp": incoming["timestamp"],
-        "from": incoming["commonHeaders"]["from"],
-        "to": incoming["commonHeaders"]["to"],
+        "from_address": incoming["commonHeaders"]["from"],
+        "to_address": incoming["commonHeaders"]["to"],
         "subject": incoming["commonHeaders"]["subject"],
+        "message": "Not yet available.",
     }
-    print("domain: ", domain)
-    print("context: ", context)
-    print("data: ", data)
+    email_manager.save(data)
     logger.info("success")
 
 
