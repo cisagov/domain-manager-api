@@ -11,6 +11,7 @@ import pymongo
 from api.config import DB
 from api.schemas.application_schema import ApplicationSchema
 from api.schemas.domain_schema import DomainSchema
+from api.schemas.email_schema import EmailSchema
 from api.schemas.log_schema import LogSchema
 from api.schemas.settings_schema import SettingsSchema
 from api.schemas.template_schema import TemplateSchema
@@ -257,6 +258,17 @@ class DomainManager(Manager):
             collection="domains",
             schema=DomainSchema,
             unique_indexes=["name"],
+        )
+
+
+class EmailManager(Manager):
+    """EmailManager."""
+
+    def __init__(self):
+        """Initialize super for emails."""
+        return super().__init__(
+            collection="emails",
+            schema=EmailSchema,
         )
 
 
