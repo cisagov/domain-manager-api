@@ -10,7 +10,7 @@ class ApplicationSchema(BaseSchema):
     """Application Schema."""
 
     class Meta:
-        """Meta atrributes for class."""
+        """Meta attributes for class."""
 
         unknown = EXCLUDE
 
