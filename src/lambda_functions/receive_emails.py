@@ -17,7 +17,8 @@ def lambda_handler(event, context):
 
     if not domain:
         print("context: ", context)
-        print("from: ", incoming)
+        print("incoming: ", incoming)
+        print("from: ", incoming["destination"][0])
         logger.error("domain does not exist")
         return
 
