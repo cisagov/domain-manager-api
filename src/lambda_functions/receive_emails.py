@@ -7,11 +7,12 @@ from api.manager import DomainManager
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
-domain_manager = DomainManager()
 
 
 def lambda_handler(event, context):
     """Lambda Handler."""
+    domain_manager = DomainManager()
+
     incoming = event["Records"][0]["ses"]["mail"]
     domain = domain_manager.get(filter_data={"name": incoming["destination"][0]})
 
