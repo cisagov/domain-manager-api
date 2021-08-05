@@ -651,5 +651,28 @@ class DomainEmailsView(MethodView):
 
     def get(self, domain_id):
         """Get all emails for a domain."""
-        emails = email_manager.all(params={"domain_id": domain_id})
-        return jsonify(emails), 200
+        return (
+            jsonify(
+                email_manager.all(
+                    params={"domain_id": domain_id},
+                    fields=["_id", "from_address", "subject", "is_read", "timestamp"],
+                )
+            ),
+            200,
+        )
+
+
+class DomainEmailView(MethodView):
+    """Domain Email List View."""
+
+    def get(self, email_id):
+        """Get an email's details for a domain."""
+        email_manager.update(
+            document_id=email_id,
+            data={"is_read": True},
+        )
+        return jsonify(email_manager.get(document_id=email_id)), 200
+
+    def delete(self, email_id):
+        """Delete an email for a domain."""
+        return jsonify(email_manager.delete(email_id)), 200
