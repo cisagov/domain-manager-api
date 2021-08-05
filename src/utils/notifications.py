@@ -98,7 +98,7 @@ class Notification:
         """Send Email."""
         ses = SES()
         # Set Context
-        self.context["username"] = g.get("username")
+        self.context["username"] = g.get("username", "bot")
         content = self._set_context(self.message_type, self.context)
 
         # Generate a list of address to send to if to_addresses is not specified

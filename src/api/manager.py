@@ -94,11 +94,11 @@ class Manager:
         """Update updated data on update."""
         if type(data) is dict:
             data["updated"] = datetime.utcnow().isoformat()
-            data["updated_by"] = g.get("username")
+            data["updated_by"] = g.get("username", "bot")
         elif type(data) is list:
             for item in data:
                 item["updated"] = datetime.utcnow().isoformat()
-                item["updated_by"] = g.get("username")
+                item["updated_by"] = g.get("username", "bot")
         return data
 
     def clean_data(self, data):
