@@ -7,13 +7,12 @@ from api.manager import DomainManager, EmailManager
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
+domain_manager = DomainManager()
+email_manager = EmailManager()
 
 
 def lambda_handler(event, context):
     """Lambda Handler."""
-    domain_manager = DomainManager()
-    email_manager = EmailManager()
-
     incoming = event["Records"][0]["ses"]["mail"]
     target_email = incoming["destination"][0]
     domain = domain_manager.get(filter_data={"name": target_email.split("@")[1]})
@@ -32,7 +31,8 @@ def lambda_handler(event, context):
         "subject": incoming["commonHeaders"]["subject"],
         "message": "Not yet available.",
     }
-    email_manager.save(data)
+    # email_manager.save(data)
+    print(data)
     logger.info("success")
 
 
