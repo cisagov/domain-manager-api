@@ -59,9 +59,8 @@ def lambda_handler(event, context):
 
     with app.app_context():
         email_manager.save(data)
-
-    forward_resp = forward_email(data)
-    logger.info(forward_resp)
+        forward_resp = forward_email(data)
+        logger.info(forward_resp)
 
     logger.info("success")
 
