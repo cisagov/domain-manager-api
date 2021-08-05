@@ -23,7 +23,7 @@ settings = Settings()
 
 
 def forward_email(message):
-    """Forward an Email to specified email address."""
+    """Forward a Received Email to specified email address."""
     settings.load()
     forward_address = settings.to_dict()["SES_FORWARD_EMAIL"]
     logger.info("forward to: ", forward_address)
@@ -72,6 +72,9 @@ def lambda_handler(event, context):
 
     with app.app_context():
         email_manager.save(data)
+
+    forward_resp = forward_email(data)
+    logger.info(forward_resp)
 
     logger.info("success")
 
