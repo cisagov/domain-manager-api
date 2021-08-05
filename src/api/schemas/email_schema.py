@@ -15,3 +15,4 @@ class EmailSchema(BaseSchema):
     to_address = fields.Str()
     subject = fields.Str()
     message = fields.Str()
+    is_read = fields.Boolean(default=False)
