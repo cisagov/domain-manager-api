@@ -23,7 +23,7 @@ def forward_email(message):
     """Forward a Received Email to specified email address."""
     settings.load()
     forward_address = settings.to_dict()["SES_FORWARD_EMAIL"]
-    logger.info("forward to: ", forward_address)
+    logger.info(f"forward address: {forward_address}")
 
     try:
         email = Notification(
