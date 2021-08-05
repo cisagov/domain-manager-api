@@ -3,6 +3,7 @@
 import logging
 
 # cisagov Libraries
+from api.main import app
 from api.manager import DomainManager, EmailManager
 
 logger = logging.getLogger()
@@ -31,8 +32,8 @@ def lambda_handler(event, context):
         "subject": incoming["commonHeaders"]["subject"],
         "message": "Not yet available.",
     }
-    # email_manager.save(data)
-    print(data)
+    with app.app_context():
+        email_manager.save(data)
     logger.info("success")
 
 

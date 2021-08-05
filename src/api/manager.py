@@ -83,11 +83,11 @@ class Manager:
         """Add created attribute to data on save."""
         if type(data) is dict:
             data["created"] = datetime.utcnow().isoformat()
-            data["created_by"] = g.get("username")
+            data["created_by"] = g.get("username", "bot")
         elif type(data) is list:
             for item in data:
                 item["created"] = datetime.utcnow().isoformat()
-                item["created_by"] = g.get("username")
+                item["created_by"] = g.get("username", "bot")
         return data
 
     def add_updated(self, data):
