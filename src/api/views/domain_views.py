@@ -17,7 +17,7 @@ import requests
 
 # cisagov Libraries
 from api.config import STATIC_GEN_URL, WEBSITE_BUCKET, logger
-from api.manager import ApplicationManager, DomainManager, TemplateManager
+from api.manager import ApplicationManager, DomainManager, EmailManager, TemplateManager
 from api.schemas.domain_schema import DomainSchema, Record
 from utils.apex_records import contains_apex_record, is_apex_record
 from utils.aws import record_handler
@@ -37,6 +37,7 @@ from utils.validator import validate_data
 
 domain_manager = DomainManager()
 template_manager = TemplateManager()
+email_manager = EmailManager()
 
 application_manager = ApplicationManager()
 route53 = Route53()
@@ -643,3 +644,35 @@ class DomainReceiveEmailsView(MethodView):
             jsonify({"success": resp}),
             200,
         )
+
+
+class DomainEmailsView(MethodView):
+    """Domain Emails List View."""
+
+    def get(self, domain_id):
+        """Get all emails for a domain."""
+        return (
+            jsonify(
+                email_manager.all(
+                    params={"domain_id": domain_id},
+                    fields=["_id", "from_address", "subject", "is_read", "timestamp"],
+                )
+            ),
+            200,
+        )
+
+
+class DomainEmailView(MethodView):
+    """Domain Email List View."""
+
+    def get(self, email_id):
+        """Get an email's details for a domain."""
+        email_manager.update(
+            document_id=email_id,
+            data={"is_read": True},
+        )
+        return jsonify(email_manager.get(document_id=email_id)), 200
+
+    def delete(self, email_id):
+        """Delete an email for a domain."""
+        return jsonify(email_manager.delete(email_id)), 200
