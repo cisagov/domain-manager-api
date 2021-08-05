@@ -1,7 +1,5 @@
 """Receive Emails Lambda Function."""
 # Standard Python Libraries
-from email.mime.multipart import MIMEMultipart
-from email.mime.text import MIMEText
 import logging
 
 # Third-Party Libraries
@@ -11,14 +9,13 @@ from botocore.exceptions import ClientError
 from api.main import app
 from api.manager import DomainManager, EmailManager
 from api.settings import Settings
-from utils.aws.clients import SES
+from utils.notifications import Notification
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
 domain_manager = DomainManager()
 email_manager = EmailManager()
-ses = SES()
 settings = Settings()
 
 
@@ -28,25 +25,15 @@ def forward_email(message):
     forward_address = settings.to_dict()["SES_FORWARD_EMAIL"]
     logger.info("forward to: ", forward_address)
 
-    msg = MIMEMultipart()
-    text_part = MIMEText(message["message"], _subtype="html")
-    msg.attach(text_part)
-
-    # Add subject, from, and to
-    msg["Subject"] = message["subject"]
-    msg["From"] = message["from_address"]
-    msg["To"] = message["to_address"]
-
     try:
-        response = ses.client.send_raw_email(
-            Source=message["from_address"],
-            Destinations=[forward_address],
-            RawMessage={"Data": msg.as_string()},
+        email = Notification(
+            message_type="test", context=message, to_addresses=[forward_address]
         )
+        email.send()
     except ClientError as e:
         logger.error(e.response["Error"]["Message"])
 
-    return response
+    return {"success": "email has been forwarded."}
 
 
 def lambda_handler(event, context):

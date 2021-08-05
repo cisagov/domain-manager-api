@@ -15,8 +15,9 @@ cognito = Cognito()
 class Notification:
     """Manage sending email notifications."""
 
-    def __init__(self, message_type, context, application_id=None):
+    def __init__(self, message_type, context, application_id=None, to_addresses=None):
         """Initialize."""
+        self.to_addresses = to_addresses
         self.message_type = message_type
         self.context = context
         self.application_id = application_id
@@ -99,7 +100,12 @@ class Notification:
         # Set Context
         self.context["username"] = g.get("username")
         content = self._set_context(self.message_type, self.context)
-        addresses = self.get_to_addresses(content)
+
+        # Generate a list of address to send to if to_addresses is not specified
+        if not self.to_addresses:
+            addresses = self.get_to_addresses(content)
+        else:
+            addresses = self.to_addresses
 
         logger.info(f"Sending template {self.message_type} to {addresses}")
         return ses.send_email(
