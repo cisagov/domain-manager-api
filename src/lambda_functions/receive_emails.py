@@ -13,9 +13,11 @@ def lambda_handler(event, context):
     """Lambda Handler."""
     domain_manager = DomainManager()
     email_manager = EmailManager()
+
     incoming = event["Records"][0]["ses"]["mail"]
     target_email = incoming["destination"][0]
     domain = domain_manager.get(filter_data={"name": target_email.split("@")[1]})
+    logger.info(domain)
 
     if not domain:
         logger.info(incoming)
