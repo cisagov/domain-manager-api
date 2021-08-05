@@ -17,7 +17,6 @@ def lambda_handler(event, context):
     incoming = event["Records"][0]["ses"]["mail"]
     target_email = incoming["destination"][0]
     domain = domain_manager.get(filter_data={"name": target_email.split("@")[1]})
-    logger.info(domain)
 
     if not domain:
         logger.info(incoming)
@@ -32,6 +31,7 @@ def lambda_handler(event, context):
         "subject": incoming["commonHeaders"]["subject"],
         "message": "Not yet available.",
     }
+    logger.info(data)
 
     with app.app_context():
         email_manager.save(data)
