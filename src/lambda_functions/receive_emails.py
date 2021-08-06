@@ -8,7 +8,6 @@ from botocore.exceptions import ClientError
 # cisagov Libraries
 from api.main import app
 from api.manager import DomainManager, EmailManager
-from api.settings import Settings
 from utils.notifications import Notification
 
 logger = logging.getLogger()
@@ -16,18 +15,14 @@ logger.setLevel(logging.INFO)
 
 domain_manager = DomainManager()
 email_manager = EmailManager()
-settings = Settings()
 
 
 def forward_email(message):
     """Forward a Received Email to specified email address."""
-    settings.load()
-    forward_address = settings.to_dict()["SES_FORWARD_EMAIL"]
-    logger.info(f"forward address: {forward_address}")
-
     try:
         email = Notification(
-            message_type="test", context=message, to_addresses=[forward_address]
+            message_type="email_received",
+            context=message,
         )
         email.send()
     except ClientError as e:

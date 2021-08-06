@@ -5,19 +5,20 @@ from flask import g, render_template, render_template_string
 # cisagov Libraries
 from api.config import NEW_USER_NOTIFICATION_EMAIL_ADDRESS, SMTP_FROM, logger
 from api.manager import UserManager
+from api.settings import Settings
 from utils.aws.clients import SES, Cognito
 from utils.users import get_users_in_group
 
 user_manager = UserManager()
 cognito = Cognito()
+settings = Settings()
 
 
 class Notification:
     """Manage sending email notifications."""
 
-    def __init__(self, message_type, context, application_id=None, to_addresses=None):
+    def __init__(self, message_type, context, application_id=None):
         """Initialize."""
-        self.to_addresses = to_addresses
         self.message_type = message_type
         self.context = context
         self.application_id = application_id
@@ -33,6 +34,16 @@ class Notification:
         [html_content] - Html content of email
         """
         return {
+            "email_received": {
+                "send_to": "ForwardEmail",
+                "subject": "[Domain Manager] New Email Received",
+                "text_content": render_template_string(
+                    "emails/email_received.html", **context
+                ),
+                "html_content": render_template(
+                    "emails/email_recieved.html", **context
+                ),
+            },
             "test": {
                 "send_to": "User",
                 "subject": "[Domain Manager] Test Event",
@@ -92,6 +103,10 @@ class Notification:
         elif content["send_to"] == "Specified":
             email = self.context["UserEmail"]
             addresses.append(email)
+        elif content["send_to"] == "ForwardEmail":
+            settings.load()
+            addresses.append(settings.to_dict()["SES_FORWARD_EMAIL"])
+
         return addresses
 
     def send(self):
@@ -101,11 +116,7 @@ class Notification:
         self.context["username"] = g.get("username", "bot")
         content = self._set_context(self.message_type, self.context)
 
-        # Generate a list of address to send to if to_addresses is not specified
-        if not self.to_addresses:
-            addresses = self.get_to_addresses(content)
-        else:
-            addresses = self.to_addresses
+        addresses = self.get_to_addresses(content)
 
         logger.info(f"Sending template {self.message_type} to {addresses}")
         return ses.send_email(
