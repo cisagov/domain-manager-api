@@ -41,7 +41,7 @@ class Notification:
                     "emails/email_received.html", **context
                 ),
                 "html_content": render_template(
-                    "emails/email_recieved.html", **context
+                    "emails/email_received.html", **context
                 ),
             },
             "test": {
