@@ -33,6 +33,7 @@ def forward_email(message):
 
 def lambda_handler(event, context):
     """Lambda Handler."""
+    logger.info(event)
     incoming = event["Records"][0]["ses"]["mail"]
     target_email = incoming["destination"][0]
     domain = domain_manager.get(filter_data={"name": target_email.split("@")[1]})
