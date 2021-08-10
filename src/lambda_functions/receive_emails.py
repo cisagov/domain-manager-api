@@ -1,5 +1,6 @@
 """Receive Emails Lambda Function."""
 # Standard Python Libraries
+import json
 import logging
 
 # Third-Party Libraries
@@ -35,21 +36,27 @@ def lambda_handler(event, context):
     """Lambda Handler."""
     logger.info(event)
 
-    target_email = event["mail"]["destination"][0]
+    incoming = json.loads(event["Records"][0]["Sns"]["Message"])
+    target_email = incoming["mail"]["destination"][0]
     domain = domain_manager.get(filter_data={"name": target_email.split("@")[1]})
 
     if not domain:
-        logger.info(event)
+        logger.info(incoming)
         logger.error(f"domain from {target_email} does not exist")
         return
 
+    # Parse email body
+    content = incoming["content"].split("\r\n")
+    while "" in content:
+        content.remove("")
+
     data = {
         "domain_id": domain["_id"],
-        "timestamp": event["mail"]["timestamp"],
-        "from_address": event["mail"]["source"],
+        "timestamp": incoming["mail"]["timestamp"],
+        "from_address": incoming["mail"]["source"],
         "to_address": target_email,
-        "subject": event["mail"]["commonHeaders"]["subject"],
-        "message": event["content"].split("Content-Type: text/plain")[1],
+        "subject": incoming["mail"]["commonHeaders"]["subject"],
+        "message": incoming["content"].split("Content-Type: text/plain")[1],
     }
     logger.info(data)
 
