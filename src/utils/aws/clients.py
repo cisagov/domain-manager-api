@@ -195,9 +195,9 @@ class Route53(AWS):
 class SES(AWS):
     """SES."""
 
-    def __init__(self):
+    def __init__(self, assume_role=False):
         """Init."""
-        if SES_ASSUME_ROLE_ARN:
+        if assume_role:
             sts = STS()
             self.client = sts.assume_role_client("ses", SES_ASSUME_ROLE_ARN)
         else:

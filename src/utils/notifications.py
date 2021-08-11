@@ -111,7 +111,7 @@ class Notification:
 
     def send(self):
         """Send Email."""
-        ses = SES()
+        ses = SES(assume_role=True)
         # Set Context
         self.context["username"] = g.get("username", "bot")
         content = self._set_context(self.message_type, self.context)
