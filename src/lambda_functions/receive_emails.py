@@ -24,9 +24,7 @@ def get_email_payload(content):
     message = email.message_from_string(content)
     if message.is_multipart():
         for part in message.walk():
-            if part.get_content_type() == "text/html" and "attachment" not in part.get(
-                "Content-Disposition"
-            ):
+            if part.get_content_type() == "text/html":
                 return part.get_payload(decode=True).decode("ASCII")
     else:
         return message.get_payload(decode=True).decode("ASCII")
