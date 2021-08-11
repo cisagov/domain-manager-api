@@ -1,7 +1,7 @@
-<body>
+<div>
   <h2>Domain Manager</h2>
   <h4>Email Received</h4>
   <p>From: {{ from_address }}</p>
   <p>To: {{ to_address }}</p>
-</body>
-{{ message }}
+</div>
+{{ message | safe }}
