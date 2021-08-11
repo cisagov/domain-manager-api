@@ -1,5 +1,6 @@
 """Receive Emails Lambda Function."""
 # Standard Python Libraries
+import email
 import json
 import logging
 
@@ -16,6 +17,17 @@ logger.setLevel(logging.INFO)
 
 domain_manager = DomainManager()
 email_manager = EmailManager()
+
+
+def get_email_payload(content):
+    """Get Email payload body."""
+    message = email.message_from_string(content)
+    if message.is_multipart():
+        for part in message.walk():
+            if part.get_content_type() == "text/html":
+                return part.get_payload(decode=True).decode("ASCII")
+    else:
+        return message.get_payload(decode=True).decode("ASCII")
 
 
 def forward_email(message):
@@ -46,9 +58,7 @@ def lambda_handler(event, context):
         return
 
     # Parse email body
-    content = incoming["content"].split("\r\n")
-    while "" in content:
-        content.remove("")
+    content = get_email_payload(incoming["content"])
 
     data = {
         "domain_id": domain["_id"],
@@ -56,7 +66,7 @@ def lambda_handler(event, context):
         "from_address": incoming["mail"]["source"],
         "to_address": target_email,
         "subject": incoming["mail"]["commonHeaders"]["subject"],
-        "message": incoming["content"].split("Content-Type: text/plain")[1],
+        "message": content,
     }
     logger.info(data)
 
