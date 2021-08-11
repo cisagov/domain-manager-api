@@ -36,7 +36,7 @@ class Notification:
         return {
             "email_received": {
                 "send_to": "ForwardEmail",
-                "subject": "[Domain Manager] New Email Received",
+                "subject": f"[Domain Manager] FW: {context['subject']}",
                 "text_content": render_template_string(
                     "emails/email_received.html", **context
                 ),
