@@ -30,7 +30,6 @@ from utils.aws.site_handler import (
     verify_launch_records,
 )
 from utils.categorization.categorize import categorize
-from utils.categorization.check import check_category
 from utils.decorators.auth import can_access_domain
 from utils.users import get_users_group_ids
 from utils.validator import validate_data
@@ -513,10 +512,6 @@ class DomainCategorizeView(MethodView):
 
     def get(self, domain_id):
         """Categorize Domain."""
-        domain = domain_manager.get(document_id=domain_id, fields=["name"])
-
-        task = Process(target=check_category, args=(domain["name"],))
-        task.start()
         return jsonify(
             {
                 "success": "Site is being checked in the background. Check back later for results and failures."

@@ -4,7 +4,7 @@ from flask import jsonify
 from flask.views import MethodView
 
 # cisagov Libraries
-from utils.proxies import PROXIES
+from utils.categorization import PROXIES
 
 
 class ProxiesView(MethodView):
