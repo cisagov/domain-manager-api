@@ -29,7 +29,6 @@ from utils.aws.site_handler import (
     verify_hosted_zone,
     verify_launch_records,
 )
-from utils.categorization.categorize import categorize
 from utils.decorators.auth import can_access_domain
 from utils.users import get_users_group_ids
 from utils.validator import validate_data
@@ -511,7 +510,7 @@ class DomainCategorizeView(MethodView):
     decorators = [can_access_domain]
 
     def get(self, domain_id):
-        """Categorize Domain."""
+        """Get categories on domains."""
         return jsonify(
             {
                 "success": "Site is being checked in the background. Check back later for results and failures."
@@ -519,15 +518,12 @@ class DomainCategorizeView(MethodView):
         )
 
     def post(self, domain_id):
-        """Categorize Domain."""
+        """Submit a Domain for Categorization."""
         domain = domain_manager.get(document_id=domain_id, fields=["name"])
         category = request.json["category"]
 
         if domain.get("submitted_category"):
             return "Domain has already had a category submitted.", 400
-
-        task = Process(target=categorize, args=(category, domain["name"]))
-        task.start()
 
         domain_manager.update(
             document_id=domain["_id"], data={"submitted_category": category}
@@ -540,7 +536,7 @@ class DomainCategorizeView(MethodView):
         )
 
     def put(self, domain_id):
-        """Manually categorize a domain."""
+        """Verify a domain has been categorized."""
         domain = domain_manager.get(document_id=domain_id)
         proxy = request.json["proxy"]
 
@@ -558,7 +554,7 @@ class DomainCategorizeView(MethodView):
             params={"category_results.proxy": proxy},
         )
 
-        return jsonify({"success": "Site has been manually categorized."})
+        return jsonify({"success": "Site has been categorized."})
 
 
 class DomainDeployedCheckView(MethodView):
