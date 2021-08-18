@@ -519,20 +519,11 @@ class DomainCategorizeView(MethodView):
 
     def post(self, domain_id):
         """Submit a Domain for Categorization."""
-        domain = domain_manager.get(document_id=domain_id, fields=["name"])
+        domain_manager.get(document_id=domain_id, fields=["name"])
         category = request.json["category"]
 
-        if domain.get("submitted_category"):
-            return "Domain has already had a category submitted.", 400
-
-        domain_manager.update(
-            document_id=domain["_id"], data={"submitted_category": category}
-        )
-
         return jsonify(
-            {
-                "success": "Site is being categorized in the background. Check back later for any failures in the categorization process."
-            }
+            {"success": f"Site has been submitted for categorization as {category}."}
         )
 
     def put(self, domain_id):
@@ -558,7 +549,7 @@ class DomainCategorizeView(MethodView):
 
 
 class DomainDeployedCheckView(MethodView):
-    """DomainCategoryCheckView."""
+    """DomainDeployedCheckView."""
 
     decorators = [can_access_domain]
 

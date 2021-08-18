@@ -17,18 +17,6 @@ class History(Schema):
     end_date = DateTimeField()
 
 
-class CategoryResult(Schema):
-    """CategoryResult Schema."""
-
-    proxy = fields.Str()
-    is_submitted = fields.Bool()
-    manually_submitted = fields.Bool()
-    submitted_category = fields.Str(allow_none=True)
-    categorize_url = fields.Str(allow_none=True)
-    check_url = fields.Str(allow_none=True)
-    category = fields.Str(allow_none=True)
-
-
 class Profile(Schema):
     """Template context data."""
 
@@ -162,8 +150,6 @@ class DomainSchema(BaseSchema):
     acm = fields.Dict()
     route53 = fields.Dict()
     records = fields.List(fields.Nested(Record))
-    category_results = fields.List(fields.Nested(CategoryResult))
-    submitted_category = fields.Str()
 
     @pre_load
     def clean_data(self, in_data, **kwargs):
