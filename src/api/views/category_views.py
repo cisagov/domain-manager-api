@@ -4,7 +4,10 @@ from flask import jsonify, request
 from flask.views import MethodView
 
 # cisagov Libraries
+from api.manager import CategorizationManager
 from utils.categorization import CATEGORIES
+
+categorization_manager = CategorizationManager()
 
 
 class CategoriesView(MethodView):
@@ -36,5 +39,4 @@ class CategorizationsView(MethodView):
         if not status:
             return jsonify({"message": "Please specify a status"}), 406
 
-        status = request.args.get("status")
-        return jsonify({"message": f"success: {status}"}), 200
+        return jsonify(categorization_manager.all(params={"status": status})), 200
