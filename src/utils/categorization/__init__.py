@@ -1,7 +1,8 @@
 """__init__."""
+# Standard Python Libraries
+from typing import Dict, List
 
-
-PROXIES = [
+PROXIES: List[Dict] = [
     {
         "name": "Trusted Source",
         "url": "https://trustedsource.org/",

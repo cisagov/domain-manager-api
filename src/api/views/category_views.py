@@ -5,7 +5,6 @@ from flask.views import MethodView
 
 # cisagov Libraries
 from utils.categorization import CATEGORIES
-from utils.categorization.categorize import categorize
 
 
 class CategoriesView(MethodView):
@@ -25,4 +24,17 @@ class ExternalCategoriesView(MethodView):
 
     def post(self, domain_name):
         """Categorize an external domain."""
-        return jsonify(categorize(request.json.get("category", ""), domain_name))
+        return jsonify(request.json.get("category", ""), domain_name)
+
+
+class CategorizationsView(MethodView):
+    """CategorizationsView."""
+
+    def get(self):
+        """Get all domain categorizations."""
+        status = request.args.get("status")
+        if not status:
+            return jsonify({"message": "Please specify a status"}), 406
+
+        status = request.args.get("status")
+        return jsonify({"message": f"success: {status}"}), 200

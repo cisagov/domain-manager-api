@@ -29,6 +29,11 @@ from utils.aws.site_handler import (
     verify_hosted_zone,
     verify_launch_records,
 )
+from utils.categorization.categorize import (
+    get_domain_proxies,
+    post_categorize_request,
+    put_proxy_status,
+)
 from utils.decorators.auth import can_access_domain
 from utils.users import get_users_group_ids
 from utils.validator import validate_data
@@ -511,41 +516,38 @@ class DomainCategorizeView(MethodView):
 
     def get(self, domain_id):
         """Get categories on domains."""
-        return jsonify(
-            {
-                "success": "Site is being checked in the background. Check back later for results and failures."
-            }
-        )
+        resp, status_code = get_domain_proxies(domain_id)
+        return jsonify(resp), status_code
 
     def post(self, domain_id):
         """Submit a Domain for Categorization."""
-        domain_manager.get(document_id=domain_id, fields=["name"])
-        category = request.json["category"]
+        category = request.json.get("category")
 
-        return jsonify(
-            {"success": f"Site has been submitted for categorization as {category}."}
+        if not category:
+            return jsonify({"error": "Please specify a requested category."}), 406
+
+        resp, status_code = post_categorize_request(
+            domain_id=domain_id, requested_category=category
         )
+        return jsonify(resp), status_code
 
     def put(self, domain_id):
         """Verify a domain has been categorized."""
-        domain = domain_manager.get(document_id=domain_id)
-        proxy = request.json["proxy"]
+        status = request.json.get("status")
 
-        domain_manager.update_in_list(
-            document_id=domain["_id"],
-            field="category_results.$.is_submitted",
-            data=True,
-            params={"category_results.proxy": proxy},
+        if not status:
+            return jsonify({"error": "Please specify a proxy status"}), 406
+
+        proxy_name = request.json.get("proxy")
+
+        if not proxy_name:
+            return jsonify({"error": "Please specify a proxy name"}), 406
+
+        resp, status_code = put_proxy_status(
+            domain_id=domain_id, proxy_name=proxy_name, status=status
         )
 
-        domain_manager.update_in_list(
-            document_id=domain["_id"],
-            field="category_results.$.manually_submitted",
-            data=True,
-            params={"category_results.proxy": proxy},
-        )
-
-        return jsonify({"success": "Site has been categorized."})
+        return jsonify(resp), status_code
 
 
 class DomainDeployedCheckView(MethodView):

@@ -19,7 +19,11 @@ from api.views.application_views import (
     ApplicationView,
 )
 from api.views.auth_views import RefreshTokenView, RegisterView, SignInView
-from api.views.category_views import CategoriesView, ExternalCategoriesView
+from api.views.category_views import (
+    CategoriesView,
+    CategorizationsView,
+    ExternalCategoriesView,
+)
 from api.views.domain_views import (
     DomainApprovalView,
     DomainCategorizeView,
@@ -65,6 +69,7 @@ rules = [
     ("/applications/", ApplicationsView),
     ("/categories/", CategoriesView),
     ("/categories/<domain_name>/external/", ExternalCategoriesView),
+    ("/categorizations/", CategorizationsView),
     ("/domains/", DomainsView),
     ("/domain/<domain_id>/", DomainView),
     ("/domain/<domain_id>/categorize/", DomainCategorizeView),
