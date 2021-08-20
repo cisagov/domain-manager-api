@@ -34,10 +34,6 @@ NEW_USER_NOTIFICATION_EMAIL_ADDRESS = os.environ.get(
 SQS_CATEGORIZE_URL = os.environ.get("SQS_CATEGORIZE_URL")
 SQS_CHECK_CATEGORY_URL = os.environ.get("SQS_CHECK_CATEGORY_URL")
 
-# categorization
-BROWSERLESS_ENDPOINT = os.environ.get("BROWSERLESS_ENDPOINT")
-TWO_CAPTCHA_API_KEY = os.environ.get("TWO_CAPTCHA")
-
 # cognito
 COGNTIO_ENABLED = bool(int(os.environ.get("AWS_COGNITO_ENABLED", 0)))
 COGNITO_DEFAULT_ADMIN = bool(int(os.environ.get("AWS_DEFAULT_USER_TO_ADMIN", 0)))

@@ -7,7 +7,7 @@ import time
 import undetected_chromedriver as webdriver
 
 # cisagov Libraries
-from utils.proxies import CATEGORIES, PROXIES
+from proxy_harness.proxies import CATEGORIES, PROXIES
 
 # Load environment variables from .env file
 script_dir = os.path.dirname(os.path.realpath(__file__))

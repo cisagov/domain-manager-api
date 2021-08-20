@@ -1,6 +1,6 @@
 """__init__."""
 # cisagov Libraries
-from utils.proxies import (
+from proxy_harness.proxies import (
     bluecoat,
     fortiguard,
     palo_alto,

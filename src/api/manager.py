@@ -10,6 +10,7 @@ import pymongo
 # cisagov Libraries
 from api.config import DB
 from api.schemas.application_schema import ApplicationSchema
+from api.schemas.categorization_schema import CategorizationSchema
 from api.schemas.domain_schema import DomainSchema
 from api.schemas.email_schema import EmailSchema
 from api.schemas.log_schema import LogSchema
@@ -258,6 +259,17 @@ class DomainManager(Manager):
             collection="domains",
             schema=DomainSchema,
             unique_indexes=["name"],
+        )
+
+
+class CategorizationManager(Manager):
+    """CategorizationManager."""
+
+    def __init__(self):
+        """Initialize super for categorization."""
+        return super().__init__(
+            collection="categorizations",
+            schema=CategorizationSchema,
         )
 
 

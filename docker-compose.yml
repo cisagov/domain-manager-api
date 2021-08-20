@@ -18,27 +18,6 @@ services:
       - .env
     networks:
       - backend
-  # db:
-  #   image: mongo:latest
-  #   container_name: dm-mongo
-  #   restart: unless-stopped
-  #   volumes:
-  #     - mongodb_data:/data/db
-  #   ports:
-  #     - "27016:27017"
-  #   env_file:
-  #     - .env
-  #   networks:
-  #     - backend
-  browserless:
-    image: browserless/chrome:latest
-    container_name: dm-browserless
-    ports:
-      - "3001:3000"
-    env_file:
-      - .env
-    networks:
-      - backend
 volumes:
   mongodb_data:
 

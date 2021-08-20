@@ -4,9 +4,10 @@ from flask import jsonify, request
 from flask.views import MethodView
 
 # cisagov Libraries
-from utils.categorization.categorize import categorize
-from utils.categorization.check import check_category
-from utils.proxies import CATEGORIES
+from api.manager import CategorizationManager
+from utils.categorization import CATEGORIES
+
+categorization_manager = CategorizationManager()
 
 
 class CategoriesView(MethodView):
@@ -22,8 +23,20 @@ class ExternalCategoriesView(MethodView):
 
     def get(self, domain_name):
         """Check categories for external domains."""
-        return jsonify(check_category(domain_name))
+        return jsonify({"message": "success"}), 200
 
     def post(self, domain_name):
         """Categorize an external domain."""
-        return jsonify(categorize(request.json.get("category", ""), domain_name))
+        return jsonify(request.json.get("category", ""), domain_name)
+
+
+class CategorizationsView(MethodView):
+    """CategorizationsView."""
+
+    def get(self):
+        """Get all domain categorizations."""
+        status = request.args.get("status")
+        if not status:
+            return jsonify({"message": "Please specify a status"}), 406
+
+        return jsonify(categorization_manager.all(params={"status": status})), 200

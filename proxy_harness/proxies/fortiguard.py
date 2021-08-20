@@ -3,7 +3,7 @@
 from selenium.webdriver.common.by import By
 
 # cisagov Libraries
-from utils.proxies.captcha import get_and_solve
+from proxy_harness.proxies.captcha import get_and_solve
 
 
 def categorize(driver, domain, category, two_captcha_api_key):

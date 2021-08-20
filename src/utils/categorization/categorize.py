@@ -1,60 +1,50 @@
 """Categorization utils."""
 # cisagov Libraries
-from api.config import TWO_CAPTCHA_API_KEY, logger
-from api.manager import DomainManager
-from utils.categorization.driver import get_driver
-from utils.proxies import CATEGORIES, PROXIES
+from api.manager import CategorizationManager, DomainManager
+from api.schemas.categorization_schema import CategorizationSchema
+from utils.categorization import PROXIES
+from utils.validator import validate_data
 
+categorization_manager = CategorizationManager()
 domain_manager = DomainManager()
 
 
-def categorize(requested_category, domain_name):
+def get_domain_proxies(domain_id: str):
+    """Get all proxies for a domain."""
+    domain_proxies = categorization_manager.all(params={"domain_id": domain_id})
+    if not domain_proxies:
+        return {"error": "categorization requests for this domain do not exist."}, 400
+
+    return domain_proxies, 200
+
+
+def post_categorize_request(domain_id: str, requested_category: str):
     """Categorize a domain across proxies."""
-    domain = domain_manager.get(filter_data={"name": domain_name})
+    if categorization_manager.get(filter_data={"domain_id": domain_id}):
+        return {"error": "categorization requests already exist for this domain."}, 400
 
-    category = CATEGORIES.get(requested_category.title())
+    categories_data = [
+        {
+            "domain_id": domain_id,
+            "proxy": proxy["name"],
+            "status": "new",
+            "category": requested_category,
+            "categorize_url": proxy["categorize_url"],
+            "check_url": proxy["check_url"],
+        }
+        for proxy in PROXIES
+    ]
+    post_data = validate_data(categories_data, CategorizationSchema, many=True)
+    categorization_manager.save_many(post_data)
 
-    category_results = []
-
-    for proxy in PROXIES:
-        if proxy.get("categorize_url"):
-            proxy_category = category.get(proxy["name"])
-            categorize_response = process(
-                proxy_func=proxy.get("categorize_func"),
-                proxy_category=proxy_category,
-                domain_name=domain_name,
-            )
-            data = {
-                "proxy": proxy["name"],
-                "submitted_category": proxy_category,
-                "is_submitted": categorize_response,
-                "categorize_url": proxy.get("categorize_url"),
-            }
-            category_results.append(data)
-
-    if domain:
-        domain_manager.update(
-            document_id=domain["_id"],
-            data={"category_results": category_results},
-        )
-
-    return category_results
+    return {"success": "categorization request has been submitted"}, 200
 
 
-def process(proxy_func, proxy_category, domain_name):
-    """Categorize domain against a proxy."""
-    driver = get_driver()
-    driver.set_page_load_timeout(60)
-    try:
-        proxy_func(
-            driver=driver,
-            domain=domain_name,
-            category=proxy_category,
-            two_captcha_api_key=TWO_CAPTCHA_API_KEY,
-        )
-        return True
-    except Exception as e:
-        logger.exception(e)
-        return False
-    finally:
-        driver.quit()
+def put_proxy_status(domain_id: str, proxy_name: str, status: str):
+    """Update proxy status for a domain."""
+    proxy = categorization_manager.get(
+        filter_data={"domain_id": domain_id, "proxy": proxy_name}, fields=["_id"]
+    )
+    categorization_manager.update(document_id=proxy["_id"], data={"status": status})
+
+    return {"success": "proxy status has been updated"}, 200
