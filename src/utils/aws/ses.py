@@ -62,6 +62,8 @@ def enable_email_receiving(domain_name: str):
         verification_token=verification_token,
     )
 
+    waiter = ses.client.get_waiter("identity_exists")
+    waiter.wait(Identities=[domain_name], WaiterConfig={"Delay": 5, "MaxAttempts": 50})
     return response
 
 
