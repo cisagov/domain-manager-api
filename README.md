@@ -4,7 +4,7 @@ Domain Categorization and Management
 
 ## Required
 
-Get the right flavor of Docker for your OS...
+Get the right Docker for your OS:
 
 - [Docker for Mac](https://docs.docker.com/docker-for-mac/install/)
 - [Docker for Ubuntu](https://docs.docker.com/install/linux/docker-ce/ubuntu/)
@@ -65,8 +65,7 @@ Count lines of code
 
 ## API Documentation
 
-- To access the api documentation to this project, visit:
-  - `localhost:5000`
+- You'll find the API Documentation [here](docs/api-documentation.md)
 
 ## Contributing
 
