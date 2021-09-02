@@ -5,7 +5,9 @@ from flask.views import MethodView
 
 # cisagov Libraries
 from api.manager import CategorizationManager
+from api.schemas.categorization_schema import CategorizationSchema
 from utils.categorization import CATEGORIES
+from utils.validator import validate_data
 
 categorization_manager = CategorizationManager()
 
@@ -40,3 +42,14 @@ class CategorizationsView(MethodView):
             return jsonify({"message": "Please specify a status"}), 406
 
         return jsonify(categorization_manager.all(params={"status": status})), 200
+
+
+class CategorizationView(MethodView):
+    """CategorizationView."""
+
+    def put(self, categorization_id):
+        """Update categorization data."""
+        put_data = validate_data(request.json, CategorizationSchema)
+        return jsonify(
+            categorization_manager.update(document_id=categorization_id, data=put_data)
+        )
