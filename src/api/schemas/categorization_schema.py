@@ -11,6 +11,7 @@ class CategorizationSchema(BaseSchema):
     """DomainSchema."""
 
     domain_id = fields.Str()
+    domain_name = fields.Str()
     proxy = fields.Str()
     status = fields.Str(
         validate=validate.OneOf(["new", "submitted", "verified", "rejected"])
