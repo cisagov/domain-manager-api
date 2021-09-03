@@ -526,8 +526,10 @@ class DomainCategorizeView(MethodView):
         if not category:
             return jsonify({"error": "Please specify a requested category."}), 406
 
+        domain = domain_manager.get(document_id=domain_id)
+
         resp, status_code = post_categorize_request(
-            domain_id=domain_id, requested_category=category
+            domain_id=domain_id, domain_name=domain["name"], requested_category=category
         )
         return jsonify(resp), status_code
 

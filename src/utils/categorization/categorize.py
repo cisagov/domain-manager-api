@@ -18,7 +18,7 @@ def get_domain_proxies(domain_id: str):
     return domain_proxies, 200
 
 
-def post_categorize_request(domain_id: str, requested_category: str):
+def post_categorize_request(domain_id: str, domain_name: str, requested_category: str):
     """Categorize a domain across proxies."""
     if categorization_manager.get(filter_data={"domain_id": domain_id}):
         return {"error": "categorization requests already exist for this domain."}, 400
@@ -26,6 +26,7 @@ def post_categorize_request(domain_id: str, requested_category: str):
     categories_data = [
         {
             "domain_id": domain_id,
+            "domain_name": domain_name,
             "proxy": proxy["name"],
             "status": "new",
             "category": requested_category,
