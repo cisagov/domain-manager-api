@@ -37,7 +37,7 @@ Jinja2==3.0.1
 jmespath==0.10.0
 MarkupSafe==2.0.1
 marshmallow==3.12.1
-matplotlib-inline==0.1.2
+matplotlib-inline==0.1.3
 mccabe==0.6.1
 mongomock==3.23.0
 mypy-extensions==0.4.3
