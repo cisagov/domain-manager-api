@@ -9,7 +9,7 @@ boto3==1.17.96
 botocore==1.20.96
 certifi==2021.5.30
 cffi==1.14.6
-cfgv==3.3.0
+cfgv==3.3.1
 chardet==4.0.0
 click==8.0.1
 cognitojwt==1.4.1
