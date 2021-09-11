@@ -32,3 +32,4 @@ class SettingsPostSchema(Schema):
         unknown = EXCLUDE
 
     SES_FORWARD_EMAIL = fields.Email(allow_none=True)
+    USER_NOTIFICATION_EMAIL = fields.Email(allow_none=True)
