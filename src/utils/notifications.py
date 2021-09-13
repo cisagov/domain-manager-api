@@ -3,7 +3,7 @@
 from flask import g, render_template, render_template_string
 
 # cisagov Libraries
-from api.config import NEW_USER_NOTIFICATION_EMAIL_ADDRESS, SMTP_FROM, logger
+from api.config import SMTP_FROM, logger
 from api.manager import UserManager
 from api.settings import Settings
 from utils.aws.clients import SES, Cognito
@@ -99,7 +99,7 @@ class Notification:
         elif content["send_to"] == "All":
             addresses.extend(cognito.list_users(return_emails=True))
         elif content["send_to"] == "UserRegistered":
-            addresses.append(NEW_USER_NOTIFICATION_EMAIL_ADDRESS)
+            addresses.append(settings.to_dict()["USER_NOTIFICATION_EMAIL"])
         elif content["send_to"] == "Specified":
             email = self.context["UserEmail"]
             addresses.append(email)
