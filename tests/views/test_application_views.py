@@ -2,7 +2,7 @@
 # Standard Python Libraries
 import json
 
-# Third-Party Libraries
+# cisagov Libraries
 from tests.data.application_data import get_applications
 
 
