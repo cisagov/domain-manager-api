@@ -97,6 +97,8 @@ jobs:
             ${{ hashFiles('**/.pre-commit-config.yaml') }}"
           restore-keys: |
             ${{ env.BASE_CACHE_KEY }}
+      - name: Install shfmt
+        run: go install mvdan.cc/sh/v3/cmd/shfmt@${SHFMT_VERSION}
       # A .env file is required in the base directory for
       # tests to run successfully.
       - name: Copy env.dist
