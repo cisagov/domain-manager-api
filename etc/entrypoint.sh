@@ -6,8 +6,7 @@ echo "Launch static gen app"
 
 echo "Starting Domain Manager API"
 # run flask
-if [[ $DEBUG -eq 1 ]]
-then
+if [[ $DEBUG -eq 1 ]]; then
   echo "Debug Mode"
   flask run -h 0.0.0.0
 else

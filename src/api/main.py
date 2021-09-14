@@ -6,7 +6,7 @@ from datetime import date
 from flask import Flask, g, render_template, request
 from flask.json import JSONEncoder
 from flask_cors import CORS
-import requests
+import requests  # type: ignore
 
 # cisagov Libraries
 from api.config import STATIC_GEN_URL, logger
@@ -113,22 +113,23 @@ admin_rules = [
 ]
 
 for rule in rules:
+    view: object = rule[1]
     url = f"{url_prefix}{rule[0]}"
-    if not rule[1].decorators:
-        rule[1].decorators = []
-    rule[1].decorators.extend([auth_required])
-    app.add_url_rule(url, view_func=rule[1].as_view(url))
+    if not view.decorators:  # type: ignore
+        view.decorators = []  # type: ignore
+    view.decorators.extend([auth_required])  # type: ignore
+    app.add_url_rule(url, view_func=view.as_view(url))  # type: ignore
 
 for rule in login_rules:
     url = f"{url_prefix}{rule[0]}"
-    app.add_url_rule(url, view_func=rule[1].as_view(url))
+    app.add_url_rule(url, view_func=rule[1].as_view(url))  # type: ignore
 
 for rule in admin_rules:
     url = f"{url_prefix}{rule[0]}"
-    if not rule[1].decorators:
-        rule[1].decorators = []
-    rule[1].decorators.extend([auth_admin_required, auth_required])
-    app.add_url_rule(url, view_func=rule[1].as_view(url))
+    if not rule[1].decorators:  # type: ignore
+        rule[1].decorators = []  # type: ignore
+    rule[1].decorators.extend([auth_admin_required, auth_required])  # type: ignore
+    app.add_url_rule(url, view_func=rule[1].as_view(url))  # type: ignore
 
 
 class CustomJSONEncoder(JSONEncoder):

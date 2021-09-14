@@ -9,7 +9,7 @@ from faker import Faker
 from flask import g, jsonify, request, send_file
 from flask.views import MethodView
 from marshmallow import ValidationError
-import requests
+import requests  # type: ignore
 
 # cisagov Libraries
 from api.config import STATIC_GEN_URL, TEMPLATE_BUCKET, logger
