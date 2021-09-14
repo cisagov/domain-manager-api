@@ -1,8 +1,12 @@
-# Domain Manager
+# Domain Manager #
 
 Domain Categorization and Management
 
-## Required
+[![GitHub Build Status](https://github.com/cisagov/skeleton-docker/workflows/build/badge.svg)](https://github.com/cisagov/skeleton-docker/actions/workflows/build.yml)
+[![CodeQL](https://github.com/cisagov/skeleton-docker/workflows/CodeQL/badge.svg)](https://github.com/cisagov/skeleton-docker/actions/workflows/codeql-analysis.yml)
+[![Known Vulnerabilities](https://snyk.io/test/github/cisagov/skeleton-docker/badge.svg)](https://snyk.io/test/github/cisagov/skeleton-docker)
+
+## Required ##
 
 Get the right Docker for your OS:
 
@@ -15,29 +19,26 @@ For Docker for Mac, this can be set by following these steps:
 
 Open Docker > Preferences > Advanced tab, then set memory to 4.0 GiB
 
-## Setup project locally
+## Setup project locally ##
 
-1. Copy your env vars:
+1. Copy your env vars.
+2. Build project containers.
+3. Run Containers.
+4. Run flask logs using docker attach
+5. Application running at: `localhost:5000`
 
-   - `cp etc/env.dist .env`
+   ```bash
+   cp etc/env.dist .env
+   make build
+   make up
+   make attach
 
-2. Build containers:
+   * Serving Flask app 'api.main' (lazy loading)
+   * Environment: development
+   * Debug mode: on
+   ```
 
-   - `make build`
-
-3. Run Containers
-
-   - `make up`
-
-4. Run flask logs in the terminal
-
-   - `make logs`
-
-5. Application running at:
-
-   - `localhost:5000`
-
-## Other commands
+## Other commands ##
 
 Run live flask logs in the terminal
 
@@ -63,16 +64,16 @@ Count lines of code
 
 - `make loc`
 
-## API Documentation
+## API Documentation ##
 
 - You'll find the API Documentation [here](docs/api-documentation.md)
 
-## Contributing
+## Contributing ##
 
 We welcome contributions! Please see [here](CONTRIBUTING.md) for
 details.
 
-## License
+## License ##
 
 This project is in the worldwide [public domain](LICENSE).
 
