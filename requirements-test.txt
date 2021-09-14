@@ -11,3 +11,4 @@ pytest-dotenv
 pytest-env
 pytest-mock
 pytest-pythonpath
+shfmt-py
