@@ -69,6 +69,10 @@ repos:
           - -ci
           # Redirect operators are followed by a space
           - -sr
+  - repo: https://github.com/detailyang/pre-commit-shell
+    rev: 1.0.5
+    hooks:
+      - id: shell-lint
 
   # Python hooks
   - repo: https://github.com/PyCQA/bandit
