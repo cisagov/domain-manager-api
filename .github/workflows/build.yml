@@ -27,6 +27,7 @@ on:
 
 env:
   BUILDX_CACHE_DIR: ~/.cache/buildx
+  CURL_CACHE_DIR: ~/.cache/curl
   IMAGE_NAME: cisagov/domain-manager-api
   PIP_CACHE_DIR: ~/.cache/pip
   # Disabled linux/arm/v6 for the following errors:
