@@ -103,6 +103,15 @@ class ConfirmSignUpView(MethodView):
             return e.response["Error"]["Message"], 400
         return jsonify({"success": "User email has been confirmed."}), 200
 
+    def get(self, username):
+        """Resend email with a new confirmation code."""
+        try:
+            cognito.resend_confirmation_code(username=username)
+        except botocore.exceptions.ClientError as e:
+            logger.exception(e)
+            return e.response["Error"]["Message"], 400
+        return jsonify({"success": "Confirmation email has been resent."}), 200
+
 
 class ResetPasswordView(MethodView):
     """Reset User Password."""
