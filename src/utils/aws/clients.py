@@ -147,11 +147,19 @@ class Cognito(AWS):
             ClientId=COGNITO_CLIENT_ID,
             Username=username,
             ConfirmationCode=confirmation_code,
-            password=password,
+            Password=password,
+        )
+
+    def confirm_signup(self, username: str, confirmation_code: str):
+        """Confirm registration email of a user."""
+        return self.client.confirm_sign_up(
+            ClientId=COGNITO_CLIENT_ID,
+            Username=username,
+            ConfirmationCode=confirmation_code,
         )
 
     def reset_password(self, username: str):
-        """Reset password resets the specified user's password."""
+        """Reset password by sending a confirm code to user email."""
         return self.client.admin_reset_user_password(
             UserPoolId=COGNTIO_USER_POOL_ID, Username=username
         )
