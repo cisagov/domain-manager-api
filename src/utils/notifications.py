@@ -36,7 +36,7 @@ class Notification:
         return {
             "email_received": {
                 "send_to": "ForwardEmail",
-                "subject": f"[Domain Manager] FW: {context['subject']}",
+                "subject": f"[Domain Manager] FW: {context.get('subject', '')}",
                 "text_content": render_template_string(
                     "emails/email_received.html", **context
                 ),
@@ -104,7 +104,6 @@ class Notification:
             email = self.context["UserEmail"]
             addresses.append(email)
         elif content["send_to"] == "ForwardEmail":
-            settings.load()
             addresses.append(settings.to_dict()["SES_FORWARD_EMAIL"])
 
         return addresses
@@ -119,10 +118,11 @@ class Notification:
         addresses = self.get_to_addresses(content)
 
         logger.info(f"Sending template {self.message_type} to {addresses}")
-        return ses.send_email(
-            source=SMTP_FROM,
-            to=addresses,
-            subject=content["subject"],
-            text=content["text_content"],
-            html=content["html_content"],
-        )
+        if len(addresses) > 0 and addresses[0] is not None:
+            return ses.send_email(
+                source=SMTP_FROM,
+                to=addresses,
+                subject=content["subject"],
+                text=content["text_content"],
+                html=content["html_content"],
+            )
