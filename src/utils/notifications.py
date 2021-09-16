@@ -36,7 +36,7 @@ class Notification:
         return {
             "email_received": {
                 "send_to": "ForwardEmail",
-                "subject": f"[Domain Manager] FW: {context['subject']}",
+                "subject": f"[Domain Manager] FW: {context.get('subject', '')}",
                 "text_content": render_template_string(
                     "emails/email_received.html", **context
                 ),
@@ -101,7 +101,7 @@ class Notification:
         elif content["send_to"] == "UserRegistered":
             addresses.append(settings.to_dict()["USER_NOTIFICATION_EMAIL"])
         elif content["send_to"] == "Specified":
-            email = self.context["UserEmail"]
+            email = self.context.get("UserEmail", "")
             addresses.append(email)
         elif content["send_to"] == "ForwardEmail":
             settings.load()

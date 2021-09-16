@@ -33,6 +33,7 @@ class RegisterView(MethodView):
             g.username = "Registration"
             cognito.sign_up(username, password, email)
             user = cognito.get_user(username)
+            user["Email"] = email
             user["Groups"] = []
             user["Groups"].append(
                 {
@@ -51,7 +52,7 @@ class RegisterView(MethodView):
             )
             email.send()
 
-            return jsonify(success=True)
+            return jsonify(success=True), 200
         except botocore.exceptions.ClientError as e:
             logger.exception(e)
             return e.response["Error"]["Message"], 400
@@ -107,6 +108,16 @@ class ConfirmSignUpView(MethodView):
             logger.exception(e)
             return e.response["Error"]["Message"], 400
         user_manager.update(document_id=user["_id"], data={"UserStatus": "CONFIRMED"})
+
+        email = Notification(
+            message_type="user_confirmed",
+            context={
+                "Username": user["Username"],
+                "UserEmail": user["Email"],
+            },
+        )
+        email.send()
+
         return jsonify({"success": "User email has been confirmed."}), 200
 
     def get(self, username):
