@@ -37,6 +37,7 @@ class Settings:
 
     def to_dict(self):
         """Represent class as dict for responses."""
+        self.load()
         return {
             "SES_FORWARD_EMAIL": self.SES_FORWARD_EMAIL,
             "USER_NOTIFICATION_EMAIL": self.USER_NOTIFICATION_EMAIL,
