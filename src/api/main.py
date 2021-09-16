@@ -102,9 +102,9 @@ rules = [
 
 login_rules = [
     ("/auth/applications/", ApplicationsViewNoAuth),
-    ("/auth/confirm/", ConfirmSignUpView),
+    ("/auth/confirm/<username>/", ConfirmSignUpView),
     ("/auth/register/", RegisterView),
-    ("/auth/resetpassword/", ResetPasswordView),
+    ("/auth/resetpassword/<username>/", ResetPasswordView),
     ("/auth/signin/", SignInView),
     ("/auth/refreshtoken/", RefreshTokenView),
 ]

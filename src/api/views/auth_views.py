@@ -90,12 +90,12 @@ class SignInView(MethodView):
 class ConfirmSignUpView(MethodView):
     """Confirm Email Sign Up View."""
 
-    def post(self):
+    def post(self, username):
         """Confirm registration email of a new user."""
         post_data = request.json
         try:
             cognito.confirm_signup(
-                username=post_data["username"],
+                username=username,
                 confirmation_code=post_data["confirmation_code"],
             )
         except botocore.exceptions.ClientError as e:
@@ -107,12 +107,12 @@ class ConfirmSignUpView(MethodView):
 class ResetPasswordView(MethodView):
     """Reset User Password."""
 
-    def post(self):
+    def post(self, username):
         """Enter a New Password and Email Confirmation Code."""
         post_data = request.json
         try:
             cognito.confirm_forgot_password(
-                username=post_data["username"],
+                username=username,
                 confirmation_code=post_data["confirmation_code"],
                 password=post_data["password"],
             )
