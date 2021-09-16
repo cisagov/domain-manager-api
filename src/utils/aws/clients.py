@@ -64,32 +64,32 @@ class Cognito(AWS):
             return get_emails_from_users(users)
         return users
 
-    def disable_user(self, username):
+    def disable_user(self, username: str):
         """Disable user in cognito."""
         return self.client.admin_disable_user(
             UserPoolId=COGNTIO_USER_POOL_ID, Username=username
         )
 
-    def delete_user(self, username):
+    def delete_user(self, username: str):
         """Delete user from cognito."""
         self.disable_user(username)
         return self.client.admin_delete_user(
             UserPoolId=COGNTIO_USER_POOL_ID, Username=username
         )
 
-    def enable_user(self, username):
+    def enable_user(self, username: str):
         """Enable user in cognito."""
         return self.client.admin_enable_user(
             UserPoolId=COGNTIO_USER_POOL_ID, Username=username
         )
 
-    def confirm_user(self, username):
+    def confirm_user(self, username: str):
         """Confirm user in cognito."""
         return self.client.admin_confirm_sign_up(
             UserPoolId=COGNTIO_USER_POOL_ID, Username=username
         )
 
-    def add_admin_user(self, username):
+    def add_admin_user(self, username: str):
         """Add user to admin group."""
         return self.client.admin_add_user_to_group(
             UserPoolId=COGNTIO_USER_POOL_ID,
@@ -97,7 +97,7 @@ class Cognito(AWS):
             GroupName=COGNITO_ADMIN_GROUP,
         )
 
-    def remove_admin_user(self, username):
+    def remove_admin_user(self, username: str):
         """Remove user from admin group."""
         return self.client.admin_remove_user_from_group(
             UserPoolId=COGNTIO_USER_POOL_ID,
@@ -105,7 +105,7 @@ class Cognito(AWS):
             GroupName=COGNITO_ADMIN_GROUP,
         )
 
-    def sign_up(self, username, password, email):
+    def sign_up(self, username: str, password: str, email: str):
         """Sign up user in domain manager."""
         return self.client.sign_up(
             ClientId=COGNITO_CLIENT_ID,
@@ -114,7 +114,7 @@ class Cognito(AWS):
             UserAttributes=[{"Name": "email", "Value": email}],
         )
 
-    def authenticate(self, username, password):
+    def authenticate(self, username: str, password: str):
         """Authenticate user."""
         return self.client.admin_initiate_auth(
             UserPoolId=COGNTIO_USER_POOL_ID,
@@ -137,6 +137,23 @@ class Cognito(AWS):
             ClientId=COGNITO_CLIENT_ID,
             AuthFlow="REFRESH_TOKEN_AUTH",
             AuthParameters={"REFRESH_TOKEN": token},
+        )
+
+    def confirm_forgot_password(
+        self, username: str, confirmation_code: str, password: str
+    ):
+        """Prompt a user to enter a confirmation code to reset a forgotten password."""
+        return self.client.confirm_forgot_password(
+            ClientId=COGNITO_CLIENT_ID,
+            Username=username,
+            ConfirmationCode=confirmation_code,
+            password=password,
+        )
+
+    def reset_password(self, username: str):
+        """Reset password resets the specified user's password."""
+        return self.client.admin_reset_user_password(
+            UserPoolId=COGNTIO_USER_POOL_ID, Username=username
         )
 
 
