@@ -87,6 +87,33 @@ class SignInView(MethodView):
         )
 
 
+class ResetPasswordView(MethodView):
+    """Reset User Password."""
+
+    def post(self):
+        """Enter a New Password and Email Confirmation Code."""
+        post_data = request.json
+        try:
+            cognito.confirm_forgot_password(
+                username=post_data["username"],
+                confirmation_code=post_data["confirmation_code"],
+                password=post_data["password"],
+            )
+        except botocore.exceptions.ClientError as e:
+            logger.exception(e)
+            return e.response["Error"]["Message"], 400
+        return jsonify({"success": "User password has been reset."}), 200
+
+    def get(self, username):
+        """Trigger a Password Reset."""
+        try:
+            cognito.reset_password(username=username)
+        except botocore.exceptions.ClientError as e:
+            logger.exception(e)
+            return e.response["Error"]["Message"], 400
+        return jsonify({"success": "An email with a reset code has been sent."}), 200
+
+
 class RefreshTokenView(MethodView):
     """Refresh User Token."""
 
