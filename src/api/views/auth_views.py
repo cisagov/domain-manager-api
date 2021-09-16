@@ -52,6 +52,8 @@ class RegisterView(MethodView):
             )
             email.send()
 
+            cognito.auto_verify_user_email(username=username)
+
             return jsonify(success=True), 200
         except botocore.exceptions.ClientError as e:
             logger.exception(e)

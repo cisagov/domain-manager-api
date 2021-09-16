@@ -139,6 +139,14 @@ class Cognito(AWS):
             AuthParameters={"REFRESH_TOKEN": token},
         )
 
+    def auto_verify_user_email(self, username: str):
+        """Auto verify user email."""
+        return self.client.admin_update_user_attributes(
+            UserPoolId=COGNTIO_USER_POOL_ID,
+            Username=username,
+            UserAttributes=[{"Name": "email_verified", "Value": "true"}],
+        )
+
     def confirm_forgot_password(
         self, username: str, confirmation_code: str, password: str
     ):
