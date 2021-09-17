@@ -90,23 +90,6 @@ class SignInView(MethodView):
         )
 
 
-class ConfirmSignUpView(MethodView):
-    """Confirm Email Sign Up View."""
-
-    def get(self, username):
-        """Resend email with a new confirmation code."""
-        user = user_manager.get(filter_data={"Username": username})
-        if not user:
-            return jsonify({"error": "User does not exist."}), 400
-
-        try:
-            cognito.resend_confirmation_code(username=username)
-        except botocore.exceptions.ClientError as e:
-            logger.exception(e)
-            return e.response["Error"]["Message"], 400
-        return jsonify({"success": "Confirmation email has been resent."}), 200
-
-
 class ResetPasswordView(MethodView):
     """Reset User Password."""
 

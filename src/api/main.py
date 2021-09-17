@@ -19,7 +19,6 @@ from api.views.application_views import (
     ApplicationView,
 )
 from api.views.auth_views import (
-    ConfirmSignUpView,
     RefreshTokenView,
     RegisterView,
     ResetPasswordView,
@@ -102,7 +101,6 @@ rules = [
 
 login_rules = [
     ("/auth/applications/", ApplicationsViewNoAuth),
-    ("/auth/confirm/<username>/", ConfirmSignUpView),
     ("/auth/register/", RegisterView),
     ("/auth/resetpassword/<username>/", ResetPasswordView),
     ("/auth/signin/", SignInView),
