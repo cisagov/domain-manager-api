@@ -65,7 +65,11 @@ def get_emails_from_users(users):
     """Get emails from a list of users from cognito or database."""
     emails = []
     for user in users:
-        email = get_email_from_user(user)
+        if user.get("Email"):
+            email = user["Email"]
+        else:
+            email = get_email_from_user(user)
+
         if email:
             emails.append(email)
     return emails

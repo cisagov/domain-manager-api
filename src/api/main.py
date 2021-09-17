@@ -18,7 +18,13 @@ from api.views.application_views import (
     ApplicationsViewNoAuth,
     ApplicationView,
 )
-from api.views.auth_views import RefreshTokenView, RegisterView, SignInView
+from api.views.auth_views import (
+    ConfirmSignUpView,
+    RefreshTokenView,
+    RegisterView,
+    ResetPasswordView,
+    SignInView,
+)
 from api.views.category_views import (
     CategoriesView,
     CategorizationsView,
@@ -96,7 +102,9 @@ rules = [
 
 login_rules = [
     ("/auth/applications/", ApplicationsViewNoAuth),
+    ("/auth/confirm/<username>/", ConfirmSignUpView),
     ("/auth/register/", RegisterView),
+    ("/auth/resetpassword/<username>/", ResetPasswordView),
     ("/auth/signin/", SignInView),
     ("/auth/refreshtoken/", RefreshTokenView),
 ]

@@ -33,6 +33,7 @@ class RegisterView(MethodView):
             g.username = "Registration"
             cognito.sign_up(username, password, email)
             user = cognito.get_user(username)
+            user["Email"] = email
             user["Groups"] = []
             user["Groups"].append(
                 {
@@ -51,7 +52,9 @@ class RegisterView(MethodView):
             )
             email.send()
 
-            return jsonify(success=True)
+            cognito.auto_verify_user_email(username=username)
+
+            return jsonify(success=True), 200
         except botocore.exceptions.ClientError as e:
             logger.exception(e)
             return e.response["Error"]["Message"], 400
@@ -85,6 +88,88 @@ class SignInView(MethodView):
                 "username": username,
             }
         )
+
+
+class ConfirmSignUpView(MethodView):
+    """Confirm Email Sign Up View."""
+
+    def post(self, username):
+        """Confirm registration email of a new user."""
+        post_data = request.json
+
+        user = user_manager.get(filter_data={"Username": username})
+        if not user:
+            return jsonify({"error": "User does not exist."}), 400
+
+        try:
+            cognito.confirm_signup(
+                username=username,
+                confirmation_code=post_data["confirmation_code"],
+            )
+        except botocore.exceptions.ClientError as e:
+            logger.exception(e)
+            return e.response["Error"]["Message"], 400
+        user_manager.update(document_id=user["_id"], data={"UserStatus": "CONFIRMED"})
+
+        email = Notification(
+            message_type="user_confirmed",
+            context={
+                "Username": user["Username"],
+                "UserEmail": user["Email"],
+            },
+        )
+        email.send()
+
+        return jsonify({"success": "User email has been confirmed."}), 200
+
+    def get(self, username):
+        """Resend email with a new confirmation code."""
+        user = user_manager.get(filter_data={"Username": username})
+        if not user:
+            return jsonify({"error": "User does not exist."}), 400
+
+        try:
+            cognito.resend_confirmation_code(username=username)
+        except botocore.exceptions.ClientError as e:
+            logger.exception(e)
+            return e.response["Error"]["Message"], 400
+        return jsonify({"success": "Confirmation email has been resent."}), 200
+
+
+class ResetPasswordView(MethodView):
+    """Reset User Password."""
+
+    def post(self, username):
+        """Enter a New Password and Email Confirmation Code."""
+        post_data = request.json
+
+        user = user_manager.get(filter_data={"Username": username})
+        if not user:
+            return jsonify({"error": "User does not exist."}), 400
+
+        try:
+            cognito.confirm_forgot_password(
+                username=username,
+                confirmation_code=post_data["confirmation_code"],
+                password=post_data["password"],
+            )
+        except botocore.exceptions.ClientError as e:
+            logger.exception(e)
+            return e.response["Error"]["Message"], 400
+        return jsonify({"success": "User password has been reset."}), 200
+
+    def get(self, username):
+        """Trigger a Password Reset."""
+        user = user_manager.get(filter_data={"Username": username})
+        if not user:
+            return jsonify({"error": "User does not exist."}), 400
+
+        try:
+            cognito.reset_password(username=username)
+        except botocore.exceptions.ClientError as e:
+            logger.exception(e)
+            return e.response["Error"]["Message"], 400
+        return jsonify({"success": "An email with a reset code has been sent."}), 200
 
 
 class RefreshTokenView(MethodView):
