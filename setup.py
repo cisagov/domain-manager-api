@@ -93,7 +93,6 @@ setup(
         "attrs>=20.3.0",
         "backcall>=0.2.0",
         "bcrypt>=3.2.0",
-        "beautifulsoup4>=4.9.1",
         "boto3>=1.14.39",
         "botocore>=1.17.63",
         "certifi>=2020.12.5",
