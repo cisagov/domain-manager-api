@@ -80,6 +80,16 @@ class Notification:
                     "emails/user_confirmed.html", **context
                 ),
             },
+            "categorization_request": {
+                "send_to": "CategorizationEmail",
+                "subject": "[Domain Manager] Categorization Request",
+                "text_content": render_template_string(
+                    "emails/categorization_request.html", **context
+                ),
+                "html_content": render_template(
+                    "emails/categorization_request.html", **context
+                ),
+            },
         }.get(message_type)
 
     def get_to_addresses(self, content):
@@ -105,7 +115,8 @@ class Notification:
             addresses.append(email)
         elif content["send_to"] == "ForwardEmail":
             addresses.append(settings.to_dict()["SES_FORWARD_EMAIL"])
-
+        elif content["send_to"] == "CategorizationEmail":
+            addresses.append(settings.to_dict()["CATEGORIZATION_EMAIL"])
         return addresses
 
     def send(self):

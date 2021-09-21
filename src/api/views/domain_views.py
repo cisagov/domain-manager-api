@@ -35,6 +35,7 @@ from utils.categorization.categorize import (
     put_proxy_status,
 )
 from utils.decorators.auth import can_access_domain
+from utils.notifications import Notification
 from utils.users import get_users_group_ids
 from utils.validator import validate_data
 
@@ -531,6 +532,13 @@ class DomainCategorizeView(MethodView):
         resp, status_code = post_categorize_request(
             domain_id=domain_id, domain_name=domain["name"], requested_category=category
         )
+
+        email = Notification(
+            message_type="categorization_request",
+            context={"domain_name": domain["name"]},
+        )
+        email.send()
+
         return jsonify(resp), status_code
 
     def put(self, domain_id):
