@@ -33,3 +33,4 @@ class SettingsPostSchema(Schema):
 
     SES_FORWARD_EMAIL = fields.Email(allow_none=True)
     USER_NOTIFICATION_EMAIL = fields.Email(allow_none=True)
+    CATEGORIZATION_EMAIL = fields.Email(allow_none=True)
