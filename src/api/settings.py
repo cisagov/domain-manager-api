@@ -10,6 +10,7 @@ class Settings:
 
     SES_FORWARD_EMAIL = None
     USER_NOTIFICATION_EMAIL = None
+    CATEGORIZATION_EMAIL = None
 
     def __init__(self) -> None:
         """Init."""
@@ -41,4 +42,5 @@ class Settings:
         return {
             "SES_FORWARD_EMAIL": self.SES_FORWARD_EMAIL,
             "USER_NOTIFICATION_EMAIL": self.USER_NOTIFICATION_EMAIL,
+            "CATEGORIZATION_EMAIL": self.CATEGORIZATION_EMAIL,
         }
