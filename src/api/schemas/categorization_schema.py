@@ -14,7 +14,9 @@ class CategorizationSchema(BaseSchema):
     domain_name = fields.Str()
     proxy = fields.Str()
     status = fields.Str(
-        validate=validate.OneOf(["new", "submitted", "verified", "rejected"])
+        validate=validate.OneOf(
+            ["new", "recategorize", "submitted", "verified", "burned"]
+        )
     )
     category = fields.Str(
         validate=validate.OneOf([category for category in CATEGORIES])
