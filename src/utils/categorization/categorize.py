@@ -3,6 +3,7 @@
 from api.manager import CategorizationManager, DomainManager
 from api.schemas.categorization_schema import CategorizationSchema
 from utils.categorization import PROXIES
+from utils.notifications import Notification
 from utils.validator import validate_data
 
 categorization_manager = CategorizationManager()
@@ -37,6 +38,12 @@ def post_categorize_request(domain_id: str, domain_name: str, requested_category
     ]
     post_data = validate_data(categories_data, CategorizationSchema, many=True)
     categorization_manager.save_many(post_data)
+
+    email = Notification(
+        message_type="categorization_request",
+        context={"domain_name": domain_name},
+    )
+    email.send()
 
     return {"success": "categorization request has been submitted"}, 200
 
