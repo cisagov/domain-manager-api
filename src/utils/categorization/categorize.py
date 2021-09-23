@@ -41,11 +41,15 @@ def post_categorize_request(domain_id: str, domain_name: str, requested_category
     return {"success": "categorization request has been submitted"}, 200
 
 
-def put_proxy_status(domain_id: str, proxy_name: str, status: str):
+def put_proxy_status(domain_id: str, status: str, category: str):
     """Update proxy status for a domain."""
-    proxy = categorization_manager.get(
-        filter_data={"domain_id": domain_id, "proxy": proxy_name}, fields=["_id"]
+    proxies = categorization_manager.all(
+        params={"domain_id": domain_id}, fields=["_id"]
     )
-    categorization_manager.update(document_id=proxy["_id"], data={"status": status})
+
+    for proxy in proxies:
+        categorization_manager.update(
+            document_id=proxy["_id"], data={"status": status, "category": category}
+        )
 
     return {"success": "proxy status has been updated"}, 200

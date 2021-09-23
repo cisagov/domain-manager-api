@@ -557,13 +557,13 @@ class DomainCategorizeView(MethodView):
         if not status:
             return jsonify({"error": "Please specify a proxy status"}), 406
 
-        proxy_name = request.json.get("proxy")
+        category = request.json.get("category")
 
-        if not proxy_name:
-            return jsonify({"error": "Please specify a proxy name"}), 406
+        if not category:
+            return jsonify({"error": "Please specify a category"}), 406
 
         resp, status_code = put_proxy_status(
-            domain_id=domain_id, proxy_name=proxy_name, status=status
+            domain_id=domain_id, status=status, category=category
         )
 
         return jsonify(resp), status_code
