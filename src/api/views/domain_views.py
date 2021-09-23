@@ -17,7 +17,13 @@ import requests
 
 # cisagov Libraries
 from api.config import STATIC_GEN_URL, WEBSITE_BUCKET, logger
-from api.manager import ApplicationManager, DomainManager, EmailManager, TemplateManager
+from api.manager import (
+    ApplicationManager,
+    CategorizationManager,
+    DomainManager,
+    EmailManager,
+    TemplateManager,
+)
 from api.schemas.domain_schema import DomainSchema, Record
 from utils.apex_records import contains_apex_record, is_apex_record
 from utils.aws import record_handler
@@ -39,6 +45,7 @@ from utils.notifications import Notification
 from utils.users import get_users_group_ids
 from utils.validator import validate_data
 
+categorization_manager = CategorizationManager()
 domain_manager = DomainManager()
 template_manager = TemplateManager()
 email_manager = EmailManager()
@@ -190,6 +197,8 @@ class DomainView(MethodView):
                 logger.info("Hosted zone doesn't exist.")
             else:
                 raise e
+
+        categorization_manager.delete(params={"domain_id": domain["_id"]})
 
         return jsonify(domain_manager.delete(domain["_id"]))
 
