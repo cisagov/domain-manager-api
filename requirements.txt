@@ -19,7 +19,7 @@ dnspython==2.1.0
 docutils==0.17.1
 ecdsa==0.17.0
 Faker==8.12.1
-filelock==3.0.12
+filelock==3.1.0
 Flask==2.0.1
 Flask-Cors==3.0.10
 gunicorn==20.1.0
