@@ -3,6 +3,7 @@
 from datetime import date
 
 # Third-Party Libraries
+from apscheduler.schedulers.background import BackgroundScheduler
 from flask import Flask, g, render_template, request
 from flask.json import JSONEncoder
 from flask_cors import CORS
@@ -135,6 +136,11 @@ for rule in admin_rules:
         rule[1].decorators = []
     rule[1].decorators.extend([auth_admin_required, auth_required])
     app.add_url_rule(url, view_func=rule[1].as_view(url))
+
+
+# AP Scheduler
+sched = BackgroundScheduler()
+sched.start()
 
 
 class CustomJSONEncoder(JSONEncoder):

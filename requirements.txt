@@ -1,6 +1,7 @@
 2captcha-python==1.0.3
 appdirs==1.4.4
 appnope==0.1.2
+APScheduler==3.8.0
 attrs==21.2.0
 backcall==0.2.0
 bcrypt==3.2.0
