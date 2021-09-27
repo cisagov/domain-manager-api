@@ -8,7 +8,7 @@ import logging
 from botocore.exceptions import ClientError
 
 # cisagov Libraries
-from api.main import app
+from api.app import app
 from api.manager import DomainManager, EmailManager
 from utils.notifications import Notification
 

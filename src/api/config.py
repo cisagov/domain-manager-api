@@ -5,6 +5,7 @@ import logging
 import os
 
 # Third-Party Libraries
+from apscheduler.triggers.cron import CronTrigger
 import mongomock
 
 from .db import get_db
@@ -37,6 +38,11 @@ COGNITO_DEFAULT_ADMIN = bool(int(os.environ.get("AWS_DEFAULT_USER_TO_ADMIN", 0))
 COGNITO_ADMIN_GROUP = os.environ.get("AWS_COGNITO_ADMIN_GROUP_NAME")
 COGNITO_CLIENT_ID = os.environ.get("AWS_COGNITO_USER_POOL_CLIENT_ID")
 COGNTIO_USER_POOL_ID = os.environ.get("AWS_COGNITO_USER_POOL_ID")
+
+# scheduler
+EMAIL_SCHEDULE = CronTrigger(
+    day_of_week="mon-fri", hour="*", minute="*", timezone="America/New_York"
+)
 
 # static gen
 STATIC_GEN_URL = os.environ.get("STATIC_GEN_URL")
