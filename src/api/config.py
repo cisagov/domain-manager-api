@@ -56,3 +56,7 @@ else:
 DEPLOYED_DATE = os.environ.get("DEPLOYED_DATE")
 API_COMMIT_ID = os.environ.get("API_COMMIT_ID")
 UI_COMMIT_ID = os.environ.get("UI_COMMIT_ID")
+
+# https://bandit.readthedocs.io/en/latest/plugins/b104_hardcoded_bind_all_interfaces.html
+API_HOST = os.environ.get("API_HOST", "0.0.0.0")  # nosec
+API_PORT = os.environ.get("API_PORT", 5000)
