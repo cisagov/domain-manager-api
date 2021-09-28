@@ -137,11 +137,7 @@ for rule in admin_rules:
 
 # AP Scheduler
 sched = BackgroundScheduler()
-sched.add_job(
-    email_categorization_updates,
-    trigger=EMAIL_SCHEDULE,
-    max_instances=3,
-)
+sched.add_job(email_categorization_updates, trigger=EMAIL_SCHEDULE)
 sched.start()
 
 
