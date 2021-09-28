@@ -3,6 +3,7 @@
 from api.manager import CategorizationManager, DomainManager
 from api.schemas.categorization_schema import CategorizationSchema
 from utils.categorization import PROXIES
+from utils.notifications import Notification
 from utils.validator import validate_data
 
 categorization_manager = CategorizationManager()
@@ -38,14 +39,24 @@ def post_categorize_request(domain_id: str, domain_name: str, requested_category
     post_data = validate_data(categories_data, CategorizationSchema, many=True)
     categorization_manager.save_many(post_data)
 
+    email = Notification(
+        message_type="categorization_request",
+        context={"domain_name": domain_name},
+    )
+    email.send()
+
     return {"success": "categorization request has been submitted"}, 200
 
 
-def put_proxy_status(domain_id: str, proxy_name: str, status: str):
+def put_proxy_status(domain_id: str, status: str, category: str):
     """Update proxy status for a domain."""
-    proxy = categorization_manager.get(
-        filter_data={"domain_id": domain_id, "proxy": proxy_name}, fields=["_id"]
+    proxies = categorization_manager.all(
+        params={"domain_id": domain_id}, fields=["_id"]
     )
-    categorization_manager.update(document_id=proxy["_id"], data={"status": status})
+
+    for proxy in proxies:
+        categorization_manager.update(
+            document_id=proxy["_id"], data={"status": status, "category": category}
+        )
 
     return {"success": "proxy status has been updated"}, 200

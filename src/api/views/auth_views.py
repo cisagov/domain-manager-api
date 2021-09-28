@@ -33,6 +33,7 @@ class RegisterView(MethodView):
             g.username = "Registration"
             cognito.sign_up(username, password, email)
             user = cognito.get_user(username)
+            user["Email"] = email
             user["Groups"] = []
             user["Groups"].append(
                 {
@@ -51,7 +52,9 @@ class RegisterView(MethodView):
             )
             email.send()
 
-            return jsonify(success=True)
+            cognito.auto_verify_user_email(username=username)
+
+            return jsonify(success=True), 200
         except botocore.exceptions.ClientError as e:
             logger.exception(e)
             return e.response["Error"]["Message"], 400
@@ -85,6 +88,46 @@ class SignInView(MethodView):
                 "username": username,
             }
         )
+
+
+class ResetPasswordView(MethodView):
+    """Reset User Password."""
+
+    def post(self, username):
+        """Enter a New Password and Email Confirmation Code."""
+        post_data = request.json
+
+        user = user_manager.get(filter_data={"Username": username})
+        if not user:
+            return jsonify({"error": "User does not exist."}), 400
+
+        try:
+            cognito.confirm_forgot_password(
+                username=username,
+                confirmation_code=post_data["confirmation_code"],
+                password=post_data["password"],
+            )
+        except botocore.exceptions.ClientError as e:
+            logger.exception(e)
+            return e.response["Error"]["Message"], 400
+        return jsonify({"success": "User password has been reset."}), 200
+
+    def get(self, username):
+        """Trigger a Password Reset."""
+        user = user_manager.get(filter_data={"Username": username})
+        if not user:
+            return jsonify({"error": "User does not exist."}), 400
+
+        try:
+            cognito.reset_password(username=username)
+        except botocore.exceptions.ClientError as e:
+            logger.exception(e)
+            try:
+                cognito.auto_verify_user_email(username=username)
+                cognito.reset_password(username=username)
+            except botocore.exceptions.ClientError as e:
+                return e.response["Error"]["Message"], 400
+        return jsonify({"success": "An email with a reset code has been sent."}), 200
 
 
 class RefreshTokenView(MethodView):

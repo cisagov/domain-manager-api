@@ -5,6 +5,7 @@ import logging
 import os
 
 # Third-Party Libraries
+from apscheduler.triggers.cron import CronTrigger
 import mongomock
 
 from .db import get_db
@@ -38,6 +39,11 @@ COGNITO_ADMIN_GROUP = os.environ.get("AWS_COGNITO_ADMIN_GROUP_NAME")
 COGNITO_CLIENT_ID = os.environ.get("AWS_COGNITO_USER_POOL_CLIENT_ID")
 COGNTIO_USER_POOL_ID = os.environ.get("AWS_COGNITO_USER_POOL_ID")
 
+# scheduler
+EMAIL_SCHEDULE = CronTrigger(
+    day_of_week="mon-fri", hour=9, minute=30, timezone="America/New_York"
+)
+
 # static gen
 STATIC_GEN_URL = os.environ.get("STATIC_GEN_URL")
 
@@ -50,3 +56,7 @@ else:
 DEPLOYED_DATE = os.environ.get("DEPLOYED_DATE")
 API_COMMIT_ID = os.environ.get("API_COMMIT_ID")
 UI_COMMIT_ID = os.environ.get("UI_COMMIT_ID")
+
+# https://bandit.readthedocs.io/en/latest/plugins/b104_hardcoded_bind_all_interfaces.html
+API_HOST = os.environ.get("API_HOST", "0.0.0.0")  # nosec
+API_PORT = os.environ.get("API_PORT", 5000)

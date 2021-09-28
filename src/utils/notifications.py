@@ -36,7 +36,7 @@ class Notification:
         return {
             "email_received": {
                 "send_to": "ForwardEmail",
-                "subject": f"[Domain Manager] FW: {context['subject']}",
+                "subject": f"[Domain Manager] FW: {context.get('subject', '')}",
                 "text_content": render_template_string(
                     "emails/email_received.html", **context
                 ),
@@ -80,6 +80,26 @@ class Notification:
                     "emails/user_confirmed.html", **context
                 ),
             },
+            "categorization_request": {
+                "send_to": "CategorizationEmail",
+                "subject": "[Domain Manager] Categorization Request",
+                "text_content": render_template_string(
+                    "emails/categorization_request.html", **context
+                ),
+                "html_content": render_template(
+                    "emails/categorization_request.html", **context
+                ),
+            },
+            "categorization_updates": {
+                "send_to": "CategorizationEmail",
+                "subject": "[Domain Manager] Categorization Updates",
+                "text_content": render_template_string(
+                    "emails/categorization_updates.html", **context
+                ),
+                "html_content": render_template(
+                    "emails/categorization_updates.html", **context
+                ),
+            },
         }.get(message_type)
 
     def get_to_addresses(self, content):
@@ -101,12 +121,12 @@ class Notification:
         elif content["send_to"] == "UserRegistered":
             addresses.append(settings.to_dict()["USER_NOTIFICATION_EMAIL"])
         elif content["send_to"] == "Specified":
-            email = self.context["UserEmail"]
+            email = self.context.get("UserEmail", "")
             addresses.append(email)
         elif content["send_to"] == "ForwardEmail":
-            settings.load()
             addresses.append(settings.to_dict()["SES_FORWARD_EMAIL"])
-
+        elif content["send_to"] == "CategorizationEmail":
+            addresses.append(settings.to_dict()["CATEGORIZATION_EMAIL"])
         return addresses
 
     def send(self):
@@ -119,10 +139,11 @@ class Notification:
         addresses = self.get_to_addresses(content)
 
         logger.info(f"Sending template {self.message_type} to {addresses}")
-        return ses.send_email(
-            source=SMTP_FROM,
-            to=addresses,
-            subject=content["subject"],
-            text=content["text_content"],
-            html=content["html_content"],
-        )
+        if len(addresses) > 0 and addresses[0] is not None:
+            return ses.send_email(
+                source=SMTP_FROM,
+                to=addresses,
+                subject=content["subject"],
+                text=content["text_content"],
+                html=content["html_content"],
+            )

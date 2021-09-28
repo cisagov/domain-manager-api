@@ -17,7 +17,6 @@ class SettingsView(MethodView):
 
     def get(self):
         """Get settings from database."""
-        settings.load()
         return jsonify(settings.to_dict())
 
     def put(self):

@@ -17,6 +17,7 @@ class UserSchema(BaseSchema):
         unknown = EXCLUDE
 
     Attributes = fields.List(fields.Dict())
+    Email = fields.Email()
     Enabled = fields.Boolean()
     UserCreateDate = DateTimeField(allow_none=True)
     UserLastModifiedDate = DateTimeField()

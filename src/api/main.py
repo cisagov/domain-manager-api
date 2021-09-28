@@ -3,14 +3,16 @@
 from datetime import date
 
 # Third-Party Libraries
-from flask import Flask, g, render_template, request
+from apscheduler.schedulers.background import BackgroundScheduler
+from flask import g, render_template, request
 from flask.json import JSONEncoder
-from flask_cors import CORS
-import requests  # type: ignore
+import requests # type: ignore
 
 # cisagov Libraries
-from api.config import STATIC_GEN_URL, logger
+from api.app import app
+from api.config import EMAIL_SCHEDULE, STATIC_GEN_URL, logger
 from api.manager import LogManager
+from api.tasks import email_categorization_updates
 from api.views.about_views import AboutView
 from api.views.application_views import (
     ApplicationBulkDomainView,
@@ -18,7 +20,12 @@ from api.views.application_views import (
     ApplicationsViewNoAuth,
     ApplicationView,
 )
-from api.views.auth_views import RefreshTokenView, RegisterView, SignInView
+from api.views.auth_views import (
+    RefreshTokenView,
+    RegisterView,
+    ResetPasswordView,
+    SignInView,
+)
 from api.views.category_views import (
     CategoriesView,
     CategorizationsView,
@@ -58,10 +65,6 @@ from api.views.user_views import (
 )
 from utils.decorators.auth import auth_admin_required, auth_required
 
-app = Flask(__name__, template_folder="templates")
-app.url_map.strict_slashes = False
-CORS(app)
-
 # register apps
 url_prefix = "/api"
 
@@ -97,6 +100,7 @@ rules = [
 login_rules = [
     ("/auth/applications/", ApplicationsViewNoAuth),
     ("/auth/register/", RegisterView),
+    ("/auth/resetpassword/<username>/", ResetPasswordView),
     ("/auth/signin/", SignInView),
     ("/auth/refreshtoken/", RefreshTokenView),
 ]
@@ -130,6 +134,12 @@ for rule in admin_rules:
         rule[1].decorators = []  # type: ignore
     rule[1].decorators.extend([auth_admin_required, auth_required])  # type: ignore
     app.add_url_rule(url, view_func=rule[1].as_view(url))  # type: ignore
+
+
+# AP Scheduler
+sched = BackgroundScheduler()
+sched.add_job(email_categorization_updates, trigger=EMAIL_SCHEDULE)
+sched.start()
 
 
 class CustomJSONEncoder(JSONEncoder):

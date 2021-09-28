@@ -17,7 +17,13 @@ import requests  # type: ignore
 
 # cisagov Libraries
 from api.config import STATIC_GEN_URL, WEBSITE_BUCKET, logger
-from api.manager import ApplicationManager, DomainManager, EmailManager, TemplateManager
+from api.manager import (
+    ApplicationManager,
+    CategorizationManager,
+    DomainManager,
+    EmailManager,
+    TemplateManager,
+)
 from api.schemas.domain_schema import DomainSchema, Record
 from utils.apex_records import contains_apex_record, is_apex_record
 from utils.aws import record_handler
@@ -38,6 +44,7 @@ from utils.decorators.auth import can_access_domain
 from utils.users import get_users_group_ids
 from utils.validator import validate_data
 
+categorization_manager = CategorizationManager()
 domain_manager = DomainManager()
 template_manager = TemplateManager()
 email_manager = EmailManager()
@@ -189,6 +196,8 @@ class DomainView(MethodView):
                 logger.info("Hosted zone doesn't exist.")
             else:
                 raise e
+
+        categorization_manager.delete(params={"domain_id": domain["_id"]})
 
         return jsonify(domain_manager.delete(domain["_id"]))
 
@@ -531,6 +540,7 @@ class DomainCategorizeView(MethodView):
         resp, status_code = post_categorize_request(
             domain_id=domain_id, domain_name=domain["name"], requested_category=category
         )
+
         return jsonify(resp), status_code
 
     def put(self, domain_id):
@@ -540,13 +550,13 @@ class DomainCategorizeView(MethodView):
         if not status:
             return jsonify({"error": "Please specify a proxy status"}), 406
 
-        proxy_name = request.json.get("proxy")
+        category = request.json.get("category")
 
-        if not proxy_name:
-            return jsonify({"error": "Please specify a proxy name"}), 406
+        if not category:
+            return jsonify({"error": "Please specify a category"}), 406
 
         resp, status_code = put_proxy_status(
-            domain_id=domain_id, proxy_name=proxy_name, status=status
+            domain_id=domain_id, status=status, category=category
         )
 
         return jsonify(resp), status_code

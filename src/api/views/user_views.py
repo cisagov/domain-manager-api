@@ -158,11 +158,16 @@ class UserConfirmView(MethodView):
             user_manager.update(document_id=user["_id"], data=user)
             cog_user = cognito.get_user(username)
 
+            if user.get("Email"):
+                user_email = user["Email"]
+            else:
+                user_email = get_email_from_user(cog_user)
+
             email = Notification(
                 message_type="user_confirmed",
                 context={
                     "Username": user["Username"],
-                    "UserEmail": get_email_from_user(cog_user),
+                    "UserEmail": user_email,
                 },
             )
             email.send()
