@@ -31,7 +31,7 @@ def email_categorization_updates():
             if proxy["status"] == "submitted"
         }
     )
-    if verify_domains:
+    if verify_domains or categorize_domains:
         with app.app_context():
             email = Notification(
                 message_type="categorization_updates",
