@@ -3,14 +3,16 @@
 from datetime import date
 
 # Third-Party Libraries
-from flask import Flask, g, render_template, request
+from apscheduler.schedulers.background import BackgroundScheduler
+from flask import g, render_template, request
 from flask.json import JSONEncoder
-from flask_cors import CORS
 import requests
 
 # cisagov Libraries
-from api.config import STATIC_GEN_URL, logger
+from api.app import app
+from api.config import EMAIL_SCHEDULE, STATIC_GEN_URL, logger
 from api.manager import LogManager
+from api.tasks import email_categorization_updates
 from api.views.about_views import AboutView
 from api.views.application_views import (
     ApplicationBulkDomainView,
@@ -62,10 +64,6 @@ from api.views.user_views import (
     UserView,
 )
 from utils.decorators.auth import auth_admin_required, auth_required
-
-app = Flask(__name__, template_folder="templates")
-app.url_map.strict_slashes = False
-CORS(app)
 
 # register apps
 url_prefix = "/api"
@@ -135,6 +133,12 @@ for rule in admin_rules:
         rule[1].decorators = []
     rule[1].decorators.extend([auth_admin_required, auth_required])
     app.add_url_rule(url, view_func=rule[1].as_view(url))
+
+
+# AP Scheduler
+sched = BackgroundScheduler()
+sched.add_job(email_categorization_updates, trigger=EMAIL_SCHEDULE)
+sched.start()
 
 
 class CustomJSONEncoder(JSONEncoder):

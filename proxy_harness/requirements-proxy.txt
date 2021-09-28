@@ -1,0 +1,5 @@
+2captcha-python
+beautifulsoup4
+requests
+selenium
+undetected-chromedriver
