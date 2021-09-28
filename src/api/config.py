@@ -41,7 +41,7 @@ COGNTIO_USER_POOL_ID = os.environ.get("AWS_COGNITO_USER_POOL_ID")
 
 # scheduler
 EMAIL_SCHEDULE = CronTrigger(
-    day_of_week="mon-fri", hour="*", minute="*", timezone="America/New_York"
+    day_of_week="mon-fri", hour=9, minute=30, timezone="America/New_York"
 )
 
 # static gen

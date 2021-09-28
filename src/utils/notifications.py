@@ -90,6 +90,16 @@ class Notification:
                     "emails/categorization_request.html", **context
                 ),
             },
+            "categorization_updates": {
+                "send_to": "CategorizationEmail",
+                "subject": "[Domain Manager] Categorization Updates",
+                "text_content": render_template_string(
+                    "emails/categorization_updates.html", **context
+                ),
+                "html_content": render_template(
+                    "emails/categorization_updates.html", **context
+                ),
+            },
         }.get(message_type)
 
     def get_to_addresses(self, content):

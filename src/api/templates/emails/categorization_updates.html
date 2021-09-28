@@ -1,0 +1,28 @@
+<body>
+  <h2>Domain Manager</h2>
+  <h4>Categorization Request</h4>
+  <p>Hello,</p>
+  {% if categorize_domains|length > 0 %}
+  <p>
+    The following domains have been requested to be categorized on one or more
+    proxy:
+  </p>
+  <ul>
+    {% for domain in categorize_domains %}
+    <li>{{ domain }}</li>
+    {% endfor %}
+  </ul>
+  {% endif %} {% if verify_domains|length > 0 %}
+  <p>The following domains have one or more proxy that needs to be verified:</p>
+  <ul>
+    {% for domain in verify_domains %}
+    <li>{{ domain }}</li>
+    {% endfor %}
+  </ul>
+  {% endif %}
+  <p>
+    Please submit and verify the domains above within the next 24 work hours.
+  </p>
+  <p>Thank you,</p>
+  <p>Domain Manager System</p>
+</body>
