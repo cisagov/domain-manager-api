@@ -12,5 +12,5 @@ then
   python api/wsgi.py
 else
   echo "Serve using WSGI"
-  gunicorn --workers="$WORKERS" --bind=0.0.0.0:5000 --timeout=180 api.wsgi:app
+  gunicorn --workers="$WORKERS" --preload --bind=0.0.0.0:5000 --timeout=180 api.wsgi:app
 fi
