@@ -120,6 +120,7 @@ jobs:
         run: |
           go install \
             github.com/terraform-docs/terraform-docs@${TERRAFORM_DOCS_VERSION}
+<<<<<<< HEAD
       - name: Find and initialize Terraform directories
         run: |
           for path in $(find . -not \( -type d -name ".terraform" -prune \) \
@@ -131,6 +132,8 @@ jobs:
       # tests to run successfully.
       - name: Copy env.dist
         run: cp etc/env.dist .env
+=======
+>>>>>>> 1b5cd2546b1b4df0cf106eaa617c691b91cfa9e6
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
