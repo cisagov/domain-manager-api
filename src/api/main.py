@@ -6,7 +6,7 @@ from datetime import date
 from apscheduler.schedulers.background import BackgroundScheduler
 from flask import g, render_template, request
 from flask.json import JSONEncoder
-import requests
+import requests  # type: ignore
 
 # cisagov Libraries
 from api.app import app
@@ -118,21 +118,21 @@ admin_rules = [
 
 for rule in rules:
     url = f"{url_prefix}{rule[0]}"
-    if not rule[1].decorators:
-        rule[1].decorators = []
-    rule[1].decorators.extend([auth_required])
-    app.add_url_rule(url, view_func=rule[1].as_view(url))
+    if not rule[1].decorators:  # type: ignore
+        rule[1].decorators = []  # type: ignore
+    rule[1].decorators.extend([auth_required])  # type: ignore
+    app.add_url_rule(url, view_func=rule[1].as_view(url))  # type: ignore
 
 for rule in login_rules:
     url = f"{url_prefix}{rule[0]}"
-    app.add_url_rule(url, view_func=rule[1].as_view(url))
+    app.add_url_rule(url, view_func=rule[1].as_view(url))  # type: ignore
 
 for rule in admin_rules:
     url = f"{url_prefix}{rule[0]}"
-    if not rule[1].decorators:
-        rule[1].decorators = []
-    rule[1].decorators.extend([auth_admin_required, auth_required])
-    app.add_url_rule(url, view_func=rule[1].as_view(url))
+    if not rule[1].decorators:  # type: ignore
+        rule[1].decorators = []  # type: ignore
+    rule[1].decorators.extend([auth_admin_required, auth_required])  # type: ignore
+    app.add_url_rule(url, view_func=rule[1].as_view(url))  # type: ignore
 
 
 # AP Scheduler

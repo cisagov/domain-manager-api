@@ -1,10 +1,10 @@
-# Domain Manager API Documentation
+# Domain Manager API Documentation #
 
-## API Reference
+## API Reference ##
 
 [Base URL: - <https://domain-manager.cool.cyber.dhs.gov/api/>]
 
-## Authentication
+## Authentication ##
 
 Domain Manager authenticates your API requests using an API key.
 You must login to the Domain Manager website and generate an API key in your
@@ -24,7 +24,7 @@ code that is committed to a respository or shared with others.
 You can regenerate a new API key in Domain Manager website.
 This will make your current API key obsolete.
 
-## Endpoints
+## Endpoints ##
 
 You can make requests to the following list of API endpoints
 to interact with Domain Manager

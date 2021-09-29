@@ -13,7 +13,7 @@ from botocore.exceptions import ClientError
 from flask import abort, g, jsonify, request, send_file
 from flask.views import MethodView
 from marshmallow.exceptions import ValidationError
-import requests
+import requests  # type: ignore
 
 # cisagov Libraries
 from api.config import STATIC_GEN_URL, WEBSITE_BUCKET, logger

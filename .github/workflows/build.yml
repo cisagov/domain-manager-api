@@ -4,12 +4,13 @@ name: build
 on:
   push:
     branches:
-      - '**'
+      - "**"
     tags:
-      - 'v*.*.*'
+      - "v*.*.*"
   pull_request:
   schedule:
-    - cron: '0 10 * * *'  # everyday at 10am
+    # everyday at 10am
+    - cron: "0 10 * * *"
   repository_dispatch:
     # Respond to rebuild requests. See: https://github.com/cisagov/action-apb/
     types: [apb]
@@ -26,6 +27,7 @@ on:
 
 env:
   BUILDX_CACHE_DIR: ~/.cache/buildx
+  CURL_CACHE_DIR: ~/.cache/curl
   IMAGE_NAME: cisagov/domain-manager-api
   PIP_CACHE_DIR: ~/.cache/pip
   # Disabled linux/arm/v6 for the following errors:
@@ -42,6 +44,7 @@ env:
   # use PEP 517 and cannot be installed directly
   PLATFORMS: "linux/amd64,linux/arm64"
   PRE_COMMIT_CACHE_DIR: ~/.cache/pre-commit
+  RUN_TMATE: ${{ secrets.RUN_TMATE }}
 
 jobs:
   lint:
@@ -50,25 +53,80 @@ jobs:
     name: "Lint sources"
     runs-on: ubuntu-latest
     steps:
+      - uses: cisagov/setup-env-github-action@develop
       - uses: actions/checkout@v2
       - id: setup-python
         uses: actions/setup-python@v2
         with:
           python-version: 3.9
+      # GO_VERSION and GOCACHE are used by the cache task, so the Go
+      # installation must happen before that.
+      - uses: actions/setup-go@v2
+        with:
+          go-version: "1.16"
+      - name: Store installed Go version
+        run: |
+          echo "GO_VERSION="\
+          "$(go version | sed 's/^go version go\([0-9.]\+\) .*/\1/')" \
+          >> $GITHUB_ENV
+      - name: Lookup Go cache directory
+        id: go-cache
+        run: |
+          echo "::set-output name=dir::$(go env GOCACHE)"
       - uses: actions/cache@v2
         env:
           BASE_CACHE_KEY: "${{ github.job }}-${{ runner.os }}-\
-            py${{ steps.setup-python.outputs.python-version }}-"
+            py${{ steps.setup-python.outputs.python-version }}-\
+            go${{ env.GO_VERSION }}-\
+            packer${{ env.PACKER_VERSION }}-\
+            tf${{ env.TERRAFORM_VERSION }}-"
         with:
+          # Note that the .terraform directory IS NOT included in the
+          # cache because if we were caching, then we would need to use
+          # the `-upgrade=true` option. This option blindly pulls down the
+          # latest modules and providers instead of checking to see if an
+          # update is required. That behavior defeats the benefits of caching.
+          # so there is no point in doing it for the .terraform directory.
           path: |
             ${{ env.PIP_CACHE_DIR }}
             ${{ env.PRE_COMMIT_CACHE_DIR }}
+            ${{ env.CURL_CACHE_DIR }}
+            ${{ steps.go-cache.outputs.dir }}
           key: "${{ env.BASE_CACHE_KEY }}\
             ${{ hashFiles('**/requirements-test.txt') }}-\
             ${{ hashFiles('**/requirements.txt') }}-\
             ${{ hashFiles('**/.pre-commit-config.yaml') }}"
           restore-keys: |
             ${{ env.BASE_CACHE_KEY }}
+      - name: Setup curl cache
+        run: mkdir -p ${{ env.CURL_CACHE_DIR }}
+      - name: Install Packer
+        run: |
+          PACKER_ZIP="packer_${PACKER_VERSION}_linux_amd64.zip"
+          curl --output ${{ env.CURL_CACHE_DIR }}/"${PACKER_ZIP}" \
+            --time-cond ${{ env.CURL_CACHE_DIR }}/"${PACKER_ZIP}" \
+            --location \
+            "https://releases.hashicorp.com/packer/${PACKER_VERSION}/${PACKER_ZIP}"
+          sudo unzip -d /opt/packer \
+            ${{ env.CURL_CACHE_DIR }}/"${PACKER_ZIP}"
+          sudo mv /usr/local/bin/packer /usr/local/bin/packer-default
+          sudo ln -s /opt/packer/packer /usr/local/bin/packer
+      - uses: hashicorp/setup-terraform@v1
+        with:
+          terraform_version: ${{ env.TERRAFORM_VERSION }}
+      - name: Install shfmt
+        run: go install mvdan.cc/sh/v3/cmd/shfmt@${SHFMT_VERSION}
+      - name: Install Terraform-docs
+        run: |
+          go install \
+            github.com/terraform-docs/terraform-docs@${TERRAFORM_DOCS_VERSION}
+      - name: Find and initialize Terraform directories
+        run: |
+          for path in $(find . -not \( -type d -name ".terraform" -prune \) \
+            -type f -iname "*.tf" -exec dirname "{}" \; | sort -u); do \
+            echo "Initializing '$path'..."; \
+            terraform init -input=false -backend=false "$path"; \
+            done
       # A .env file is required in the base directory for
       # tests to run successfully.
       - name: Copy env.dist
@@ -81,7 +139,9 @@ jobs:
         run: pre-commit install-hooks
       - name: Run pre-commit on all files
         run: pre-commit run --all-files
-
+      - name: Setup tmate debug session
+        uses: mxschmitt/action-tmate@v3
+        if: env.RUN_TMATE
   prepare:
     # Calculates and publishes outputs that are used by other jobs.
     #
@@ -94,13 +154,13 @@ jobs:
     #     The source version as reported by the `bump_version.sh show` command.
     #   tags:
     #     A comma separated list of Docker tags to be applied to the images on
-    #     DockerHub.  The tags will vary depending on:
+    #     Docker Hub.  The tags will vary depending on:
     #     - The event that triggered the build.
     #     - The branch the build is based upon.
     #     - The git tag the build is based upon.
     #
     #     When a build is based on a git tag of the form `v*.*.*` the image will
-    #     be tagged on DockerHub with multiple levels of version specificity.
+    #     be tagged on Docker Hub with multiple levels of version specificity.
     #     For example, a git tag of `v1.2.3+a` will generate Docker tags of
     #     `:1.2.3_a`, `:1.2.3`, `:1.2`, `:1`, and `:latest`.
     #
@@ -171,14 +231,17 @@ jobs:
           if [ "${{ github.event_name }}" = "push" ]; then
             TAGS="${TAGS},${IMAGE_NAME}:sha-${GITHUB_SHA::8}"
           fi
+          for i in ${TAGS//,/ }
+          do
+            TAGS="${TAGS},ghcr.io/${i}"
+          done
           echo ::set-output name=created::$(date -u +'%Y-%m-%dT%H:%M:%SZ')
           echo ::set-output name=source_version::$(./bump_version.sh show)
           echo ::set-output name=tags::${TAGS}
           echo tags=${TAGS}
-      - name: Setup debug session remote shell
+      - name: Setup tmate debug session
         uses: mxschmitt/action-tmate@v3
-        if: github.event.inputs.remote-shell == 'true'
-
+        if: github.event.inputs.remote-shell == 'true' || env.RUN_TMATE
   build:
     # Builds a single test image for the native platform.  This image is saved
     # as an artifact and loaded by the test job.
@@ -214,32 +277,33 @@ jobs:
           context: .
           file: ./Dockerfile
           outputs: type=docker,dest=dist/image.tar
-          tags: ${{ env.IMAGE_NAME }}:latest  # not to be pushed
+          # not to be pushed
+          tags: ${{ env.IMAGE_NAME }}:latest
           # For a list of pre-defined annotation keys and value types see:
           # https://github.com/opencontainers/image-spec/blob/master/annotations.md
           labels: "\
             org.opencontainers.image.created=${{
-              needs.prepare.outputs.created }}
+            needs.prepare.outputs.created }}
 
             org.opencontainers.image.description=${{
-              fromJson(needs.prepare.outputs.repometa).description }}
+            fromJson(needs.prepare.outputs.repometa).description }}
 
             org.opencontainers.image.licenses=${{
-              fromJson(needs.prepare.outputs.repometa).license.spdx_id }}
+            fromJson(needs.prepare.outputs.repometa).license.spdx_id }}
 
             org.opencontainers.image.revision=${{ github.sha }}
 
             org.opencontainers.image.source=${{
-              fromJson(needs.prepare.outputs.repometa).clone_url }}
+            fromJson(needs.prepare.outputs.repometa).clone_url }}
 
             org.opencontainers.image.title=${{
-              fromJson(needs.prepare.outputs.repometa).name }}
+            fromJson(needs.prepare.outputs.repometa).name }}
 
             org.opencontainers.image.url=${{
-              fromJson(needs.prepare.outputs.repometa).html_url }}
+            fromJson(needs.prepare.outputs.repometa).html_url }}
 
             org.opencontainers.image.version=${{
-              needs.prepare.outputs.source_version }}"
+            needs.prepare.outputs.source_version }}"
       - name: Compress image
         run: gzip dist/image.tar
       - name: Upload artifacts
@@ -247,7 +311,9 @@ jobs:
         with:
           name: dist
           path: dist
-
+      - name: Setup tmate debug session
+        uses: mxschmitt/action-tmate@v3
+        if: env.RUN_TMATE
   test:
     # Executes tests on the single-platform image created in the "build" job.
     name: "Test image"
@@ -290,23 +356,32 @@ jobs:
         env:
           RELEASE_TAG: ${{ github.event.release.tag_name }}
         run: pytest --runslow
-
+      - name: Setup tmate debug session
+        uses: mxschmitt/action-tmate@v3
+        if: env.RUN_TMATE
   build-push-all:
     # Builds the final set of images for each of the platforms listed in
     # PLATFORMS environment variable.  These images are tagged with the Docker
-    # tags calculated in the "prepare" job and pushed to DockerHub.  The
-    # contents of README.md is pushed as the image's description.  This job is
-    # skipped when the triggering event is a pull request.
+    # tags calculated in the "prepare" job and pushed to Docker Hub and the
+    # GitHub Container Registry.  The contents of README.md are pushed as the
+    # image's description to Docker Hub.  This job is skipped when the
+    # triggering event is a pull request.
     name: "Build and push all platforms"
     runs-on: ubuntu-latest
     needs: [lint, prepare, test]
     if: github.event_name != 'pull_request'
     steps:
-      - name: Login to DockerHub
+      - name: Login to Docker Hub
         uses: docker/login-action@v1
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v1
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
       - name: Checkout
         uses: actions/checkout@v2
       - name: Set up QEMU
@@ -324,7 +399,7 @@ jobs:
             ${{ env.BASE_CACHE_KEY }}
       - name: Create cross-platform support Dockerfile-x
         run: ./buildx-dockerfile.sh
-      - name: Build and push platform images to Docker Hub
+      - name: Build and push platform images to registries
         id: docker_build
         uses: docker/build-push-action@v2
         with:
@@ -341,29 +416,32 @@ jobs:
           # https://github.com/opencontainers/image-spec/blob/master/annotations.md
           labels: "\
             org.opencontainers.image.created=${{
-              needs.prepare.outputs.created }}
+            needs.prepare.outputs.created }}
 
             org.opencontainers.image.description=${{
-              fromJson(needs.prepare.outputs.repometa).description }}
+            fromJson(needs.prepare.outputs.repometa).description }}
 
             org.opencontainers.image.licenses=${{
-              fromJson(needs.prepare.outputs.repometa).license.spdx_id }}
+            fromJson(needs.prepare.outputs.repometa).license.spdx_id }}
 
             org.opencontainers.image.revision=${{ github.sha }}
 
             org.opencontainers.image.source=${{
-              fromJson(needs.prepare.outputs.repometa).clone_url }}
+            fromJson(needs.prepare.outputs.repometa).clone_url }}
 
             org.opencontainers.image.title=${{
-              fromJson(needs.prepare.outputs.repometa).name }}
+            fromJson(needs.prepare.outputs.repometa).name }}
 
             org.opencontainers.image.url=${{
-              fromJson(needs.prepare.outputs.repometa).html_url }}
+            fromJson(needs.prepare.outputs.repometa).html_url }}
 
             org.opencontainers.image.version=${{
-              needs.prepare.outputs.source_version }}"
+            needs.prepare.outputs.source_version }}"
       - name: Publish README.md to Docker Hub
         env:
           DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
         run: ./push_readme.sh
+      - name: Setup tmate debug session
+        uses: mxschmitt/action-tmate@v3
+        if: env.RUN_TMATE

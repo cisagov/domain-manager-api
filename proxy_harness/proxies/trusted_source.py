@@ -1,7 +1,7 @@
 """Trusted Source Categorization."""
 # Third-Party Libraries
 from bs4 import BeautifulSoup
-import requests
+import requests  # type: ignore
 from selenium.webdriver.common.by import By
 
 
