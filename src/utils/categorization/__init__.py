@@ -36,7 +36,7 @@ PROXIES: List[Dict] = [
     {
         "name": "Websense",
         "url": "http://csi.websense.com",
-        "categorize_url": None,
+        "categorize_url": "http://csi.websense.com",
         "check_url": "http://csi.websense.com",
     },
     {
