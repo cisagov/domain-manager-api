@@ -36,6 +36,7 @@ from utils.aws.site_handler import (
     verify_launch_records,
 )
 from utils.categorization.categorize import (
+    delete_domain_proxies,
     get_domain_proxies,
     post_categorize_request,
     put_proxy_status,
@@ -559,6 +560,11 @@ class DomainCategorizeView(MethodView):
             domain_id=domain_id, status=status, category=category
         )
 
+        return jsonify(resp), status_code
+
+    def delete(self, domain_id):
+        """Delete proxies for a domain."""
+        resp, status_code = delete_domain_proxies(domain_id)
         return jsonify(resp), status_code
 
 
