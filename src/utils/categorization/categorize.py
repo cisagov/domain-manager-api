@@ -60,3 +60,15 @@ def put_proxy_status(domain_id: str, status: str, category: str):
         )
 
     return {"success": "proxy status has been updated"}, 200
+
+
+def delete_domain_proxies(domain_id: str):
+    """Delete all proxies for a domain."""
+    proxies = categorization_manager.all(
+        params={"domain_id": domain_id}, fields=["status"]
+    )
+    if not all(proxy["status"] == "new" for proxy in proxies):
+        return {"error": "only new proxy requests can be deleted"}, 400
+
+    categorization_manager.delete(params={"domain_id": domain_id})
+    return {"success": "domain proxies have been deleted"}, 200
