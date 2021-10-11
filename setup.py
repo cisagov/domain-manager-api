@@ -92,7 +92,7 @@ setup(
         "botocore==1.21.54",
         "cognitojwt==1.4.1",
         "dnspython==2.1.0",
-        "Faker==8.16.0",
+        "Faker==9.3.1",
         "Flask==2.0.2",
         "Flask-Cors==3.0.10",
         "gunicorn>=20.0.4",
