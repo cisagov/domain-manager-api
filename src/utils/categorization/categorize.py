@@ -67,7 +67,7 @@ def delete_domain_proxies(domain_id: str):
     proxies = categorization_manager.all(
         params={"domain_id": domain_id}, fields=["status"]
     )
-    if not all(proxy["status"] == "new" for proxy in proxies):
+    if not all(proxy["status"] in ["new", "recategorize"] for proxy in proxies):
         return {"error": "only new proxy requests can be deleted"}, 400
 
     categorization_manager.delete(params={"domain_id": domain_id})
