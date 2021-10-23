@@ -538,6 +538,9 @@ class DomainCategorizeView(MethodView):
 
         domain = domain_manager.get(document_id=domain_id)
 
+        if domain["rejected_msg"]:
+            domain_manager.update(document_id=domain_id, data={"rejected_msg": None})
+
         resp, status_code = post_categorize_request(
             domain_id=domain_id, domain_name=domain["name"], requested_category=category
         )

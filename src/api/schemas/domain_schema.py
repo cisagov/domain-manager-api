@@ -145,6 +145,7 @@ class DomainSchema(BaseSchema):
     is_generating_template = fields.Boolean(default=False)
     is_email_active = fields.Boolean()
     rejected_msg = fields.Str(allow_none=True)
+    was_burned = fields.Boolean(default=False)
     profile = fields.Dict()
     history = fields.List(fields.Nested(History))
     cloudfront = fields.Dict()
