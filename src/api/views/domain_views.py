@@ -565,6 +565,9 @@ class DomainCategorizeView(MethodView):
     def delete(self, domain_id):
         """Delete proxies for a domain."""
         resp, status_code = delete_domain_proxies(domain_id)
+        domain_manager.update(
+            document_id=domain_id, data={"rejected_msg": request.json.get("message")}
+        )
         return jsonify(resp), status_code
 
 
