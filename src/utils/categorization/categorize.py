@@ -14,7 +14,7 @@ def get_domain_proxies(domain_id: str):
     """Get all proxies for a domain."""
     domain_proxies = categorization_manager.all(params={"domain_id": domain_id})
     if not domain_proxies:
-        return {"error": "categorization requests for this domain do not exist."}, 400
+        return {"message": "categorization requests for this domain do not exist."}, 200
 
     return domain_proxies, 200
 
