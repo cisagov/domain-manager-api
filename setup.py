@@ -87,7 +87,7 @@ setup(
     py_modules=[splitext(basename(path))[0] for path in glob("src/*.py")],
     include_package_data=True,
     install_requires=[
-        "APScheduler==3.8.0",
+        "APScheduler==3.8.1",
         "boto3==1.18.64",
         "cognitojwt==1.4.1",
         "dnspython==2.1.0",

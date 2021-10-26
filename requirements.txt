@@ -1,4 +1,4 @@
-APScheduler==3.8.0
+APScheduler==3.8.1
 boto3==1.18.64
 cognitojwt==1.4.1
 dnspython==2.1.0
@@ -8,6 +8,6 @@ Flask-Cors==3.0.10
 gunicorn==20.1.0
 marshmallow==3.14.0
 mongomock==3.23.0
-pymongo==3.12.0
+pymongo==3.12.1
 requests==2.26.0
 validators==0.18.2
