@@ -123,27 +123,10 @@ jobs:
           PACKAGE_VERSION: ${{ steps.setup-env.outputs.shfmt-version }}
         run: go install ${PACKAGE_URL}@${PACKAGE_VERSION}
       - name: Install Terraform-docs
-<<<<<<< HEAD
-        run: |
-          go install \
-            github.com/terraform-docs/terraform-docs@${TERRAFORM_DOCS_VERSION}
-      - name: Find and initialize Terraform directories
-        run: |
-          for path in $(find . -not \( -type d -name ".terraform" -prune \) \
-            -type f -iname "*.tf" -exec dirname "{}" \; | sort -u); do \
-            echo "Initializing '$path'..."; \
-            terraform init -input=false -backend=false "$path"; \
-            done
-      # A .env file is required in the base directory for
-      # tests to run successfully.
-      - name: Copy env.dist
-        run: cp etc/env.dist .env
-=======
         env:
           PACKAGE_URL: github.com/terraform-docs/terraform-docs
           PACKAGE_VERSION: ${{ steps.setup-env.outputs.terraform-docs-version }}
         run: go install ${PACKAGE_URL}@${PACKAGE_VERSION}
->>>>>>> ee39ac57e39767bfb26252126c993c97c0624eec
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
