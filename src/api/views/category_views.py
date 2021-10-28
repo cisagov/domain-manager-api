@@ -62,7 +62,7 @@ class CategorizationView(MethodView):
             document_id=put_data["domain_id"], fields=["burned_date"]
         )
 
-        if not domain["burned_date"] and put_data["status"] == "burned":
+        if not domain.get("burned_date") and put_data["status"] == "burned":
             domain_manager.update(
                 document_id=put_data["domain_id"],
                 data={"burned_date": datetime.utcnow()},
