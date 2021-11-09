@@ -1,8 +1,8 @@
 APScheduler==3.8.1
-boto3==1.19.8
+boto3==1.20.0
 cognitojwt==1.4.1
 dnspython==2.1.0
-Faker==9.7.1
+Faker==9.8.0
 Flask==2.0.2
 Flask-Cors==3.0.10
 gunicorn==20.1.0
