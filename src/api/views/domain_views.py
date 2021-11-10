@@ -671,7 +671,7 @@ class DomainEmailsView(MethodView):
 
 
 class DomainEmailView(MethodView):
-    """Domain Email List View."""
+    """Domain Email Detail View."""
 
     def get(self, email_id):
         """Get an email's details for a domain."""
