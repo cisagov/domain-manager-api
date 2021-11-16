@@ -1,7 +1,9 @@
 """Create DNS email records from SES."""
 # cisagov Libraries
+from api.manager import DomainManager
 from utils.aws.clients import SES, Route53
 
+domain_manager = DomainManager()
 route53 = Route53()
 ses = SES()
 
@@ -51,7 +53,7 @@ def manage_resource_records(
     )
 
 
-def enable_email_receiving(domain_name: str):
+def enable_email_receiving(domain_id: str, domain_name: str):
     """Enable receiving emails for a specified domain."""
     # Generate verification token
     verification_token = ses.verify_domain_identity_token(domain_name=domain_name)
@@ -64,10 +66,12 @@ def enable_email_receiving(domain_name: str):
 
     waiter = ses.client.get_waiter("identity_exists")
     waiter.wait(Identities=[domain_name], WaiterConfig={"Delay": 5, "MaxAttempts": 50})
+
+    domain_manager.update(document_id=domain_id, data={"is_email_active": True})
     return response
 
 
-def disable_email_receiving(domain_name: str):
+def disable_email_receiving(domain_id: str, domain_name: str):
     """Disable receiving emails for a specified domain."""
     verification_token = ses.client.get_identity_verification_attributes(
         Identities=[domain_name]
@@ -78,5 +82,7 @@ def disable_email_receiving(domain_name: str):
         action="DELETE",
         verification_token=verification_token,
     )
+
+    domain_manager.update(document_id=domain_id, data={"is_email_active": False})
 
     return ses.client.delete_identity(Identity=domain_name)
