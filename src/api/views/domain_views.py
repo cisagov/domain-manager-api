@@ -636,20 +636,53 @@ class DomainReceiveEmailsView(MethodView):
         if domain.get("is_email_active"):
             return jsonify({"message": "Email receiving is already active."}), 400
 
-        resp = enable_email_receiving(domain["name"])
-        domain_manager.update(document_id=domain_id, data={"is_email_active": True})
+        if domain.get("is_email_pending"):
+            return (
+                jsonify(
+                    {"message": "Email toggle not available. Please try again later."}
+                ),
+                400,
+            )
+
+        task = Process(
+            target=enable_email_receiving,
+            args=(
+                domain_id,
+                domain["name"],
+            ),
+        )
+        task.start()
+
         return (
-            jsonify({"success": resp}),
+            jsonify({"success": "Enabling email receiving in the background."}),
             200,
         )
 
     def delete(self, domain_id):
         """Disable ability to receive emails."""
         domain = domain_manager.get(document_id=domain_id)
-        resp = disable_email_receiving(domain["name"])
-        domain_manager.update(document_id=domain_id, data={"is_email_active": False})
+
+        if not domain.get("is_email_active"):
+            return jsonify({"message": "Email receiving is already inactive."}), 400
+
+        if domain.get("is_email_pending"):
+            return (
+                jsonify(
+                    {"message": "Email toggle not available. Please try again later."}
+                ),
+                400,
+            )
+
+        task = Process(
+            target=disable_email_receiving,
+            args=(
+                domain_id,
+                domain["name"],
+            ),
+        )
+        task.start()
         return (
-            jsonify({"success": resp}),
+            jsonify({"success": "Disabling email receiving."}),
             200,
         )
 

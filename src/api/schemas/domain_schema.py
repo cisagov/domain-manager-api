@@ -144,6 +144,7 @@ class DomainSchema(BaseSchema):
     is_delaunching = fields.Boolean(default=False)
     is_generating_template = fields.Boolean(default=False)
     is_email_active = fields.Boolean()
+    is_email_pending = fields.Boolean()
     rejected_msg = fields.Str(allow_none=True)
     burned_date = DateTimeField()
     profile = fields.Dict()
