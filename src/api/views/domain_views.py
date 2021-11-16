@@ -636,6 +636,14 @@ class DomainReceiveEmailsView(MethodView):
         if domain.get("is_email_active"):
             return jsonify({"message": "Email receiving is already active."}), 400
 
+        if domain.get("is_email_pending"):
+            return (
+                jsonify(
+                    {"message": "Email toggle not available. Please try again later."}
+                ),
+                400,
+            )
+
         task = Process(
             target=enable_email_receiving,
             args=(
@@ -656,6 +664,14 @@ class DomainReceiveEmailsView(MethodView):
 
         if not domain.get("is_email_active"):
             return jsonify({"message": "Email receiving is already inactive."}), 400
+
+        if domain.get("is_email_pending"):
+            return (
+                jsonify(
+                    {"message": "Email toggle not available. Please try again later."}
+                ),
+                400,
+            )
 
         task = Process(
             target=disable_email_receiving,

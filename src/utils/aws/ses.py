@@ -55,6 +55,8 @@ def manage_resource_records(
 
 def enable_email_receiving(domain_id: str, domain_name: str):
     """Enable receiving emails for a specified domain."""
+    domain_manager.update(document_id=domain_id, data={"is_email_pending": True})
+
     # Generate verification token
     verification_token = ses.verify_domain_identity_token(domain_name=domain_name)
 
@@ -67,12 +69,17 @@ def enable_email_receiving(domain_id: str, domain_name: str):
     waiter = ses.client.get_waiter("identity_exists")
     waiter.wait(Identities=[domain_name], WaiterConfig={"Delay": 5, "MaxAttempts": 50})
 
-    domain_manager.update(document_id=domain_id, data={"is_email_active": True})
+    domain_manager.update(
+        document_id=domain_id,
+        data={"is_email_active": True, "is_email_pending": False},
+    )
     return response
 
 
 def disable_email_receiving(domain_id: str, domain_name: str):
     """Disable receiving emails for a specified domain."""
+    domain_manager.update(document_id=domain_id, data={"is_email_pending": True})
+
     verification_token = ses.client.get_identity_verification_attributes(
         Identities=[domain_name]
     )["VerificationAttributes"][domain_name]["VerificationToken"]
@@ -83,6 +90,9 @@ def disable_email_receiving(domain_id: str, domain_name: str):
         verification_token=verification_token,
     )
 
-    domain_manager.update(document_id=domain_id, data={"is_email_active": False})
+    domain_manager.update(
+        document_id=domain_id,
+        data={"is_email_active": False, "is_email_pending": False},
+    )
 
     return ses.client.delete_identity(Identity=domain_name)
