@@ -654,7 +654,7 @@ class DomainReceiveEmailsView(MethodView):
         task.start()
 
         return (
-            jsonify({"success": "Enabling email receiving in the background."}),
+            jsonify({"message": "Enabling email receiving in the background."}),
             200,
         )
 
@@ -682,7 +682,7 @@ class DomainReceiveEmailsView(MethodView):
         )
         task.start()
         return (
-            jsonify({"success": "Disabling email receiving."}),
+            jsonify({"message": "Disabling email receiving."}),
             200,
         )
 
