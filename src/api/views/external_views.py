@@ -22,6 +22,22 @@ class ExternalDomainsView(MethodView):
         """Get all external domains."""
         return jsonify(external_manager.all())
 
+    def post(self):
+        """Create a new external domain."""
+        return jsonify(external_manager.save(request.json))
+
+
+class ExternalDomainView(MethodView):
+    """External Domain Detail View."""
+
+    def get(self, external_id):
+        """Get external domain."""
+        return jsonify(external_manager.get(document_id=external_id))
+
+    def delete(self, external_id):
+        """Delete external domain."""
+        return jsonify(external_manager.delete(external_id))
+
 
 class ExternalDomainCategorizeView(MethodView):
     """External Domain Categorize View."""
@@ -34,18 +50,9 @@ class ExternalDomainCategorizeView(MethodView):
     def post(self, external_id):
         """Submit a Domain for Categorization."""
         category = request.json.get("category")
-        email = request.json.get("email")
 
         if not category:
             return jsonify({"error": "Please specify a requested category."}), 406
-
-        if not email:
-            return (
-                jsonify(
-                    {"error": "Please specify an email address to submit to proxies."}
-                ),
-                406,
-            )
 
         external_domain = external_manager.get(document_id=external_id)
 
@@ -58,6 +65,7 @@ class ExternalDomainCategorizeView(MethodView):
             domain_id=external_id,
             domain_name=external_domain["name"],
             requested_category=category,
+            is_external=True,
         )
 
         return jsonify(resp), status_code

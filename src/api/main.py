@@ -45,7 +45,11 @@ from api.views.domain_views import (
     DomainsView,
     DomainView,
 )
-from api.views.external_views import ExternalDomainCategorizeView, ExternalDomainsView
+from api.views.external_views import (
+    ExternalDomainCategorizeView,
+    ExternalDomainsView,
+    ExternalDomainView,
+)
 from api.views.proxy_views import ProxiesView, ProxyView
 from api.views.settings_views import SettingsView
 from api.views.template_views import (
@@ -86,7 +90,8 @@ rules = [
     ("/domain/<domain_id>/receive-emails/", DomainReceiveEmailsView),
     ("/email/<email_id>/", DomainEmailView),
     ("/external-domains/", ExternalDomainsView),
-    ("/external-domain/<external_id>/", ExternalDomainCategorizeView),
+    ("/external-domain/<external_id>/", ExternalDomainView),
+    ("/external-domain/<external_id>/categorize/", ExternalDomainCategorizeView),
     ("/proxies/", ProxiesView),
     ("/proxy/<proxy_name>/", ProxyView),
     ("/templates/", TemplatesView),
