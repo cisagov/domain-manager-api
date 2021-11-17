@@ -19,7 +19,9 @@ def get_domain_proxies(domain_id: str):
     return domain_proxies, 200
 
 
-def post_categorize_request(domain_id: str, domain_name: str, requested_category: str):
+def post_categorize_request(
+    domain_id: str, domain_name: str, requested_category: str, is_external=False
+):
     """Categorize a domain across proxies."""
     if categorization_manager.get(filter_data={"domain_id": domain_id}):
         return {"error": "categorization requests already exist for this domain."}, 400
@@ -28,6 +30,7 @@ def post_categorize_request(domain_id: str, domain_name: str, requested_category
         {
             "domain_id": domain_id,
             "domain_name": domain_name,
+            "is_external": is_external,
             "proxy": proxy["name"],
             "status": "new",
             "category": requested_category,
@@ -67,7 +70,9 @@ def delete_domain_proxies(domain_id: str):
     proxies = categorization_manager.all(
         params={"domain_id": domain_id}, fields=["status"]
     )
-    if not all(proxy["status"] in ["new", "recategorize"] for proxy in proxies):
+    if not all(
+        proxy["status"] in ["new", "recategorize", "submitted"] for proxy in proxies
+    ):
         return {"error": "only new proxy requests can be deleted"}, 400
 
     categorization_manager.delete(params={"domain_id": domain_id})

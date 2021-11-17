@@ -44,6 +44,13 @@ def is_valid_category(category):
     return True
 
 
+def is_valid_email(email: str):
+    """Check if email address format is valid."""
+    if not validators.email(email):
+        raise ValidationError("Email address format is not valid.")
+    return True
+
+
 def is_valid_mx(value: str):
     """Check if mx record is valid."""
     for line in value.splitlines():

@@ -24,18 +24,6 @@ class CategoriesView(MethodView):
         return jsonify(CATEGORIES)
 
 
-class ExternalCategoriesView(MethodView):
-    """External Categories View."""
-
-    def get(self, domain_name):
-        """Check categories for external domains."""
-        return jsonify({"message": "success"}), 200
-
-    def post(self, domain_name):
-        """Categorize an external domain."""
-        return jsonify(request.json.get("category", ""), domain_name)
-
-
 class CategorizationsView(MethodView):
     """CategorizationsView."""
 

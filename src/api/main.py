@@ -30,7 +30,6 @@ from api.views.category_views import (
     CategoriesView,
     CategorizationsView,
     CategorizationView,
-    ExternalCategoriesView,
 )
 from api.views.domain_views import (
     DomainApprovalView,
@@ -45,6 +44,11 @@ from api.views.domain_views import (
     DomainRecordView,
     DomainsView,
     DomainView,
+)
+from api.views.external_views import (
+    ExternalDomainCategorizeView,
+    ExternalDomainsView,
+    ExternalDomainView,
 )
 from api.views.proxy_views import ProxiesView, ProxyView
 from api.views.settings_views import SettingsView
@@ -72,7 +76,6 @@ rules = [
     ("/about/", AboutView),
     ("/applications/", ApplicationsView),
     ("/categories/", CategoriesView),
-    ("/categories/<domain_name>/external/", ExternalCategoriesView),
     ("/categorization/<categorization_id>/", CategorizationView),
     ("/categorizations/", CategorizationsView),
     ("/domains/", DomainsView),
@@ -86,6 +89,9 @@ rules = [
     ("/domain/<domain_id>/records/", DomainRecordView),
     ("/domain/<domain_id>/receive-emails/", DomainReceiveEmailsView),
     ("/email/<email_id>/", DomainEmailView),
+    ("/external-domains/", ExternalDomainsView),
+    ("/external-domain/<external_id>/", ExternalDomainView),
+    ("/external-domain/<external_id>/categorize/", ExternalDomainCategorizeView),
     ("/proxies/", ProxiesView),
     ("/proxy/<proxy_name>/", ProxyView),
     ("/templates/", TemplatesView),

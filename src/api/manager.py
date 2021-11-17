@@ -13,6 +13,7 @@ from api.schemas.application_schema import ApplicationSchema
 from api.schemas.categorization_schema import CategorizationSchema
 from api.schemas.domain_schema import DomainSchema
 from api.schemas.email_schema import EmailSchema
+from api.schemas.external_schema import ExternalSchema
 from api.schemas.log_schema import LogSchema
 from api.schemas.settings_schema import SettingsSchema
 from api.schemas.template_schema import TemplateSchema
@@ -259,6 +260,16 @@ class DomainManager(Manager):
             collection="domains",
             schema=DomainSchema,
             unique_indexes=["name"],
+        )
+
+
+class ExternalManager(Manager):
+    """External Domain Manager."""
+
+    def __init__(self):
+        """Initialize super for external domain."""
+        return super().__init__(
+            collection="externals", schema=ExternalSchema, unique_indexes=["name"]
         )
 
 
