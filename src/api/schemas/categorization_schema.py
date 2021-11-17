@@ -10,7 +10,8 @@ from utils.categorization import CATEGORIES
 class CategorizationSchema(BaseSchema):
     """DomainSchema."""
 
-    domain_id = fields.Str()
+    domain_id = fields.Str(allow_none=True)
+    external_id = fields.Str(allow_none=True)
     domain_name = fields.Str()
     proxy = fields.Str()
     status = fields.Str(
