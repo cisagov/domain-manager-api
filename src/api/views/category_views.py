@@ -7,13 +7,14 @@ from flask import jsonify, request
 from flask.views import MethodView
 
 # cisagov Libraries
-from api.manager import CategorizationManager, DomainManager
+from api.manager import CategorizationManager, DomainManager, ExternalManager
 from api.schemas.categorization_schema import CategorizationSchema
 from utils.categorization import CATEGORIES
 from utils.validator import validate_data
 
 categorization_manager = CategorizationManager()
 domain_manager = DomainManager()
+external_manager = ExternalManager()
 
 
 class CategoriesView(MethodView):
@@ -50,11 +51,25 @@ class CategorizationView(MethodView):
             document_id=put_data["domain_id"], fields=["burned_date"]
         )
 
-        if not domain.get("burned_date") and put_data["status"] == "burned":
-            domain_manager.update(
-                document_id=put_data["domain_id"],
-                data={"burned_date": datetime.utcnow()},
+        if not domain:
+            external_domain = external_manager.get(
+                document_id=put_data["domain_id"], fields=["burned_date"]
             )
+
+            if (
+                not external_domain.get("burned_date")
+                and put_data["status"] == "burned"
+            ):
+                external_manager.update(
+                    document_id=put_data["domain_id"],
+                    data={"burned_date": datetime.utcnow()},
+                )
+        else:
+            if not domain.get("burned_date") and put_data["status"] == "burned":
+                domain_manager.update(
+                    document_id=put_data["domain_id"],
+                    data={"burned_date": datetime.utcnow()},
+                )
 
         return jsonify(
             categorization_manager.update(document_id=categorization_id, data=put_data)
