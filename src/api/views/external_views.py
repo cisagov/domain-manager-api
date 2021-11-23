@@ -2,6 +2,7 @@
 # Third-Party Libraries
 from flask import jsonify, request
 from flask.views import MethodView
+from pymongo import errors
 
 # cisagov Libraries
 from api.manager import ExternalManager
@@ -20,11 +21,18 @@ class ExternalDomainsView(MethodView):
 
     def get(self):
         """Get all external domains."""
+        params = dict(request.args)
+        if params:
+            return jsonify(external_manager.all(params=params))
         return jsonify(external_manager.all())
 
     def post(self):
         """Create a new external domain."""
-        return jsonify(external_manager.save(request.json))
+        try:
+            resp = external_manager.save(request.json)
+        except errors.DuplicateKeyError as e:
+            resp = {"message": str(e)}
+        return jsonify(resp)
 
 
 class ExternalDomainView(MethodView):
