@@ -55,12 +55,15 @@ def manage_resource_records(
 
 def enable_email_receiving(domain_id: str, domain_name: str):
     """Enable receiving emails for a specified domain."""
-    domain_manager.update(document_id=domain_id, data={"is_email_pending": True})
+    domain_manager.update(
+        document_id=domain_id,
+        data={"is_email_enabled": False, "is_email_pending": True},
+    )
 
     # Generate verification token
     verification_token = ses.verify_domain_identity_token(domain_name=domain_name)
 
-    response = manage_resource_records(
+    manage_resource_records(
         domain_name=domain_name,
         action="UPSERT",
         verification_token=verification_token,
@@ -73,7 +76,6 @@ def enable_email_receiving(domain_id: str, domain_name: str):
         document_id=domain_id,
         data={"is_email_active": True, "is_email_pending": False},
     )
-    return response
 
 
 def disable_email_receiving(domain_id: str, domain_name: str):
