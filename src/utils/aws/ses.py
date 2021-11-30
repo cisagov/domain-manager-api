@@ -1,5 +1,9 @@
 """Create DNS email records from SES."""
+# Third-Party Libraries
+import botocore
+
 # cisagov Libraries
+from api.config import logger
 from api.manager import DomainManager
 from utils.aws.clients import SES, Route53
 
@@ -59,42 +63,54 @@ def enable_email_receiving(domain_id: str, domain_name: str):
         document_id=domain_id,
         data={"is_email_enabled": False, "is_email_pending": True},
     )
+    try:
+        # Generate verification token
+        verification_token = ses.verify_domain_identity_token(domain_name=domain_name)
 
-    # Generate verification token
-    verification_token = ses.verify_domain_identity_token(domain_name=domain_name)
+        manage_resource_records(
+            domain_name=domain_name,
+            action="UPSERT",
+            verification_token=verification_token,
+        )
 
-    manage_resource_records(
-        domain_name=domain_name,
-        action="UPSERT",
-        verification_token=verification_token,
-    )
+        waiter = ses.client.get_waiter("identity_exists")
+        waiter.wait(
+            Identities=[domain_name], WaiterConfig={"Delay": 5, "MaxAttempts": 50}
+        )
 
-    waiter = ses.client.get_waiter("identity_exists")
-    waiter.wait(Identities=[domain_name], WaiterConfig={"Delay": 5, "MaxAttempts": 50})
-
-    domain_manager.update(
-        document_id=domain_id,
-        data={"is_email_active": True, "is_email_pending": False},
-    )
+        domain_manager.update(
+            document_id=domain_id,
+            data={"is_email_active": True, "is_email_pending": False},
+        )
+    except botocore.exceptions.ClientErrorion as e:
+        logger.exception(e)
+        domain_manager.update(
+            document_id=domain_id,
+            data={"is_email_enabled": False, "is_email_pending": False},
+        )
 
 
 def disable_email_receiving(domain_id: str, domain_name: str):
     """Disable receiving emails for a specified domain."""
     domain_manager.update(document_id=domain_id, data={"is_email_pending": True})
 
-    verification_token = ses.client.get_identity_verification_attributes(
-        Identities=[domain_name]
-    )["VerificationAttributes"][domain_name]["VerificationToken"]
+    try:
+        verification_token = ses.client.get_identity_verification_attributes(
+            Identities=[domain_name]
+        )["VerificationAttributes"][domain_name]["VerificationToken"]
 
-    manage_resource_records(
-        domain_name=domain_name,
-        action="DELETE",
-        verification_token=verification_token,
-    )
+        manage_resource_records(
+            domain_name=domain_name,
+            action="DELETE",
+            verification_token=verification_token,
+        )
 
-    domain_manager.update(
-        document_id=domain_id,
-        data={"is_email_active": False, "is_email_pending": False},
-    )
+        domain_manager.update(
+            document_id=domain_id,
+            data={"is_email_active": False, "is_email_pending": False},
+        )
 
-    return ses.client.delete_identity(Identity=domain_name)
+        ses.client.delete_identity(Identity=domain_name)
+    except botocore.exceptions.ClientError as e:
+        logger.exception(e)
+        domain_manager.update(document_id=domain_id, data={"is_email_pending": False})
