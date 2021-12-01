@@ -180,8 +180,13 @@ class DomainView(MethodView):
         domain = domain_manager.get(document_id=domain_id)
 
         if domain.get("is_active") and domain.get("records"):
-            return jsonify(
-                {"message": "Domain cannot be active and redirects must be removed."}
+            return (
+                jsonify(
+                    {
+                        "message": "Domain cannot be active and redirects must be removed."
+                    }
+                ),
+                405,
             )
 
         name = domain["name"]
