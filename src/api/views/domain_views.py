@@ -186,7 +186,7 @@ class DomainView(MethodView):
                         "message": "Domain cannot be active and redirects must be removed."
                     }
                 ),
-                405,
+                400,
             )
 
         name = domain["name"]
