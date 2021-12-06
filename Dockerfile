@@ -1,4 +1,4 @@
-FROM golang:1.17.3-alpine AS build
+FROM golang:1.17.4-alpine AS build
 
 WORKDIR /src/
 COPY /src/staticgen/ /src/
