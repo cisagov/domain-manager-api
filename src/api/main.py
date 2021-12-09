@@ -169,7 +169,6 @@ app.json_encoder = CustomJSONEncoder
 @app.route("/")
 def api_map():
     """List endpoints for api."""
-    logger.info("API is up and running.")
     endpoints = {
         endpoint.rule: endpoint.methods
         for endpoint in app.url_map.__dict__["_rules"]
@@ -208,7 +207,6 @@ def log_request(response):
     if request.method != "OPTIONS":
         data = get_request_data()
         data["status_code"] = response.status_code
-        logger.info(data)
         if data.get("username"):
             log_manager = LogManager()
             log_manager.save(data)
