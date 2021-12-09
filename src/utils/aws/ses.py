@@ -82,7 +82,7 @@ def enable_email_receiving(domain_id: str, domain_name: str):
             document_id=domain_id,
             data={"is_email_active": True, "is_email_pending": False},
         )
-    except botocore.exceptions.ClientErrorion as e:
+    except botocore.exceptions.ClientError as e:
         logger.exception(e)
         domain_manager.update(
             document_id=domain_id,
