@@ -88,6 +88,12 @@ def enable_email_receiving(domain_id: str, domain_name: str):
             document_id=domain_id,
             data={"is_email_enabled": False, "is_email_pending": False},
         )
+    except botocore.exceptions.WaiterError as e:
+        logger.exception(e)
+        domain_manager.update(
+            document_id=domain_id,
+            data={"is_email_enabled": False, "is_email_pending": False},
+        )
 
 
 def disable_email_receiving(domain_id: str, domain_name: str):
