@@ -221,7 +221,11 @@ class Route53(AWS):
 
         Set names_only to true if only hosted zone names are needed.
         """
-        zones = self.client.list_hosted_zones()["HostedZones"]
+        paginator = self.client.get_paginator("list_hosted_zones")
+        page_iterator = paginator.paginate()
+        zones = []
+        for page in page_iterator:
+            zones.extend(page["HostedZones"])
         if names_only:
             return [hosted_zone.get("Name") for hosted_zone in zones]
         return zones
@@ -265,7 +269,6 @@ class SES(AWS):
     def verify_domain_identity_token(self, domain_name: str):
         """Get identity verification token."""
         resp = self.client.verify_domain_identity(Domain=domain_name)
-        logger.info(f"Verify Domain Identity Token Response - {resp}")
         return resp["VerificationToken"]
 
 

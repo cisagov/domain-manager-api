@@ -20,8 +20,9 @@ def manage_resource_records(
     """Manage Route53 Records."""
     current_hosted_zones = route53.list_hosted_zones(names_only=True)
     if f"{domain_name}." not in current_hosted_zones:
-        logger.error(f"{domain_name}. not in {current_hosted_zones}")
-        logger.error(f"There are {len(current_hosted_zones)} hosted zones")
+        logger.error(
+            f"{domain_name}. not in current hosted zones ({len(current_hosted_zones)})"
+        )
         raise Exception("Domain not in current hosted zones")
 
     dns_id = "".join(
@@ -57,7 +58,6 @@ def manage_resource_records(
             ],
         },
     )
-    logger.info(f"Route53 Response - {resp}")
     return resp
 
 
