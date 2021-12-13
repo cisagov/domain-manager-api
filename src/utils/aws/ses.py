@@ -18,8 +18,11 @@ def manage_resource_records(
     verification_token: str,
 ):
     """Manage Route53 Records."""
-    if f"{domain_name}." not in route53.list_hosted_zones(names_only=True):
-        return "Domain's hosted zone does not exist."
+    current_hosted_zones = route53.list_hosted_zones(names_only=True)
+    if f"{domain_name}." not in current_hosted_zones:
+        logger.error(f"{domain_name}. not in {current_hosted_zones}")
+        logger.error(f"There are {len(current_hosted_zones)} hosted zones")
+        raise Exception("Domain not in current hosted zones")
 
     dns_id = "".join(
         hosted_zone.get("Id")
@@ -30,7 +33,6 @@ def manage_resource_records(
     resp = route53.client.change_resource_record_sets(
         HostedZoneId=dns_id,
         ChangeBatch={
-            "Comment": "",
             "Changes": [
                 {
                     "Action": action,
@@ -96,6 +98,13 @@ def enable_email_receiving(domain_id: str, domain_name: str):
             document_id=domain_id,
             data={"is_email_enabled": False, "is_email_pending": False},
         )
+    except Exception as e:
+        logger.exception(e)
+        if str(e) == "Domain not in current hosted zones":
+            domain_manager.update(
+                document_id=domain_id,
+                data={"is_email_enabled": False, "is_email_pending": False},
+            )
 
 
 def disable_email_receiving(domain_id: str, domain_name: str):
