@@ -264,9 +264,9 @@ class SES(AWS):
 
     def verify_domain_identity_token(self, domain_name: str):
         """Get identity verification token."""
-        return self.client.verify_domain_identity(Domain=domain_name)[
-            "VerificationToken"
-        ]
+        resp = self.client.verify_domain_identity(Domain=domain_name)
+        logger.info(f"Verify Domain Identity Token Response - {resp}")
+        return resp["VerificationToken"]
 
 
 class Cloudfront(AWS):

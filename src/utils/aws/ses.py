@@ -27,7 +27,7 @@ def manage_resource_records(
         if hosted_zone.get("Name") == f"{domain_name}."
     )
 
-    return route53.client.change_resource_record_sets(
+    resp = route53.client.change_resource_record_sets(
         HostedZoneId=dns_id,
         ChangeBatch={
             "Comment": "",
@@ -55,6 +55,8 @@ def manage_resource_records(
             ],
         },
     )
+    logger.info(f"Route53 Response - {resp}")
+    return resp
 
 
 def enable_email_receiving(domain_id: str, domain_name: str):
