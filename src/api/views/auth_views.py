@@ -138,8 +138,10 @@ class RefreshTokenView(MethodView):
         data = request.json
         username = data["username"]
         refresh_token = data["refeshToken"]
-        response = cognito.refresh(refresh_token)
-
+        try:
+            response = cognito.refresh(refresh_token)
+        except botocore.exceptions.ClientError as e:
+            return e.response["Error"]["Message"], 403
         expires = datetime.utcnow() + timedelta(
             seconds=response["AuthenticationResult"]["ExpiresIn"]
         )
