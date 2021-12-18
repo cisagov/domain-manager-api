@@ -1,4 +1,4 @@
-.PHONY: all help build logs loc up stop down shell test ra refresh categorize check_category
+.PHONY: all help bash build logs loc up stop down shell test ra refresh categorize check_category
 
 # make all - Default Target. Does nothing.
 all:
@@ -46,6 +46,10 @@ stop:
 # target: down - Remove all docker containers
 down:
 	docker-compose down
+
+# target: bash - bash into container
+bash:
+	docker exec -it dm-api bash
 
 # target: shell - python shell within container
 shell:
