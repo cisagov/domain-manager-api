@@ -13,7 +13,9 @@ whois_manager = WhoisManager()
 
 def get_whois_data(domain_id: str, domain_name: str) -> dict:
     """Get a domain's whois data."""
-    whois_domain = whois_manager.get(filter_data={"domain_id": domain_id})
+    whois_domain = whois_manager.get(
+        filter_data={"domain_id": domain_id}, fields=["registrar", "expiration_date"]
+    )
 
     if not whois_domain:
         resp_data = whois(domain_name)
