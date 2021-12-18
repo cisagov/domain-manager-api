@@ -1,4 +1,7 @@
 """Whois data."""
+# Standard Python Libraries
+import logging
+
 # Third-Party Libraries
 from whois import whois
 
@@ -14,6 +17,11 @@ def get_whois_data(domain_id: str, domain_name: str) -> dict:
 
     if not whois_domain:
         resp_data = whois(domain_name)
+
+        if not resp_data["expiration_date"]:
+            logging.info(f"No whois data for {domain_name}.")
+            return resp_data
+
         expiration_date = resp_data["expiration_date"].isoformat()
 
         resp_data = {
