@@ -44,6 +44,7 @@ from utils.categorization.categorize import (
 from utils.decorators.auth import can_access_domain
 from utils.users import get_users_group_ids
 from utils.validator import validate_data
+from utils.whois.whois_data import get_whois_data
 
 categorization_manager = CategorizationManager()
 domain_manager = DomainManager()
@@ -140,6 +141,10 @@ class DomainView(MethodView):
         if "application_id" in domain:
             application = application_manager.get(document_id=domain["application_id"])
             domain["application_name"] = application["name"]
+
+        whois_resp = get_whois_data(domain_id=domain["_id"], domain_name=domain["name"])
+        domain["whois"] = whois_resp
+
         return jsonify(domain)
 
     def put(self, domain_id):
