@@ -18,17 +18,21 @@ from api.schemas.log_schema import LogSchema
 from api.schemas.settings_schema import SettingsSchema
 from api.schemas.template_schema import TemplateSchema
 from api.schemas.user_shema import UserSchema
+from api.schemas.whois_schema import WhoisSchema
 
 
 class Manager:
     """Manager."""
 
-    def __init__(self, collection, schema, unique_indexes=[], other_indexes=[]):
+    def __init__(
+        self, collection, schema, unique_indexes=[], other_indexes=[], ttl_indexes=[]
+    ):
         """Initialize Manager."""
         self.collection = collection
         self.schema = schema
         self.unique_indexes = unique_indexes
         self.other_indexes = other_indexes
+        self.ttl_indexes = ttl_indexes
         self.db = getattr(DB, collection)
         return
 
@@ -80,6 +84,8 @@ class Manager:
             self.db.create_index(index, unique=True)
         for index in self.other_indexes:
             self.db.create_index(index, unique=False)
+        for index in self.ttl_indexes:
+            self.db.create_index(index, expireAfterSeconds=3600)
 
     def add_created(self, data):
         """Add created attribute to data on save."""
@@ -316,4 +322,16 @@ class SettingsManager(Manager):
             collection="settings",
             schema=SettingsSchema,
             other_indexes=["key"],
+        )
+
+
+class WhoisManager(Manager):
+    """Whois Data Manager."""
+
+    def __init__(self):
+        """Initialize super for whois data."""
+        return super().__init__(
+            collection="whois",
+            schema=WhoisSchema,
+            ttl_indexes=["created"],
         )
