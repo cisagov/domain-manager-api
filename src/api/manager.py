@@ -85,7 +85,7 @@ class Manager:
         for index in self.other_indexes:
             self.db.create_index(index, unique=False)
         for index in self.ttl_indexes:
-            self.db.create_index(index, expireAfterSeconds=3600)
+            self.db.create_index(index, expireAfterSeconds=86400)
 
     def add_created(self, data):
         """Add created attribute to data on save."""
