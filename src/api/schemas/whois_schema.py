@@ -12,3 +12,4 @@ class WhoisSchema(BaseSchema):
     domain_id = fields.Str()
     registrar = fields.Str()
     expiration_date = fields.DateTime()
+    raw_data = fields.Dict()

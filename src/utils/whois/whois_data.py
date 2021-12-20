@@ -30,10 +30,11 @@ def get_whois_data(domain_id: str, domain_name: str) -> dict:
             "domain_id": domain_id,
             "registrar": resp_data["registrar"],
             "expiration_date": expiration_date,
+            "raw_data": resp_data,
         }
 
         whois_manager.save(resp_data)
 
-        whois_domain = resp_data
+        whois_domain = {key: resp_data[key] for key in resp_data if key != "raw_data"}
 
     return whois_domain
