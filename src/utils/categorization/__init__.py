@@ -33,12 +33,12 @@ PROXIES: List[Dict] = [
         "categorize_url": "https://global.sitesafety.trendmicro.com/",
         "check_url": "https://global.sitesafety.trendmicro.com/",
     },
-    {
-        "name": "Websense",
-        "url": "http://csi.websense.com",
-        "categorize_url": "http://csi.websense.com",
-        "check_url": "http://csi.websense.com",
-    },
+    # {
+    #     "name": "Websense",
+    #     "url": "http://csi.websense.com",
+    #     "categorize_url": "http://csi.websense.com",
+    #     "check_url": "http://csi.websense.com",
+    # },
     {
         "name": "Cisco Talos",
         "url": "https://talosintelligence.com/reputation_center",
