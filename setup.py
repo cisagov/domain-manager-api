@@ -88,7 +88,7 @@ setup(
     include_package_data=True,
     install_requires=[
         "APScheduler==3.8.1",
-        "boto3==1.20.27",
+        "boto3==1.20.31",
         "cognitojwt==1.4.1",
         "dnspython==2.1.0",
         "Faker==11.1.0",
