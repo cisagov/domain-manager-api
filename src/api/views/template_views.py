@@ -64,10 +64,15 @@ class TemplatesView(MethodView):
             if g.is_admin:
                 post_data["is_approved"] = True
 
-            try:
+            existing_template = template_manager.get(filter_data={"name": name})
+
+            if existing_template:
+                template_manager.update(
+                    document_id=existing_template["_id"], data=post_data
+                )
+            else:
                 template_manager.save(post_data)
-            except Exception as e:
-                logger.exception(e)
+
             rvalues.append(post_data)
 
         return jsonify(rvalues, 200)
