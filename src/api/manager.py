@@ -45,6 +45,12 @@ class Manager:
             result[field] = 1
         return result
 
+    def exists(self, parameters=None):
+        """Check if record exists."""
+        fields = self.convert_fields(["_id"])
+        result = list(self.db.find(parameters, fields))
+        return bool(result)
+
     def format_params(self, params):
         """Format params."""
         if not params:

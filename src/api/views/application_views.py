@@ -1,6 +1,7 @@
 """Application Views."""
 # Standard Python Libraries
 from http import HTTPStatus
+import re
 
 # Third-Party Libraries
 from flask import abort, g, jsonify, request
@@ -35,7 +36,19 @@ class ApplicationsView(MethodView):
         """Create an application."""
         if not g.is_admin:
             abort(HTTPStatus.FORBIDDEN.value)
+
         data = validate_data(request.json, ApplicationSchema)
+
+        if application_manager.exists(
+            {
+                "name": {
+                    "$regex": f"^{re.escape(data['name']).strip()}$",
+                    "$options": "i",
+                }
+            }
+        ):
+            return jsonify({"error": "Application with that name already exists."}), 400
+
         return jsonify(application_manager.save(data))
 
 
