@@ -6,7 +6,7 @@ Faker==13.3.2
 Flask==2.0.3
 Flask-Cors==3.0.10
 gunicorn==20.1.0
-marshmallow==3.14.1
+marshmallow==3.15.0
 mongomock==4.0.0
 pymongo==3.12.1
 python-whois==0.7.3
