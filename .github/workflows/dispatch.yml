@@ -16,7 +16,7 @@ jobs:
       - name: Echo branch
         run: echo "${{ steps.ref.outputs.branch }}"
       - name: Repository Dispatch
-        uses: peter-evans/repository-dispatch@v1
+        uses: peter-evans/repository-dispatch@v2
         with:
           token: ${{ secrets.DOMAIN_MANAGER_ACCESS_TOKEN }}
           repository: cisagov/domain-manager-cicd
