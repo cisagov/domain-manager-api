@@ -1,10 +1,10 @@
-FROM golang:1.18.0-alpine AS build
+FROM golang:1.18.3-alpine AS build
 
 WORKDIR /src/
 COPY /src/staticgen/ /src/
 RUN CGO_ENABLED=0 GOOS=linux go build -o /bin/main
 
-FROM python:3.10.4
+FROM python:3.10.5
 
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
