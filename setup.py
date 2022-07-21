@@ -96,7 +96,7 @@ setup(
         "Flask-Cors==3.0.10",
         "gunicorn==20.1.0",
         "marshmallow==3.15.0",
-        "mongomock==4.0.0",
+        "mongomock==4.1.2",
         "pymongo==4.1.1",
         "requests==2.27.1",
         "validators==0.20.0",
