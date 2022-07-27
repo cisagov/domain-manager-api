@@ -11,7 +11,7 @@ import requests  # type: ignore
 # cisagov Libraries
 from api.app import app
 from api.config import EMAIL_SCHEDULE, STATIC_GEN_URL, logger
-from api.manager import LogManager
+from api.manager import ApplicationManager, DomainManager, LogManager, TemplateManager
 from api.tasks import email_categorization_updates
 from api.views.about_views import AboutView
 from api.views.application_views import (
@@ -209,6 +209,21 @@ def log_request(response):
         data["status_code"] = response.status_code
         if data.get("username"):
             log_manager = LogManager()
+            if data.get("args", {}).get("domain_id"):
+                domain_manager = DomainManager()
+                data["domain_name"] = domain_manager.get(
+                    document_id=data["args"]["domain_id"], fields=["name"]
+                )["name"]
+            if data.get("args", {}).get("application_id"):
+                application_manager = ApplicationManager()
+                data["application_name"] = application_manager.get(
+                    document_id=data["args"]["application_id"], fields=["name"]
+                )["name"]
+            if data.get("args", {}).get("template_id"):
+                template_manager = TemplateManager()
+                data["template_name"] = template_manager.get(
+                    document_id=data["args"]["template_id"], fields=["name"]
+                )["name"]
             log_manager.save(data)
     return response
 

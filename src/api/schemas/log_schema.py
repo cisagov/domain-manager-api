@@ -22,3 +22,6 @@ class LogSchema(BaseSchema):
     args = fields.Dict()
     json = fields.Field(allow_none=True)
     error = fields.Str()
+    application_name = fields.Str(required=False)
+    domain_name = fields.Str(required=False)
+    template_name = fields.Str(required=False)
