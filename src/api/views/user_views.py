@@ -196,7 +196,7 @@ class UserAdminStatusView(MethodView):
             )
 
     def delete(self, username):
-        """Remove user admin privlieges."""
+        """Remove user admin privileges."""
         try:
             response = cognito.remove_admin_user(username)
             return jsonify(response)
