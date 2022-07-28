@@ -210,22 +210,23 @@ def log_request(response):
     if request.method != "OPTIONS":
         data = get_request_data()
         data["status_code"] = response.status_code
+        args = data.get("args", {})
         if data.get("username"):
             log_manager = LogManager()
-            if data.get("args", {}).get("domain_id"):
+            if args.get("domain_id"):
                 domain_manager = DomainManager()
                 data["domain_name"] = domain_manager.get(
-                    document_id=data["args"]["domain_id"], fields=["name"]
+                    document_id=args["domain_id"], fields=["name"]
                 )["name"]
-            if data.get("args", {}).get("application_id"):
+            if args.get("application_id"):
                 application_manager = ApplicationManager()
                 data["application_name"] = application_manager.get(
-                    document_id=data["args"]["application_id"], fields=["name"]
+                    document_id=args["application_id"], fields=["name"]
                 )["name"]
-            if data.get("args", {}).get("template_id"):
+            if args.get("template_id"):
                 template_manager = TemplateManager()
                 data["template_name"] = template_manager.get(
-                    document_id=data["args"]["template_id"], fields=["name"]
+                    document_id=args["template_id"], fields=["name"]
                 )["name"]
             log_manager.save(data)
     return response
