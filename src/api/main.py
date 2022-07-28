@@ -169,10 +169,14 @@ app.json_encoder = CustomJSONEncoder
 @app.route("/")
 def api_map():
     """List endpoints for api."""
+    # each value in _rules_by_endpoint is a list with one element.
+    # first index is pulled for quick access to the value's properties
     endpoints = {
         k: f"{v[0].methods}  {v[0].rule}"
         for k, v in app.url_map.__dict__["_rules_by_endpoint"].items()
+        if k not in ["static", "api_map"]
     }
+
     golang_resp = requests.get(f"{STATIC_GEN_URL}/health/")
     return render_template(
         "index.html", endpoints=endpoints, golang_resp=golang_resp.text
