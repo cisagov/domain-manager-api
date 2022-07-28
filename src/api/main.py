@@ -11,7 +11,7 @@ import requests  # type: ignore
 # cisagov Libraries
 from api.app import app
 from api.config import EMAIL_SCHEDULE, STATIC_GEN_URL, logger
-from api.manager import LogManager
+from api.manager import ApplicationManager, DomainManager, LogManager, TemplateManager
 from api.tasks import email_categorization_updates
 from api.views.about_views import AboutView
 from api.views.application_views import (
@@ -99,7 +99,7 @@ rules = [
     ("/template/<template_id>/content/", TemplateContentView),
     ("/templates/attributes/", TemplateAttributesView),
     ("/user/<username>/", UserView),
-    ("/user/<username>/api", UserAPIKeyView),
+    ("/user/<username>/api/", UserAPIKeyView),
     ("/settings/", SettingsView),
 ]
 
@@ -117,9 +117,9 @@ admin_rules = [
     ("/domain/<domain_id>/approve/", DomainApprovalView),
     ("/template/<template_id>/approve/", TemplateApprovalView),
     ("/users/", UsersView),
-    ("/user/<username>/confirm", UserConfirmView),
-    ("/user/<username>/admin", UserAdminStatusView),
-    ("/user/<username>/groups", UserGroupsView),
+    ("/user/<username>/confirm/", UserConfirmView),
+    ("/user/<username>/admin/", UserAdminStatusView),
+    ("/user/<username>/groups/", UserGroupsView),
 ]
 
 for rule in rules:
@@ -169,11 +169,14 @@ app.json_encoder = CustomJSONEncoder
 @app.route("/")
 def api_map():
     """List endpoints for api."""
+    # each value in _rules_by_endpoint is a list with one element.
+    # first index is pulled for quick access to the value's properties
     endpoints = {
-        endpoint.rule: endpoint.methods
-        for endpoint in app.url_map.__dict__["_rules"]
-        if endpoint.rule not in ["/static/<path:filename>", "/"]
+        k: f"{v[0].methods}  {v[0].rule}"
+        for k, v in app.url_map.__dict__["_rules_by_endpoint"].items()
+        if k not in ["static", "api_map"]
     }
+
     golang_resp = requests.get(f"{STATIC_GEN_URL}/health/")
     return render_template(
         "index.html", endpoints=endpoints, golang_resp=golang_resp.text
@@ -207,8 +210,24 @@ def log_request(response):
     if request.method != "OPTIONS":
         data = get_request_data()
         data["status_code"] = response.status_code
+        args = data.get("args", {})
         if data.get("username"):
             log_manager = LogManager()
+            if args.get("domain_id"):
+                domain_manager = DomainManager()
+                data["domain_name"] = domain_manager.get(
+                    document_id=args["domain_id"], fields=["name"]
+                )["name"]
+            if args.get("application_id"):
+                application_manager = ApplicationManager()
+                data["application_name"] = application_manager.get(
+                    document_id=args["application_id"], fields=["name"]
+                )["name"]
+            if args.get("template_id"):
+                template_manager = TemplateManager()
+                data["template_name"] = template_manager.get(
+                    document_id=args["template_id"], fields=["name"]
+                )["name"]
             log_manager.save(data)
     return response
 

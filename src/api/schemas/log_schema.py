@@ -14,11 +14,14 @@ class LogSchema(BaseSchema):
 
         unkown = EXCLUDE
 
-    username = fields.Str()
-    is_admin = fields.Bool()
-    status_code = fields.Number()
-    path = fields.Str()
-    method = fields.Str()
+    application_name = fields.Str(required=False)
     args = fields.Dict()
-    json = fields.Field(allow_none=True)
+    domain_name = fields.Str(required=False)
     error = fields.Str()
+    is_admin = fields.Bool()
+    method = fields.Str()
+    json = fields.Field(allow_none=True)
+    path = fields.Str()
+    status_code = fields.Number()
+    template_name = fields.Str(required=False)
+    username = fields.Str()
