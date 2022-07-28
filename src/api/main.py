@@ -170,9 +170,8 @@ app.json_encoder = CustomJSONEncoder
 def api_map():
     """List endpoints for api."""
     endpoints = {
-        endpoint.rule: endpoint.methods
-        for endpoint in app.url_map.__dict__.get("_rules")
-        if endpoint.rule not in ["/static/<path:filename>", "/"]
+        k: f"{v[0].methods}  {v[0].rule}"
+        for k, v in app.url_map.__dict__["_rules_by_endpoint"].items()
     }
     golang_resp = requests.get(f"{STATIC_GEN_URL}/health/")
     return render_template(
