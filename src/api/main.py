@@ -99,7 +99,7 @@ rules = [
     ("/template/<template_id>/content/", TemplateContentView),
     ("/templates/attributes/", TemplateAttributesView),
     ("/user/<username>/", UserView),
-    ("/user/<username>/api", UserAPIKeyView),
+    ("/user/<username>/api/", UserAPIKeyView),
     ("/settings/", SettingsView),
 ]
 
@@ -117,9 +117,9 @@ admin_rules = [
     ("/domain/<domain_id>/approve/", DomainApprovalView),
     ("/template/<template_id>/approve/", TemplateApprovalView),
     ("/users/", UsersView),
-    ("/user/<username>/confirm", UserConfirmView),
-    ("/user/<username>/admin", UserAdminStatusView),
-    ("/user/<username>/groups", UserGroupsView),
+    ("/user/<username>/confirm/", UserConfirmView),
+    ("/user/<username>/admin/", UserAdminStatusView),
+    ("/user/<username>/groups/", UserGroupsView),
 ]
 
 for rule in rules:
