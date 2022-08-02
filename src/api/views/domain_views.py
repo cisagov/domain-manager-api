@@ -76,6 +76,10 @@ class DomainsView(MethodView):
                 domain["application_name"] = next(
                     filter(lambda x: x["_id"] == domain["application_id"], applications)
                 )["name"]
+            # get who is data
+            domain["whois"] = get_whois_data(
+                domain_id=domain["_id"], domain_name=domain["name"]
+            )
 
         return jsonify(response)
 
