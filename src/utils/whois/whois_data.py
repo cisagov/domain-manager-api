@@ -18,13 +18,20 @@ def get_whois_data(domain_id: str, domain_name: str) -> dict:
     )
 
     if not whois_domain:
-        resp_data = whois(domain_name)
+        try:
+            resp_data = whois.whois(domain_name)
+        except Exception as e:
+            logging.error(e)
+            return {"error": "Whois data not found."}
 
         if not resp_data["expiration_date"]:
-            logging.info(f"No whois data for {domain_name}.")
             return resp_data
 
-        expiration_date = resp_data["expiration_date"].isoformat()
+        expiration_date = resp_data["expiration_date"]
+        if isinstance(expiration_date, list):
+            expiration_date = expiration_date[0].isoformat()
+        else:
+            expiration_date = expiration_date.isoformat()
 
         resp_data = {
             "domain_id": domain_id,
