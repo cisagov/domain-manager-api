@@ -188,7 +188,7 @@ class DomainView(MethodView):
 
         domain = domain_manager.get(document_id=domain_id)
 
-        if domain.get("is_active") and domain.get("records"):
+        if domain and domain.get("is_active") and domain.get("records"):
             return (
                 jsonify(
                     {
@@ -214,7 +214,7 @@ class DomainView(MethodView):
 
         categorization_manager.delete(params={"domain_id": domain["_id"]})
 
-        return jsonify(domain_manager.delete(domain["_id"]))
+        return jsonify(domain_manager.delete(domain["_id"])), 204
 
 
 class DomainContentView(MethodView):
