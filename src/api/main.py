@@ -207,7 +207,7 @@ def get_request_data():
 @app.after_request
 def log_request(response):
     """Log Request."""
-    if request.method != "OPTIONS":
+    if request.method not in ["OPTIONS", "DELETE"]:
         data = get_request_data()
         data["status_code"] = response.status_code
         args = data.get("args", {})

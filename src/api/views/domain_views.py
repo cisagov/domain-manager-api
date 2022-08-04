@@ -44,7 +44,7 @@ from utils.categorization.categorize import (
 from utils.decorators.auth import can_access_domain
 from utils.users import get_users_group_ids
 from utils.validator import validate_data
-from utils.whois.whois_data import get_whois_data
+from utils.whois.whois_data import add_whois_data_to_domains, get_whois_data
 
 categorization_manager = CategorizationManager()
 domain_manager = DomainManager()
@@ -63,21 +63,23 @@ class DomainsView(MethodView):
         """Get all domains."""
         params = dict(request.args)
         if g.is_admin:
-            response = domain_manager.all(params=params)
+            domains = domain_manager.all(
+                params=params,
+                fields=["_id", "name", "template_name", "is_approved", "is_active"],
+            )
         else:
             groups = get_users_group_ids()
             params.update({"application_id": {"$in": groups}})
-            response = domain_manager.all(params=params)
+            domains = domain_manager.all(params=params)
 
         applications = application_manager.all()
 
-        for domain in response:
+        for domain in domains:
             if domain.get("application_id"):
                 domain["application_name"] = next(
                     filter(lambda x: x["_id"] == domain["application_id"], applications)
                 )["name"]
-
-        return jsonify(response)
+        return jsonify(add_whois_data_to_domains(domains))
 
     def post(self):
         """Create a new domain."""
@@ -184,7 +186,7 @@ class DomainView(MethodView):
 
         domain = domain_manager.get(document_id=domain_id)
 
-        if domain.get("is_active") and domain.get("records"):
+        if domain and domain.get("is_active") and domain.get("records"):
             return (
                 jsonify(
                     {
@@ -210,7 +212,7 @@ class DomainView(MethodView):
 
         categorization_manager.delete(params={"domain_id": domain["_id"]})
 
-        return jsonify(domain_manager.delete(domain["_id"]))
+        return jsonify(domain_manager.delete(domain["_id"])), 204
 
 
 class DomainContentView(MethodView):
