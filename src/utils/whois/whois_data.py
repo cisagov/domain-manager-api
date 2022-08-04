@@ -41,11 +41,12 @@ def add_whois_data_to_domains(domains: list) -> list:
         return domains
 
     return [
-        {**d, "whois": w}
+        {
+            **d,
+            "whois": next((w for w in whois_domain if w["domain_id"] == d["_id"]), {}),
+        }
         for d in domains
-        for w in whois_domain
-        if w["domain_id"] == d["_id"]
-    ] + [d for d in domains if d["_id"] not in [w["domain_id"] for w in whois_domain]]
+    ]
 
 
 def get_whois_data(domain_id: str, domain_name: str) -> dict:
