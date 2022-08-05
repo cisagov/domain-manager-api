@@ -38,7 +38,6 @@ def add_whois_data_to_domains(domains: list) -> list:
             whois_manager.save_many(whois_data) if whois_data else None
     except Exception as e:
         logging.error(e)
-        return domains
 
     return [
         {
