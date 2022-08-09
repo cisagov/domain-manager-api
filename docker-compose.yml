@@ -12,7 +12,7 @@ services:
     volumes:
       - ./src:/var/www
     ports:
-      - "5000:5000"
+      - "5001:5000"
       - "8001:8000"
     env_file:
       - .env
@@ -20,6 +20,7 @@ services:
       - backend
 volumes:
   mongodb_data:
+
 
 networks:
   backend:
