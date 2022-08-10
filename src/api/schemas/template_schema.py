@@ -17,5 +17,5 @@ class TemplateSchema(BaseSchema):
 
     name = fields.Str(validate=is_valid_category)
     s3_url = fields.Str()
-    is_approved = fields.Boolean(default=False)
-    is_go_template = fields.Boolean(default=False)
+    is_approved = fields.Boolean(dump_default=False)
+    is_go_template = fields.Boolean(dump_default=False)
