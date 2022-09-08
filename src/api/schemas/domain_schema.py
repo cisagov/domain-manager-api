@@ -153,6 +153,7 @@ class DomainSchema(BaseSchema):
     acm = fields.Dict()
     route53 = fields.Dict()
     records = fields.List(fields.Nested(Record))
+    assessment_id = fields.Str()
 
     @pre_load
     def clean_data(self, in_data, **kwargs):
