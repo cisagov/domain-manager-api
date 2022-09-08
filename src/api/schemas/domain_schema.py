@@ -153,6 +153,9 @@ class DomainSchema(BaseSchema):
     acm = fields.Dict()
     route53 = fields.Dict()
     records = fields.List(fields.Nested(Record))
+    contact_name = fields.Str()
+    contact_email = fields.Email()
+    contact_phone = fields.Str()
 
     @pre_load
     def clean_data(self, in_data, **kwargs):
