@@ -156,6 +156,7 @@ class DomainSchema(BaseSchema):
     contact_name = fields.Str()
     contact_email = fields.Email()
     contact_phone = fields.Str()
+    assessment_id = fields.Str()
 
     @pre_load
     def clean_data(self, in_data, **kwargs):
