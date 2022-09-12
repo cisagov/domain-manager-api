@@ -248,7 +248,7 @@ class DomainContentView(MethodView):
         return send_file(
             buffer,
             as_attachment=True,
-            attachment_filename=f"{domain['name']}.zip",
+            download_name=f"{domain['name']}.zip",
             mimetype="application/zip",
         )
 
