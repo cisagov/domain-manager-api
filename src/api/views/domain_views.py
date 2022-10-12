@@ -65,7 +65,14 @@ class DomainsView(MethodView):
         if g.is_admin:
             domains = domain_manager.all(
                 params=params,
-                fields=["_id", "name", "template_name", "is_approved", "is_active"],
+                fields=[
+                    "_id",
+                    "name",
+                    "template_name",
+                    "is_approved",
+                    "is_active",
+                    "application_id",
+                ],
             )
         else:
             groups = get_users_group_ids()
@@ -79,6 +86,7 @@ class DomainsView(MethodView):
                 domain["application_name"] = next(
                     filter(lambda x: x["_id"] == domain["application_id"], applications)
                 )["name"]
+
         return jsonify(add_whois_data_to_domains(domains))
 
     def post(self):
@@ -240,7 +248,7 @@ class DomainContentView(MethodView):
         return send_file(
             buffer,
             as_attachment=True,
-            attachment_filename=f"{domain['name']}.zip",
+            download_name=f"{domain['name']}.zip",
             mimetype="application/zip",
         )
 

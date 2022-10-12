@@ -12,7 +12,7 @@ class CategorizationSchema(BaseSchema):
 
     domain_id = fields.Str()
     domain_name = fields.Str()
-    is_external = fields.Boolean(default=False)
+    is_external = fields.Boolean(dump_default=False)
     proxy = fields.Str()
     status = fields.Str(
         validate=validate.OneOf(

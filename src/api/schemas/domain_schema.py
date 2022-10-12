@@ -111,7 +111,7 @@ class Record(Schema):
         ),
     )
     name = fields.Str(required=True, validate=validator.is_valid_domain)
-    ttl = fields.Integer(default=30, missing=30)
+    ttl = fields.Integer(dump_default=30, missing=30)
     config = fields.Dict(required=True)
 
     @validates_schema
@@ -138,11 +138,11 @@ class DomainSchema(BaseSchema):
     ip_address = fields.Str()
     application_id = fields.Str(allow_none=True)
     is_active = fields.Boolean()
-    is_approved = fields.Boolean(default=False)
-    is_available = fields.Boolean(default=True)
-    is_launching = fields.Boolean(default=False)
-    is_delaunching = fields.Boolean(default=False)
-    is_generating_template = fields.Boolean(default=False)
+    is_approved = fields.Boolean(dump_default=False)
+    is_available = fields.Boolean(dump_default=True)
+    is_launching = fields.Boolean(dump_default=False)
+    is_delaunching = fields.Boolean(dump_default=False)
+    is_generating_template = fields.Boolean(dump_default=False)
     is_email_active = fields.Boolean()
     is_email_pending = fields.Boolean()
     rejected_msg = fields.Str(allow_none=True)
@@ -153,6 +153,10 @@ class DomainSchema(BaseSchema):
     acm = fields.Dict()
     route53 = fields.Dict()
     records = fields.List(fields.Nested(Record))
+    contact_name = fields.Str()
+    contact_email = fields.Email()
+    contact_phone = fields.Str()
+    assessment_id = fields.Str()
 
     @pre_load
     def clean_data(self, in_data, **kwargs):

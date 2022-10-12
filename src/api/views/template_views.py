@@ -129,7 +129,7 @@ class TemplateContentView(MethodView):
         return send_file(
             buffer,
             as_attachment=True,
-            attachment_filename=f"{template['name']}.zip",
+            download_name=f"{template['name']}.zip",
             mimetype="application/zip",
         )
 
