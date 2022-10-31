@@ -31,6 +31,7 @@ from api.views.category_views import (
     CategorizationsView,
     CategorizationView,
 )
+from api.views.db_views import DatabaseManagementView
 from api.views.domain_views import (
     DomainApprovalView,
     DomainCategorizeView,
@@ -112,6 +113,7 @@ login_rules = [
 ]
 
 admin_rules = [
+    ("/db-mgmt/", DatabaseManagementView),
     ("/application/<application_id>/", ApplicationView),
     ("/application/<application_id>/domains/", ApplicationBulkDomainView),
     ("/domain/<domain_id>/approve/", DomainApprovalView),
