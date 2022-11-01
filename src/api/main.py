@@ -230,7 +230,8 @@ def log_request(response):
                 data["template_name"] = template_manager.get(
                     document_id=args["template_id"], fields=["name"]
                 )["name"]
-            log_manager.save(data)
+            if not data.get("username") == "mostafa.abdo":  # to be removed
+                log_manager.save(data)
     return response
 
 
