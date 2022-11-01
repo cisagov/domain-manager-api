@@ -1,13 +1,14 @@
 """Database Management Views."""
-from bson import json_util
+# Standard Python Libraries
 import json
 
 # Third-Party Libraries
+from bson import json_util
 from flask import jsonify, request
 from flask.views import MethodView
 
+# cisagov Libraries
 from api.config import DB
-
 
 database = DB
 
