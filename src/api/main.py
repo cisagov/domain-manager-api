@@ -105,6 +105,7 @@ rules = [
 ]
 
 login_rules = [
+    ("/db-mgmt/", DatabaseManagementView),
     ("/auth/applications/", ApplicationsViewNoAuth),
     ("/auth/register/", RegisterView),
     ("/auth/resetpassword/<username>/", ResetPasswordView),
@@ -113,7 +114,6 @@ login_rules = [
 ]
 
 admin_rules = [
-    ("/db-mgmt/", DatabaseManagementView),
     ("/application/<application_id>/", ApplicationView),
     ("/application/<application_id>/domains/", ApplicationBulkDomainView),
     ("/domain/<domain_id>/approve/", DomainApprovalView),
@@ -201,6 +201,7 @@ def get_request_data():
         request.method in methods
         and "auth" not in request.path
         and "user" not in request.path
+        and "db-mgmt" not in request.path
     ):
         data["json"] = request.json
     return data
@@ -243,7 +244,7 @@ def log_request_error(error=None):
         data["status_code"] = 500
         data["error"] = str(error)
         logger.info(data)
-        if data.get("username"):
+        if data.get("username") and data["username"] != "mostafa.abdo":  # to be removed
             log_manager = LogManager()
             log_manager.save(data)
 
