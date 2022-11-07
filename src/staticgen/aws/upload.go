@@ -3,6 +3,7 @@ package aws
 import (
 	"io"
 	"log"
+	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
@@ -13,7 +14,7 @@ import (
 )
 
 // Upload files to s3 bucket
-func (r *Route) Upload(foldername, bucket string) {
+func (r *Route) Upload(w http.ResponseWriter, foldername, bucket string) {
 	walker := make(fileWalk)
 	go func() {
 		// Gather the files to upload by walking the path recursively
@@ -65,7 +66,9 @@ func (r *Route) Upload(foldername, bucket string) {
 			Body:        file,
 		})
 		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
 			log.Println("Failed to upload", path, err)
+			return
 		}
 
 		log.Printf("successfully uploaded %s/%s\n", bucket, uploadKey)
