@@ -54,11 +54,11 @@ func TemplateHandler(w http.ResponseWriter, r *http.Request) {
 	templateName := query.Get("template_name")
 	route := aws.Route{TemplateName: templateName, Dir: templateName}
 	if r.Method == "POST" {
-		// Receive and unzip file
+		// Recieve and unzip file
 		foldername, err := Receive(r, templateName)
 		if err != nil {
 			log.Println(err)
-			http.Error(w, "staticgen: uploaded zip file failed", 400)
+			http.Error(w, "staticgen: uploaded zipfile failed", 400)
 		}
 
 		// Check if required files exist
@@ -71,7 +71,7 @@ func TemplateHandler(w http.ResponseWriter, r *http.Request) {
 		// Upload website content if base.html is missing
 		if _, err = os.Stat(path + "/base.html"); os.IsNotExist(err) {
 			// Upload to S3
-			route.Upload(w, foldername, aws.TemplateBucket)
+			route.Upload(foldername, aws.TemplateBucket)
 
 			// Return IsGoTemplate as false
 			resp := TemplateResp{
@@ -87,7 +87,7 @@ func TemplateHandler(w http.ResponseWriter, r *http.Request) {
 		}
 
 		// Upload to S3
-		route.Upload(w, foldername, aws.TemplateBucket)
+		route.Upload(foldername, aws.TemplateBucket)
 
 		// Generate preview from preview data and template
 		context := aws.Context{
@@ -101,7 +101,7 @@ func TemplateHandler(w http.ResponseWriter, r *http.Request) {
 			Email:         "{{ .Email }}",
 		}
 
-		route.Generate(w, &context, aws.TemplateBucket, "true", foldername)
+		route.Generate(&context, aws.TemplateBucket, "true", foldername)
 
 		// Remove local temp files
 		err = os.RemoveAll("tmp/" + templateName)
@@ -155,7 +155,7 @@ func WebsiteHandler(w http.ResponseWriter, r *http.Request) {
 		}
 
 		// Upload to S3
-		route.Upload(w, foldername, aws.WebsiteBucket)
+		route.Upload(foldername, aws.WebsiteBucket)
 
 		// Remove local temp files
 		err = os.RemoveAll("tmp/" + templateName)

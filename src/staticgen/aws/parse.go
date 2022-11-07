@@ -7,7 +7,6 @@ import (
 	"io"
 	"io/fs"
 	"log"
-	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
@@ -19,7 +18,7 @@ import (
 )
 
 // Generate static files and upload static to s3 bucket
-func (r *Route) Generate(w http.ResponseWriter, ctx *Context, bucket, isTemplate, foldername string) {
+func (r *Route) Generate(ctx *Context, bucket, isTemplate, foldername string) {
 	// Gather the files to upload by walking the path recursively
 	walker := make(fileWalk)
 	// Run concurrently
@@ -103,9 +102,7 @@ func (r *Route) Generate(w http.ResponseWriter, ctx *Context, bucket, isTemplate
 				Body:        file,
 			})
 			if err != nil {
-				http.Error(w, err.Error(), http.StatusInternalServerError)
 				log.Println("Failed to upload", path, err)
-				return
 			}
 
 			fmt.Printf("successfully uploaded %s/%s\n", bucket, uploadKey)

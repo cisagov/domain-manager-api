@@ -2,9 +2,6 @@
 # Files already tracked by Git are not affected.
 # See: https://git-scm.com/docs/gitignore
 
-## Docker ##
-Dockerfile-x
-
 # Environments
 .env
 .venv
@@ -40,3 +37,6 @@ htmlcov/
 
 # VS Code
 .vscode/
+
+## Docker ##
+Dockerfile-x
