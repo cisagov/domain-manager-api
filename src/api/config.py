@@ -47,7 +47,7 @@ EMAIL_SCHEDULE = CronTrigger(
 # static gen
 STATIC_GEN_URL = os.environ.get("STATIC_GEN_URL")
 
-if os.environ.get("PYTESTING"):
+if os.environ.get("TESTING"):
     DB = mongomock.MongoClient().db
 else:
     DB = get_db()
