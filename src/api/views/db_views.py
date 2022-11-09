@@ -35,11 +35,15 @@ class DatabaseManagementView(MethodView):
         if not isinstance(collections, dict):
             return jsonify({"error": "Invalid data format."}), 400
 
-        for coll in collections.keys():
+        for coll_name in collections.keys():
+            # drop any potentially existing collection
+            database[coll_name].drop()
+
+            # drop in new collection
             coll_values = []
-            for d in collections[coll]:
+            for d in collections[coll_name]:
                 coll_values.append(d)
 
-            database[coll].insert_many(coll_values) if coll_values else None
+            database[coll_name].insert_many(coll_values) if coll_values else None
 
         return jsonify({"message": "Mongo data successfully restored."})
