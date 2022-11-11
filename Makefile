@@ -29,23 +29,22 @@ logs:
 loc:
 	 loc src
 
-# target: restart - Stop and restart all containers
+# target: restart - Stop and restart api container
 restart:
-	docker-compose stop api
-	docker-compose up -d
+	docker compose restart api
 	docker attach --sig-proxy=false dm-api
 
 # target: up - Run local web server.
 up:
-	 docker-compose up -d
+	 docker compose up -d
 
 # target: stop - Stop all docker containers
 stop:
-	docker-compose stop
+	docker compose stop
 
 # target: down - Remove all docker containers
 down:
-	docker-compose down
+	docker compose down
 
 # target: bash - bash into container
 bash:
