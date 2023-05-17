@@ -4,7 +4,7 @@ WORKDIR /src/
 COPY /src/staticgen/ /src/
 RUN CGO_ENABLED=0 GOOS=linux go build -o /bin/main
 
-FROM python:3.10.7
+FROM python:3.11.3
 
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
