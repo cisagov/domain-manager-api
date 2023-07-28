@@ -5,9 +5,13 @@ flake8
 moto
 pre-commit
 pytest
+<<<<<<< HEAD
 pytest-cov
 pytest-dockerc
 pytest-dotenv
 pytest-env
 pytest-mock
 pytest-pythonpath
+=======
+python-on-whales
+>>>>>>> a9d6c92ea3ca2760e4a18276d06c668058dd3670
