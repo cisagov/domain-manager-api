@@ -1,4 +1,4 @@
-APScheduler==3.9.1
+APScheduler==3.10.4
 boto3==1.26.130
 cognitojwt==1.4.1
 dnspython==2.2.1
